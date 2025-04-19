@@ -1,0 +1,38 @@
+#pragma once
+#include "IGameState.h"
+#include <memory>
+#include <raylib.h>
+#include "GUI/GUI.h"
+
+class Game
+{
+public:
+	Game();
+	~Game();
+
+	void setState(std::unique_ptr<IGameState> newState);
+	void run();
+
+	Vector2 getTexSize() { return Vector2(m_texWidth, m_texHeight); }
+private:
+	std::unique_ptr<IGameState> m_currentState;
+
+	void update();
+	void updateRenderRec();
+	void updateMouse();
+
+	void draw();
+	void drawFPS();
+
+	RenderTexture2D m_renderTexture;
+	Rectangle m_renderRec;
+
+	float m_scale;
+	float m_texWidth;
+	float m_texHeight;
+
+	float m_screenWidth;
+	float m_screenHeight;
+
+	GUI m_gui;
+};
