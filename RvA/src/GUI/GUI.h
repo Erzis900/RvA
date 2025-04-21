@@ -1,5 +1,4 @@
 #pragma once
-#include <raygui-cpp.h>
 
 class Game;
 
@@ -7,17 +6,12 @@ class GUI
 {
 public:
 	GUI(Game& game);
-	void drawGame(Game& game, int cellSize, int rows, float energy);
-	void drawMenu(Game& game);
+	void drawGame(int cellSize, int rows, float energy);
+	void drawMenu();
+	void drawCursor();
 private:
-	void initMenu(Game& game);
-	void initGame(Game& game);
-
 	void drawEnergyBar(int cellSize, int rows, float energy);
+	void drawDefenders();
 
-	rgc::Button m_playButton;
-	rgc::Button m_exitButton;
-
-	rgc::Button m_menuButton;
-	rgc::ProgressBar m_energyBar;
+	Game& m_game;
 };

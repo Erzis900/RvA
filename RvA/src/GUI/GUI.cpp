@@ -3,63 +3,59 @@
 #include "states/MenuState.h"
 #include "states/PlayState.h"
 #include "rlgl.h"
+#include <raygui.h>
 
 GUI::GUI(Game& game)
+	:m_game(game)
 {
-	initMenu(game);
-	initGame(game);
-}
-
-void GUI::initMenu(Game& game)
-{
-	Vector2 btnSize = { 200.f, 60.f };
-
-	m_playButton = rgc::Button(rgc::Bounds({ game.getTexSize().x / 2 - btnSize.x / 2,
-		game.getTexSize().y / 2 - btnSize.y }, btnSize), "Play");
-
-	m_exitButton = rgc::Button(rgc::Bounds({ game.getTexSize().x / 2 - btnSize.x / 2,
-		game.getTexSize().y / 2 }, btnSize), "Exit");
-}
-
-void GUI::initGame(Game& game)
-{
-	Vector2 btnSize = { 64.f, 16.f };
-	m_menuButton = rgc::Button(rgc::Bounds({ game.getTexSize().x - btnSize.x, 0 }, btnSize), "Menu");
 }
 
 void GUI::drawEnergyBar(int cellSize, int rows, float energy)
 {
-	const Rectangle rec = { 0, 0, cellSize * rows, cellSize / 2 };
+	const Rectangle rec = { 0.f, 0.f, float(cellSize * rows), float(cellSize / 2) };
 
 	rlPushMatrix();
 
-	rlTranslatef(cellSize / 2 - rec.height / 2, (1 + rows) * cellSize, 0);
+	rlTranslatef(float(cellSize / 2 - rec.height / 2), float((1 + rows) * cellSize), 0.f);
 	rlRotatef(-90, 0, 0, 1);
 
-	m_energyBar = rgc::ProgressBar(rgc::Bounds(0, 0, cellSize * rows, cellSize / 2), NULL, NULL, energy, 0.f, 100.f);
-	m_energyBar.Show();
+	GuiProgressBar(rec, nullptr, nullptr, &energy, 0.f, 100.f);
 
 	rlPopMatrix();
 }
 
-void GUI::drawGame(Game& game, int cellSize, int rows, float energy)
+void GUI::drawDefenders()
+{
+	Atlas& atlas = m_game.getAtlas();
+	//atlas.drawSprite("")
+}
+
+void GUI::drawGame(int cellSize, int rows, float energy)
 {
 	drawEnergyBar(cellSize, rows, energy);
-	if (m_menuButton.Show())
+
+	Vector2 btnSize = { 64.f, 16.f };
+	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
 	{
-		game.setState(std::make_unique<MenuState>(game));
+		m_game.setState(std::make_unique<MenuState>(m_game));
 	}
 }
 
-void GUI::drawMenu(Game& game)
+void GUI::drawMenu()
 {
-	if (m_exitButton.Show())
+	Vector2 btnSize = { 200.f, 60.f };
+	if (GuiButton({ m_game.getTexSize().x / 2 - btnSize.x / 2, m_game.getTexSize().y / 2, btnSize.x, btnSize.y }, "Exit"))
 	{
 		exit(0);
 	}
 
-	if (m_playButton.Show())
+	if (GuiButton({ m_game.getTexSize().x / 2 - btnSize.x / 2, m_game.getTexSize().y / 2 - btnSize.y, btnSize.x, btnSize.y }, "Play"))
 	{
-		game.setState(std::make_unique<PlayState>(game));
+		m_game.setState(std::make_unique<PlayState>(m_game));
 	}
+}
+
+void GUI::drawCursor()
+{
+	m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});
 }

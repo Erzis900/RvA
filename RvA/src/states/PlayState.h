@@ -1,6 +1,5 @@
 #pragma once
 #include "IGameState.h"
-#include "raygui-cpp.h"
 #include "GUI/GUI.h"
 
 class Game;
@@ -11,7 +10,7 @@ public:
 	PlayState(Game& game);
 
 	void update(Game& game) override;
-	void draw(Game& game, GUI& gui) override;
+	void draw(Game& game) override;
 private:
 	void drawGrid();
 

@@ -4,7 +4,8 @@
 
 PlayState::PlayState(Game& game)
 	:m_cellSize(32), m_cols(18), m_rows(10), m_energy(100.f)
-{ }
+{
+}
 
 void PlayState::drawGrid()
 {
@@ -20,10 +21,11 @@ void PlayState::drawGrid()
 
 void PlayState::update(Game& game)
 {
+
 }
 
-void PlayState::draw(Game& game, GUI& gui)
+void PlayState::draw(Game& game)
 {
 	drawGrid();
-	gui.drawGame(game, m_cellSize, m_rows, m_energy);
+	game.getGUI().drawGame(m_cellSize, m_rows, m_energy);
 }

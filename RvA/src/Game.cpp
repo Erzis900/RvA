@@ -14,6 +14,9 @@ Game::Game()
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
 	m_currentState = std::make_unique<MenuState>(*this);
+	m_atlas.load("assets/atlas.png");
+
+	DisableCursor();
 }
 
 Game::~Game()
@@ -57,7 +60,9 @@ void Game::draw()
 	ClearBackground(GRAY);
 	drawFPS();
 
-	m_currentState->draw(*this, m_gui);
+	m_currentState->draw(*this);
+
+	m_gui.drawCursor();
 
 	EndTextureMode();
 

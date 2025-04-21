@@ -3,6 +3,7 @@
 #include <memory>
 #include <raylib.h>
 #include "GUI/GUI.h"
+#include "atlas/Atlas.h"
 
 class Game
 {
@@ -14,6 +15,9 @@ public:
 	void run();
 
 	Vector2 getTexSize() { return Vector2(m_texWidth, m_texHeight); }
+
+	GUI& getGUI() { return m_gui; }
+	Atlas& getAtlas() { return m_atlas; }
 private:
 	std::unique_ptr<IGameState> m_currentState;
 
@@ -35,4 +39,5 @@ private:
 	float m_screenHeight;
 
 	GUI m_gui;
+	Atlas m_atlas;
 };

@@ -4,7 +4,7 @@
 MenuState::MenuState(Game& game)
 {}
 
-void MenuState::draw(Game& game, GUI& gui)
+void MenuState::draw(Game& game)
 {
-	gui.drawMenu(game);
+	game.getGUI().drawMenu();
 }

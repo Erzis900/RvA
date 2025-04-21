@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -51,6 +52,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -104,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\RvA\deps\raylib\include;$(SolutionDir)\RvA\deps\raygui-cpp\include;$(SolutionDir)\RvA\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\RvA\deps\raylib\include;$(SolutionDir)\RvA\deps\raygui;$(SolutionDir)\RvA\deps\libtextureatlas\include;$(SolutionDir)\RvA\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -126,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\RvA\deps\raylib\include;$(SolutionDir)\RvA\deps\raygui-cpp\include;$(SolutionDir)\RvA\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\RvA\deps\raylib\include;$(SolutionDir)\RvA\deps\raygui;$(SolutionDir)\RvA\deps\libtextureatlas\include;$(SolutionDir)\RvA\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -143,44 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Bounds.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Button.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\CheckBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorBarAlpha.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorBarHue.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorPanel.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorPanelHSV.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorPicker.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ColorPickerHSV.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ComboBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\DropdownBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\DummyRec.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Globals.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Grid.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\GroupBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Label.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\LabelButton.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Line.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ListView.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ListViewEx.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\MessageBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Paintable.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Panel.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ProgressBar.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ScrollPanel.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Slider.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\SliderBar.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Spinner.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\StatusBar.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Style.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\TabBar.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\TextBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\TextInputBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\Toggle.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ToggleGroup.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ToggleSlider.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\ValueBox.cpp" />
-    <ClCompile Include="deps\raygui-cpp\src\raygui-cpp\WindowBox.cpp" />
+    <ClCompile Include="deps\libtextureatlas\src\textureatlas.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\atlas\Atlas.cpp" />
     <ClCompile Include="src\GUI\GUI.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -188,50 +159,9 @@
     <ClCompile Include="src\states\MenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Bounds.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Button.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\CheckBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorBarAlpha.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorBarHue.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorPanel.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorPanelHSV.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorPicker.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ColorPickerHSV.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ComboBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Component.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Directives.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\DropdownBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\DummyRec.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Globals.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Grid.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\GroupBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Label.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\LabelButton.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Line.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ListView.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ListViewEx.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Margin.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\MessageBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Paintable.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Panel.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ProgressBar.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ScrollPanel.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Slider.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\SliderBar.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Spinner.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\StatusBar.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Style.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\TabBar.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\TextBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\TextInputBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Toggle.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ToggleGroup.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ToggleSlider.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\Utils.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\ValueBox.h" />
-    <ClInclude Include="deps\raygui-cpp\include\raygui-cpp\WindowBox.h" />
+    <ClInclude Include="deps\libtextureatlas\include\textureatlas.h" />
     <ClInclude Include="deps\raygui-cpp\include\raygui.h" />
+    <ClInclude Include="src\atlas\Atlas.h" />
     <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\IGameState.h" />
