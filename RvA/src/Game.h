@@ -20,10 +20,12 @@ public:
 	Atlas& getAtlas() { return m_atlas; }
 private:
 	std::unique_ptr<IGameState> m_currentState;
+	std::unique_ptr<IGameState> m_nextState;
 
 	void update();
 	void updateRenderRec();
 	void updateMouse();
+	void updateTransition(float dt);
 
 	void draw();
 	void drawFPS();
@@ -37,6 +39,12 @@ private:
 
 	float m_screenWidth;
 	float m_screenHeight;
+
+	// Transition
+	float m_fadeAlpha;
+	bool m_fadingOut;
+	bool m_fadingIn;
+	float m_transitionTime;
 
 	GUI m_gui;
 	Atlas m_atlas;

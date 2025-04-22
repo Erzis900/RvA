@@ -1,6 +1,7 @@
 #pragma once
 #include "IGameState.h"
 #include "GUI/GUI.h"
+#include "enemy/EnemyManager.h"
 
 class Game;
 
@@ -19,4 +20,6 @@ private:
 	int m_cellSize;
 
 	float m_energy;
+
+	EnemyManager m_enemyManager;
 };

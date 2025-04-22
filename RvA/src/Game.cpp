@@ -8,7 +8,7 @@ Game::Game()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
-	SetTargetFPS(60);
+	//SetTargetFPS(60);
 
 	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
@@ -17,6 +17,8 @@ Game::Game()
 	m_atlas.load("assets/atlas.png");
 
 	DisableCursor();
+
+	m_transitionTime = 4.f;
 }
 
 Game::~Game()
@@ -27,9 +29,19 @@ Game::~Game()
 
 void Game::update()
 {
+	float dt = GetFrameTime();
 	updateRenderRec();
 	updateMouse();
 	m_currentState->update(*this);
+
+	if (m_fadingOut || m_fadingIn)
+	{
+		updateTransition(dt);
+	}
+	else
+	{
+		m_currentState->update(*this);
+	}
 }
 
 void Game::updateRenderRec()
@@ -64,6 +76,12 @@ void Game::draw()
 
 	m_gui.drawCursor();
 
+	if (m_fadingOut || m_fadingIn)
+	{
+		Color fadeColor = Fade(BLACK, m_fadeAlpha);
+		DrawRectangle(0, 0, int(m_texWidth), int(m_texHeight), fadeColor);
+	}
+
 	EndTextureMode();
 
 	BeginDrawing();
@@ -83,7 +101,30 @@ void Game::drawFPS()
 
 void Game::setState(std::unique_ptr<IGameState> newState)
 {
-	m_currentState = std::move(newState);
+	m_nextState = std::move(newState);
+	m_fadingOut = true;
+}
+void Game::updateTransition(float dt)
+{
+	if (m_fadingOut)
+	{
+		m_fadeAlpha += dt * m_transitionTime;
+		if (m_fadeAlpha >= 1.f)
+		{
+			m_currentState = std::move(m_nextState);
+			m_fadingOut = false;
+			m_fadingIn = true;
+		}
+	}
+	else if (m_fadingIn)
+	{
+		m_fadeAlpha -= dt * m_transitionTime;
+		if (m_fadeAlpha <= 0.f)
+		{
+			m_fadingIn = false;
+			m_fadeAlpha = 0.f;
+		}
+	}
 }
 
 void Game::run()

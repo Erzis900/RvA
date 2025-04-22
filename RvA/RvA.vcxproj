@@ -145,12 +145,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="deps\libtextureatlas\src\textureatlas.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\enemy\Enemy.cpp" />
+    <ClCompile Include="src\enemy\EnemyManager.cpp" />
     <ClCompile Include="src\atlas\Atlas.cpp" />
     <ClCompile Include="src\GUI\GUI.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -159,8 +162,11 @@
     <ClCompile Include="src\states\MenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Animation.h" />
     <ClInclude Include="deps\libtextureatlas\include\textureatlas.h" />
     <ClInclude Include="deps\raygui-cpp\include\raygui.h" />
+    <ClInclude Include="src\enemy\Enemy.h" />
+    <ClInclude Include="src\enemy\EnemyManager.h" />
     <ClInclude Include="src\atlas\Atlas.h" />
     <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Game.h" />

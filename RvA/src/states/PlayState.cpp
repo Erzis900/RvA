@@ -3,7 +3,7 @@
 #include "Game.h"
 
 PlayState::PlayState(Game& game)
-	:m_cellSize(32), m_cols(18), m_rows(10), m_energy(100.f)
+	:m_cellSize(32), m_cols(18), m_rows(10), m_energy(100.f), m_enemyManager(game, m_rows, m_cellSize)
 {
 }
 
@@ -21,11 +21,13 @@ void PlayState::drawGrid()
 
 void PlayState::update(Game& game)
 {
-
+	float dt = GetFrameTime();
+	m_enemyManager.update(dt);
 }
 
 void PlayState::draw(Game& game)
 {
 	drawGrid();
+	m_enemyManager.draw();
 	game.getGUI().drawGame(m_cellSize, m_rows, m_energy);
 }

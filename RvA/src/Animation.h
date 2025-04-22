@@ -1,0 +1,19 @@
+#pragma once
+#include "atlas/Atlas.h"
+
+class Animation
+{
+public:
+    Animation(std::string& name, float frameTime, Atlas& atlas);
+
+    void update(float dt);
+    int getCurrentFrame() { return m_currentFrame; }
+private:
+    std::string m_name;
+    float m_frameTime;
+    int m_currentFrame;
+    float m_elapsedTime;
+	int m_totalFrames;
+
+    Atlas& m_atlas;
+};
