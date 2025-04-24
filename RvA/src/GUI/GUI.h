@@ -16,6 +16,8 @@ public:
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
 	int& getBatteries() { return batteries; }
 	bool isPaused() const { return m_paused; }
+
+	void reset();
 private:
 	void drawEnergyBar(int cellSize, int rows, float energy);
 	void drawDefenders(int cellSize);

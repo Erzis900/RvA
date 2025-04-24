@@ -22,6 +22,12 @@ const char* getSpriteName(DefenderType type)
 	}
 }
 
+void GUI::reset()
+{
+	batteries = 0;
+	m_selectedDefender = DefenderType::None;
+}
+
 void GUI::drawEnergyBar(int cellSize, int rows, float energy)
 {
 	const Rectangle rec = { 0.f, 0.f, float(cellSize * rows), float(cellSize / 2) };
@@ -95,6 +101,7 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 	{
 		m_paused = !m_paused;
 	}
+	if (m_paused) DrawText("Paused", int(m_game.getTexSize().x / 2 - MeasureText("Paused", 20) / 2), int(m_game.getTexSize().y / 2 - 10), 20, WHITE);
 }
 
 void GUI::drawCursor()

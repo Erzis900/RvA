@@ -15,6 +15,7 @@ void MenuState::draw(Game& game)
 
 	if (GuiButton({ game.getTexSize().x / 2 - btnSize.x / 2, game.getTexSize().y / 2 - btnSize.y, btnSize.x, btnSize.y }, "Play"))
 	{
+		game.getGUI().reset();
 		game.setState(std::make_unique<PlayState>(game));
 	}
 }
