@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
     <ClCompile Include="src\defender\Defender.cpp" />
     <ClCompile Include="src\Animation.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="src\states\MenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\defender\DefenderManager.h" />
     <ClInclude Include="src\defender\Defender.h" />

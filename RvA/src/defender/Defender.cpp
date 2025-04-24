@@ -1,6 +1,8 @@
 #include "Defender.h"
 #include "Game.h"
 #include <iostream>
+#include "states/LostState.h"
+#include <memory>
 
 std::string Defender::getDefenderTypeName(DefenderType type)
 {
@@ -14,9 +16,9 @@ std::string Defender::getDefenderTypeName(DefenderType type)
     }
 }
 
-Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Atlas& atlas)
-    : m_position(position), m_type(type), m_name(getDefenderTypeName(type)), m_animation(m_name, 0.1f, atlas),
-	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0)
+Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game)
+    : m_position(position), m_type(type), m_name(getDefenderTypeName(type)), m_animation(m_name, 0.1f, game.getAtlas()),
+	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0), m_game(game)
 {
 	std::string baseName = m_name.substr(0, m_name.find("_idle"));
 	m_offName = baseName + "_off";
@@ -26,7 +28,7 @@ Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType ty
 	case DefenderType::Solar:
 		m_maxHp = 100;
 		m_energyDelta = 5.f;
-		m_batteryDelta = 10.f;
+		m_batteryDelta = 5.f;
 		break;
 	case DefenderType::Shooter:
 		m_maxHp = 150;
@@ -51,7 +53,10 @@ void Defender::updateEnergy(float dt, float& energy)
 		energy += dt * m_energyDelta;
 
 		if (energy > 100.f) energy = 100.f;
-		if (energy < 0.f) energy = 0.f;
+		if (energy < 0.f)
+		{
+			m_game.setState(std::make_unique<LostState>(m_game));
+		}
 	}
 }
 

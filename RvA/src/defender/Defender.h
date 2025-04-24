@@ -10,7 +10,7 @@ class Atlas;
 class Defender
 {
 public:
-    Defender(Vector2 position, int row, int col, int cost, DefenderType type, Atlas& atlas);
+    Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game);
 
     void update(float dt, float& energy, int &batteries);
     void draw(Game& game, int cellSize);
@@ -43,4 +43,6 @@ private:
     std::string getDefenderTypeName(DefenderType type);
     void updateEnergy(float dt, float& energy);
 	void updateBatteries(float dt, int& batteries);
+
+    Game& m_game;
 };

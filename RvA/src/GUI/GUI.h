@@ -10,7 +10,6 @@ class GUI
 public:
 	GUI(Game& game);
 	void drawGame(int cellSize, int rows, float energy, DefenderManager& defenderManager);
-	void drawMenu();
 	void drawCursor();
 	void drawHp(int cellSize, int hp, int maxHp, Vector2 pos);
 

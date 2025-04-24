@@ -92,20 +92,6 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 	}
 }
 
-void GUI::drawMenu()
-{
-	Vector2 btnSize = { 200.f, 60.f };
-	if (GuiButton({ m_game.getTexSize().x / 2 - btnSize.x / 2, m_game.getTexSize().y / 2, btnSize.x, btnSize.y }, "Exit"))
-	{
-		exit(0);
-	}
-
-	if (GuiButton({ m_game.getTexSize().x / 2 - btnSize.x / 2, m_game.getTexSize().y / 2 - btnSize.y, btnSize.x, btnSize.y }, "Play"))
-	{
-		m_game.setState(std::make_unique<PlayState>(m_game));
-	}
-}
-
 void GUI::drawCursor()
 {
 	m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});

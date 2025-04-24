@@ -48,7 +48,7 @@ void DefenderManager::handlePlace(int cellSize, int rows)
 
                     if (cost <= m_game.getGUI().getBatteries())
                     {
-                        m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game.getAtlas()));
+                        m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game));
                         m_occupied[row][col] = true;
 						m_game.getGUI().getBatteries() -= cost;
                     }

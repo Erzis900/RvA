@@ -4,10 +4,10 @@
 
 class Game;
 
-class MenuState : public IGameState
+class LostState : public IGameState
 {
 public:
-	MenuState(Game& game);
+	LostState(Game& game);
 	void draw(Game& game) override;
 private:
 	Vector2 btnSize;
