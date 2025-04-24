@@ -7,11 +7,11 @@ DefenderManager::DefenderManager(Game& game)
 {
 }
 
-void DefenderManager::update(float dt, int cellSize, int rows, float& energy)
+void DefenderManager::update(float dt, int cellSize, int rows, float& energy, int &batteries)
 {
     for (auto& defender : m_defenders)
     {
-        defender->update(dt, energy);
+        defender->update(dt, energy, batteries);
     }
     handlePlace(cellSize, rows);
 }
@@ -26,26 +26,32 @@ void DefenderManager::draw(int cellSize)
 
 void DefenderManager::handlePlace(int cellSize, int rows)
 {
-	DefenderType type = m_game.getGUI().getSelectedDefender();
-
     if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
     {
         Vector2 mousePos = GetMousePosition();
+
         if (mousePos.x > cellSize && mousePos.y > cellSize && mousePos.x < m_game.getTexSize().x - cellSize &&
             mousePos.y < m_game.getTexSize().y - (m_game.getTexSize().y - (rows + 1) * cellSize))
         {
-            int row = int(mousePos.x) / cellSize;
-            int col = int(mousePos.y) / cellSize;
+            int row = int(mousePos.x) / cellSize - 1;
+            int col = int(mousePos.y) / cellSize - 1;
 
+            DefenderType type = m_game.getGUI().getSelectedDefender();
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && type != DefenderType::None)
             {
                 if (!m_occupied[row][col])
                 {
-                    float x = float(row * cellSize);
-                    float y = float(col * cellSize);
+                    float x = float(row * cellSize + cellSize);
+                    float y = float(col * cellSize + cellSize);
 
-                    m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, type, m_game.getAtlas()));
-                    m_occupied[row][col] = true;
+                    int cost = m_costs[static_cast<int>(type)];
+
+                    if (cost <= m_game.getGUI().getBatteries())
+                    {
+                        m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game.getAtlas()));
+                        m_occupied[row][col] = true;
+						m_game.getGUI().getBatteries() -= cost;
+                    }
 				}
 			}
 			else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))

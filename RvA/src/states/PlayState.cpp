@@ -23,7 +23,7 @@ void PlayState::drawGrid()
 void PlayState::update(Game& game, float dt)
 {
 	m_enemyManager.update(dt, m_cellSize, m_rows);
-	m_defenderManager.update(dt, m_cellSize, m_rows, m_energy);
+	m_defenderManager.update(dt, m_cellSize, m_rows, m_energy, game.getGUI().getBatteries());
 }
 
 void PlayState::draw(Game& game)
@@ -33,5 +33,5 @@ void PlayState::draw(Game& game)
 	m_defenderManager.draw(m_cellSize);
 	m_enemyManager.draw(m_cellSize);
 
-	game.getGUI().drawGame(m_cellSize, m_rows, m_energy);
+	game.getGUI().drawGame(m_cellSize, m_rows, m_energy, m_defenderManager);
 }

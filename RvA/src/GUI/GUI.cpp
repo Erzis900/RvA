@@ -68,10 +68,22 @@ void GUI::drawDefenders(int cellSize)
 	}
 }
 
-void GUI::drawGame(int cellSize, int rows, float energy)
+void GUI::drawCosts(int cellSize, DefenderManager& defenderManager)
+{
+	for (int i = 0; i < int(DefenderType::None); i++)
+	{
+		Vector2 position = { float(cellSize + cellSize * i), 0.f };
+		std::string costText = std::to_string(defenderManager.getCosts()[i]);
+		DrawText(costText.c_str(), int(position.x), int(position.y), 10, WHITE);
+	}
+}
+
+void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defenderManager)
 {
 	drawEnergyBar(cellSize, rows, energy);
 	drawDefenders(cellSize);
+	drawCosts(cellSize, defenderManager);
+	DrawText(TextFormat("%d", batteries), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))

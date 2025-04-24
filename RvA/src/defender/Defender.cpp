@@ -1,5 +1,6 @@
 #include "Defender.h"
 #include "Game.h"
+#include <iostream>
 
 std::string Defender::getDefenderTypeName(DefenderType type)
 {
@@ -13,9 +14,9 @@ std::string Defender::getDefenderTypeName(DefenderType type)
     }
 }
 
-Defender::Defender(Vector2 position, int row, int col, DefenderType type, Atlas& atlas)
+Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Atlas& atlas)
     : m_position(position), m_type(type), m_name(getDefenderTypeName(type)), m_animation(m_name, 0.1f, atlas),
-	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false)
+	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0)
 {
 	std::string baseName = m_name.substr(0, m_name.find("_idle"));
 	m_offName = baseName + "_off";
@@ -25,6 +26,7 @@ Defender::Defender(Vector2 position, int row, int col, DefenderType type, Atlas&
 	case DefenderType::Solar:
 		m_maxHp = 100;
 		m_energyDelta = 5.f;
+		m_batteryDelta = 10.f;
 		break;
 	case DefenderType::Shooter:
 		m_maxHp = 150;
@@ -53,10 +55,26 @@ void Defender::updateEnergy(float dt, float& energy)
 	}
 }
 
-void Defender::update(float dt, float& energy)
+void Defender::updateBatteries(float dt, int& batteries)
+{
+	if (m_active)
+	{
+		static float elapsedTime = 0.f;
+		elapsedTime += dt;
+
+		if (elapsedTime >= 1.f)
+		{
+			elapsedTime = 0.f;
+			batteries += m_batteryDelta;
+		}
+	}
+}
+
+void Defender::update(float dt, float& energy, int &batteries)
 {
 	m_animation.update(dt);
 	updateEnergy(dt, energy);
+	updateBatteries(dt, batteries);
 }
 
 void Defender::draw(Game& game, int cellSize)
