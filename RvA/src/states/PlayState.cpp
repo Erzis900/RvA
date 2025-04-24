@@ -22,6 +22,8 @@ void PlayState::drawGrid()
 
 void PlayState::update(Game& game, float dt)
 {
+	if (game.getGUI().isPaused()) return;
+
 	m_enemyManager.update(dt, m_cellSize, m_rows);
 	m_defenderManager.update(dt, m_cellSize, m_rows, m_energy, game.getGUI().getBatteries());
 }

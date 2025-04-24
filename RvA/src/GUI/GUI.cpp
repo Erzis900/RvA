@@ -90,6 +90,11 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 	{
 		m_game.setState(std::make_unique<MenuState>(m_game));
 	}
+
+	if (GuiButton({ m_game.getTexSize().x - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause"))
+	{
+		m_paused = !m_paused;
+	}
 }
 
 void GUI::drawCursor()

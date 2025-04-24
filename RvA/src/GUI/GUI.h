@@ -15,12 +15,14 @@ public:
 
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
 	int& getBatteries() { return batteries; }
+	bool isPaused() const { return m_paused; }
 private:
 	void drawEnergyBar(int cellSize, int rows, float energy);
 	void drawDefenders(int cellSize);
 	void drawCosts(int cellSize, DefenderManager& defenderManager);
 
 	int batteries;
+	bool m_paused;
 
 	Game& m_game;
 	DefenderType m_selectedDefender;
