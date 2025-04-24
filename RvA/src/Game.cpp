@@ -8,7 +8,7 @@ Game::Game()
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
-	//SetTargetFPS(60);
+	SetTargetFPS(60);
 
 	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
@@ -18,7 +18,7 @@ Game::Game()
 
 	DisableCursor();
 
-	m_transitionTime = 4.f;
+	m_transitionSpeed = 4.f;
 }
 
 Game::~Game()
@@ -32,7 +32,6 @@ void Game::update()
 	float dt = GetFrameTime();
 	updateRenderRec();
 	updateMouse();
-	m_currentState->update(*this);
 
 	if (m_fadingOut || m_fadingIn)
 	{
@@ -40,7 +39,7 @@ void Game::update()
 	}
 	else
 	{
-		m_currentState->update(*this);
+		m_currentState->update(*this, dt);
 	}
 }
 
@@ -70,7 +69,6 @@ void Game::draw()
 	BeginTextureMode(m_renderTexture);
 
 	ClearBackground(GRAY);
-	drawFPS();
 
 	m_currentState->draw(*this);
 
@@ -82,6 +80,7 @@ void Game::draw()
 		DrawRectangle(0, 0, int(m_texWidth), int(m_texHeight), fadeColor);
 	}
 
+	drawFPS();
 	EndTextureMode();
 
 	BeginDrawing();
@@ -108,7 +107,7 @@ void Game::updateTransition(float dt)
 {
 	if (m_fadingOut)
 	{
-		m_fadeAlpha += dt * m_transitionTime;
+		m_fadeAlpha += dt * m_transitionSpeed;
 		if (m_fadeAlpha >= 1.f)
 		{
 			m_currentState = std::move(m_nextState);
@@ -118,7 +117,7 @@ void Game::updateTransition(float dt)
 	}
 	else if (m_fadingIn)
 	{
-		m_fadeAlpha -= dt * m_transitionTime;
+		m_fadeAlpha -= dt * m_transitionSpeed;
 		if (m_fadeAlpha <= 0.f)
 		{
 			m_fadingIn = false;

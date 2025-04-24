@@ -2,10 +2,10 @@
 #include <raylib.h>
 #include "Game.h"
 #include <iostream>
+#include "EnemyTypes.h"
 
-EnemyManager::EnemyManager(Game& game, int rows, int cellSize)
-    : m_rows(rows), m_cellSize(cellSize),
-	m_spawnTimer(0.0f), m_spawnInterval(1.f), m_game(game)
+EnemyManager::EnemyManager(Game& game)
+    :m_game(game), m_spawnTimer(0.0f), m_spawnInterval(1.f)
 {
     m_spawnData = {
         { "b1_alien_walk", 0.7f },
@@ -13,12 +13,12 @@ EnemyManager::EnemyManager(Game& game, int rows, int cellSize)
     };
 }
 
-void EnemyManager::update(float dt)
+void EnemyManager::update(float dt, int cellSize, int rows)
 {
     m_spawnTimer += dt;
     if (m_spawnTimer >= m_spawnInterval)
     {
-        spawnEnemy();
+        spawnEnemy(cellSize, rows);
         m_spawnTimer = 0.f;
     }
 
@@ -29,23 +29,23 @@ void EnemyManager::update(float dt)
 
     m_enemies.erase(
         std::remove_if(m_enemies.begin(), m_enemies.end(),
-            [this](const std::unique_ptr<Enemy>& enemy)
+            [cellSize](const std::unique_ptr<Enemy>& enemy)
             {
-                return enemy->getPosition().x < m_cellSize * 1.5f;
+                return enemy->getPosition().x < cellSize * 1.5f;
             }),
         m_enemies.end()
     );
 }
 
-void EnemyManager::draw()
+void EnemyManager::draw(int cellSize)
 {
     for (auto& enemy : m_enemies)
     {
-        enemy->draw(m_game);
+        enemy->draw(m_game, cellSize);
     }
 }
 
-void EnemyManager::spawnEnemy()
+void EnemyManager::spawnEnemy(int cellSize, int rows)
 {
     float randomValue = GetRandomValue(0, 100) / 100.0f;
 
@@ -62,9 +62,17 @@ void EnemyManager::spawnEnemy()
         }
     }
 
-    int randomRow = GetRandomValue(0, m_rows - 1);
-    float x = m_game.getTexSize().x - m_cellSize * 2.f;
-    int y = (randomRow + 1) * m_cellSize;
+    EnemyType type;
+    if (selectedName == "b1_alien_walk") {
+        type = EnemyType::B1;
+    }
+    else if (selectedName == "b2_alien_walk") {
+        type = EnemyType::B2;
+    }
 
-    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, selectedName, m_game.getAtlas()));
+    int randomRow = GetRandomValue(0, rows - 1);
+    float x = m_game.getTexSize().x - cellSize * 2.f;
+    int y = (randomRow + 1) * cellSize;
+
+    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas()));
 }

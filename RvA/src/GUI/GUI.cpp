@@ -6,8 +6,20 @@
 #include <raygui.h>
 
 GUI::GUI(Game& game)
-	:m_game(game)
+	:m_game(game), m_selectedDefender(DefenderType::None)
 {
+}
+
+const char* getSpriteName(DefenderType type)
+{
+	switch (type)
+	{
+	case DefenderType::Solar: return "solar_idle";
+	case DefenderType::Shooter: return "shooter_idle";
+	case DefenderType::Catapult: return "catapult_idle";
+	case DefenderType::Lasertron: return "lasertron_idle";
+	default: return "";
+	}
 }
 
 void GUI::drawEnergyBar(int cellSize, int rows, float energy)
@@ -24,15 +36,42 @@ void GUI::drawEnergyBar(int cellSize, int rows, float energy)
 	rlPopMatrix();
 }
 
-void GUI::drawDefenders()
+void GUI::drawDefenders(int cellSize)
 {
-	Atlas& atlas = m_game.getAtlas();
-	//atlas.drawSprite("")
+	DefenderType types[] = {
+		DefenderType::Solar,
+		DefenderType::Shooter,
+		DefenderType::Catapult,
+		DefenderType::Lasertron
+	};
+
+	for (int i = 0; i < int(DefenderType::None); i++)
+	{
+		Vector2 position = { float(cellSize + cellSize * i), 0.f };
+		m_game.getAtlas().drawSprite(getSpriteName(types[i]), position);
+
+		Rectangle rect = { position.x, position.y, float(cellSize), float(cellSize) };
+
+		if (m_selectedDefender == types[i])
+		{
+			DrawRectangleLinesEx(rect, 1, GREEN);
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), rect))
+		{
+			DrawRectangleLinesEx(rect, 1, SKYBLUE);
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+			{
+				m_selectedDefender = types[i];
+			}
+		}
+	}
 }
 
 void GUI::drawGame(int cellSize, int rows, float energy)
 {
 	drawEnergyBar(cellSize, rows, energy);
+	drawDefenders(cellSize);
 
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
@@ -58,4 +97,18 @@ void GUI::drawMenu()
 void GUI::drawCursor()
 {
 	m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});
+}
+
+void GUI::drawHp(int cellSize, int hp, int maxHp, Vector2 pos)
+{
+	float barWidth = float(cellSize);
+	float barHeight = 3.f;
+	float hpPercent = float(hp) / float(maxHp);
+
+	Vector2 barPos = { pos.x, pos.y + cellSize };
+	Rectangle bg = { barPos.x, barPos.y, barWidth, barHeight };
+	Rectangle fg = { barPos.x, barPos.y, barWidth * hpPercent, barHeight };
+
+	DrawRectangleRec(bg, DARKGRAY);
+	DrawRectangleRec(fg, GREEN);
 }

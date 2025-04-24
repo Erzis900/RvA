@@ -4,12 +4,12 @@
 class Animation
 {
 public:
-    Animation(std::string& name, float frameTime, Atlas& atlas);
+    Animation(std::string name, float frameTime, Atlas& atlas);
 
     void update(float dt);
     int getCurrentFrame() { return m_currentFrame; }
 private:
-    std::string m_name;
+    const char* m_name;
     float m_frameTime;
     int m_currentFrame;
     float m_elapsedTime;

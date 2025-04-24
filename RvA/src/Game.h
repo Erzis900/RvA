@@ -44,7 +44,7 @@ private:
 	float m_fadeAlpha;
 	bool m_fadingOut;
 	bool m_fadingIn;
-	float m_transitionTime;
+	float m_transitionSpeed;
 
 	GUI m_gui;
 	Atlas m_atlas;

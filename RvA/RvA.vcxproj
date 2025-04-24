@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\defender\DefenderManager.cpp" />
+    <ClCompile Include="src\defender\Defender.cpp" />
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="deps\libtextureatlas\src\textureatlas.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -162,12 +164,17 @@
     <ClCompile Include="src\states\MenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\constants.h" />
+    <ClInclude Include="src\defender\DefenderManager.h" />
+    <ClInclude Include="src\defender\Defender.h" />
     <ClInclude Include="src\Animation.h" />
     <ClInclude Include="deps\libtextureatlas\include\textureatlas.h" />
     <ClInclude Include="deps\raygui-cpp\include\raygui.h" />
+    <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\enemy\Enemy.h" />
     <ClInclude Include="src\enemy\EnemyManager.h" />
     <ClInclude Include="src\atlas\Atlas.h" />
+    <ClInclude Include="src\enemy\EnemyTypes.h" />
     <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\IGameState.h" />

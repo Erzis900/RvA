@@ -1,9 +1,32 @@
 #include "Enemy.h"
 #include "Game.h"
 
-Enemy::Enemy(Vector2 position, std::string name, Atlas& atlas)
-	: m_position(position), m_speed(20.0f), m_name(name), m_animation(name, 0.2f, atlas)
+std::string Enemy::getEnemyTypeName(EnemyType type)
 {
+    switch (type)
+    {
+    case EnemyType::B1: return "b1_alien_walk";
+    case EnemyType::B2: return "b2_alien_walk";
+    default: return "";
+    }
+}
+
+Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas)
+	: m_position(position), m_animation(getEnemyTypeName(type), 0.1f, atlas)
+{
+    switch (type)
+    {
+    case EnemyType::B1:
+        m_maxHp = 100;
+        m_speed = 40.f;
+        break;
+    case EnemyType::B2:
+        m_maxHp = 150;
+        m_speed = 80.f;
+        break;
+    }
+	m_hp = m_maxHp;
+	m_name = getEnemyTypeName(type);
 }
 
 void Enemy::update(float dt)
@@ -12,7 +35,8 @@ void Enemy::update(float dt)
 	m_animation.update(dt);
 }
 
-void Enemy::draw(Game& game)
+void Enemy::draw(Game& game, int cellSize)
 {
 	game.getAtlas().drawAnimation(m_name.c_str(), m_position, m_animation.getCurrentFrame());
+	game.getGUI().drawHp(cellSize, m_hp, m_maxHp, m_position);
 }
