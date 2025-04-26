@@ -6,7 +6,7 @@
 #include <raygui.h>
 
 GUI::GUI(Game& game)
-	:m_game(game), m_selectedDefender(DefenderType::None)
+	:m_game(game), m_selectedDefender(DefenderType::None), m_defenderHover(false)
 {
 }
 
@@ -24,7 +24,7 @@ const char* getSpriteName(DefenderType type)
 
 void GUI::reset()
 {
-	batteries = 0;
+	m_batteries = 0;
 	m_selectedDefender = DefenderType::None;
 }
 
@@ -44,6 +44,8 @@ void GUI::drawEnergyBar(int cellSize, int rows, float energy)
 
 void GUI::drawDefenders(int cellSize)
 {
+	m_defenderHover = false;
+
 	DefenderType types[] = {
 		DefenderType::Solar,
 		DefenderType::Shooter,
@@ -65,6 +67,7 @@ void GUI::drawDefenders(int cellSize)
 
 		if (CheckCollisionPointRec(GetMousePosition(), rect))
 		{
+			m_defenderHover = true;
 			DrawRectangleLinesEx(rect, 1, SKYBLUE);
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 			{
@@ -89,7 +92,7 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 	drawEnergyBar(cellSize, rows, energy);
 	drawDefenders(cellSize);
 	drawCosts(cellSize, defenderManager);
-	DrawText(TextFormat("%d", batteries), 10, 10, 5, ORANGE);
+	DrawText(TextFormat("%d", m_batteries), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
@@ -106,7 +109,14 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 
 void GUI::drawCursor()
 {
-	m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});
+	if (!m_defenderHover)
+	{
+		m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});
+	}
+	else
+	{
+		m_game.getAtlas().drawSprite("mouse_cursor_hover", { GetMousePosition().x - 10, GetMousePosition().y - 5 });
+	}
 }
 
 void GUI::drawHp(int cellSize, int hp, int maxHp, Vector2 pos)

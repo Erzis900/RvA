@@ -6,11 +6,12 @@
 
 class Game;
 class Atlas;
+class DefenderManager;
 
 class Defender
 {
 public:
-    Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game);
+    Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game, DefenderManager& defenderManager);
 
     void update(float dt, float& energy, int &batteries);
     void draw(Game& game, int cellSize);
@@ -37,12 +38,16 @@ private:
     int m_maxHp;
 
     float m_energyDelta;
-    float m_batteryDelta;
+    int m_batteryDelta;
     bool m_active;
+
+    float m_shootCooldown;
+    float m_shootTimer;
 
     std::string getDefenderTypeName(DefenderType type);
     void updateEnergy(float dt, float& energy);
 	void updateBatteries(float dt, int& batteries);
 
     Game& m_game;
+    DefenderManager& m_defenderManager;
 };

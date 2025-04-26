@@ -14,7 +14,7 @@ public:
 	void drawHp(int cellSize, int hp, int maxHp, Vector2 pos);
 
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
-	int& getBatteries() { return batteries; }
+	int& getBatteries() { return m_batteries; }
 	bool isPaused() const { return m_paused; }
 
 	void reset();
@@ -23,8 +23,9 @@ private:
 	void drawDefenders(int cellSize);
 	void drawCosts(int cellSize, DefenderManager& defenderManager);
 
-	int batteries;
+	int m_batteries;
 	bool m_paused;
+	bool m_defenderHover;
 
 	Game& m_game;
 	DefenderType m_selectedDefender;

@@ -3,6 +3,8 @@
 #include <iostream>
 #include "states/LostState.h"
 #include <memory>
+#include "../bullet/ShooterBullet.h"
+#include "DefenderManager.h"
 
 std::string Defender::getDefenderTypeName(DefenderType type)
 {
@@ -16,9 +18,10 @@ std::string Defender::getDefenderTypeName(DefenderType type)
     }
 }
 
-Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game)
+Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game, DefenderManager& defenderManager)
     : m_position(position), m_type(type), m_name(getDefenderTypeName(type)), m_animation(m_name, 0.1f, game.getAtlas()),
-	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0), m_game(game)
+	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0), m_game(game),
+	m_shootCooldown(1.f), m_shootTimer(0.f), m_defenderManager(defenderManager)
 {
 	std::string baseName = m_name.substr(0, m_name.find("_idle"));
 	m_offName = baseName + "_off";
@@ -28,7 +31,7 @@ Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType ty
 	case DefenderType::Solar:
 		m_maxHp = 100;
 		m_energyDelta = 5.f;
-		m_batteryDelta = 5.f;
+		m_batteryDelta = 5;
 		break;
 	case DefenderType::Shooter:
 		m_maxHp = 150;
@@ -80,6 +83,17 @@ void Defender::update(float dt, float& energy, int &batteries)
 	m_animation.update(dt);
 	updateEnergy(dt, energy);
 	updateBatteries(dt, batteries);
+
+	m_shootTimer += dt;
+
+	if (m_type == DefenderType::Shooter && m_shootTimer >= m_shootCooldown && m_active)
+	{
+		m_shootTimer = 0.f;
+
+		m_defenderManager.spawnBullet(
+			std::make_unique<ShooterBullet>(Vector2{ m_position.x + 20, m_position.y + 20 })
+		);
+	}
 }
 
 void Defender::draw(Game& game, int cellSize)

@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\bullet\LasertronBullet.cpp" />
+    <ClCompile Include="src\bullet\ShooterBullet.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
     <ClCompile Include="src\defender\Defender.cpp" />
@@ -165,6 +167,9 @@
     <ClCompile Include="src\states\MenuState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\bullet\LasertronBullet.h" />
+    <ClInclude Include="src\bullet\ShooterBullet.h" />
+    <ClInclude Include="src\bullet\Bullet.h" />
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\defender\DefenderManager.h" />

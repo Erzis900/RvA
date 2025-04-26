@@ -14,6 +14,11 @@ public:
     void update(float dt, int cellSize, int rows);
     void draw(int cellSize);
 
+    const std::vector<std::unique_ptr<Enemy>>& getEnemies() const
+    {
+        return m_enemies;
+    }
+
 private:
     void spawnEnemy(int cellSize, int rows);
 

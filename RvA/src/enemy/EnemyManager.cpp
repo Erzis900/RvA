@@ -31,7 +31,8 @@ void EnemyManager::update(float dt, int cellSize, int rows)
         std::remove_if(m_enemies.begin(), m_enemies.end(),
             [cellSize](const std::unique_ptr<Enemy>& enemy)
             {
-                return enemy->getPosition().x < cellSize * 1.5f;
+                return enemy->getPosition().x < cellSize * 1.5f || enemy->getHp() <= 0.f;
+
             }),
         m_enemies.end()
     );

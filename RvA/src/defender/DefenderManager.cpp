@@ -1,18 +1,46 @@
 #include "DefenderManager.h"
 #include "Game.h"
 #include <iostream>
+#include "enemy/enemyManager.h"
+#include "bullet/ShooterBullet.h"
 
 DefenderManager::DefenderManager(Game& game)
 	: m_game(game)
 {
 }
 
-void DefenderManager::update(float dt, int cellSize, int rows, float& energy, int &batteries)
+void DefenderManager::update(float dt, int cellSize, int rows, float& energy, int &batteries, EnemyManager& enemyManager)
 {
     for (auto& defender : m_defenders)
     {
         defender->update(dt, energy, batteries);
     }
+
+    for (auto& bullet : m_bullets)
+    {
+		if (!bullet->isActive()) continue;
+
+        bullet->update(dt, m_game);
+
+		for (auto& enemy : enemyManager.getEnemies())
+		{
+			Rectangle enemyRec = { enemy->getPosition().x, enemy->getPosition().y, cellSize, cellSize };
+            if (ShooterBullet* shooterBullet = dynamic_cast<ShooterBullet*>(bullet.get()))
+            {
+                float radius = shooterBullet->getRadius();
+                if (CheckCollisionCircleRec(bullet->getPosition(), radius, enemyRec))
+                {
+                    bullet->setActive(false);
+                    enemy->takeDamage(50);
+                }
+            }
+		}
+    }
+
+    m_bullets.erase(std::remove_if(m_bullets.begin(), m_bullets.end(),
+        [](const std::unique_ptr<Bullet>& b) { return !b->isActive(); }),
+        m_bullets.end());
+
     handlePlace(cellSize, rows);
 }
 
@@ -22,6 +50,16 @@ void DefenderManager::draw(int cellSize)
     {
         defender->draw(m_game, cellSize);
     }
+
+    for (auto& bullet : m_bullets)
+    {
+        bullet->draw(m_game);
+    }
+}
+
+void DefenderManager::spawnBullet(std::unique_ptr<Bullet> bullet)
+{
+    m_bullets.push_back(std::move(bullet));
 }
 
 void DefenderManager::handlePlace(int cellSize, int rows)
@@ -48,7 +86,7 @@ void DefenderManager::handlePlace(int cellSize, int rows)
 
                     if (cost <= m_game.getGUI().getBatteries())
                     {
-                        m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game));
+                        m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game, *this));
                         m_occupied[row][col] = true;
 						m_game.getGUI().getBatteries() -= cost;
                     }

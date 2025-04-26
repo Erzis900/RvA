@@ -16,6 +16,9 @@ public:
     void update(float dt);
     void draw(Game& game, int cellSize);
 
+    void takeDamage(int damage);
+    int getHp() { return m_hp; }
+
     Vector2 getPosition() { return m_position; }
 private:
 	std::string m_name;

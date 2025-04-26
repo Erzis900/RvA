@@ -4,7 +4,7 @@
 Game::Game()
 	:m_scale(1.f), m_renderTexture(), m_renderRec(),
 	m_screenWidth(1280.f), m_screenHeight(720.f), m_texWidth(640.f), m_texHeight(360.f),
-	m_gui(*this)
+	m_gui(*this), m_transitionSpeed(4.f)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
@@ -17,8 +17,6 @@ Game::Game()
 	m_atlas.load("assets/atlas.png");
 
 	DisableCursor();
-
-	m_transitionSpeed = 4.f;
 }
 
 Game::~Game()
@@ -103,6 +101,7 @@ void Game::setState(std::unique_ptr<IGameState> newState)
 	m_nextState = std::move(newState);
 	m_fadingOut = true;
 }
+
 void Game::updateTransition(float dt)
 {
 	if (m_fadingOut)
