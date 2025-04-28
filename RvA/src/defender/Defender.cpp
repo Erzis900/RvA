@@ -63,6 +63,11 @@ void Defender::updateEnergy(float dt, float& energy)
 	}
 }
 
+void Defender::takeDamage(int damage)
+{
+	m_hp -= damage;
+}
+
 void Defender::updateBatteries(float dt, int& batteries)
 {
 	if (m_active)

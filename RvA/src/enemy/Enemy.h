@@ -3,6 +3,8 @@
 #include <string>
 #include "EnemyTypes.h"
 #include "Animation.h"
+#include "defender/Defender.h"
+#include <memory>
 
 class Game;
 class Atlas;
@@ -17,9 +19,10 @@ public:
     void draw(Game& game, int cellSize);
 
     void takeDamage(int damage);
+    void setTargetDefender(Defender* defender);
+
     int getHp() { return m_hp; }
 	int getRow() { return m_row; }
-
     Vector2 getPosition() { return m_position; }
 private:
 	std::string m_name;
@@ -29,7 +32,11 @@ private:
 	int m_maxHp;
     int m_row;
 
-	Animation m_animation;
+    float m_attackTime;
+    int m_damage;
 
     std::string getEnemyTypeName(EnemyType type);
+
+	Animation m_animation;
+	Defender* m_targetDefender;
 };

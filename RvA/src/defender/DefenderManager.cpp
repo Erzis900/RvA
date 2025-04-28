@@ -14,6 +14,18 @@ void DefenderManager::update(float dt, int cellSize, int rows, float& energy, in
     for (auto& defender : m_defenders)
     {
         defender->update(dt, energy, batteries);
+
+        for (auto& enemy : enemyManager.getEnemies())
+        {
+			if (defender->getRow() == enemy->getRow())
+			{
+                // TODO don't hardcore cell size
+                if (enemy->getPosition().x <= defender->getPosition().x + 32 && enemy->getPosition().x > defender->getPosition().x)
+                {
+                    enemy->setTargetDefender(defender.get());
+                }   
+			}
+        }
     }
 
     for (auto& bullet : m_bullets)
@@ -41,6 +53,16 @@ void DefenderManager::update(float dt, int cellSize, int rows, float& energy, in
     m_bullets.erase(std::remove_if(m_bullets.begin(), m_bullets.end(),
         [](const std::unique_ptr<Bullet>& b) { return !b->isActive(); }),
         m_bullets.end());
+
+    m_defenders.erase(
+        std::remove_if(m_defenders.begin(), m_defenders.end(),
+            [](const std::unique_ptr<Defender>& defender)
+            {
+                return defender->getHp() <= 0.f;
+
+            }),
+        m_defenders.end()
+    );
 
     handlePlace(cellSize, rows);
 }
@@ -72,16 +94,16 @@ void DefenderManager::handlePlace(int cellSize, int rows)
         if (mousePos.x > cellSize && mousePos.y > cellSize && mousePos.x < m_game.getTexSize().x - cellSize &&
             mousePos.y < m_game.getTexSize().y - (m_game.getTexSize().y - (rows + 1) * cellSize))
         {
-            int row = int(mousePos.x) / cellSize - 1;
-            int col = int(mousePos.y) / cellSize - 1;
+            int row = int(mousePos.y) / cellSize - 1;
+            int col = int(mousePos.x) / cellSize - 1;
 
             DefenderType type = m_game.getGUI().getSelectedDefender();
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && type != DefenderType::None)
             {
                 if (!m_occupied[row][col])
                 {
-                    float x = float(row * cellSize + cellSize);
-                    float y = float(col * cellSize + cellSize);
+                    float x = float(col * cellSize + cellSize);
+                    float y = float(row * cellSize + cellSize);
 
                     int cost = m_costs[static_cast<int>(type)];
 

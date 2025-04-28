@@ -27,7 +27,7 @@ public:
 private:
     Game& m_game;
     std::vector<std::unique_ptr<Defender>> m_defenders;
-	std::array<std::array<bool, ROWS>, COLS> m_occupied = { false };
+	std::array<std::array<bool, COLS>, ROWS> m_occupied = { false };
     std::array<int, static_cast<int>(DefenderType::None)> m_costs = { 0, 10, 20, 30 };
     std::vector<std::unique_ptr<Bullet>> m_bullets;
     

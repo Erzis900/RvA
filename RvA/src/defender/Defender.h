@@ -16,6 +16,10 @@ public:
     void update(float dt, float& energy, int &batteries);
     void draw(Game& game, int cellSize);
 
+    void takeDamage(int damage);
+
+	int getHp() const { return m_hp; }
+
     Vector2 getPosition() const { return m_position; }
     DefenderType getType() const { return m_type; }
 	int getRow() const { return m_row; }
