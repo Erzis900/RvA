@@ -11,7 +11,9 @@ public:
 	void draw(Game& game) override;
 
 	float getRadius() const { return m_radius; }	
+	int getRow() const { return m_row; }
 private:
 	float m_speed;
 	float m_radius;
+	int m_row;
 };

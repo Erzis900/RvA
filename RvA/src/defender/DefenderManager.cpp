@@ -24,14 +24,15 @@ void DefenderManager::update(float dt, int cellSize, int rows, float& energy, in
 
 		for (auto& enemy : enemyManager.getEnemies())
 		{
-			Rectangle enemyRec = { enemy->getPosition().x, enemy->getPosition().y, cellSize, cellSize };
             if (ShooterBullet* shooterBullet = dynamic_cast<ShooterBullet*>(bullet.get()))
             {
-                float radius = shooterBullet->getRadius();
-                if (CheckCollisionCircleRec(bullet->getPosition(), radius, enemyRec))
+                if (enemy->getRow() == shooterBullet->getRow())
                 {
-                    bullet->setActive(false);
-                    enemy->takeDamage(50);
+                    if (bullet->getPosition().x > enemy->getPosition().x)
+                    {
+                        bullet->setActive(false);
+                        enemy->takeDamage(50);
+                    }
                 }
             }
 		}

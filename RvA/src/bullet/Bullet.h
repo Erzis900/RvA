@@ -18,4 +18,5 @@ public:
 protected:
     Vector2 m_position;
     bool m_active;
+    int m_row;
 };

@@ -75,5 +75,5 @@ void EnemyManager::spawnEnemy(int cellSize, int rows)
     float x = m_game.getTexSize().x - cellSize * 2.f;
     int y = (randomRow + 1) * cellSize;
 
-    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas()));
+    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas(), randomRow));
 }

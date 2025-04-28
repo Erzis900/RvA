@@ -16,8 +16,8 @@ void Enemy::takeDamage(int damage)
 	m_hp -= damage;
 }
 
-Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas)
-	: m_position(position), m_animation(getEnemyTypeName(type), 0.1f, atlas)
+Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row)
+	: m_position(position), m_animation(getEnemyTypeName(type), 0.1f, atlas), m_row(row)
 {
     switch (type)
     {
