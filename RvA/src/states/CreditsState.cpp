@@ -25,12 +25,22 @@ const std::vector<CreditsItem> CreditsState::creditsItems{
 
 void CreditsState::draw(Game& game)
 {
-	auto y = 25;
+	auto& guiHelper = game.getGUIHelper();
+
+	auto y = 25.f;
 	for (auto& item : creditsItems)
 	{
 		if (!item.label.empty())
 		{
-			drawCenteredText(item.label.c_str(), item.color, item.fontSize, y, TEX_WIDTH);
+			guiHelper.DrawText({
+				.text = item.label.c_str(),
+				.fontSize = item.fontSize,
+				.color = item.color,
+				.guiPosition = {
+					.position = {0, y},
+					.horizontalAlignment = GUIAlignmentH::Center
+				}
+			});
 			y += item.fontSize;
 		}
 		else
@@ -39,19 +49,15 @@ void CreditsState::draw(Game& game)
 		}
 	}
 
-	const Vector2 buttonSize = { 100.f, 40.f };
-	if (GuiButton({ TEX_WIDTH - (buttonSize.x + 10), TEX_HEIGHT - (buttonSize.y + 10), buttonSize.x, buttonSize.y}, "Back"))
+	if (guiHelper.DrawButton({
+		.text = "Back",
+		.size = {100.f, 40.f},
+		.guiPosition = {
+			.position = { 10, 10 },
+			.horizontalAlignment = GUIAlignmentH::Right,
+			.verticalAlignment = GUIAlignmentV::Bottom,
+		}}))
 	{
 		game.setState(std::make_unique<MenuState>());
 	}
-}
-
-void CreditsState::drawCenteredText(const char* text, Color color, int fontSize, int y, float renderTextureWidth)
-{
-	DrawText(text, getCenteredTextPosition(text, fontSize, renderTextureWidth), y, fontSize, color);
-}
-
-int CreditsState::getCenteredTextPosition(const char* text, int fontSize, float renderTextureWidth)
-{
-	return static_cast<int>(renderTextureWidth / 2 - MeasureText(text, fontSize) / 2);
 }

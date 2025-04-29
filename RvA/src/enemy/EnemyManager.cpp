@@ -1,12 +1,11 @@
 #include "EnemyManager.h"
 #include <raylib.h>
 #include "Game.h"
-#include <iostream>
 #include "EnemyTypes.h"
 #include "constants.h"
+#include <ranges>
 
-EnemyManager::EnemyManager(Game& game)
-    :m_game(game), m_spawnTimer(0.0f), m_spawnInterval(1.f)
+EnemyManager::EnemyManager(Game& game) : m_game(game)
 {
     m_spawnData = {
         { "b1_alien_walk", 0.7f },
@@ -28,15 +27,18 @@ void EnemyManager::update(float dt)
         enemy->update(dt);
     }
 
-    m_enemies.erase(
-        std::remove_if(m_enemies.begin(), m_enemies.end(),
-            [](const std::unique_ptr<Enemy>& enemy)
-            {
-                return enemy->getPosition().x < CELL_SIZE * 1.5f || enemy->getHp() <= 0.f;
-
-            }),
-        m_enemies.end()
-    );
+    // Remove enemies reaching the left side of the grid
+    std::erase_if(m_enemies, [](const auto& enemy) {
+        return enemy->getPosition().x < CELL_SIZE * 1.5f;
+    });
+    
+    // Remove enemies which have been destroyed ( hp == 0 )
+    auto numberOfDestroyedEnemies = std::erase_if(m_enemies, [](const auto& enemy) {
+        return enemy->getHp() <= 0.f;
+    });
+    if (numberOfDestroyedEnemies > 0) {
+        notifyEnemiesDestroyed(numberOfDestroyedEnemies);
+    }
 }
 
 void EnemyManager::draw()
@@ -77,4 +79,14 @@ void EnemyManager::spawnEnemy()
     int y = (randomRow + 1) * CELL_SIZE;
 
     m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas(), randomRow));
+}
+
+void EnemyManager::onEnemiesDestroyed(std::function<void(int)> callback)
+{
+    m_onEnemiesDestroyedCallback = callback;
+}
+
+void EnemyManager::notifyEnemiesDestroyed(int numberOfDestroyedEnemies)
+{
+    m_onEnemiesDestroyedCallback(numberOfDestroyedEnemies);
 }

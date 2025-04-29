@@ -16,11 +16,14 @@ public:
 
 private:
 	void drawGrid();
+	void goToWinState(Game& game);
 
-	int m_rows;
-	int m_cols;
+	int m_rows{ ROWS };
+	int m_cols{ COLS };
+	int m_numberOfDestroyedEnemies{0};
+	int m_numberOfEnemiesToKill{5};
 
-	float m_energy;
+	float m_energy{ MAX_ENERGY };
 
 	EnemyManager m_enemyManager;
 	DefenderManager m_defenderManager;

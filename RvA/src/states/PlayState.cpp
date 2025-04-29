@@ -1,11 +1,18 @@
 #include "PlayState.h"
+#include "WinState.h"
 #include <raylib.h>
 #include "Game.h"
 #include "constants.h"
 
 PlayState::PlayState(Game& game)
-	:m_cols(COLS), m_rows(ROWS), m_energy(MAX_ENERGY), m_enemyManager(game), m_defenderManager(game)
+	: m_enemyManager(game), m_defenderManager(game)
 {
+	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
+		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;
+		if (m_numberOfDestroyedEnemies >= m_numberOfEnemiesToKill) {
+			goToWinState(game);
+		}
+	});
 }
 
 void PlayState::drawGrid()
@@ -26,6 +33,14 @@ void PlayState::update(Game& game, float dt)
 
 	m_enemyManager.update(dt);
 	m_defenderManager.update(dt, m_energy, game.getGUI().getBatteries(), m_enemyManager);
+
+	if constexpr (DEV_MODE)
+	{
+		if (IsKeyPressed(KEY_W))
+		{
+			goToWinState(game);
+		}
+	}
 }
 
 void PlayState::draw(Game& game)
@@ -36,4 +51,9 @@ void PlayState::draw(Game& game)
 	m_enemyManager.draw();
 
 	game.getGUI().drawGame(m_energy, m_defenderManager);
+}
+
+void PlayState::goToWinState(Game& game)
+{
+	game.setState(std::make_unique<WinState>());
 }
