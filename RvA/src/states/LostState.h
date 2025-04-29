@@ -7,7 +7,7 @@ class Game;
 class LostState : public IGameState
 {
 public:
-	LostState(Game& game);
+	LostState();
 	void draw(Game& game) override;
 private:
 	Vector2 btnSize;

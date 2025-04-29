@@ -7,13 +7,11 @@ public:
     Animation(std::string name, float frameTime, Atlas& atlas);
 
     void update(float dt);
-    int getCurrentFrame() { return m_currentFrame; }
+    int getCurrentFrame() const { return m_currentFrame; }
 private:
     const char* m_name;
     float m_frameTime;
     int m_currentFrame;
     float m_elapsedTime;
 	int m_totalFrames;
-
-    Atlas& m_atlas;
 };

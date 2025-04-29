@@ -1,10 +1,12 @@
 #include "Game.h"
 #include "states/MenuState.h"
+#include "constants.h"
 
 Game::Game()
-	:m_scale(1.f), m_renderTexture(), m_renderRec(),
-	m_screenWidth(1280.f), m_screenHeight(720.f), m_texWidth(640.f), m_texHeight(360.f),
-	m_gui(*this), m_transitionSpeed(4.f)
+	:m_renderRec(), m_fadingOut(false), m_fadingIn(false), m_fadeAlpha(0.f),
+	m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
+	m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT),
+	m_transitionSpeed(4.f), m_gui(*this)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
@@ -13,7 +15,7 @@ Game::Game()
 	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
-	m_currentState = std::make_unique<MenuState>(*this);
+	m_currentState = std::make_unique<MenuState>();
 	m_atlas.load("assets/atlas.png");
 
 	DisableCursor();

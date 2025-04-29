@@ -9,7 +9,7 @@ DefenderManager::DefenderManager(Game& game)
 {
 }
 
-void DefenderManager::update(float dt, int cellSize, int rows, float& energy, int &batteries, EnemyManager& enemyManager)
+void DefenderManager::update(float dt, float& energy, int &batteries, EnemyManager& enemyManager)
 {
     for (auto& defender : m_defenders)
     {
@@ -19,8 +19,7 @@ void DefenderManager::update(float dt, int cellSize, int rows, float& energy, in
         {
 			if (defender->getRow() == enemy->getRow())
 			{
-                // TODO don't hardcore cell size
-                if (enemy->getPosition().x <= defender->getPosition().x + 32 && enemy->getPosition().x > defender->getPosition().x)
+                if (enemy->getPosition().x <= defender->getPosition().x + CELL_SIZE && enemy->getPosition().x > defender->getPosition().x)
                 {
                     enemy->setTargetDefender(defender.get());
                 }   
@@ -64,14 +63,14 @@ void DefenderManager::update(float dt, int cellSize, int rows, float& energy, in
         m_defenders.end()
     );
 
-    handlePlace(cellSize, rows);
+    handlePlace();
 }
 
-void DefenderManager::draw(int cellSize)
+void DefenderManager::draw()
 {
     for (auto& defender : m_defenders)
     {
-        defender->draw(m_game, cellSize);
+        defender->draw(m_game);
     }
 
     for (auto& bullet : m_bullets)
@@ -85,25 +84,25 @@ void DefenderManager::spawnBullet(std::unique_ptr<Bullet> bullet)
     m_bullets.push_back(std::move(bullet));
 }
 
-void DefenderManager::handlePlace(int cellSize, int rows)
+void DefenderManager::handlePlace()
 {
     if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
     {
         Vector2 mousePos = GetMousePosition();
 
-        if (mousePos.x > cellSize && mousePos.y > cellSize && mousePos.x < m_game.getTexSize().x - cellSize &&
-            mousePos.y < m_game.getTexSize().y - (m_game.getTexSize().y - (rows + 1) * cellSize))
+        if (mousePos.x > CELL_SIZE && mousePos.y > CELL_SIZE && mousePos.x < TEX_WIDTH - CELL_SIZE &&
+            mousePos.y < TEX_HEIGHT - (TEX_HEIGHT - (ROWS + 1) * CELL_SIZE))
         {
-            int row = int(mousePos.y) / cellSize - 1;
-            int col = int(mousePos.x) / cellSize - 1;
+            int row = int(mousePos.y) / CELL_SIZE - 1;
+            int col = int(mousePos.x) / CELL_SIZE - 1;
 
             DefenderType type = m_game.getGUI().getSelectedDefender();
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && type != DefenderType::None)
             {
                 if (!m_occupied[row][col])
                 {
-                    float x = float(col * cellSize + cellSize);
-                    float y = float(row * cellSize + cellSize);
+                    float x = float(col * CELL_SIZE + CELL_SIZE);
+                    float y = float(row * CELL_SIZE + CELL_SIZE);
 
                     int cost = m_costs[static_cast<int>(type)];
 

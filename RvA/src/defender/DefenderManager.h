@@ -14,8 +14,8 @@ class DefenderManager
 public:
     DefenderManager(Game& game);
 
-    void update(float dt, int cellSize, int rows, float& energy, int &batteries, EnemyManager& enemyManager);
-    void draw(int cellSize);
+    void update(float dt, float& energy, int &batteries, EnemyManager& enemyManager);
+    void draw();
 
     void spawnBullet(std::unique_ptr<Bullet> bullet);
 
@@ -31,5 +31,5 @@ private:
     std::array<int, static_cast<int>(DefenderType::None)> m_costs = { 0, 10, 20, 30 };
     std::vector<std::unique_ptr<Bullet>> m_bullets;
     
-    void handlePlace(int cellSize, int rows);
+    void handlePlace();
 };

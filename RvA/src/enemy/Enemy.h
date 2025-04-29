@@ -16,7 +16,7 @@ public:
     Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row);
         
     void update(float dt);
-    void draw(Game& game, int cellSize);
+    void draw(Game& game);
 
     void takeDamage(int damage);
     void setTargetDefender(Defender* defender);

@@ -1,6 +1,7 @@
 #include "CreditsState.h"
 #include "Game.h"
 #include "states/MenuState.h"
+#include "constants.h"
 
 // TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
 const std::vector<CreditsItem> CreditsState::creditsItems{
@@ -29,7 +30,7 @@ void CreditsState::draw(Game& game)
 	{
 		if (!item.label.empty())
 		{
-			drawCenteredText(item.label.c_str(), item.color, item.fontSize, y, game.getTexSize().x);
+			drawCenteredText(item.label.c_str(), item.color, item.fontSize, y, TEX_WIDTH);
 			y += item.fontSize;
 		}
 		else
@@ -39,9 +40,9 @@ void CreditsState::draw(Game& game)
 	}
 
 	const Vector2 buttonSize = { 100.f, 40.f };
-	if (GuiButton({ game.getTexSize().x - (buttonSize.x + 10), game.getTexSize().y - (buttonSize.y + 10), buttonSize.x, buttonSize.y}, "Back"))
+	if (GuiButton({ TEX_WIDTH - (buttonSize.x + 10), TEX_HEIGHT - (buttonSize.y + 10), buttonSize.x, buttonSize.y}, "Back"))
 	{
-		game.setState(std::make_unique<MenuState>(game));
+		game.setState(std::make_unique<MenuState>());
 	}
 }
 

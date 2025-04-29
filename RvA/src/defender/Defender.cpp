@@ -58,7 +58,7 @@ void Defender::updateEnergy(float dt, float& energy)
 		if (energy > 100.f) energy = 100.f;
 		if (energy < 0.f)
 		{
-			m_game.setState(std::make_unique<LostState>(m_game));
+			m_game.setState(std::make_unique<LostState>());
 		}
 	}
 }
@@ -101,7 +101,7 @@ void Defender::update(float dt, float& energy, int &batteries)
 	}
 }
 
-void Defender::draw(Game& game, int cellSize)
+void Defender::draw(Game& game)
 {
 	if (m_active)
 	{
@@ -112,5 +112,5 @@ void Defender::draw(Game& game, int cellSize)
 		game.getAtlas().drawSprite(m_offName.c_str(), m_position);
 	}
     
-	game.getGUI().drawHp(cellSize, m_hp, m_maxHp, m_position);
+	game.getGUI().drawHp(m_hp, m_maxHp, m_position);
 }

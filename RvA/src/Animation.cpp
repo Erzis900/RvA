@@ -2,9 +2,9 @@
 #include <iostream>
 
 Animation::Animation(std::string name, float frameTime, Atlas& atlas) 
-	: m_name(name.c_str()), m_frameTime(frameTime), m_currentFrame(0), m_elapsedTime(0.f), m_atlas(atlas)
+	: m_name(name.c_str()), m_frameTime(frameTime), m_currentFrame(0), m_elapsedTime(0.f)
 {
-	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(m_atlas.getTextureAtlas(), m_name);
+	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(atlas.getTextureAtlas(), m_name);
 	if (textureInfo)
 	{
 		m_totalFrames = textureInfo->num_frames;
