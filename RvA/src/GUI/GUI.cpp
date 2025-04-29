@@ -97,7 +97,7 @@ void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defend
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
 	{
-		m_game.setState(std::make_unique<MenuState>(m_game));
+		m_game.setState(std::make_unique<MenuState>());
 	}
 
 	if (GuiButton({ m_game.getTexSize().x - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause"))

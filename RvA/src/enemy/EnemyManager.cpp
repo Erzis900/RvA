@@ -1,7 +1,6 @@
 #include "EnemyManager.h"
 #include <raylib.h>
 #include "Game.h"
-#include <iostream>
 #include "EnemyTypes.h"
 
 EnemyManager::EnemyManager(Game& game)

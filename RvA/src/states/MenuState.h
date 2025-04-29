@@ -7,8 +7,5 @@ class Game;
 class MenuState : public IGameState
 {
 public:
-	MenuState(Game& game);
 	void draw(Game& game) override;
-private:
-	Vector2 btnSize;
 };

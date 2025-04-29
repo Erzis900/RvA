@@ -4,7 +4,7 @@
 Game::Game()
 	:m_scale(1.f), m_renderTexture(), m_renderRec(),
 	m_screenWidth(1280.f), m_screenHeight(720.f), m_texWidth(640.f), m_texHeight(360.f),
-	m_gui(*this), m_transitionSpeed(4.f)
+	m_gui(*this), m_guiHelper(*this), m_transitionSpeed(4.f)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
@@ -13,7 +13,7 @@ Game::Game()
 	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
-	m_currentState = std::make_unique<MenuState>(*this);
+	m_currentState = std::make_unique<MenuState>();
 	m_atlas.load("assets/atlas.png");
 
 	DisableCursor();

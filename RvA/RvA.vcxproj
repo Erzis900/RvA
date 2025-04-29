@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="src\bullet\LasertronBullet.cpp" />
     <ClCompile Include="src\bullet\ShooterBullet.cpp" />
+    <ClCompile Include="src\GUI\GUIHelper.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
@@ -166,11 +167,13 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\states\PlayState.cpp" />
     <ClCompile Include="src\states\MenuState.cpp" />
+    <ClCompile Include="src\states\WinState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bullet\LasertronBullet.h" />
     <ClInclude Include="src\bullet\ShooterBullet.h" />
     <ClInclude Include="src\bullet\Bullet.h" />
+    <ClInclude Include="src\GUI\GUIHelper.h" />
     <ClInclude Include="src\states\CreditsState.h" />
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
@@ -189,6 +192,7 @@
     <ClInclude Include="src\IGameState.h" />
     <ClInclude Include="src\states\PlayState.h" />
     <ClInclude Include="src\states\MenuState.h" />
+    <ClInclude Include="src\states\WinState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
