@@ -31,7 +31,7 @@ private:
 	std::vector<SpriteItem> m_bullets;
 
 	float m_textAnimationTime{};
-	float m_TextAnimationSpeed{2.5f};
-	float m_TextAnimationAmplitude{10.f};
+	float m_textAnimationSpeed{2.5f};
+	float m_textAnimationAmplitude{10.f};
 	Vector2 m_textPosition;
 };

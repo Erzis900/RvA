@@ -69,7 +69,7 @@ void WinState::update(Game& game, float dt)
 	}
 
 	m_textAnimationTime += dt;
-	m_textPosition.y = sinf(m_textAnimationTime * m_TextAnimationSpeed) * m_TextAnimationAmplitude;
+	m_textPosition.y = sinf(m_textAnimationTime * m_textAnimationSpeed) * m_textAnimationAmplitude;
 }
 
 WinState::SpriteItem WinState::createSpriteItem(Game& game, const char* name, const Vector2& position, const Vector2& velocity)
