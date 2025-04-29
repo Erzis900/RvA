@@ -9,10 +9,10 @@ Game::Game()
 	m_transitionSpeed(4.f), m_gui(*this)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
+	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
 
-	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
+	m_renderTexture = LoadRenderTexture(m_texWidth, m_texHeight);
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
 	m_currentState = std::make_unique<MenuState>();
@@ -45,10 +45,10 @@ void Game::update()
 
 void Game::updateRenderRec()
 {
-	m_screenWidth = float(GetScreenWidth());
-	m_screenHeight = float(GetScreenHeight());
+	m_screenWidth = GetScreenWidth();
+	m_screenHeight = GetScreenHeight();
 
-	m_scale = std::min(m_screenWidth / m_texWidth, m_screenHeight / m_texHeight);
+	m_scale = std::min(float(m_screenWidth) / float(m_texWidth), float(m_screenHeight) / float(m_texHeight));
 	m_renderRec.width = m_texWidth * m_scale;
 	m_renderRec.height = m_texHeight * m_scale;
 	m_renderRec.x = (m_screenWidth - m_renderRec.width) / 2.f;
@@ -86,7 +86,7 @@ void Game::draw()
 	BeginDrawing();
 	ClearBackground(BLACK);
 
-	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, m_texWidth, -m_texHeight }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
+	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, float(m_texWidth), -float(m_texHeight) }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
 	EndDrawing();
 }
 

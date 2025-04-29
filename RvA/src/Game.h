@@ -32,16 +32,17 @@ private:
 	Rectangle m_renderRec;
 
 	float m_scale;
-	float m_texWidth;
-	float m_texHeight;
 
-	float m_screenWidth;
-	float m_screenHeight;
+	int m_texWidth;
+	int m_texHeight;
+
+	int m_screenWidth;
+	int m_screenHeight;
 
 	float m_fadeAlpha;
+	float m_transitionSpeed;
 	bool m_fadingOut;
 	bool m_fadingIn;
-	float m_transitionSpeed;
 
 	GUI m_gui;
 	Atlas m_atlas;
