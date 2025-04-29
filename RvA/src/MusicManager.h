@@ -8,6 +8,8 @@ public:
 	// the reason I'm not loading resources in the constructor is because I don't understand how to make it work with raylib
 	// more info in the link above
 
+	~MusicManager();
+
 	void load();
 	void updateStream();
 

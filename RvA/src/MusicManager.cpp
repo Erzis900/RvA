@@ -1,5 +1,12 @@
 #include "MusicManager.h"
 
+MusicManager::~MusicManager()
+{
+	UnloadMusicStream(m_menuMusic);
+	UnloadMusicStream(m_gameMusic);
+	UnloadMusicStream(m_lostMusic);
+}
+
 void MusicManager::load()
 {
 	// TODO make sure all the music files have consistent formats
