@@ -67,8 +67,8 @@ void Enemy::update(float dt)
 	m_animation.update(dt);
 }
 
-void Enemy::draw(Game& game, int cellSize)
+void Enemy::draw(Game& game)
 {
 	game.getAtlas().drawAnimation(m_name.c_str(), m_position, m_animation.getCurrentFrame());
-	game.getGUI().drawHp(cellSize, m_hp, m_maxHp, m_position);
+	game.getGUI().drawHp(m_hp, m_maxHp, m_position);
 }

@@ -14,7 +14,7 @@ public:
     Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game, DefenderManager& defenderManager);
 
     void update(float dt, float& energy, int &batteries);
-    void draw(Game& game, int cellSize);
+    void draw(Game& game);
 
     void takeDamage(int damage);
 

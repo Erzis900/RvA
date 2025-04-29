@@ -4,6 +4,7 @@
 #include "states/PlayState.h"
 #include "rlgl.h"
 #include <raygui.h>
+#include "constants.h"
 
 GUI::GUI(Game& game)
 	:m_game(game), m_selectedDefender(DefenderType::None), m_defenderHover(false)
@@ -28,13 +29,13 @@ void GUI::reset()
 	m_selectedDefender = DefenderType::None;
 }
 
-void GUI::drawEnergyBar(int cellSize, int rows, float energy)
+void GUI::drawEnergyBar(float energy)
 {
-	const Rectangle rec = { 0.f, 0.f, float(cellSize * rows), float(cellSize / 2) };
+	const Rectangle rec = { 0.f, 0.f, float(CELL_SIZE * ROWS), float(CELL_SIZE / 2) };
 
 	rlPushMatrix();
 
-	rlTranslatef(float(cellSize / 2 - rec.height / 2), float((1 + rows) * cellSize), 0.f);
+	rlTranslatef(float(CELL_SIZE / 2 - rec.height / 2), float((1 + ROWS) * CELL_SIZE), 0.f);
 	rlRotatef(-90, 0, 0, 1);
 
 	GuiProgressBar(rec, nullptr, nullptr, &energy, 0.f, 100.f);
@@ -42,7 +43,7 @@ void GUI::drawEnergyBar(int cellSize, int rows, float energy)
 	rlPopMatrix();
 }
 
-void GUI::drawDefenders(int cellSize)
+void GUI::drawDefenders()
 {
 	m_defenderHover = false;
 
@@ -55,10 +56,10 @@ void GUI::drawDefenders(int cellSize)
 
 	for (int i = 0; i < int(DefenderType::None); i++)
 	{
-		Vector2 position = { float(cellSize + cellSize * i), 0.f };
+		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
 		m_game.getAtlas().drawSprite(getSpriteName(types[i]), position);
 
-		Rectangle rect = { position.x, position.y, float(cellSize), float(cellSize) };
+		Rectangle rect = { position.x, position.y, float(CELL_SIZE), float(CELL_SIZE) };
 
 		if (m_selectedDefender == types[i])
 		{
@@ -77,34 +78,34 @@ void GUI::drawDefenders(int cellSize)
 	}
 }
 
-void GUI::drawCosts(int cellSize, DefenderManager& defenderManager)
+void GUI::drawCosts(DefenderManager& defenderManager)
 {
 	for (int i = 0; i < int(DefenderType::None); i++)
 	{
-		Vector2 position = { float(cellSize + cellSize * i), 0.f };
+		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
 		std::string costText = std::to_string(defenderManager.getCosts()[i]);
 		DrawText(costText.c_str(), int(position.x), int(position.y), 10, WHITE);
 	}
 }
 
-void GUI::drawGame(int cellSize, int rows, float energy, DefenderManager& defenderManager)
+void GUI::drawGame(float energy, DefenderManager& defenderManager)
 {
-	drawEnergyBar(cellSize, rows, energy);
-	drawDefenders(cellSize);
-	drawCosts(cellSize, defenderManager);
+	drawEnergyBar(energy);
+	drawDefenders();
+	drawCosts(defenderManager);
 	DrawText(TextFormat("%d", m_batteries), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };
-	if (GuiButton({ m_game.getTexSize().x - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
+	if (GuiButton({ TEX_WIDTH - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
 	{
 		m_game.setState(std::make_unique<MenuState>());
 	}
 
-	if (GuiButton({ m_game.getTexSize().x - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause"))
+	if (GuiButton({ TEX_WIDTH - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause"))
 	{
 		m_paused = !m_paused;
 	}
-	if (m_paused) DrawText("Paused", int(m_game.getTexSize().x / 2 - MeasureText("Paused", 20) / 2), int(m_game.getTexSize().y / 2 - 10), 20, WHITE);
+	if (m_paused) DrawText("Paused", int(TEX_WIDTH / 2 - MeasureText("Paused", 20) / 2), int(TEX_HEIGHT / 2 - 10), 20, WHITE);
 }
 
 void GUI::drawCursor()
@@ -119,13 +120,13 @@ void GUI::drawCursor()
 	}
 }
 
-void GUI::drawHp(int cellSize, int hp, int maxHp, Vector2 pos)
+void GUI::drawHp(int hp, int maxHp, Vector2 pos)
 {
-	float barWidth = float(cellSize);
+	float barWidth = float(CELL_SIZE);
 	float barHeight = 3.f;
 	float hpPercent = float(hp) / float(maxHp);
 
-	Vector2 barPos = { pos.x, pos.y + cellSize };
+	Vector2 barPos = { pos.x, pos.y + CELL_SIZE };
 	Rectangle bg = { barPos.x, barPos.y, barWidth, barHeight };
 	Rectangle fg = { barPos.x, barPos.y, barWidth * hpPercent, barHeight };
 

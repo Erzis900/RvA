@@ -1,6 +1,7 @@
 #include "CreditsState.h"
 #include "Game.h"
 #include "states/MenuState.h"
+#include "constants.h"
 
 // TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
 const std::vector<CreditsItem> CreditsState::creditsItems{

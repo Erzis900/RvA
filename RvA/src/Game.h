@@ -15,8 +15,6 @@ public:
 	void setState(std::unique_ptr<IGameState> newState);
 	void run();
 
-	Vector2 getTexSize() { return Vector2(m_texWidth, m_texHeight); }
-
 	GUI& getGUI() { return m_gui; }
 	GUIHelper& getGUIHelper() { return m_guiHelper; }
 	Atlas& getAtlas() { return m_atlas; }
@@ -37,17 +35,17 @@ private:
 	Rectangle m_renderRec;
 
 	float m_scale;
-	float m_texWidth;
-	float m_texHeight;
 
-	float m_screenWidth;
-	float m_screenHeight;
+	int m_texWidth;
+	int m_texHeight;
 
-	// Transition
+	int m_screenWidth;
+	int m_screenHeight;
+
 	float m_fadeAlpha;
+	float m_transitionSpeed;
 	bool m_fadingOut;
 	bool m_fadingIn;
-	float m_transitionSpeed;
 
 	GUI m_gui;
 	GUIHelper m_guiHelper;

@@ -12,7 +12,7 @@ void ShooterBullet::update(float dt, Game& game)
 {
 	m_position.x += m_speed * dt;
 
-	if (m_position.x > game.getTexSize().x)
+	if (m_position.x > TEX_WIDTH)
 	{
 		m_active = false;
 	}

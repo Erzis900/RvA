@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include "Game.h"
 #include "EnemyTypes.h"
+#include "constants.h"
 
 EnemyManager::EnemyManager(Game& game)
     :m_game(game), m_spawnTimer(0.0f), m_spawnInterval(1.f)
@@ -12,12 +13,12 @@ EnemyManager::EnemyManager(Game& game)
     };
 }
 
-void EnemyManager::update(float dt, int cellSize, int rows)
+void EnemyManager::update(float dt)
 {
     m_spawnTimer += dt;
     if (m_spawnTimer >= m_spawnInterval)
     {
-        spawnEnemy(cellSize, rows);
+        spawnEnemy();
         m_spawnTimer = 0.f;
     }
 
@@ -28,24 +29,24 @@ void EnemyManager::update(float dt, int cellSize, int rows)
 
     m_enemies.erase(
         std::remove_if(m_enemies.begin(), m_enemies.end(),
-            [cellSize](const std::unique_ptr<Enemy>& enemy)
+            [](const std::unique_ptr<Enemy>& enemy)
             {
-                return enemy->getPosition().x < cellSize * 1.5f || enemy->getHp() <= 0.f;
+                return enemy->getPosition().x < CELL_SIZE * 1.5f || enemy->getHp() <= 0.f;
 
             }),
         m_enemies.end()
     );
 }
 
-void EnemyManager::draw(int cellSize)
+void EnemyManager::draw()
 {
     for (auto& enemy : m_enemies)
     {
-        enemy->draw(m_game, cellSize);
+        enemy->draw(m_game);
     }
 }
 
-void EnemyManager::spawnEnemy(int cellSize, int rows)
+void EnemyManager::spawnEnemy()
 {
     float randomValue = GetRandomValue(0, 100) / 100.0f;
 
@@ -70,9 +71,9 @@ void EnemyManager::spawnEnemy(int cellSize, int rows)
         type = EnemyType::B2;
     }
 
-    int randomRow = GetRandomValue(0, rows - 1);
-    float x = m_game.getTexSize().x - cellSize * 2.f;
-    int y = (randomRow + 1) * cellSize;
+    int randomRow = GetRandomValue(0, ROWS - 1);
+    float x = TEX_WIDTH - CELL_SIZE * 2.f;
+    int y = (randomRow + 1) * CELL_SIZE;
 
     m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas(), randomRow));
 }

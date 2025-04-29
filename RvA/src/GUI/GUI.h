@@ -9,9 +9,9 @@ class GUI
 {
 public:
 	GUI(Game& game);
-	void drawGame(int cellSize, int rows, float energy, DefenderManager& defenderManager);
+	void drawGame(float energy, DefenderManager& defenderManager);
 	void drawCursor();
-	void drawHp(int cellSize, int hp, int maxHp, Vector2 pos);
+	void drawHp(int hp, int maxHp, Vector2 pos);
 
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
 	int& getBatteries() { return m_batteries; }
@@ -19,9 +19,9 @@ public:
 
 	void reset();
 private:
-	void drawEnergyBar(int cellSize, int rows, float energy);
-	void drawDefenders(int cellSize);
-	void drawCosts(int cellSize, DefenderManager& defenderManager);
+	void drawEnergyBar(float energy);
+	void drawDefenders();
+	void drawCosts(DefenderManager& defenderManager);
 
 	int m_batteries;
 	bool m_paused;

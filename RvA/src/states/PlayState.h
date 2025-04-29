@@ -19,7 +19,6 @@ private:
 
 	int m_rows;
 	int m_cols;
-	int m_cellSize;
 
 	float m_energy;
 

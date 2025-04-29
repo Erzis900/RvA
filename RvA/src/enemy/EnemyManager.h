@@ -11,8 +11,8 @@ class EnemyManager
 public:
     EnemyManager(Game& game);
 
-    void update(float dt, int cellSize, int rows);
-    void draw(int cellSize);
+    void update(float dt);
+    void draw();
 
     const std::vector<std::unique_ptr<Enemy>>& getEnemies() const
     {
@@ -20,7 +20,7 @@ public:
     }
 
 private:
-    void spawnEnemy(int cellSize, int rows);
+    void spawnEnemy();
 
     std::vector<std::unique_ptr<Enemy>> m_enemies;
     float m_spawnTimer;

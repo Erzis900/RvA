@@ -4,7 +4,7 @@
 #include "constants.h"
 
 PlayState::PlayState(Game& game)
-	:m_cellSize(32), m_cols(COLS), m_rows(ROWS), m_energy(100.f), m_enemyManager(game), m_defenderManager(game)
+	:m_cols(COLS), m_rows(ROWS), m_energy(MAX_ENERGY), m_enemyManager(game), m_defenderManager(game)
 {
 }
 
@@ -12,10 +12,10 @@ void PlayState::drawGrid()
 {
 	for (int row = 0; row < m_rows; row++) {
 		for (int col = 0; col < m_cols; col++) {
-			int x = m_cellSize + col * m_cellSize;
-			int y = m_cellSize + row * m_cellSize;
+			int x = CELL_SIZE + col * CELL_SIZE;
+			int y = CELL_SIZE + row * CELL_SIZE;
 
-			DrawRectangleLines(x, y, m_cellSize, m_cellSize, BLACK);
+			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, BLACK);
 		}
 	}
 }
@@ -24,16 +24,16 @@ void PlayState::update(Game& game, float dt)
 {
 	if (game.getGUI().isPaused()) return;
 
-	m_enemyManager.update(dt, m_cellSize, m_rows);
-	m_defenderManager.update(dt, m_cellSize, m_rows, m_energy, game.getGUI().getBatteries(), m_enemyManager);
+	m_enemyManager.update(dt);
+	m_defenderManager.update(dt, m_energy, game.getGUI().getBatteries(), m_enemyManager);
 }
 
 void PlayState::draw(Game& game)
 {
 	drawGrid();
 
-	m_defenderManager.draw(m_cellSize);
-	m_enemyManager.draw(m_cellSize);
+	m_defenderManager.draw();
+	m_enemyManager.draw();
 
-	game.getGUI().drawGame(m_cellSize, m_rows, m_energy, m_defenderManager);
+	game.getGUI().drawGame(m_energy, m_defenderManager);
 }

@@ -1,16 +1,18 @@
 #include "Game.h"
 #include "states/MenuState.h"
+#include "constants.h"
 
 Game::Game()
-	:m_scale(1.f), m_renderTexture(), m_renderRec(),
-	m_screenWidth(1280.f), m_screenHeight(720.f), m_texWidth(640.f), m_texHeight(360.f),
-	m_gui(*this), m_guiHelper(*this), m_transitionSpeed(4.f)
+	:m_renderRec(), m_fadingOut(false), m_fadingIn(false), m_fadeAlpha(0.f),
+	m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
+	m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT),
+	m_transitionSpeed(4.f), m_gui(*this), m_guiHelper(*this)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-	InitWindow(int(m_screenWidth), int(m_screenHeight), "RvA");
+	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
 
-	m_renderTexture = LoadRenderTexture(int(m_texWidth), int(m_texHeight));
+	m_renderTexture = LoadRenderTexture(m_texWidth, m_texHeight);
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
 	m_currentState = std::make_unique<MenuState>();
@@ -43,10 +45,10 @@ void Game::update()
 
 void Game::updateRenderRec()
 {
-	m_screenWidth = float(GetScreenWidth());
-	m_screenHeight = float(GetScreenHeight());
+	m_screenWidth = GetScreenWidth();
+	m_screenHeight = GetScreenHeight();
 
-	m_scale = std::min(m_screenWidth / m_texWidth, m_screenHeight / m_texHeight);
+	m_scale = std::min(float(m_screenWidth) / float(m_texWidth), float(m_screenHeight) / float(m_texHeight));
 	m_renderRec.width = m_texWidth * m_scale;
 	m_renderRec.height = m_texHeight * m_scale;
 	m_renderRec.x = (m_screenWidth - m_renderRec.width) / 2.f;
@@ -84,7 +86,7 @@ void Game::draw()
 	BeginDrawing();
 	ClearBackground(BLACK);
 
-	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, m_texWidth, -m_texHeight }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
+	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, float(m_texWidth), -float(m_texHeight) }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
 	EndDrawing();
 }
 
