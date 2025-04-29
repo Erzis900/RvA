@@ -9,9 +9,9 @@ public:
     void update(float dt);
     int getCurrentFrame() const { return m_currentFrame; }
 private:
-    const char* m_name;
-    float m_frameTime;
-    int m_currentFrame;
-    float m_elapsedTime;
-	int m_totalFrames;
+    const char* m_name{};
+    float m_frameTime{};
+    int m_currentFrame{};
+    float m_elapsedTime{};
+    int m_totalFrames{};
 };

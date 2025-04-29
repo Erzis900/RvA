@@ -55,5 +55,5 @@ void PlayState::draw(Game& game)
 
 void PlayState::goToWinState(Game& game)
 {
-	game.setState(std::make_unique<WinState>());
+	game.setState(std::make_unique<WinState>(game));
 }
