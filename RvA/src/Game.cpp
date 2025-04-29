@@ -15,15 +15,21 @@ Game::Game()
 	m_renderTexture = LoadRenderTexture(m_texWidth, m_texHeight);
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
-	m_currentState = std::make_unique<MenuState>();
 	m_atlas.load("assets/atlas.png");
 
 	DisableCursor();
+
+	InitAudioDevice();
+	m_musicManager.load();
+
+	m_currentState = std::make_unique<MenuState>();
+	m_currentState->onEnter(*this);
 }
 
 Game::~Game()
 {
 	UnloadRenderTexture(m_renderTexture);
+	CloseAudioDevice();
 	CloseWindow();
 }
 
@@ -41,6 +47,8 @@ void Game::update()
 	{
 		m_currentState->update(*this, dt);
 	}
+
+	m_musicManager.updateStream();
 }
 
 void Game::updateRenderRec()
@@ -100,8 +108,12 @@ void Game::drawFPS()
 
 void Game::setState(std::unique_ptr<IGameState> newState)
 {
+	m_currentState->onExit(*this);
+
 	m_nextState = std::move(newState);
 	m_fadingOut = true;
+
+	m_nextState->onEnter(*this);
 }
 
 void Game::updateTransition(float dt)

@@ -5,6 +5,7 @@
 #include "GUI/GUI.h"
 #include "GUI/GUIHelper.h"
 #include "atlas/Atlas.h"
+#include "MusicManager.h"
 
 class Game
 {
@@ -18,7 +19,7 @@ public:
 	GUI& getGUI() { return m_gui; }
 	GUIHelper& getGUIHelper() { return m_guiHelper; }
 	Atlas& getAtlas() { return m_atlas; }
-
+	MusicManager& getMusicManager() { return m_musicManager; }
 private:
 	std::unique_ptr<IGameState> m_currentState;
 	std::unique_ptr<IGameState> m_nextState;
@@ -50,4 +51,5 @@ private:
 	GUI m_gui;
 	GUIHelper m_guiHelper;
 	Atlas m_atlas;
+	MusicManager m_musicManager;
 };
