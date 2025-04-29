@@ -21,7 +21,7 @@ std::string Defender::getDefenderTypeName(DefenderType type)
 Defender::Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game, DefenderManager& defenderManager)
     : m_position(position), m_type(type), m_name(getDefenderTypeName(type)), m_animation(m_name, 0.1f, game.getAtlas()),
 	m_row(row), m_col(col), m_hp(0), m_maxHp(0), m_energyDelta(0.f), m_active(false), m_batteryDelta(0), m_game(game),
-	m_shootCooldown(1.f), m_shootTimer(0.f), m_defenderManager(defenderManager)
+	m_shootCooldown(1.f), m_shootTimer(0.f), m_isAlive(true), m_defenderManager(defenderManager)
 {
 	std::string baseName = m_name.substr(0, m_name.find("_idle"));
 	m_offName = baseName + "_off";

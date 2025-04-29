@@ -25,6 +25,11 @@ void DefenderManager::update(float dt, float& energy, int &batteries, EnemyManag
                 }   
 			}
         }
+
+		if (!defender->isAlive())
+		{
+			m_occupied[defender->getRow()][defender->getCol()] = false;
+		}
     }
 
     for (auto& bullet : m_bullets)

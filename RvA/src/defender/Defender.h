@@ -26,7 +26,10 @@ public:
 	int getCol() const { return m_col; }
 
 	void setActive(bool active) { m_active = active; }
+	void setAlive(bool alive) { m_isAlive = alive; }
+
 	bool isActive() const { return m_active; }
+	bool isAlive() const { return m_isAlive; }
 private:
     Vector2 m_position;
     DefenderType m_type;
@@ -47,6 +50,8 @@ private:
 
     float m_shootCooldown;
     float m_shootTimer;
+
+    bool m_isAlive;
 
     std::string getDefenderTypeName(DefenderType type);
     void updateEnergy(float dt, float& energy);

@@ -49,14 +49,15 @@ void Enemy::update(float dt)
 
         if (m_attackTime <= 0.f)
         {
-			m_targetDefender->takeDamage(m_damage);
+            m_targetDefender->takeDamage(m_damage);
 
-			if (m_targetDefender->getHp() <= 0.f)
-			{
-				m_targetDefender = nullptr;
-			}
+            m_attackTime = 0.5f;
+        }
 
-            m_attackTime = 1.f;
+        if (m_targetDefender->getHp() <= 0.f)
+        {
+            m_targetDefender->setAlive(false);
+            m_targetDefender = nullptr;
         }
     }
     else
