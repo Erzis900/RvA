@@ -1,5 +1,5 @@
 #pragma once
-#include "defender/DefenderTypes.h"
+#include "constants.h"
 #include "Game.h"
 #include "GUIHelper.h"
 #include <raygui.h>
@@ -52,12 +52,12 @@ Vector2 GUIHelper::calculateCoordinates(const Vector2& size, const GUIPosition& 
 		}
 		case GUIAlignmentH::Right:
 		{
-			result.x = m_game.getTexSize().x - (size.x + guiPosition.position.x);
+			result.x = TEX_WIDTH - (size.x + guiPosition.position.x);
 			break;
 		}
 		case GUIAlignmentH::Center:
 		{
-			result.x = m_game.getTexSize().x / 2 - (size.x / 2) + guiPosition.position.x;
+			result.x = TEX_WIDTH / 2 - (size.x / 2) + guiPosition.position.x;
 			break;
 		}
 		}
@@ -74,12 +74,12 @@ Vector2 GUIHelper::calculateCoordinates(const Vector2& size, const GUIPosition& 
 		}
 		case GUIAlignmentV::Bottom:
 		{
-			result.y = m_game.getTexSize().y - (size.y + guiPosition.position.y);
+			result.y = TEX_HEIGHT - (size.y + guiPosition.position.y);
 			break;
 		}
 		case GUIAlignmentV::Center:
 		{
-			result.y = m_game.getTexSize().y / 2 - (size.y / 2) + guiPosition.position.y;
+			result.y = TEX_HEIGHT / 2 - (size.y / 2) + guiPosition.position.y;
 			break;
 		}
 		}

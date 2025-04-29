@@ -1,7 +1,7 @@
 #include "MenuState.h"
 #include "Game.h"
 #include "states/PlayState.h"
-#include "states/WinState.h"
+#include "states/CreditsState.h"
 
 void MenuState::draw(Game& game)
 {
@@ -14,7 +14,7 @@ void MenuState::draw(Game& game)
 
 	if (guiHelper.DrawButton({ "Credits", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
-		game.setState(std::make_unique<WinState>());
+		game.setState(std::make_unique<CreditsState>());
 	}
 
 	if (guiHelper.DrawButton({ "Play", btnSize, { {0, -btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
