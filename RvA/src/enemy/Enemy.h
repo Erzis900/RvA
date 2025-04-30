@@ -24,7 +24,7 @@ public:
     int getHp() { return m_hp; }
 	int getRow() { return m_row; }
     int getDamage() const;
-    const Vector2& getPosition() { return m_position; }
+    const Vector2& getPosition() const { return m_position; }
 
     static const char* getEnemyTypeName(EnemyType type);
 
