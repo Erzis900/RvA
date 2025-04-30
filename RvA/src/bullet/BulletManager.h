@@ -10,6 +10,13 @@
 class EnemyManager;
 class Enemy;
 
+template<typename TData, typename TInfo>
+struct BulletData
+{
+	TData data;
+	const TInfo* info;
+};
+
 struct BulletShotInfo
 {
 	Vector2 velocity;
@@ -19,7 +26,12 @@ struct BulletShotInfo
 
 struct LaserBeamInfo
 {
-
+	Vector2 startOffset{};
+	float laserHeight{};
+	float damage{};
+	float auraSize{ 4 };
+	Color beamColor{ 255, 0, 0, 255 };
+	Color auraColor{ 255, 255, 255, 128 };
 };
 
 struct BulletTypeInfo

@@ -192,10 +192,10 @@ DefenderUpdateResult DefenderManager2::update(float dt)
             
             if (defender->info->bulletType)
             {
-                defender->shootTime += dt;
-                if (defender->shootTime >= defender->info->shootCooldown)
+                defender->shootTime -= dt;
+                if (defender->shootTime <= 0)
                 {
-                    defender->shootTime = 0.f;
+                    defender->shootTime = defender->info->shootCooldown;
                     result.actions.push_back(BulletSpawnAction{
                         .bulletType = *defender->info->bulletType,
                         .position = defender->position
@@ -226,6 +226,7 @@ void DefenderManager2::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, i
 {
     auto defender = std::make_unique<Defender2>();
     defender->info = defenderTypeInfo;
+    defender->shootTime = defenderTypeInfo->firstShootCooldown;
     defender->position = Vector2{ float(column) * CELL_SIZE + CELL_SIZE, float(row) * CELL_SIZE + CELL_SIZE };
     defender->isActive = false;
     defender->column = column;

@@ -2,5 +2,6 @@
 
 enum class BulletType
 {
-	SimpleBullet
+	SimpleBullet,
+	Laser
 };

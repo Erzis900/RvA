@@ -51,6 +51,7 @@ struct DefenderTypeInfo
     std::string spriteDisabled;
     float energyDrain{};
     float batteryGain{};
+    float firstShootCooldown{};
     float shootCooldown{};
     int maxHP{};
     int cost{};

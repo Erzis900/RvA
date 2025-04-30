@@ -78,6 +78,9 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet)
 	}
 }
 
+/*
+* Simple Bullet
+*/
 void BulletManager::setupBullet(Bullet2& bullet, const BulletShotInfo& info)
 {
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
@@ -102,8 +105,13 @@ void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, const BulletShotIn
 	enemy.takeDamage(static_cast<int>(info.damage));
 }
 
+/*
+* Laser Beam
+*/
 void BulletManager::setupBullet(Bullet2& bullet, const LaserBeamInfo& info)
 {
+	bullet.position = Vector2Add(bullet.position, info.startOffset);
+	bullet.boundingBox = { bullet.position.x, bullet.position.y - info.laserHeight / 2, 200, info.laserHeight };
 }
 
 void BulletManager::updateBullet(Bullet2& bullet, const LaserBeamInfo& info, float dt)
@@ -112,8 +120,18 @@ void BulletManager::updateBullet(Bullet2& bullet, const LaserBeamInfo& info, flo
 
 void BulletManager::drawBullet(Bullet2& bullet, const LaserBeamInfo& info)
 {
+	float width = 400;
+	static float time = 0;
+	time += GetFrameTime();
+	float shake = sinf(time * 60.0f) * 2.0f;
+	DrawRectangle(bullet.position.x + info.laserHeight / 2, bullet.position.y - info.laserHeight / 2 - info.auraSize / 2 + shake, width, info.laserHeight + info.auraSize, info.auraColor);
+	DrawRectangle(bullet.position.x, bullet.position.y - info.laserHeight / 2 + shake, width, info.laserHeight, info.beamColor);
+
+	DrawCircleV(bullet.position, info.laserHeight, BLUE);
+	DrawCircleV({ bullet.position.x + width, bullet.position.y + shake }, info.laserHeight * 0.5f, info.beamColor);
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, const LaserBeamInfo& info)
 {
+	enemy.takeDamage(static_cast<int>(info.damage));
 }
