@@ -9,7 +9,7 @@ DefenderManager::DefenderManager(Game& game)
 {
 }
 
-void DefenderManager::update(float dt, float& energy, int &batteries, EnemyManager& enemyManager)
+void DefenderManager::update(float dt, float& energy, float &batteries, EnemyManager& enemyManager)
 {
     for (auto& defender : m_defenders)
     {
@@ -68,7 +68,7 @@ void DefenderManager::update(float dt, float& energy, int &batteries, EnemyManag
         m_defenders.end()
     );
 
-    handlePlace();
+    handlePlace(batteries);
 }
 
 void DefenderManager::draw()
@@ -89,7 +89,7 @@ void DefenderManager::spawnBullet(std::unique_ptr<Bullet> bullet)
     m_bullets.push_back(std::move(bullet));
 }
 
-void DefenderManager::handlePlace()
+void DefenderManager::handlePlace(float& batteries)
 {
     if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
     {
@@ -111,11 +111,11 @@ void DefenderManager::handlePlace()
 
                     int cost = m_costs[static_cast<int>(type)];
 
-                    if (cost <= m_game.getGUI().getBatteries())
+                    if (cost <= batteries)
                     {
                         m_defenders.push_back(std::make_unique<Defender>(Vector2{ x, y }, row, col, cost, type, m_game, *this));
                         m_occupied[row][col] = true;
-						m_game.getGUI().getBatteries() -= cost;
+                        batteries -= cost;
                     }
 				}
 			}
@@ -135,4 +135,118 @@ void DefenderManager::handlePlace()
             }
         }
     }
+}
+
+void DefenderTypeRegistry::registerDefender(DefenderTypeInfo defenderTypeInfo)
+{
+    m_defenderTypes.insert({ defenderTypeInfo.type, std::move(defenderTypeInfo) });
+}
+
+const DefenderTypeInfo* DefenderTypeRegistry::getDefenderInfo(DefenderType type) const
+{
+    auto itr = m_defenderTypes.find(type);
+    return (itr != m_defenderTypes.end()) ? &itr->second : nullptr;
+}
+
+DefenderManager2::DefenderManager2(Atlas& atlas, GUI& gui)
+    : m_atlas(atlas)
+    , m_gui(gui)
+{
+    m_defenders.reserve(128);
+}
+
+void DefenderManager2::draw()
+{
+    for (auto& defender : m_defenders)
+    {
+        m_atlas.drawAnimation(
+            defender->isActive ? defender->info->spriteEnabled.c_str() : defender->info->spriteDisabled.c_str(),
+            defender->position,
+            defender->isActive ? defender->animation.getCurrentFrame() : 0);
+
+        m_gui.drawHp(defender->hp, defender->info->maxHP, defender->position);
+    }
+}
+
+DefenderUpdateResult DefenderManager2::update(float dt)
+{
+    DefenderUpdateResult result;
+    for (auto it = m_defenders.begin(); it != m_defenders.end(); )
+    {
+        auto& defender = *it;
+
+        defender->animation.update(dt);
+        if (defender->isActive)
+        {
+            result.amountOfEnergyDrain += dt * defender->info->energyDrain;
+            
+            if(defender->info->batteryGain != 0) 
+            {
+                defender->batteryGainTime += dt;
+                if (defender->batteryGainTime > 1.f)
+                {
+                    defender->batteryGainTime = 0;
+                    result.amountOfBatteryGain += defender->info->batteryGain;
+                }
+            }
+            
+            if (defender->info->bulletType)
+            {
+                defender->shootTime += dt;
+                if (defender->shootTime >= defender->info->shootCooldown)
+                {
+                    defender->shootTime = 0.f;
+                    result.actions.push_back(BulletSpawnAction{
+                        .bulletType = *defender->info->bulletType,
+                        .position = defender->position
+                    });
+                }
+            }
+        }
+
+        if (defender->hp <= 0)
+        {
+            m_defenderGrid[defender->row][defender->column] = nullptr;
+            it = m_defenders.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    return result;
+}
+
+const std::vector<std::unique_ptr<Defender2>>& DefenderManager2::getDefenders() const
+{
+    return m_defenders;
+}
+
+void DefenderManager2::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column)
+{
+    auto defender = std::make_unique<Defender2>();
+    defender->info = defenderTypeInfo;
+    defender->position = Vector2{ float(column) * CELL_SIZE + CELL_SIZE, float(row) * CELL_SIZE + CELL_SIZE };
+    defender->isActive = false;
+    defender->column = column;
+    defender->row = row;
+    defender->animation = Animation::createAnimation(defenderTypeInfo->spriteEnabled.c_str(), 0.1f, m_atlas);
+    defender->hp = defender->info->maxHP;
+    m_defenderGrid[row][column] = defender.get();
+    m_defenders.push_back(std::move(defender));
+}
+
+void DefenderManager2::toggleDefender(int row, int column)
+{
+    auto defender = m_defenderGrid[row][column];
+    if (defender)
+    {
+        defender->isActive = !defender->isActive;
+    }
+}
+
+bool DefenderManager2::hasDefender(int row, int column) const
+{
+    auto defender = m_defenderGrid[row][column];
+    return defender != nullptr;
 }

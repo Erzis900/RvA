@@ -78,7 +78,7 @@ WinState::SpriteItem WinState::createSpriteItem(Game& game, const char* name, co
 		name ? name : "",
 		position,
 		velocity,
-		name ? std::make_unique<Animation>(name, 0.05f, game.getAtlas()) : nullptr
+		name ? std::make_unique<Animation>(Animation::createAnimation(name, 0.05f, game.getAtlas())) : nullptr
 	};
 }
 

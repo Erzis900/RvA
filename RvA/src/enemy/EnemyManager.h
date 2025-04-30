@@ -6,11 +6,12 @@
 #include "Enemy.h"
 
 class Game;
+class DefenderManager2;
 
 class EnemyManager
 {
 public:
-    EnemyManager(Game& game);
+    EnemyManager(Game& game, DefenderManager2& defenderManager);
 
     void update(float dt);
     void draw();
@@ -27,6 +28,7 @@ public:
 private:
     void spawnEnemy();
     void notifyEnemiesDestroyed(int numberOfDestroyedEnemies);
+    void manageDefenderCollisions(Enemy& enemy);
 
     std::vector<std::unique_ptr<Enemy>> m_enemies;
     std::function<void(int)> m_onEnemiesDestroyedCallback;
@@ -34,5 +36,6 @@ private:
     float m_spawnInterval{ 1.f };
 
     Game& m_game;
+    DefenderManager2& m_defenderManager;
     std::map<std::string, float> m_spawnData;
 };

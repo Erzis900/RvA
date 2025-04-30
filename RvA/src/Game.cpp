@@ -19,6 +19,9 @@ Game::Game()
 
 	DisableCursor();
 
+	registerDefenderTypes();
+	registerBulletTypes();
+
 	InitAudioDevice();
 	m_musicManager.load();
 
@@ -146,4 +149,55 @@ void Game::run()
 		update();
 		draw();
 	}
+}
+
+void Game::registerDefenderTypes()
+{
+	m_defenderTypeRegistry.registerDefender({
+		.type = DefenderType::Solar,
+		.spriteEnabled = "solar_idle",
+		.spriteDisabled = "solar_off",
+		.energyDrain = -5,
+		.batteryGain = 5,
+		.maxHP = 100,
+	});
+
+	m_defenderTypeRegistry.registerDefender({
+		.type = DefenderType::Shooter,
+		.spriteEnabled = "shooter_idle",
+		.spriteDisabled = "shooter_off",
+		.energyDrain = 5.f,
+		.shootCooldown = 1.f,
+		.maxHP = 150,
+		.bulletType = BulletType::SimpleBullet,
+	});
+
+	m_defenderTypeRegistry.registerDefender({
+		.type = DefenderType::Catapult,
+		.spriteEnabled = "catapult_idle",
+		.spriteDisabled = "catapult_off",
+		.energyDrain = 10.f,
+		.maxHP = 200,
+	});
+
+	m_defenderTypeRegistry.registerDefender({
+		.type = DefenderType::Lasertron,
+		.spriteEnabled = "lasertron_idle",
+		.spriteDisabled = "lasertron_off",
+		.energyDrain = 20.f,
+		.maxHP = 250,
+	});
+}
+
+void Game::registerBulletTypes()
+{
+	m_bulletTypeRegistry.registerBulletType({
+		.type = BulletType::SimpleBullet,
+		.maxLifetime = 100,
+		.behaviour = BulletShotInfo {
+			.velocity = { 150, 0 },
+			.radius = 5.f,
+			.damage = 50,
+		},
+	});
 }

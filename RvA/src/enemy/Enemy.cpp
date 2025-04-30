@@ -12,18 +12,8 @@ const char* Enemy::getEnemyTypeName(EnemyType type)
     }
 }
 
-void Enemy::takeDamage(int damage)
-{
-	m_hp -= damage;
-}
-
-void Enemy::setTargetDefender(Defender* defender)
-{
-    m_targetDefender = defender;
-}
-
 Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row)
-	: m_position(position), m_animation(getEnemyTypeName(type), 0.1f, atlas), m_row(row), 
+    : m_position(position), m_animation(Animation::createAnimation(getEnemyTypeName(type), 0.1f, atlas)), m_row(row),
     m_attackTime(0.5f), m_targetDefender(nullptr), m_damage(50)
 {
     switch (type)
@@ -37,8 +27,40 @@ Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row)
         m_speed = 80.f;
         break;
     }
-	m_hp = m_maxHp;
-	m_name = getEnemyTypeName(type);
+    m_hp = m_maxHp;
+    m_name = getEnemyTypeName(type);
+}
+
+void Enemy::setAttackState(AttackState attackState)
+{
+    if (m_attackState != attackState)
+    {
+        switch (attackState)
+        {
+        case AttackState::NoAttack:
+        case AttackState::PrepareToAttack: 
+            m_attackTime = 0.5f;
+            break;
+        }
+    }
+
+    m_attackState = attackState;
+
+}
+
+Enemy::AttackState Enemy::getAttackState() const
+{
+    return m_attackState;
+}
+
+void Enemy::takeDamage(int damage)
+{
+	m_hp -= damage;
+}
+
+void Enemy::setTargetDefender(Defender* defender)
+{
+    m_targetDefender = defender;
 }
 
 void Enemy::update(float dt)
@@ -60,6 +82,14 @@ void Enemy::update(float dt)
             m_targetDefender = nullptr;
         }
     }
+    else if (m_attackState == AttackState::PrepareToAttack)
+    {
+        m_attackTime -= dt;
+        if (m_attackTime <= 0.f)
+        {
+            m_attackState = AttackState::ReadyToAttack;
+        }
+    }
     else
     {
         m_position.x -= m_speed * dt;
@@ -72,4 +102,9 @@ void Enemy::draw(Game& game)
 {
 	game.getAtlas().drawAnimation(m_name.c_str(), m_position, m_animation.getCurrentFrame());
 	game.getGUI().drawHp(m_hp, m_maxHp, m_position);
+}
+
+int Enemy::getDamage() const
+{
+    return m_damage;
 }

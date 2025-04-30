@@ -9,12 +9,11 @@ class GUI
 {
 public:
 	GUI(Game& game);
-	void drawGame(float energy, DefenderManager& defenderManager);
+	void drawGame(float energy, float batteries, DefenderManager& defenderManager);
 	void drawCursor();
 	void drawHp(int hp, int maxHp, Vector2 pos);
 
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
-	int& getBatteries() { return m_batteries; }
 	bool isPaused() const { return m_paused; }
 
 	void reset();
@@ -23,7 +22,6 @@ private:
 	void drawDefenders();
 	void drawCosts(DefenderManager& defenderManager);
 
-	int m_batteries;
 	bool m_paused;
 	bool m_defenderHover;
 
