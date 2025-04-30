@@ -170,6 +170,7 @@ void Game::registerDefenderTypes()
 		.firstShootCooldown = 1.f,
 		.shootCooldown = 1.f,
 		.maxHP = 150,
+		.cost = 10,
 		.bulletType = BulletType::SimpleBullet,
 	});
 
@@ -179,6 +180,7 @@ void Game::registerDefenderTypes()
 		.spriteDisabled = "catapult_off",
 		.energyDrain = 10.f,
 		.maxHP = 200,
+		.cost = 20,
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -189,6 +191,7 @@ void Game::registerDefenderTypes()
 		.firstShootCooldown = 0.5f,
 		.shootCooldown = 3.f,
 		.maxHP = 250,
+		.cost = 30,
 		.bulletType = BulletType::Laser
 	});
 }
