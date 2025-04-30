@@ -7,7 +7,8 @@
 #include <raymath.h>
 
 WinState::WinState(Game& game) {
-	m_defenders.push_back(createSpriteItem(game, Defender::getDefenderTypeName(DefenderType::Solar), { TEX_WIDTH, 100 }, {-150, 0}));
+	auto solarPanelInfo = game.getDefenderRegistry().getDefenderInfo(DefenderType::Solar);
+	m_defenders.push_back(createSpriteItem(game, solarPanelInfo->spriteEnabled.c_str(), {TEX_WIDTH, 100}, {-150, 0}));
 
 	auto x = TEX_WIDTH + 100.f;
 	for (auto i = 0; i < 3; ++i)

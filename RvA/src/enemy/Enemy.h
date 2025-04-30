@@ -3,7 +3,6 @@
 #include <string>
 #include "EnemyTypes.h"
 #include "Animation.h"
-#include "defender/Defender.h"
 #include <memory>
 
 class Game;
@@ -19,7 +18,6 @@ public:
     void draw(Game& game);
 
     void takeDamage(int damage);
-    void setTargetDefender(Defender* defender);
 
     int getHp() { return m_hp; }
 	int getRow() { return m_row; }
@@ -50,6 +48,5 @@ private:
     int m_damage;
 
 	Animation m_animation;
-	Defender* m_targetDefender;
     AttackState m_attackState{AttackState::NoAttack};
 };

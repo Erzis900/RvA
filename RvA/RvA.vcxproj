@@ -154,7 +154,6 @@
     <ClCompile Include="src\states\CreditsState.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
-    <ClCompile Include="src\defender\Defender.cpp" />
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="deps\libtextureatlas\src\textureatlas.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -173,6 +172,7 @@
     <ClCompile Include="src\states\WinState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\raylib\include\reasings.h" />
     <ClInclude Include="deps\spdlog\async.h" />
     <ClInclude Include="deps\spdlog\async_logger-inl.h" />
     <ClInclude Include="deps\spdlog\async_logger.h" />
@@ -279,6 +279,7 @@
     <ClInclude Include="deps\spdlog\version.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypes.h" />
+    <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\bullet\ShooterBullet.h" />
     <ClInclude Include="src\bullet\Bullet.h" />
@@ -287,11 +288,9 @@
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\defender\DefenderManager.h" />
-    <ClInclude Include="src\defender\Defender.h" />
     <ClInclude Include="src\Animation.h" />
     <ClInclude Include="deps\libtextureatlas\include\textureatlas.h" />
     <ClInclude Include="deps\raygui-cpp\include\raygui.h" />
-    <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\enemy\Enemy.h" />
     <ClInclude Include="src\enemy\EnemyManager.h" />
     <ClInclude Include="src\atlas\Atlas.h" />

@@ -46,21 +46,15 @@ void GUI::drawDefenders()
 {
 	m_defenderHover = false;
 
-	DefenderType types[] = {
-		DefenderType::Solar,
-		DefenderType::Shooter,
-		DefenderType::Catapult,
-		DefenderType::Lasertron
-	};
-
-	for (int i = 0; i < int(DefenderType::None); i++)
+	auto i = 0;
+	for (auto& [type, info] : m_game.getDefenderRegistry().getDefenderInfos())
 	{
 		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		m_game.getAtlas().drawSprite(getSpriteName(types[i]), position);
+		m_game.getAtlas().drawSprite(info.spriteEnabled.c_str(), position);
 
 		Rectangle rect = { position.x, position.y, float(CELL_SIZE), float(CELL_SIZE) };
 
-		if (m_selectedDefender == types[i])
+		if (m_selectedDefender == type)
 		{
 			DrawRectangleLinesEx(rect, 1, GREEN);
 		}
@@ -71,27 +65,30 @@ void GUI::drawDefenders()
 			DrawRectangleLinesEx(rect, 1, SKYBLUE);
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 			{
-				m_selectedDefender = types[i];
+				m_selectedDefender = type;
 			}
 		}
+		++i;
 	}
 }
 
-void GUI::drawCosts(DefenderManager& defenderManager)
+void GUI::drawCosts()
 {
-	for (int i = 0; i < int(DefenderType::None); i++)
+	auto i = 0;
+	for (auto& [type, info] : m_game.getDefenderRegistry().getDefenderInfos())
 	{
 		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		std::string costText = std::to_string(defenderManager.getCosts()[i]);
+		std::string costText = std::to_string(info.cost);
 		DrawText(costText.c_str(), int(position.x), int(position.y), 10, WHITE);
+		++i;
 	}
 }
 
-void GUI::drawGame(float energy, float batteries, DefenderManager& defenderManager)
+void GUI::drawGame(float energy, float batteries)
 {
 	drawEnergyBar(energy);
 	drawDefenders();
-	drawCosts(defenderManager);
+	drawCosts();
 	DrawText(TextFormat("%d", static_cast<int>(batteries)), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };

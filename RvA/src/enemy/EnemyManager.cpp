@@ -5,7 +5,7 @@
 #include "constants.h"
 #include <ranges>
 
-EnemyManager::EnemyManager(Game& game, DefenderManager2& defenderManager) : m_game(game), m_defenderManager(defenderManager)
+EnemyManager::EnemyManager(Game& game, DefenderManager& defenderManager) : m_game(game), m_defenderManager(defenderManager)
 {
     m_spawnData = {
         { "b1_alien_walk", 0.7f },
@@ -38,7 +38,7 @@ void EnemyManager::update(float dt)
         return enemy->getHp() <= 0.f;
     });
     if (numberOfDestroyedEnemies > 0) {
-        notifyEnemiesDestroyed(numberOfDestroyedEnemies);
+        notifyEnemiesDestroyed(static_cast<int>(numberOfDestroyedEnemies));
     }
 }
 
