@@ -45,9 +45,6 @@
     <ClCompile Include="src\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\defender\Defender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\defender\DefenderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\states\WinState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MusicManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,13 +107,7 @@
     <ClInclude Include="src\enemy\EnemyTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\defender\Defender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\defender\DefenderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\defender\DefenderTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\constants.h">
@@ -453,6 +447,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\states\WinState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MusicManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\raylib\include\reasings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\defender\DefenderTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

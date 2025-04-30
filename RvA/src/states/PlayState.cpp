@@ -17,7 +17,7 @@ void PlayState::onExit(Game& game)
 }
 
 PlayState::PlayState(Game& game)
-	: m_game(game), m_enemyManager(game, m_defenderManager2), m_defenderManager(game), m_defenderManager2(game.getAtlas(), game.getGUI()), m_bulletManager(m_enemyManager)
+	: m_game(game), m_defenderManager(game.getAtlas(), game.getGUI()), m_enemyManager(game, m_defenderManager), m_bulletManager(m_enemyManager)
 {
 	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
 		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;
@@ -45,23 +45,16 @@ void PlayState::update(Game& game, float dt)
 
 	m_enemyManager.update(dt);
 
-	if constexpr (NEW_DEFENDER_SYSTEM)
+	performDefenderSpawnOnInput();
+	auto result = m_defenderManager.update(dt);
+	performActions(result.actions);
+	updateEnergyAndBatteries(result.amountOfBatteryGain, result.amountOfEnergyDrain);
+	if (m_energy <= 0)
 	{
-		performDefenderSpawnOnInput();
-		auto result = m_defenderManager2.update(dt);
-		performActions(result.actions);
-		updateEnergyAndBatteries(result.amountOfBatteryGain, result.amountOfEnergyDrain);
-		if (m_energy <= 0)
-		{
-			m_game.setState(std::make_unique<LostState>());
-		}
+		m_game.setState(std::make_unique<LostState>());
+	}
 
-		m_bulletManager.update(dt);
-	}
-	else
-	{
-		m_defenderManager.update(dt, m_energy, m_batteries, m_enemyManager);
-	}
+	m_bulletManager.update(dt);
 
 	if constexpr (DEV_MODE)
 	{
@@ -76,19 +69,11 @@ void PlayState::draw(Game& game)
 {
 	drawGrid();
 
-	if constexpr (NEW_DEFENDER_SYSTEM)
-	{
-		m_defenderManager2.draw();
-		m_bulletManager.draw();
-	}
-	else
-	{
-		m_defenderManager.draw();
-	}
-
+	m_defenderManager.draw();
 	m_enemyManager.draw();
+	m_bulletManager.draw();
 
-	game.getGUI().drawGame(m_energy, m_batteries, m_defenderManager);
+	game.getGUI().drawGame(m_energy, m_batteries);
 }
 
 void PlayState::goToWinState(Game& game)
@@ -121,7 +106,7 @@ void PlayState::performDefenderSpawnOnInput()
 					auto defenderInfo = m_game.getDefenderRegistry().getDefenderInfo(type);
 					if (defenderInfo && canAffordCost(defenderInfo->cost))
 					{
-						m_defenderManager2.spawnDefender(defenderInfo, row, column);
+						m_defenderManager.spawnDefender(defenderInfo, row, column);
 						m_batteries -= defenderInfo->cost;
 					}
 				}
@@ -130,7 +115,7 @@ void PlayState::performDefenderSpawnOnInput()
 			{
 				if (!canPlaceDefender(row, column))
 				{
-					m_defenderManager2.toggleDefender(row, column);
+					m_defenderManager.toggleDefender(row, column);
 				}
 			}
 		}
@@ -150,7 +135,7 @@ void PlayState::performAction(const BulletSpawnAction& action)
 	auto bulletInfo = m_game.getBulletTypeRegistry().getBulletInfo(action.bulletType);
 	if (bulletInfo)
 	{
-		m_bulletManager.spawnBullet(bulletInfo, action.position);
+		m_bulletManager.spawnBullet(*bulletInfo, action.position);
 	}
 }
 
@@ -161,5 +146,5 @@ bool PlayState::canAffordCost(int cost) const
 
 bool PlayState::canPlaceDefender(int x, int y) const
 {
-	return !m_defenderManager2.hasDefender(x, y);
+	return !m_defenderManager.hasDefender(x, y);
 }

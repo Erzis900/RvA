@@ -3,13 +3,12 @@
 #include <raylib.h>
 
 class Game;
-class DefenderManager;
 
 class GUI
 {
 public:
 	GUI(Game& game);
-	void drawGame(float energy, float batteries, DefenderManager& defenderManager);
+	void drawGame(float energy, float batteries);
 	void drawCursor();
 	void drawHp(int hp, int maxHp, Vector2 pos);
 
@@ -20,10 +19,10 @@ public:
 private:
 	void drawEnergyBar(float energy);
 	void drawDefenders();
-	void drawCosts(DefenderManager& defenderManager);
+	void drawCosts();
 
-	bool m_paused;
-	bool m_defenderHover;
+	bool m_paused{};
+	bool m_defenderHover{};
 
 	Game& m_game;
 	DefenderType m_selectedDefender;

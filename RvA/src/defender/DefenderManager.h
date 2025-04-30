@@ -1,42 +1,14 @@
 #pragma once
+
 #include <vector>
 #include <memory>
 #include <array>
 #include <variant>
 #include <optional>
 #include <unordered_map>
-#include "Defender.h"
 #include <constants.h>
-#include "bullet/Bullet.h"
-#include "bullet/BulletTypes.h"
-
-class Game;
-class EnemyManager;
-
-class DefenderManager
-{
-public:
-    DefenderManager(Game& game);
-
-    void update(float dt, float& energy, float &batteries, EnemyManager& enemyManager);
-    void draw();
-
-    void spawnBullet(std::unique_ptr<Bullet> bullet);
-
-    const std::array<int, static_cast<int>(DefenderType::None)>& getCosts() const
-    {
-        return m_costs;
-    }
-
-private:
-    Game& m_game;
-    std::vector<std::unique_ptr<Defender>> m_defenders;
-	std::array<std::array<bool, COLS>, ROWS> m_occupied = { false };
-    std::array<int, static_cast<int>(DefenderType::None)> m_costs = { 0, 10, 20, 30 };
-    std::vector<std::unique_ptr<Bullet>> m_bullets;
-    
-    void handlePlace(float& batteries);
-};
+#include "Animation.h"
+#include "defender/DefenderTypes.h"
 
 class GUI;
 
@@ -51,19 +23,20 @@ struct DefenderTypeInfo
     std::string spriteDisabled;
     float energyDrain{};
     float batteryGain{};
+    float firstShootCooldown{};
     float shootCooldown{};
     int maxHP{};
     int cost{};
-    std::optional<BulletType> bulletType;
+    std::optional<std::string> bulletType;
 };
 
 /*
 * The Defender struct contains almost only data related to a single instance
 */
-struct Defender2
+struct Defender
 {
     const DefenderTypeInfo* info{};
-    Vector2 position;
+    Vector2 position{};
     bool isActive{};
     Animation animation;
     float shootTime{};
@@ -75,7 +48,7 @@ struct Defender2
 
 struct BulletSpawnAction
 {
-    BulletType bulletType;
+    std::string bulletType;
     Vector2 position;
 };
 
@@ -93,28 +66,29 @@ class DefenderTypeRegistry
 public:
     void registerDefender(DefenderTypeInfo defenderTypeInfo);
     const DefenderTypeInfo* getDefenderInfo(DefenderType type) const;
+    auto& getDefenderInfos() const { return m_defenderTypes; }
 
 private:
     std::unordered_map<DefenderType, DefenderTypeInfo> m_defenderTypes;
 };
 
-class DefenderManager2
+class DefenderManager
 {
 public:
-    DefenderManager2(Atlas& atlas, GUI& gui);
+    DefenderManager(Atlas& atlas, GUI& gui);
 
     void draw();
     DefenderUpdateResult update(float dt);
 
-    const std::vector<std::unique_ptr<Defender2>>& getDefenders() const;
+    const std::vector<std::unique_ptr<Defender>>& getDefenders() const;
 
     void toggleDefender(int row, int column);
     void spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
     bool hasDefender(int row, int column) const;
 
 private:
-    std::vector<std::unique_ptr<Defender2>> m_defenders;
-    std::array<std::array<Defender2*, COLS>, ROWS> m_defenderGrid = { nullptr };
+    std::vector<std::unique_ptr<Defender>> m_defenders;
+    std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
     Atlas& m_atlas;
     GUI& m_gui;
 };

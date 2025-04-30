@@ -1,6 +1,5 @@
 #include "Enemy.h"
 #include "Game.h"
-#include "defender/Defender.h"
 
 const char* Enemy::getEnemyTypeName(EnemyType type)
 {
@@ -14,7 +13,7 @@ const char* Enemy::getEnemyTypeName(EnemyType type)
 
 Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row)
     : m_position(position), m_animation(Animation::createAnimation(getEnemyTypeName(type), 0.1f, atlas)), m_row(row),
-    m_attackTime(0.5f), m_targetDefender(nullptr), m_damage(50)
+    m_attackTime(0.5f), m_damage(50)
 {
     switch (type)
     {
@@ -58,31 +57,9 @@ void Enemy::takeDamage(int damage)
 	m_hp -= damage;
 }
 
-void Enemy::setTargetDefender(Defender* defender)
-{
-    m_targetDefender = defender;
-}
-
 void Enemy::update(float dt)
 {
-    if (m_targetDefender)
-    {
-		m_attackTime -= dt;
-
-        if (m_attackTime <= 0.f)
-        {
-            m_targetDefender->takeDamage(m_damage);
-
-            m_attackTime = 0.5f;
-        }
-
-        if (m_targetDefender->getHp() <= 0.f)
-        {
-            m_targetDefender->setAlive(false);
-            m_targetDefender = nullptr;
-        }
-    }
-    else if (m_attackState == AttackState::PrepareToAttack)
+    if (m_attackState == AttackState::PrepareToAttack)
     {
         m_attackTime -= dt;
         if (m_attackTime <= 0.f)

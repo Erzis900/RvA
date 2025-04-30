@@ -30,14 +30,13 @@ private:
 	int m_rows{ ROWS };
 	int m_cols{ COLS };
 	int m_numberOfDestroyedEnemies{0};
-	int m_numberOfEnemiesToKill{5};
+	int m_numberOfEnemiesToKill{20};
 
 	float m_energy{ MAX_ENERGY };
 	float m_batteries{};
 
 	Game& m_game;
-	EnemyManager m_enemyManager;
 	DefenderManager m_defenderManager;
-	DefenderManager2 m_defenderManager2;
+	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
 };

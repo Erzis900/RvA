@@ -167,10 +167,11 @@ void Game::registerDefenderTypes()
 		.spriteEnabled = "shooter_idle",
 		.spriteDisabled = "shooter_off",
 		.energyDrain = 5.f,
+		.firstShootCooldown = 1.f,
 		.shootCooldown = 1.f,
 		.maxHP = 150,
 		.cost = 10,
-		.bulletType = BulletType::SimpleBullet,
+		.bulletType = "SimpleShot",
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -187,20 +188,32 @@ void Game::registerDefenderTypes()
 		.spriteEnabled = "lasertron_idle",
 		.spriteDisabled = "lasertron_off",
 		.energyDrain = 20.f,
+		.firstShootCooldown = 0.5f,
+		.shootCooldown = 4.f,
 		.maxHP = 250,
 		.cost = 30,
+		.bulletType = "LaserBeam"
 	});
 }
 
 void Game::registerBulletTypes()
 {
-	m_bulletTypeRegistry.registerBulletType({
-		.type = BulletType::SimpleBullet,
+	m_bulletTypeRegistry.registerBulletType("SimpleShot", BulletShotData {
+		.velocity = { 150, 0 },
+		.radius = 5.f,
+		.damage = 50,
 		.maxLifetime = 100,
-		.behaviour = BulletShotInfo {
-			.velocity = { 150, 0 },
-			.radius = 5.f,
-			.damage = 50,
-		},
+	});
+
+	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{
+		.startOffset = { 35, 18 },
+		.beamHeight = 6,
+		.damage = 2.5f,
+		.auraSize = 2,
+		.beamColor = BLUE,
+		.auraColor = {255, 255, 255, 200},
+		.maxLifetime = 2.f,
+		.shootAnimationSpeed = 15,
+		.shootAnimationDuration = 2.f
 	});
 }

@@ -1,20 +1,22 @@
 #include "bullet/BulletManager.h"
 #include "enemy/EnemyManager.h"
 #include <raymath.h>
+#include <reasings.h>
+#include <constants.h>
 
 BulletManager::BulletManager(EnemyManager& enemyManager) : m_enemyManager(enemyManager)
 {
 	m_bullets.reserve(128);
 }
 
-void BulletTypeRegistry::registerBulletType(BulletTypeInfo typeInfo)
+void BulletTypeRegistry::registerBulletType(std::string id, BulletData data)
 {
-	m_bulletTypes.insert({ typeInfo.type, std::move(typeInfo) });
+	m_bulletTypes.insert({ std::move(id), std::move(data) });
 }
 
-const BulletTypeInfo* BulletTypeRegistry::getBulletInfo(BulletType type) const
+const BulletData* BulletTypeRegistry::getBulletInfo(const std::string& id) const
 {
-	if (auto itr = m_bulletTypes.find(type); itr != m_bulletTypes.end())
+	if (auto itr = m_bulletTypes.find(id); itr != m_bulletTypes.end())
 	{
 		return &itr->second;
 	}
@@ -28,7 +30,7 @@ void BulletManager::update(float dt)
 	{
 		auto& bullet = *it;
 
-		std::visit([this, &bullet, dt](auto&& behaviour) { updateBullet(*bullet, behaviour, dt); }, bullet->info->behaviour);
+		std::visit([this, &bullet, dt](auto&& data) { updateBullet(*bullet, data, dt); }, bullet->data);
 
 		manageEnemyCollisions(*bullet);
 
@@ -48,17 +50,16 @@ void BulletManager::draw()
 {
 	for (auto& bullet : m_bullets)
 	{
-		std::visit([this, &bullet](auto&& behaviour) { drawBullet(*bullet, behaviour); }, bullet->info->behaviour);
+		std::visit([this, &bullet](auto&& data) { drawBullet(*bullet, data); }, bullet->data);
 	}
 }
 
-void BulletManager::spawnBullet(const BulletTypeInfo* info, const Vector2& position)
+void BulletManager::spawnBullet(const BulletData& data, const Vector2& position)
 {
 	auto bullet = std::make_unique<Bullet2>();
-	bullet->info = info;
+	bullet->data = data;
 	bullet->position = position;
-	bullet->lifetime = info->maxLifetime;
-	std::visit([this, &bullet](auto&& behaviour) { setupBullet(*bullet, behaviour); }, info->behaviour);
+	std::visit([this, &bullet](auto&& data) { setupBullet(*bullet, data); }, bullet->data);
 	m_bullets.push_back(std::move(bullet));
 }
 
@@ -73,47 +74,84 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet)
 		auto enemyBoundingBox = Rectangle{ position.x, position.y, 32, 32 };
 		if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
 		{
-			std::visit([this, &enemy, &bullet](auto&& behaviour) { onEnemyHit(*enemy, bullet, behaviour); }, bullet.info->behaviour);
+			std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(*enemy, bullet, data); }, bullet.data);
 		}
 	}
 }
 
-void BulletManager::setupBullet(Bullet2& bullet, const BulletShotInfo& info)
+/*
+* Simple Bullet
+*/
+void BulletManager::setupBullet(Bullet2& bullet, BulletShotData& data)
 {
+	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
-	bullet.boundingBox = { bullet.position.x, bullet.position.y, info.radius * 2, info.radius * 2 };
+	bullet.boundingBox = { bullet.position.x, bullet.position.y, data.radius * 2, data.radius * 2 };
 }
 
-void BulletManager::updateBullet(Bullet2& bullet, const BulletShotInfo& info, float dt)
+void BulletManager::updateBullet(Bullet2& bullet, BulletShotData& data, float dt)
 {
-	bullet.position = Vector2Add(bullet.position, Vector2Scale(info.velocity, dt));
+	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.velocity, dt));
 	bullet.boundingBox.x = bullet.position.x;
 	bullet.boundingBox.y = bullet.position.y;
 }
 
-void BulletManager::drawBullet(Bullet2& bullet, const BulletShotInfo& info)
+void BulletManager::drawBullet(Bullet2& bullet, BulletShotData& data)
 {
-	DrawCircleV(bullet.position, info.radius, BLUE);
+	DrawCircleV(bullet.position, data.radius, BLUE);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, const BulletShotInfo& info)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data)
 {
 	bullet.lifetime = 0;
-	enemy.takeDamage(static_cast<int>(info.damage));
+	enemy.takeDamage(static_cast<int>(data.damage));
 }
 
-void BulletManager::setupBullet(Bullet2& bullet, const LaserBeamInfo& info)
+/*
+* Laser Beam
+*/
+void BulletManager::setupBullet(Bullet2& bullet, LaserBeamData& data)
 {
+	bullet.lifetime = data.maxLifetime;
+	bullet.position = Vector2Add(bullet.position, data.startOffset);
+	data.beamWidth = 0;
+	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
 }
 
-void BulletManager::updateBullet(Bullet2& bullet, const LaserBeamInfo& info, float dt)
+void BulletManager::updateBullet(Bullet2& bullet, LaserBeamData& data, float dt)
 {
+	data.shootAnimationTime += dt * data.shootAnimationSpeed;
+
+	float currentValue = Clamp(data.shootAnimationTime, 0, data.shootAnimationDuration);
+	float value = EaseSineIn(currentValue, 0, 1, data.shootAnimationDuration);
+	data.beamWidth = (TEX_WIDTH - CELL_SIZE - bullet.position.x) * value;
+
+	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
 }
 
-void BulletManager::drawBullet(Bullet2& bullet, const LaserBeamInfo& info)
+void BulletManager::drawBullet(Bullet2& bullet, LaserBeamData& data)
 {
+	float width = data.beamWidth;
+	float height = data.beamHeight;
+	float halfHeight = height / 2;
+
+	float shake = sinf(data.shootAnimationTime * 40.0f) * 2.0f;
+
+	DrawRectangle(
+		bullet.position.x + halfHeight,
+		bullet.position.y - halfHeight - data.auraSize / 2,
+		width,
+		height + data.auraSize,
+		data.auraColor
+	);
+	DrawCircleV({ bullet.position.x + width, bullet.position.y }, height, data.auraColor);
+	DrawRectangle(bullet.position.x, bullet.position.y - halfHeight + shake, width, height, data.beamColor);
+
+	DrawCircleV(bullet.position, height, data.beamColor);
+	DrawCircleV({ bullet.position.x + width, bullet.position.y + shake }, height * 0.5f, data.beamColor);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, const LaserBeamInfo& info)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data)
 {
+	enemy.takeDamage(static_cast<int>(data.damage));
 }

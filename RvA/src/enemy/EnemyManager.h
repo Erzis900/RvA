@@ -6,12 +6,12 @@
 #include "Enemy.h"
 
 class Game;
-class DefenderManager2;
+class DefenderManager;
 
 class EnemyManager
 {
 public:
-    EnemyManager(Game& game, DefenderManager2& defenderManager);
+    EnemyManager(Game& game, DefenderManager& defenderManager);
 
     void update(float dt);
     void draw();
@@ -36,6 +36,6 @@ private:
     float m_spawnInterval{ 1.f };
 
     Game& m_game;
-    DefenderManager2& m_defenderManager;
+    DefenderManager& m_defenderManager;
     std::map<std::string, float> m_spawnData;
 };
