@@ -1,19 +1,27 @@
 #include "Animation.h"
 #include <iostream>
 
-Animation::Animation(std::string name, float frameTime, Atlas& atlas) 
-	: m_name(name.c_str()), m_frameTime(frameTime)
+Animation Animation::createAnimation(const char* name, float frameTime, Atlas& atlas)
 {
-	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(atlas.getTextureAtlas(), m_name);
+	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(atlas.getTextureAtlas(), name);
 	if (textureInfo)
 	{
-		m_totalFrames = textureInfo->num_frames;
+		return Animation(frameTime, textureInfo->num_frames);
 	}
 	else
 	{
 		std::cout << "Error: sprite " << name << " not found!" << std::endl;
-		m_totalFrames = 0;
+		return Animation(frameTime, 0);
 	}
+}
+
+Animation::Animation() : Animation(0, 0)
+{
+}
+
+Animation::Animation(float frameTime, int totalFrames)
+	: m_frameTime(frameTime), m_totalFrames(totalFrames)
+{
 }
 
 void Animation::update(float dt)

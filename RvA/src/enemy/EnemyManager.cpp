@@ -5,7 +5,7 @@
 #include "constants.h"
 #include <ranges>
 
-EnemyManager::EnemyManager(Game& game) : m_game(game)
+EnemyManager::EnemyManager(Game& game, DefenderManager2& defenderManager) : m_game(game), m_defenderManager(defenderManager)
 {
     m_spawnData = {
         { "b1_alien_walk", 0.7f },
@@ -25,6 +25,7 @@ void EnemyManager::update(float dt)
     for (auto& enemy : m_enemies)
     {
         enemy->update(dt);
+        manageDefenderCollisions(*enemy);
     }
 
     // Remove enemies reaching the left side of the grid
@@ -46,6 +47,7 @@ void EnemyManager::draw()
     for (auto& enemy : m_enemies)
     {
         enemy->draw(m_game);
+
     }
 }
 
@@ -89,4 +91,31 @@ void EnemyManager::onEnemiesDestroyed(std::function<void(int)> callback)
 void EnemyManager::notifyEnemiesDestroyed(int numberOfDestroyedEnemies)
 {
     m_onEnemiesDestroyedCallback(numberOfDestroyedEnemies);
+}
+
+void EnemyManager::manageDefenderCollisions(Enemy& enemy)
+{
+    bool collideWithDefenders{ false };
+    for (auto& defender : m_defenderManager.getDefenders())
+    {
+        if (defender->row == enemy.getRow())
+        {
+            if (enemy.getPosition().x <= defender->position.x + CELL_SIZE && enemy.getPosition().x > defender->position.x)
+            {
+                if (enemy.getAttackState() == Enemy::AttackState::ReadyToAttack)
+                {
+                    defender->hp -= enemy.getDamage();
+                }
+
+                enemy.setAttackState(Enemy::AttackState::PrepareToAttack);
+                collideWithDefenders = true;
+                break; // as soon as we collide with the first defender we move on
+            }
+        }
+    }
+
+    if (!collideWithDefenders)
+    {
+        enemy.setAttackState(Enemy::AttackState::NoAttack);
+    }
 }

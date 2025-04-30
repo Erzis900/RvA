@@ -13,3 +13,4 @@ constexpr int CELL_SIZE = 32;
 constexpr float MAX_ENERGY = 100.f;
 
 constexpr bool DEV_MODE = true;
+constexpr bool NEW_DEFENDER_SYSTEM = true;

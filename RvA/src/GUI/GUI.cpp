@@ -25,7 +25,6 @@ const char* getSpriteName(DefenderType type)
 
 void GUI::reset()
 {
-	m_batteries = 0;
 	m_selectedDefender = DefenderType::None;
 }
 
@@ -88,12 +87,12 @@ void GUI::drawCosts(DefenderManager& defenderManager)
 	}
 }
 
-void GUI::drawGame(float energy, DefenderManager& defenderManager)
+void GUI::drawGame(float energy, float batteries, DefenderManager& defenderManager)
 {
 	drawEnergyBar(energy);
 	drawDefenders();
 	drawCosts(defenderManager);
-	DrawText(TextFormat("%d", m_batteries), 10, 10, 5, ORANGE);
+	DrawText(TextFormat("%d", static_cast<int>(batteries)), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ TEX_WIDTH - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))

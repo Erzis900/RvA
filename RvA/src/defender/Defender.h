@@ -13,7 +13,7 @@ class Defender
 public:
     Defender(Vector2 position, int row, int col, int cost, DefenderType type, Game& game, DefenderManager& defenderManager);
 
-    void update(float dt, float& energy, int &batteries);
+    void update(float dt, float& energy, float &batteries);
     void draw(Game& game);
 
     void takeDamage(int damage);
@@ -57,7 +57,7 @@ private:
     bool m_isAlive;
 
     void updateEnergy(float dt, float& energy);
-	void updateBatteries(float dt, int& batteries);
+	void updateBatteries(float dt, float& batteries);
 
     Game& m_game;
     DefenderManager& m_defenderManager;

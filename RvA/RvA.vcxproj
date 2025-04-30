@@ -147,7 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\bullet\LasertronBullet.cpp" />
+    <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\bullet\ShooterBullet.cpp" />
     <ClCompile Include="src\GUI\GUIHelper.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
@@ -276,7 +276,8 @@
     <ClInclude Include="deps\spdlog\stopwatch.h" />
     <ClInclude Include="deps\spdlog\tweakme.h" />
     <ClInclude Include="deps\spdlog\version.h" />
-    <ClInclude Include="src\bullet\LasertronBullet.h" />
+    <ClInclude Include="src\bullet\BulletManager.h" />
+    <ClInclude Include="src\bullet\BulletTypes.h" />
     <ClInclude Include="src\bullet\ShooterBullet.h" />
     <ClInclude Include="src\bullet\Bullet.h" />
     <ClInclude Include="src\GUI\GUIHelper.h" />

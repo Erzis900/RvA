@@ -57,10 +57,16 @@
     <ClCompile Include="src\bullet\ShooterBullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bullet\LasertronBullet.cpp">
+    <ClCompile Include="src\states\CreditsState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\states\CreditsState.cpp">
+    <ClCompile Include="src\bullet\BulletManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\GUIHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\WinState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,9 +126,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bullet\ShooterBullet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bullet\LasertronBullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\states\CreditsState.h">
@@ -438,6 +441,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deps\spdlog\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bullet\BulletManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bullet\BulletTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\GUIHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\WinState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

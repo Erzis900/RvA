@@ -1,8 +1,8 @@
 #pragma once
 #include "IGameState.h"
-#include "GUI/GUI.h"
 #include "enemy/EnemyManager.h"
 #include "defender/DefenderManager.h"
+#include "bullet/BulletManager.h"
 
 class Game;
 
@@ -17,6 +17,12 @@ public:
 private:
 	void drawGrid();
 	void goToWinState(Game& game);
+	void updateEnergyAndBatteries(float batteryGain, float energyDrain);
+	void performDefenderSpawnOnInput();
+	void performActions(const Actions& actions);
+	void performAction(const BulletSpawnAction& action);
+	bool canAffordCost(int cost) const;
+	bool canPlaceDefender(int x, int y) const;
 
 	int m_rows{ ROWS };
 	int m_cols{ COLS };
@@ -24,7 +30,11 @@ private:
 	int m_numberOfEnemiesToKill{5};
 
 	float m_energy{ MAX_ENERGY };
+	float m_batteries{};
 
+	Game& m_game;
 	EnemyManager m_enemyManager;
 	DefenderManager m_defenderManager;
+	DefenderManager2 m_defenderManager2;
+	BulletManager m_bulletManager;
 };

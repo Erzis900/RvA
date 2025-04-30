@@ -23,9 +23,20 @@ public:
 
     int getHp() { return m_hp; }
 	int getRow() { return m_row; }
-    Vector2 getPosition() { return m_position; }
+    int getDamage() const;
+    const Vector2& getPosition() { return m_position; }
 
     static const char* getEnemyTypeName(EnemyType type);
+
+    enum class AttackState
+    {
+        NoAttack,
+        PrepareToAttack,
+        ReadyToAttack
+    };
+
+    void setAttackState(AttackState attackState);
+    AttackState getAttackState() const;
 
 private:
 	std::string m_name;
@@ -40,4 +51,5 @@ private:
 
 	Animation m_animation;
 	Defender* m_targetDefender;
+    AttackState m_attackState{AttackState::NoAttack};
 };
