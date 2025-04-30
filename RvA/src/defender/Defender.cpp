@@ -6,7 +6,7 @@
 #include "../bullet/ShooterBullet.h"
 #include "DefenderManager.h"
 
-std::string Defender::getDefenderTypeName(DefenderType type)
+const char* Defender::getDefenderTypeName(DefenderType type)
 {
     switch (type)
     {

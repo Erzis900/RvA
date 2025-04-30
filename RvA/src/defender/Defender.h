@@ -30,6 +30,9 @@ public:
 
 	bool isActive() const { return m_active; }
 	bool isAlive() const { return m_isAlive; }
+
+    static const char* getDefenderTypeName(DefenderType type);
+
 private:
     Vector2 m_position;
     DefenderType m_type;
@@ -53,7 +56,6 @@ private:
 
     bool m_isAlive;
 
-    std::string getDefenderTypeName(DefenderType type);
     void updateEnergy(float dt, float& energy);
 	void updateBatteries(float dt, int& batteries);
 

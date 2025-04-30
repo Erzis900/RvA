@@ -42,7 +42,7 @@ void Atlas::drawSprite(const char* name, Vector2 pos)
 	}
 }
 
-void Atlas::drawAnimation(const char* name, Vector2 pos, int currentFrame)
+void Atlas::drawAnimation(const char* name, Vector2 pos, int currentFrame, Flip flip)
 {
 	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(m_ta, name);
 	if (textureInfo)
@@ -55,6 +55,9 @@ void Atlas::drawAnimation(const char* name, Vector2 pos, int currentFrame)
 			float(frameInfo->width),
 			float(frameInfo->height)
 		};
+
+		src.width = frameInfo->width * (1 - 2.f * ((flip & Flip::Horizontal) != 0));
+		src.height = frameInfo->height * (1 - 2.f * ((flip & Flip::Vertical) != 0));
 
 		DrawTexturePro(m_texture, src, { pos.x, pos.y, float(frameInfo->width), float(frameInfo->height) }, { 0.f, 0.f }, 0.f, WHITE);
 	}

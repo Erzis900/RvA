@@ -2,7 +2,7 @@
 #include "Game.h"
 #include "defender/Defender.h"
 
-std::string Enemy::getEnemyTypeName(EnemyType type)
+const char* Enemy::getEnemyTypeName(EnemyType type)
 {
     switch (type)
     {
