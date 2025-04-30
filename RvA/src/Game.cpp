@@ -169,6 +169,7 @@ void Game::registerDefenderTypes()
 		.energyDrain = 5.f,
 		.shootCooldown = 1.f,
 		.maxHP = 150,
+		.cost = 10,
 		.bulletType = BulletType::SimpleBullet,
 	});
 
@@ -178,6 +179,7 @@ void Game::registerDefenderTypes()
 		.spriteDisabled = "catapult_off",
 		.energyDrain = 10.f,
 		.maxHP = 200,
+		.cost = 20,
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -186,6 +188,7 @@ void Game::registerDefenderTypes()
 		.spriteDisabled = "lasertron_off",
 		.energyDrain = 20.f,
 		.maxHP = 250,
+		.cost = 30,
 	});
 }
 
