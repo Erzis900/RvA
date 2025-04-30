@@ -3,6 +3,16 @@
 #include "states/PlayState.h"
 #include "states/CreditsState.h"
 
+void MenuState::onEnter(Game& game)
+{
+	game.getMusicManager().play(game.getMusicManager().getMenuMusic());
+}
+
+void MenuState::onExit(Game& game)
+{
+	game.getMusicManager().stop(game.getMusicManager().getMenuMusic());
+}
+
 void MenuState::draw(Game& game)
 {
 	auto btnSize = Vector2{ 200.f, 60.f };

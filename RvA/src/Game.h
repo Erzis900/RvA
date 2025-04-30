@@ -5,6 +5,7 @@
 #include "GUI/GUI.h"
 #include "GUI/GUIHelper.h"
 #include "atlas/Atlas.h"
+#include "MusicManager.h"
 
 #include "defender/DefenderManager.h"
 #include "bullet/BulletManager.h"
@@ -21,8 +22,11 @@ public:
 	GUI& getGUI() { return m_gui; }
 	GUIHelper& getGUIHelper() { return m_guiHelper; }
 	Atlas& getAtlas() { return m_atlas; }
+
 	const DefenderTypeRegistry& getDefenderRegistry() const { return m_defenderTypeRegistry; }
 	const BulletTypeRegistry& getBulletTypeRegistry() const { return m_bulletTypeRegistry; }
+
+	MusicManager& getMusicManager() { return m_musicManager; }
 
 private:
 	std::unique_ptr<IGameState> m_currentState;
@@ -58,7 +62,7 @@ private:
 	GUI m_gui;
 	GUIHelper m_guiHelper;
 	Atlas m_atlas;
-
 	DefenderTypeRegistry m_defenderTypeRegistry;
 	BulletTypeRegistry m_bulletTypeRegistry;
+	MusicManager m_musicManager;
 };

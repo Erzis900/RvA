@@ -14,6 +14,9 @@ public:
 	void update(Game& game, float dt) override;
 	void draw(Game& game) override;
 
+	void onEnter(Game& game) override;
+	void onExit(Game& game) override;
+
 private:
 	void drawGrid();
 	void goToWinState(Game& game);

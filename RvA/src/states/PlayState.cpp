@@ -6,6 +6,16 @@
 #include "Game.h"
 #include "constants.h"
 
+void PlayState::onEnter(Game& game)
+{
+	game.getMusicManager().play(game.getMusicManager().getGameMusic());
+}
+
+void PlayState::onExit(Game& game)
+{
+	game.getMusicManager().stop(game.getMusicManager().getGameMusic());
+}
+
 PlayState::PlayState(Game& game)
 	: m_game(game), m_enemyManager(game, m_defenderManager2), m_defenderManager(game), m_defenderManager2(game.getAtlas(), game.getGUI()), m_bulletManager(m_enemyManager)
 {
