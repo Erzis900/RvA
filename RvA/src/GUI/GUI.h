@@ -10,7 +10,7 @@ public:
 	GUI(Game& game);
 	void drawGame(float batteryCharge, float scraps);
 	void drawCursor();
-	void drawHp(float hp, int maxHp, Vector2 pos);
+	void drawHp(float hp, float maxHp, Vector2 pos);
 
 	DefenderType getSelectedDefender() const { return m_selectedDefender; }
 	bool isPaused() const { return m_paused; }

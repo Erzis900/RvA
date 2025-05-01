@@ -2,55 +2,38 @@
 #include "Game.h"
 #include <raymath.h>
 
-const char* Enemy::getEnemyTypeName(EnemyType type)
+Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, Atlas& atlas, int row)
+    : m_position(position), m_row(row), m_atlas(atlas), m_typeInfo(typeInfo)
 {
-    switch (type)
-    {
-    case EnemyType::B1: return "b1_alien_walk";
-    case EnemyType::B2: return "b2_alien_walk";
-    default: return "";
-    }
+    m_hp = typeInfo->maxHp;
+    m_attackTime = typeInfo->attackTime;
+    setState(EnemyState::Idle);
 }
 
-Enemy::Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row)
-    : m_position(position), m_animation(Animation::createAnimation(getEnemyTypeName(type), 0.1f, atlas)), m_row(row),
-    m_attackTime(0.5f), m_damage(50)
+void Enemy::setState(EnemyState state)
 {
-    switch (type)
+    if (m_state != state)
     {
-    case EnemyType::B1:
-        m_maxHp = 100;
-        m_speed = 40.f;
-        break;
-    case EnemyType::B2:
-        m_maxHp = 150;
-        m_speed = 80.f;
-        break;
-    }
-    m_hp = m_maxHp;
-    m_name = getEnemyTypeName(type);
-}
+        m_state = state;
 
-void Enemy::setAttackState(AttackState attackState)
-{
-    if (m_attackState != attackState)
-    {
-        switch (attackState)
+        switch (state)
         {
-        case AttackState::NoAttack:
-        case AttackState::PrepareToAttack: 
+        case EnemyState::Idle:
+            setAnimation(m_typeInfo->idleAnimation);
+            break;
+        case EnemyState::Moving:
+            setAnimation(m_typeInfo->moveAnimation);
+            break;
+        case EnemyState::PrepareToAttack:
+        case EnemyState::ReadyToAttack:
+            setAnimation(m_typeInfo->attackAnimation);
             m_attackTime = 0.5f;
+            break;
+        case EnemyState::Dying:
+            setAnimation(m_typeInfo->dyingAnimation);
             break;
         }
     }
-
-    m_attackState = attackState;
-
-}
-
-Enemy::AttackState Enemy::getAttackState() const
-{
-    return m_attackState;
 }
 
 void Enemy::takeDamage(float damage)
@@ -60,17 +43,22 @@ void Enemy::takeDamage(float damage)
 
 void Enemy::update(float dt)
 {
-    if (m_attackState == AttackState::PrepareToAttack)
+    switch (m_state)
     {
-        m_attackTime -= dt;
-        if (m_attackTime <= 0.f)
-        {
-            m_attackState = AttackState::ReadyToAttack;
-        }
-    }
-    else
-    {
-        m_position.x -= m_speed * dt;
+    case EnemyState::Idle:
+        performIdle(dt);
+        break;
+    case EnemyState::Moving:
+        performMove(dt);
+        break;
+    case EnemyState::PrepareToAttack:
+        performPrepareAttack(dt);
+        break;
+    case EnemyState::Dying:
+        performDying(dt);
+        break;
+    case EnemyState::Dead:
+        break;
     }
 
 	m_animation.update(dt);
@@ -78,13 +66,13 @@ void Enemy::update(float dt)
 
 void Enemy::draw(Game& game)
 {
-	game.getAtlas().drawAnimation(m_name.c_str(), m_position, m_animation.getCurrentFrame());
-	game.getGUI().drawHp(m_hp, m_maxHp, m_position);
+	game.getAtlas().drawAnimation(m_spriteName.c_str(), m_position, m_animation.getCurrentFrame());
+	game.getGUI().drawHp(m_hp, m_typeInfo->maxHp, m_position);
 }
 
-int Enemy::getDamage() const
+float Enemy::getDamage() const
 {
-    return m_damage;
+    return m_typeInfo->damage;
 }
 
 Vector2 Enemy::getCenteredPosition() const
@@ -96,4 +84,34 @@ Rectangle Enemy::getBoundingBox() const
 {
     const float bbPadding = 5;
     return Rectangle{ m_position.x + bbPadding, m_position.y + bbPadding, 32 - bbPadding, 32 - bbPadding };
+}
+
+void Enemy::performIdle(float dt)
+{
+    // We immediately change state to Move for now
+    setState(EnemyState::Moving);
+}
+
+void Enemy::performMove(float dt)
+{
+    m_position.x -= m_typeInfo->speed * dt;
+}
+
+void Enemy::performPrepareAttack(float dt)
+{
+    m_attackTime -= dt;
+    if (m_attackTime <= 0.f)
+    {
+        setState(EnemyState::ReadyToAttack);
+    }
+}
+
+void Enemy::performDying(float dt)
+{
+}
+
+void Enemy::setAnimation(const AnimationData& animationData)
+{
+    m_spriteName = animationData.animationName;
+    m_animation = Animation::createAnimation(animationData.animationName.c_str(), animationData.frameTime, m_atlas);
 }

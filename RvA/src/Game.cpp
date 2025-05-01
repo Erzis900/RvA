@@ -21,6 +21,7 @@ Game::Game()
 
 	registerDefenderTypes();
 	registerBulletTypes();
+	registerEnemyTypes();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -228,5 +229,34 @@ void Game::registerBulletTypes()
 		.maxLifetime = 2.f,
 		.shootAnimationSpeed = 15,
 		.shootAnimationDuration = 2.f
+	});
+}
+
+void Game::registerEnemyTypes()
+{
+	m_enemyTypeRegistry.registerEnemyType({
+		.type = EnemyType::B1,
+		.spawnChance = 0.7f,
+		.maxHp = 100,
+		.speed = 40,
+		.attackTime = 0.5f,
+		.damage = 50,
+		.idleAnimation = { "b1_alien_walk", 0.1f },
+		.moveAnimation = { "b1_alien_walk", 0.1f },
+		.attackAnimation = { "b1_alien_walk", 0.1f },
+		.dyingAnimation = { "b1_alien_walk", 0.1f }
+	});
+
+	m_enemyTypeRegistry.registerEnemyType({
+		.type = EnemyType::B2,
+		.spawnChance = 0.3f,
+		.maxHp = 150,
+		.speed = 80,
+		.attackTime = 0.5f,
+		.damage = 50,
+		.idleAnimation = { "b2_alien_walk", 0.1f },
+		.moveAnimation = { "b2_alien_walk", 0.1f },
+		.attackAnimation = { "b2_alien_walk", 0.1f },
+		.dyingAnimation = { "b2_alien_walk", 0.1f }
 	});
 }

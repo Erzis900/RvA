@@ -13,7 +13,8 @@ WinState::WinState(Game& game) {
 	auto x = TEX_WIDTH + 100.f;
 	for (auto i = 0; i < 3; ++i)
 	{
-		m_chasers.push_back(createSpriteItem(game, Enemy::getEnemyTypeName(EnemyType::B1), { x, 100 }, { -150, 0 }));
+		const auto typeInfo = game.getEnemyTypeRegistry().getEnemyTypeInfo(EnemyType::B1);
+		m_chasers.push_back(createSpriteItem(game, typeInfo->moveAnimation.animationName.c_str(), {x, 100}, {-150, 0}));
 		x += 30.f;
 	}
 

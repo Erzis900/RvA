@@ -17,7 +17,7 @@ void PlayState::onExit(Game& game)
 }
 
 PlayState::PlayState(Game& game)
-	: m_game(game), m_defenderManager(game.getAtlas(), game.getGUI()), m_enemyManager(game, m_defenderManager), m_bulletManager(m_enemyManager)
+	: m_game(game), m_defenderManager(game.getAtlas(), game.getGUI()), m_enemyManager(game, game.getEnemyTypeRegistry(), m_defenderManager), m_bulletManager(m_enemyManager)
 {
 	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
 		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;

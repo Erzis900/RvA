@@ -9,10 +9,40 @@ class Game;
 class Atlas;
 class Animation;
 
+enum class EnemyState
+{
+    Idle,
+    Moving,
+    PrepareToAttack,
+    ReadyToAttack,
+    Dying,
+    Dead
+};
+
+struct AnimationData
+{
+    std::string animationName;
+    float frameTime{};
+};
+
+struct EnemyTypeInfo
+{
+    EnemyType type{};
+    float spawnChance{};
+    float maxHp{};
+    float speed{};
+    float attackTime{};
+    float damage{};
+    AnimationData idleAnimation;
+    AnimationData moveAnimation;
+    AnimationData attackAnimation;
+    AnimationData dyingAnimation;
+};
+
 class Enemy
 {
 public:
-    Enemy(Vector2 position, EnemyType type, Atlas& atlas, int row);
+    Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, Atlas& atlas, int row);
         
     void update(float dt);
     void draw(Game& game);
@@ -21,34 +51,30 @@ public:
 
     auto getHp() const { return m_hp; }
     auto getRow() const { return m_row; }
-    int getDamage() const;
+    float getDamage() const;
     const Vector2& getPosition() const { return m_position; }
     Vector2 getCenteredPosition() const;
     Rectangle getBoundingBox() const;
 
-    static const char* getEnemyTypeName(EnemyType type);
-
-    enum class AttackState
-    {
-        NoAttack,
-        PrepareToAttack,
-        ReadyToAttack
-    };
-
-    void setAttackState(AttackState attackState);
-    AttackState getAttackState() const;
+    void setState(EnemyState state);
+    auto getState() const { return m_state; }
 
 private:
-	std::string m_name;
-    Vector2 m_position;
-    float m_speed;
-    float m_hp;
-	int m_maxHp;
-    int m_row;
+    void performIdle(float dt);
+    void performMove(float dt);
+    void performPrepareAttack(float dt);
+    void performDying(float dt);
 
-    float m_attackTime;
-    int m_damage;
+    void setAnimation(const AnimationData& animationData);
+
+	std::string m_spriteName;
+    Vector2 m_position{};
+    float m_hp{};
+    float m_attackTime{};
+    int m_row{};
 
 	Animation m_animation;
-    AttackState m_attackState{AttackState::NoAttack};
+    EnemyState m_state;
+    Atlas& m_atlas;
+    const EnemyTypeInfo* m_typeInfo{};
 };

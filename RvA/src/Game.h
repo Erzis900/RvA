@@ -9,6 +9,7 @@
 
 #include "defender/DefenderManager.h"
 #include "bullet/BulletManager.h"
+#include "enemy/EnemyManager.h"
 
 class Game
 {
@@ -23,8 +24,9 @@ public:
 	GUIHelper& getGUIHelper() { return m_guiHelper; }
 	Atlas& getAtlas() { return m_atlas; }
 
-	const DefenderTypeRegistry& getDefenderRegistry() const { return m_defenderTypeRegistry; }
-	const BulletTypeRegistry& getBulletTypeRegistry() const { return m_bulletTypeRegistry; }
+	const auto& getDefenderRegistry() const { return m_defenderTypeRegistry; }
+	const auto& getBulletTypeRegistry() const { return m_bulletTypeRegistry; }
+	const auto& getEnemyTypeRegistry() const { return m_enemyTypeRegistry; }
 
 	MusicManager& getMusicManager() { return m_musicManager; }
 
@@ -42,6 +44,7 @@ private:
 
 	void registerDefenderTypes();
 	void registerBulletTypes();
+	void registerEnemyTypes();
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;
@@ -64,5 +67,6 @@ private:
 	Atlas m_atlas;
 	DefenderTypeRegistry m_defenderTypeRegistry;
 	BulletTypeRegistry m_bulletTypeRegistry;
+	EnemyTypeRegistry m_enemyTypeRegistry;
 	MusicManager m_musicManager;
 };

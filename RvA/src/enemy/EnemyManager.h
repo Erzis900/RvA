@@ -1,17 +1,28 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <functional>
 #include "Enemy.h"
 
 class Game;
 class DefenderManager;
 
+class EnemyTypeRegistry
+{
+public:
+    void registerEnemyType(EnemyTypeInfo typeInfo);
+    const EnemyTypeInfo* getEnemyTypeInfo(EnemyType type) const;
+    const auto& getEnemyTypeInfos() const { return m_enemyTypes; };
+
+private:
+    std::unordered_map<EnemyType, EnemyTypeInfo> m_enemyTypes;
+};
+
 class EnemyManager
 {
 public:
-    EnemyManager(Game& game, DefenderManager& defenderManager);
+    EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, DefenderManager& defenderManager);
 
     void update(float dt);
     void draw();
@@ -35,5 +46,5 @@ private:
 
     Game& m_game;
     DefenderManager& m_defenderManager;
-    std::map<std::string, float> m_spawnData;
+    const EnemyTypeRegistry& m_enemyTypeRegistry;
 };

@@ -4,13 +4,22 @@
 #include "Game.h"
 #include "EnemyTypes.h"
 #include "constants.h"
+#include <cassert>
 
-EnemyManager::EnemyManager(Game& game, DefenderManager& defenderManager) : m_game(game), m_defenderManager(defenderManager)
+void EnemyTypeRegistry::registerEnemyType(EnemyTypeInfo typeInfo)
 {
-    m_spawnData = {
-        { "b1_alien_walk", 0.7f },
-        { "b2_alien_walk", 0.3f },
-    };
+    m_enemyTypes.insert({ typeInfo.type, std::move(typeInfo) });
+}
+
+const EnemyTypeInfo* EnemyTypeRegistry::getEnemyTypeInfo(EnemyType type) const
+{
+    auto itr = m_enemyTypes.find(type);
+    return (itr != m_enemyTypes.end()) ? &itr->second : nullptr;
+}
+
+EnemyManager::EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, DefenderManager& defenderManager)
+    : m_game(game), m_enemyTypeRegistry(enemyTypeRegistry), m_defenderManager(defenderManager)
+{
 }
 
 void EnemyManager::update(float dt)
@@ -73,32 +82,24 @@ void EnemyManager::spawnEnemy()
 {
     float randomValue = GetRandomValue(0, 100) / 100.0f;
 
-    std::string selectedName;
     float cumulativeChance = 0.0f;
-
-    for (const auto& spawn : m_spawnData)
+    const auto& typeInfos = m_enemyTypeRegistry.getEnemyTypeInfos();
+    const EnemyTypeInfo* enemyTypeInfo = &(typeInfos.begin()->second);
+    for (const auto& [type, typeInfo] : typeInfos)
     {
-        cumulativeChance += spawn.second;
+        cumulativeChance += typeInfo.spawnChance;
         if (randomValue <= cumulativeChance)
         {
-            selectedName = spawn.first;
+            enemyTypeInfo = &typeInfo;
             break;
         }
-    }
-
-    EnemyType type;
-    if (selectedName == "b1_alien_walk") {
-        type = EnemyType::B1;
-    }
-    else if (selectedName == "b2_alien_walk") {
-        type = EnemyType::B2;
     }
 
     int randomRow = GetRandomValue(0, ROWS - 1);
     float x = TEX_WIDTH - CELL_SIZE * 2.f;
     int y = (randomRow + 1) * CELL_SIZE;
 
-    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, type, m_game.getAtlas(), randomRow));
+    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, m_game.getAtlas(), randomRow));
 }
 
 void EnemyManager::onEnemiesDestroyed(std::function<void(int)> callback)
@@ -120,12 +121,13 @@ void EnemyManager::manageDefenderCollisions(Enemy& enemy)
         {
             if (enemy.getPosition().x <= defender->position.x + CELL_SIZE && enemy.getPosition().x > defender->position.x)
             {
-                if (enemy.getAttackState() == Enemy::AttackState::ReadyToAttack)
+                if (enemy.getState() == EnemyState::ReadyToAttack)
                 {
-                    defender->hp -= enemy.getDamage();
+                    defender->hp -= static_cast<int>(enemy.getDamage());
+                    enemy.setState(EnemyState::PrepareToAttack);
                 }
+                enemy.setState(EnemyState::PrepareToAttack);
 
-                enemy.setAttackState(Enemy::AttackState::PrepareToAttack);
                 collideWithDefenders = true;
                 break; // as soon as we collide with the first defender we move on
             }
@@ -134,6 +136,6 @@ void EnemyManager::manageDefenderCollisions(Enemy& enemy)
 
     if (!collideWithDefenders)
     {
-        enemy.setAttackState(Enemy::AttackState::NoAttack);
+        enemy.setState(EnemyState::Moving);
     }
 }

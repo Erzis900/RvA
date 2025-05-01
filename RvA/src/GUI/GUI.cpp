@@ -104,11 +104,11 @@ void GUI::drawCursor()
 	}
 }
 
-void GUI::drawHp(float hp, int maxHp, Vector2 pos)
+void GUI::drawHp(float hp, float maxHp, Vector2 pos)
 {
 	float barWidth = float(CELL_SIZE);
 	float barHeight = 3.f;
-	float hpPercent = float(hp) / float(maxHp);
+	float hpPercent = hp / maxHp;
 
 	Vector2 barPos = { pos.x, pos.y + CELL_SIZE };
 	Rectangle bg = { barPos.x, barPos.y, barWidth, barHeight };
