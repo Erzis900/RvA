@@ -69,11 +69,14 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet, float dt)
 	// Currently, each bullet has a bounding box, and we check for collisions directly against the enemy's bounding box.
 	for (auto& enemy : m_enemyManager.getEnemies())
 	{
-		// For now, we construct the enemy's bounding box on the fly.
-		auto enemyBoundingBox = enemy->getBoundingBox();
-		if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
+		if (!enemy->isDying())
 		{
-			std::visit([this, &enemy, &bullet, dt](auto&& data) { onEnemyHit(*enemy, bullet, data, dt); }, bullet.data);
+			// For now, we construct the enemy's bounding box on the fly.
+			auto enemyBoundingBox = enemy->getBoundingBox();
+			if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
+			{
+				std::visit([this, &enemy, &bullet, dt](auto&& data) { onEnemyHit(*enemy, bullet, data, dt); }, bullet.data);
+			}
 		}
 	}
 }
