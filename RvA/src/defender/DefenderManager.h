@@ -21,8 +21,8 @@ struct DefenderTypeInfo
     DefenderType type{};
     std::string spriteEnabled;
     std::string spriteDisabled;
-    float energyDrain{};
-    float batteryGain{};
+    float batteryDrain{};
+    float scrapsGain{};
     float firstShootCooldown{};
     float shootCooldown{};
     int maxHP{};
@@ -40,7 +40,7 @@ struct Defender
     bool isActive{};
     Animation animation;
     float shootTime{};
-    float batteryGainTime{};
+    float scrapsGainTime{};
     int hp{};
     int row{};
     int column{};
@@ -56,8 +56,8 @@ using Actions = std::vector<std::variant<BulletSpawnAction>>;
 
 struct DefenderUpdateResult
 {
-    float amountOfEnergyDrain{};
-    float amountOfBatteryGain{};
+    float amountOfBatteryDrain{};
+    float amountOfScrapsGain{};
     Actions actions;
 };
 

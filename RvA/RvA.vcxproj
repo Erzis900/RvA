@@ -149,7 +149,6 @@
   <ItemGroup>
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
-    <ClCompile Include="src\bullet\ShooterBullet.cpp" />
     <ClCompile Include="src\GUI\GUIHelper.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
@@ -281,7 +280,6 @@
     <ClInclude Include="src\bullet\BulletTypes.h" />
     <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\MusicManager.h" />
-    <ClInclude Include="src\bullet\ShooterBullet.h" />
     <ClInclude Include="src\bullet\Bullet.h" />
     <ClInclude Include="src\GUI\GUIHelper.h" />
     <ClInclude Include="src\states\CreditsState.h" />

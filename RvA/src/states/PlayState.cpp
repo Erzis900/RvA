@@ -48,8 +48,8 @@ void PlayState::update(Game& game, float dt)
 	performDefenderSpawnOnInput();
 	auto result = m_defenderManager.update(dt);
 	performActions(result.actions);
-	updateEnergyAndBatteries(result.amountOfBatteryGain, result.amountOfEnergyDrain);
-	if (m_energy <= 0)
+	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
+	if (m_batteryCharge <= 0)
 	{
 		m_game.setState(std::make_unique<LostState>());
 	}
@@ -73,7 +73,7 @@ void PlayState::draw(Game& game)
 	m_enemyManager.draw();
 	m_bulletManager.draw();
 
-	game.getGUI().drawGame(m_energy, m_batteries);
+	game.getGUI().drawGame(m_batteryCharge, m_scraps);
 }
 
 void PlayState::goToWinState(Game& game)
@@ -81,11 +81,11 @@ void PlayState::goToWinState(Game& game)
 	game.setState(std::make_unique<WinState>(game));
 }
 
-void PlayState::updateEnergyAndBatteries(float batteryGain, float energyDrain)
+void PlayState::updateBatteryAndScraps(float scrapGain, float batteryDrain)
 {
-	m_batteries += batteryGain;
-	m_energy -= energyDrain;
-	m_energy = Clamp(m_energy, 0, 100);
+	m_scraps += scrapGain;
+	m_batteryCharge -= batteryDrain;
+	m_batteryCharge = Clamp(m_batteryCharge, 0, 100);
 }
 
 void PlayState::performDefenderSpawnOnInput()
@@ -107,7 +107,7 @@ void PlayState::performDefenderSpawnOnInput()
 					if (defenderInfo && canAffordCost(defenderInfo->cost))
 					{
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
-						m_batteries -= defenderInfo->cost;
+						m_scraps -= defenderInfo->cost;
 					}
 				}
 			}
@@ -141,7 +141,7 @@ void PlayState::performAction(const BulletSpawnAction& action)
 
 bool PlayState::canAffordCost(int cost) const
 {
-	return cost <= m_batteries;
+	return cost <= m_scraps;
 }
 
 bool PlayState::canPlaceDefender(int x, int y) const

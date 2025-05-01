@@ -20,7 +20,7 @@ public:
 private:
 	void drawGrid();
 	void goToWinState(Game& game);
-	void updateEnergyAndBatteries(float batteryGain, float energyDrain);
+	void updateBatteryAndScraps(float scrapGain, float batteryDrain);
 	void performDefenderSpawnOnInput();
 	void performActions(const Actions& actions);
 	void performAction(const BulletSpawnAction& action);
@@ -32,8 +32,8 @@ private:
 	int m_numberOfDestroyedEnemies{0};
 	int m_numberOfEnemiesToKill{20};
 
-	float m_energy{ MAX_ENERGY };
-	float m_batteries{};
+	float m_batteryCharge{ MAX_BATTERY_CHARGE };
+	float m_scraps{};
 
 	Game& m_game;
 	DefenderManager m_defenderManager;

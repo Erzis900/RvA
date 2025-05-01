@@ -42,15 +42,15 @@ DefenderUpdateResult DefenderManager::update(float dt)
         defender->animation.update(dt);
         if (defender->isActive)
         {
-            result.amountOfEnergyDrain += dt * defender->info->energyDrain;
+            result.amountOfBatteryDrain += dt * defender->info->batteryDrain;
             
-            if(defender->info->batteryGain != 0) 
+            if(defender->info->scrapsGain != 0) 
             {
-                defender->batteryGainTime += dt;
-                if (defender->batteryGainTime > 1.f)
+                defender->scrapsGainTime += dt;
+                if (defender->scrapsGainTime > 1.f)
                 {
-                    defender->batteryGainTime = 0;
-                    result.amountOfBatteryGain += defender->info->batteryGain;
+                    defender->scrapsGainTime = 0;
+                    result.amountOfScrapsGain += defender->info->scrapsGain;
                 }
             }
             

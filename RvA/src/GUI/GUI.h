@@ -8,7 +8,7 @@ class GUI
 {
 public:
 	GUI(Game& game);
-	void drawGame(float energy, float batteries);
+	void drawGame(float batteryCharge, float scraps);
 	void drawCursor();
 	void drawHp(int hp, int maxHp, Vector2 pos);
 
@@ -17,7 +17,7 @@ public:
 
 	void reset();
 private:
-	void drawEnergyBar(float energy);
+	void drawBatteryCharge(float batteryCharge);
 	void drawDefenders();
 	void drawCosts();
 

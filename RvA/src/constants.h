@@ -10,7 +10,6 @@ constexpr int ROWS = 10;
 constexpr int COLS = 18;
 
 constexpr int CELL_SIZE = 32;
-constexpr float MAX_ENERGY = 100.f;
+constexpr float MAX_BATTERY_CHARGE = 100.f;
 
 constexpr bool DEV_MODE = true;
-constexpr bool NEW_DEFENDER_SYSTEM = true;

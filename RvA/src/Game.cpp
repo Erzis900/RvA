@@ -157,8 +157,8 @@ void Game::registerDefenderTypes()
 		.type = DefenderType::Solar,
 		.spriteEnabled = "solar_idle",
 		.spriteDisabled = "solar_off",
-		.energyDrain = -5,
-		.batteryGain = 5,
+		.batteryDrain = -5,
+		.scrapsGain = 5,
 		.maxHP = 100,
 	});
 
@@ -166,7 +166,7 @@ void Game::registerDefenderTypes()
 		.type = DefenderType::Shooter,
 		.spriteEnabled = "shooter_idle",
 		.spriteDisabled = "shooter_off",
-		.energyDrain = 5.f,
+		.batteryDrain = 5.f,
 		.firstShootCooldown = 1.f,
 		.shootCooldown = 1.f,
 		.maxHP = 150,
@@ -178,7 +178,7 @@ void Game::registerDefenderTypes()
 		.type = DefenderType::Catapult,
 		.spriteEnabled = "catapult_idle",
 		.spriteDisabled = "catapult_off",
-		.energyDrain = 10.f,
+		.batteryDrain = 10.f,
 		.maxHP = 200,
 		.cost = 20,
 	});
@@ -187,7 +187,7 @@ void Game::registerDefenderTypes()
 		.type = DefenderType::Lasertron,
 		.spriteEnabled = "lasertron_idle",
 		.spriteDisabled = "lasertron_off",
-		.energyDrain = 20.f,
+		.batteryDrain = 20.f,
 		.firstShootCooldown = 0.5f,
 		.shootCooldown = 4.f,
 		.maxHP = 250,

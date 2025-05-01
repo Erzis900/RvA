@@ -11,24 +11,12 @@ GUI::GUI(Game& game)
 {
 }
 
-const char* getSpriteName(DefenderType type)
-{
-	switch (type)
-	{
-	case DefenderType::Solar: return "solar_idle";
-	case DefenderType::Shooter: return "shooter_idle";
-	case DefenderType::Catapult: return "catapult_idle";
-	case DefenderType::Lasertron: return "lasertron_idle";
-	default: return "";
-	}
-}
-
 void GUI::reset()
 {
 	m_selectedDefender = DefenderType::None;
 }
 
-void GUI::drawEnergyBar(float energy)
+void GUI::drawBatteryCharge(float batteryCharge)
 {
 	const Rectangle rec = { 0.f, 0.f, float(CELL_SIZE * ROWS), float(CELL_SIZE / 2) };
 
@@ -37,7 +25,7 @@ void GUI::drawEnergyBar(float energy)
 	rlTranslatef(float(CELL_SIZE / 2 - rec.height / 2), float((1 + ROWS) * CELL_SIZE), 0.f);
 	rlRotatef(-90, 0, 0, 1);
 
-	GuiProgressBar(rec, nullptr, nullptr, &energy, 0.f, 100.f);
+	GuiProgressBar(rec, nullptr, nullptr, &batteryCharge, 0.f, 100.f);
 
 	rlPopMatrix();
 }
@@ -84,12 +72,12 @@ void GUI::drawCosts()
 	}
 }
 
-void GUI::drawGame(float energy, float batteries)
+void GUI::drawGame(float batteryCharge, float scraps)
 {
-	drawEnergyBar(energy);
+	drawBatteryCharge(batteryCharge);
 	drawDefenders();
 	drawCosts();
-	DrawText(TextFormat("%d", static_cast<int>(batteries)), 10, 10, 5, ORANGE);
+	DrawText(TextFormat("%d", static_cast<int>(scraps)), 10, 10, 5, ORANGE);
 
 	Vector2 btnSize = { 64.f, 16.f };
 	if (GuiButton({ TEX_WIDTH - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))

@@ -51,9 +51,6 @@
     <ClCompile Include="src\states\LostState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bullet\ShooterBullet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\states\CreditsState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bullet\Bullet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bullet\ShooterBullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\states\CreditsState.h">
