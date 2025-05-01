@@ -281,6 +281,7 @@
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypes.h" />
     <ClInclude Include="src\collisions\CollisionSystem.h" />
+    <ClInclude Include="src\Damage.h" />
     <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\MusicManager.h" />

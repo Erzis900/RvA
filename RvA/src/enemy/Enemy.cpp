@@ -24,15 +24,6 @@ void Enemy::setState(EnemyState state)
         case EnemyState::Moving:
             setAnimation(m_typeInfo->moveAnimation);
             break;
-        case EnemyState::DamageTaken:
-            setAnimation(m_typeInfo->moveAnimation);
-            m_damageTakenAnimation.start(0, 1, 0.25f)
-                .onTick([this, position = m_position](const auto& value) {
-                    m_tint = colorLerp(RED, WHITE, value);
-                    m_position = Vector2Add(position, Vector2Lerp({ 0, 0 }, { 16, 0 }, value));
-                })
-                .onComplete([this]() { m_tint = WHITE; setState(EnemyState::Moving); });
-            break;
         case EnemyState::PrepareToAttack:
         case EnemyState::ReadyToAttack:
             setAnimation(m_typeInfo->attackAnimation);
@@ -55,10 +46,22 @@ bool Enemy::isAttacking() const
     return getState() == EnemyState::ReadyToAttack || getState() == EnemyState::PrepareToAttack;
 }
 
-void Enemy::takeDamage(float damage)
+void Enemy::applyDamage(const Damage& damage)
 {
-	m_hp -= damage;
-    setState(EnemyState::DamageTaken);
+    m_latestDamageApplied = damage;
+    m_hp -= m_latestDamageApplied.value;
+    m_damageTakenAnimation.start(0, 1, 0.25f)
+        .onTick([this, position = m_position](const auto& value) {
+            m_tint = colorLerp(RED, WHITE, value);
+            if (m_latestDamageApplied.bounceBackPower != 0)
+            {
+                m_position = Vector2Add(position, Vector2Lerp({ 0, 0 }, { m_latestDamageApplied.bounceBackPower, 0 }, value));
+            }
+        })
+        .onComplete([this]() {
+            m_tint = WHITE;
+            m_latestDamageApplied = {};
+        });
 }
 
 void Enemy::update(float dt)
@@ -90,6 +93,7 @@ void Enemy::update(float dt)
     }
 
 	m_animation.update(dt);
+    m_damageTakenAnimation.update(dt);
 }
 
 void Enemy::draw(Game& game)
@@ -127,6 +131,9 @@ void Enemy::performIdle(float dt)
 void Enemy::performDamageTaken(float dt)
 {
     m_damageTakenAnimation.update(dt);
+    if (m_latestDamageApplied.bounceBackPower == 0) {
+        performMove(dt);
+    }
 }
 
 void Enemy::performMove(float dt)

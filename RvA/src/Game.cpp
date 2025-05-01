@@ -189,7 +189,7 @@ void Game::registerDefenderTypes()
 		.spriteDisabled = { sprite("lasertron_off"), 0.1f },
 		.batteryDrain = 20.f,
 		.firstShootCooldown = 0.5f,
-		.shootCooldown = 4.f,
+		.shootCooldown = 2.f,
 		.maxHP = 250,
 		.cost = 30,
 		.bulletType = "LaserBeam"
@@ -201,14 +201,14 @@ void Game::registerBulletTypes()
 	m_bulletTypeRegistry.registerBulletType("SimpleShot", BulletShotData {
 		.velocity = { 150, 0 },
 		.radius = 5.f,
-		.damage = 50,
+		.damage = { 50, 16 },
 		.maxLifetime = 100,
 	});
 
 	m_bulletTypeRegistry.registerBulletType("ChasingShot", ChasingShotData {
 		.startOffset = { 20, 20 },
 		.radius = 10.f,
-		.damage = 50,
+		.damage = { 50, 16 },
 		.maxLifetime = 100,
 		.speed = 150,
 		.color = {255, 0, 0, 255},
@@ -217,12 +217,12 @@ void Game::registerBulletTypes()
 
 	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{
 		.startOffset = { 35, 18 },
-		.beamHeight = 6,
-		.damage = 100.f,
+		.beamHeight = 2,
+		.damage = { 100.f, 0, true },
 		.auraSize = 2,
 		.beamColor = BLUE,
 		.auraColor = {255, 255, 255, 200},
-		.maxLifetime = 2.f,
+		.maxLifetime = 0.5f,
 		.shootAnimationSpeed = 15,
 		.shootAnimationDuration = 2.f
 	});

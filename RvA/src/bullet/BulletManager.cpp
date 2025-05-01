@@ -108,7 +108,7 @@ void BulletManager::drawBullet(Bullet& bullet, BulletShotData& data)
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, BulletShotData& data, float dt)
 {
 	bullet.lifetime = 0;
-	enemy.takeDamage(data.damage);
+	enemy.applyDamage(data.damage.createDamage(dt));
 }
 
 /*
@@ -139,8 +139,6 @@ void BulletManager::drawBullet(Bullet& bullet, LaserBeamData& data)
 	float height = data.beamHeight;
 	float halfHeight = height / 2;
 
-	float shake = sinf(data.shootAnimationTime * 40.0f) * 2.0f;
-
 	DrawRectangle(
 		bullet.position.x + halfHeight,
 		bullet.position.y - halfHeight - data.auraSize / 2,
@@ -149,15 +147,15 @@ void BulletManager::drawBullet(Bullet& bullet, LaserBeamData& data)
 		data.auraColor
 	);
 	DrawCircleV({ bullet.position.x + width, bullet.position.y }, height, data.auraColor);
-	DrawRectangle(bullet.position.x, bullet.position.y - halfHeight + shake, width, height, data.beamColor);
+	DrawRectangle(bullet.position.x, bullet.position.y - halfHeight, width, height, data.beamColor);
 
 	DrawCircleV(bullet.position, height, data.beamColor);
-	DrawCircleV({ bullet.position.x + width, bullet.position.y + shake }, height * 0.5f, data.beamColor);
+	DrawCircleV({ bullet.position.x + width, bullet.position.y }, height * 0.5f, data.beamColor);
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data, float dt)
 {
-	enemy.takeDamage(data.damage * dt);
+	enemy.applyDamage(data.damage.createDamage(dt));
 }
 
 /*
@@ -204,5 +202,5 @@ void BulletManager::drawBullet(Bullet& bullet, ChasingShotData& data)
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, ChasingShotData& data, float dt)
 {
 	bullet.lifetime = 0;
-	enemy.takeDamage(data.damage);
+	enemy.applyDamage(data.damage.createDamage(dt));
 }

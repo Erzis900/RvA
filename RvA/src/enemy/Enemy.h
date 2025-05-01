@@ -3,6 +3,7 @@
 #include <string>
 #include "EnemyTypes.h"
 #include "Animation.h"
+#include "Damage.h"
 #include "utilities.h"
 
 class Game;
@@ -42,7 +43,7 @@ public:
     void update(float dt);
     void draw(Game& game);
 
-    void takeDamage(float damage);
+    void applyDamage(const Damage& damage);
 
     auto getHp() const { return m_hp; }
     auto getRow() const { return m_row; }
@@ -73,6 +74,7 @@ private:
     int m_row{};
     Interpolation<> m_damageTakenAnimation;
     Color m_tint{ WHITE };
+    Damage m_latestDamageApplied;
 
 	Animation m_animation;
     EnemyState m_state;

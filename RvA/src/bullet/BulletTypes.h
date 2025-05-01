@@ -2,6 +2,7 @@
 
 #include <variant>
 #include <raylib.h>
+#include "Damage.h"
 
 /*
 * Bullet Shot
@@ -10,7 +11,7 @@ struct BulletShotData
 {
 	Vector2 velocity{};
 	float radius{};
-	float damage{};
+	DamageInfo damage{};
 	float maxLifetime{};
 };
 
@@ -21,7 +22,7 @@ struct LaserBeamData
 {
 	Vector2 startOffset{};
 	float beamHeight{};
-	float damage{};
+	DamageInfo damage{};
 	float auraSize{ 4 };
 	Color beamColor{ 255, 0, 0, 255 };
 	Color auraColor{ 255, 255, 255, 128 };
@@ -39,7 +40,7 @@ struct ChasingShotData
 {
 	Vector2 startOffset{};
 	float radius{};
-	float damage{};
+	DamageInfo damage{};
 	float maxLifetime{};
 	float speed{};
 	Color color{};
