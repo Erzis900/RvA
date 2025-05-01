@@ -4,6 +4,7 @@
 #include "defender/DefenderManager.h"
 #include "bullet/BulletManager.h"
 #include "collisions/CollisionSystem.h"
+#include "GUI/HUD.h"
 
 class Game;
 
@@ -27,6 +28,8 @@ private:
 	void performAction(const BulletSpawnAction& action);
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
+	void setupHUD();
+	void togglePause();
 
 	int m_numberOfDestroyedEnemies{0};
 	int m_numberOfEnemiesToKill{40};
@@ -39,4 +42,6 @@ private:
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
 	CollisionSystem m_collisionSystem;
+	HUD m_hud;
+	bool m_isGamePaused{};
 };

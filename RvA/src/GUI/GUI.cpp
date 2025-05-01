@@ -1,113 +1,21 @@
 #include "GUI.h"
-#include "Game.h"
-#include "states/MenuState.h"
-#include "rlgl.h"
 #include <raygui.h>
 #include "constants.h"
 
-GUI::GUI(Game& game)
-	:m_game(game), m_selectedDefender(DefenderType::None), m_defenderHover(false)
+GUI::GUI(Atlas& atlas) : m_atlas(atlas)
 {
 }
 
 void GUI::loadResources()
 {
 	// This is not a real load of resources but it's a way to retrieve and store the SpriteInfo
-	m_mouseCursorPoint = m_game.getAtlas().getSpriteInfo("mouse_cursor_point");
-	m_mouseCursorHover = m_game.getAtlas().getSpriteInfo("mouse_cursor_hover");
-}
-
-void GUI::reset()
-{
-	m_selectedDefender = DefenderType::None;
-}
-
-void GUI::drawBatteryCharge(float batteryCharge)
-{
-	const Rectangle rec = { 0.f, 0.f, float(CELL_SIZE * ROWS), float(CELL_SIZE / 2) };
-
-	rlPushMatrix();
-
-	rlTranslatef(float(CELL_SIZE / 2 - rec.height / 2), float((1 + ROWS) * CELL_SIZE), 0.f);
-	rlRotatef(-90, 0, 0, 1);
-
-	GuiProgressBar(rec, nullptr, nullptr, &batteryCharge, 0.f, 100.f);
-
-	rlPopMatrix();
-}
-
-void GUI::drawDefenders()
-{
-	m_defenderHover = false;
-
-	auto i = 0;
-	for (auto& [type, info] : m_game.getDefenderRegistry().getDefenderInfos())
-	{
-		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		m_game.getAtlas().drawSprite(info.spriteEnabled.spriteInfo, position);
-
-		Rectangle rect = { position.x, position.y, float(CELL_SIZE), float(CELL_SIZE) };
-
-		if (m_selectedDefender == type)
-		{
-			DrawRectangleLinesEx(rect, 1, GREEN);
-		}
-
-		if (CheckCollisionPointRec(GetMousePosition(), rect))
-		{
-			m_defenderHover = true;
-			DrawRectangleLinesEx(rect, 1, SKYBLUE);
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-			{
-				m_selectedDefender = type;
-			}
-		}
-		++i;
-	}
-}
-
-void GUI::drawCosts()
-{
-	auto i = 0;
-	for (auto& [type, info] : m_game.getDefenderRegistry().getDefenderInfos())
-	{
-		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		std::string costText = std::to_string(info.cost);
-		DrawText(costText.c_str(), int(position.x), int(position.y), 10, WHITE);
-		++i;
-	}
-}
-
-void GUI::drawGame(float batteryCharge, float scraps)
-{
-	drawBatteryCharge(batteryCharge);
-	drawDefenders();
-	drawCosts();
-	DrawText(TextFormat("%d", static_cast<int>(scraps)), 10, 10, 5, ORANGE);
-
-	Vector2 btnSize = { 64.f, 16.f };
-	if (GuiButton({ TEX_WIDTH - btnSize.x, 0, btnSize.x, btnSize.y}, "Menu"))
-	{
-		m_game.setState(std::make_unique<MenuState>());
-	}
-
-	if (GuiButton({ TEX_WIDTH - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause"))
-	{
-		m_paused = !m_paused;
-	}
-	if (m_paused) DrawText("Paused", int(TEX_WIDTH / 2 - MeasureText("Paused", 20) / 2), int(TEX_HEIGHT / 2 - 10), 20, WHITE);
+	m_mousePointSprite = m_atlas.getSpriteInfo("mouse_cursor_point");
+	m_mouseHoverSprite = m_atlas.getSpriteInfo("mouse_cursor_hover");
 }
 
 void GUI::drawCursor()
 {
-	if (!m_defenderHover)
-	{
-		m_game.getAtlas().drawSprite(m_mouseCursorPoint, { GetMousePosition().x - 10, GetMousePosition().y - 5});
-	}
-	else
-	{
-		m_game.getAtlas().drawSprite(m_mouseCursorHover, { GetMousePosition().x - 10, GetMousePosition().y - 5 });
-	}
+	m_atlas.drawSprite(m_mouseCurrentSprite, { GetMousePosition().x - 10, GetMousePosition().y - 5 });
 }
 
 void GUI::drawHp(float hp, float maxHp, Vector2 pos)
@@ -122,4 +30,97 @@ void GUI::drawHp(float hp, float maxHp, Vector2 pos)
 
 	DrawRectangleRec(bg, DARKGRAY);
 	DrawRectangleRec(fg, GREEN);
+}
+
+void GUI::setCursor(CursorType type)
+{
+	switch (type)
+	{
+	case CursorType::Point:
+		m_mouseCurrentSprite = m_mousePointSprite;
+		break;
+	case CursorType::Hover:
+		m_mouseCurrentSprite = m_mouseHoverSprite;
+		break;
+	}
+}
+
+bool GUI::drawButton(DrawButtonInfo drawButtonInfo)
+{
+	auto position = calculateCoordinates(drawButtonInfo);
+	return ::GuiButton({
+		.x = position.x,
+		.y = position.y,
+		.width = drawButtonInfo.size.x,
+		.height = drawButtonInfo.size.y
+		}, drawButtonInfo.text);
+}
+
+void GUI::drawText(DrawTextInfo drawTextInfo)
+{
+	auto position = calculateCoordinates(drawTextInfo);
+	::DrawText(drawTextInfo.text, static_cast<int>(position.x), static_cast<int>(position.y), drawTextInfo.fontSize, drawTextInfo.color);
+}
+
+Vector2 GUI::calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const
+{
+	return calculateCoordinates(drawButtonInfo.size, drawButtonInfo.guiPosition);
+}
+
+Vector2 GUI::calculateCoordinates(const DrawTextInfo& drawTextInfo) const
+{
+	auto width = MeasureText(drawTextInfo.text, drawTextInfo.fontSize);
+	auto height = drawTextInfo.fontSize;
+	return calculateCoordinates({ (float)width, (float)height }, drawTextInfo.guiPosition);
+}
+
+Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const
+{
+	auto result = guiPosition.position;
+
+	if (guiPosition.horizontalAlignment.has_value())
+	{
+		switch (*guiPosition.horizontalAlignment)
+		{
+		case GUIAlignmentH::Left:
+		{
+			result.x = guiPosition.position.x;
+			break;
+		}
+		case GUIAlignmentH::Right:
+		{
+			result.x = TEX_WIDTH - (size.x + guiPosition.position.x);
+			break;
+		}
+		case GUIAlignmentH::Center:
+		{
+			result.x = TEX_WIDTH / 2 - (size.x / 2) + guiPosition.position.x;
+			break;
+		}
+		}
+	}
+
+	if (guiPosition.verticalAlignment.has_value())
+	{
+		switch (*guiPosition.verticalAlignment)
+		{
+		case GUIAlignmentV::Top:
+		{
+			result.y = guiPosition.position.y;
+			break;
+		}
+		case GUIAlignmentV::Bottom:
+		{
+			result.y = TEX_HEIGHT - (size.y + guiPosition.position.y);
+			break;
+		}
+		case GUIAlignmentV::Center:
+		{
+			result.y = TEX_HEIGHT / 2 - (size.y / 2) + guiPosition.position.y;
+			break;
+		}
+		}
+	}
+
+	return result;
 }

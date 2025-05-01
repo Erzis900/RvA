@@ -3,7 +3,6 @@
 #include <memory>
 #include <raylib.h>
 #include "GUI/GUI.h"
-#include "GUI/GUIHelper.h"
 #include "atlas/Atlas.h"
 #include "MusicManager.h"
 
@@ -21,7 +20,6 @@ public:
 	void run();
 
 	GUI& getGUI() { return m_gui; }
-	GUIHelper& getGUIHelper() { return m_guiHelper; }
 	Atlas& getAtlas() { return m_atlas; }
 
 	const auto& getDefenderRegistry() const { return m_defenderTypeRegistry; }
@@ -63,7 +61,6 @@ private:
 	bool m_fadingIn;
 
 	GUI m_gui;
-	GUIHelper m_guiHelper;
 	Atlas m_atlas;
 	DefenderTypeRegistry m_defenderTypeRegistry;
 	BulletTypeRegistry m_bulletTypeRegistry;

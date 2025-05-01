@@ -1,6 +1,7 @@
 #include "PlayState.h"
 #include "WinState.h"
 #include "LostState.h"
+#include "MenuState.h"
 #include <raylib.h>
 #include <raymath.h>
 #include "Game.h"
@@ -22,6 +23,7 @@ PlayState::PlayState(Game& game)
 	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_defenderManager)
 	, m_bulletManager(m_enemyManager)
 	, m_collisionSystem(m_defenderManager, m_enemyManager, m_bulletManager)
+	, m_hud(m_game.getAtlas(), m_game.getGUI())
 {
 	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
 		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;
@@ -29,6 +31,8 @@ PlayState::PlayState(Game& game)
 			goToWinState(game);
 		}
 	});
+
+	setupHUD();
 }
 
 void PlayState::drawGrid()
@@ -45,7 +49,7 @@ void PlayState::drawGrid()
 
 void PlayState::update(Game& game, float dt)
 {
-	if (game.getGUI().isPaused()) return;
+	if (m_isGamePaused) return;
 
 	m_enemyManager.update(dt);
 
@@ -80,10 +84,8 @@ void PlayState::draw(Game& game)
 	m_defenderManager.draw();
 	m_enemyManager.draw();
 	m_bulletManager.draw();
-
-	game.getGUI().drawGame(m_batteryCharge, m_scraps);
-
 	m_collisionSystem.draw();
+	m_hud.draw();
 }
 
 void PlayState::goToWinState(Game& game)
@@ -96,6 +98,9 @@ void PlayState::updateBatteryAndScraps(float scrapGain, float batteryDrain)
 	m_scraps += scrapGain;
 	m_batteryCharge -= batteryDrain;
 	m_batteryCharge = Clamp(m_batteryCharge, 0, 100);
+
+	m_hud.data().batteryCharge = m_batteryCharge;
+	m_hud.data().scrapsAmount = static_cast<int>(m_scraps);
 }
 
 void PlayState::performDefenderSpawnOnInput()
@@ -108,12 +113,12 @@ void PlayState::performDefenderSpawnOnInput()
 
 		if (row >= 0 && row < ROWS && column >= 0 && column < COLS)
 		{
-			auto type = m_game.getGUI().getSelectedDefender();
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && type != DefenderType::None)
+			auto defenderType = m_hud.data().selectedDefender;
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && defenderType)
 			{
 				if (canPlaceDefender(row, column))
 				{
-					auto defenderInfo = m_game.getDefenderRegistry().getDefenderInfo(type);
+					auto defenderInfo = m_game.getDefenderRegistry().getDefenderInfo(*defenderType);
 					if (defenderInfo && canAffordCost(defenderInfo->cost))
 					{
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
@@ -157,4 +162,23 @@ bool PlayState::canAffordCost(int cost) const
 bool PlayState::canPlaceDefender(int x, int y) const
 {
 	return !m_defenderManager.hasDefender(x, y);
+}
+
+void PlayState::setupHUD()
+{
+	auto& hudData = m_hud.data();
+	for (const auto& [type, defenderInfo] : m_game.getDefenderRegistry().getDefenderInfos())
+	{
+		hudData.defenders.emplace_back(type, defenderInfo.spriteEnabled.spriteInfo, defenderInfo.cost);
+	}
+
+	m_hud.onMenuButtonPressed([this]() { m_game.setState(std::make_unique<MenuState>()); });
+	m_hud.onPauseButtonPressed([this]() { togglePause(); });
+	m_hud.onResumeButtonPressed([this]() { togglePause(); });
+}
+
+void PlayState::togglePause()
+{
+	m_isGamePaused = !m_isGamePaused;
+	m_hud.data().drawPause = m_isGamePaused;
 }

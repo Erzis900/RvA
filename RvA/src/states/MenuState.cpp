@@ -16,20 +16,19 @@ void MenuState::onExit(Game& game)
 void MenuState::draw(Game& game)
 {
 	auto btnSize = Vector2{ 200.f, 60.f };
-	auto& guiHelper = game.getGUIHelper();
-	if (guiHelper.DrawButton({ "Exit", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	auto& gui = game.getGUI();
+	if (gui.drawButton({ "Exit", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		exit(0);
 	}
 
-	if (guiHelper.DrawButton({ "Credits", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	if (gui.drawButton({ "Credits", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		game.setState(std::make_unique<CreditsState>());
 	}
 
-	if (guiHelper.DrawButton({ "Play", btnSize, { {0, -btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	if (gui.drawButton({ "Play", btnSize, { {0, -btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
-		game.getGUI().reset();
 		game.setState(std::make_unique<PlayState>(game));
 	}
 }

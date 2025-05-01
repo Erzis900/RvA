@@ -6,7 +6,7 @@ Game::Game()
 	:m_renderRec(), m_fadingOut(false), m_fadingIn(false), m_fadeAlpha(0.f),
 	m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
 	m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT),
-	m_transitionSpeed(4.f), m_gui(*this), m_guiHelper(*this)
+	m_transitionSpeed(4.f), m_gui(m_atlas)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
@@ -19,6 +19,7 @@ Game::Game()
 	m_gui.loadResources();
 
 	DisableCursor();
+	m_gui.setCursor(CursorType::Point);
 
 	registerDefenderTypes();
 	registerBulletTypes();

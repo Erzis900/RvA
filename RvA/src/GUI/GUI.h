@@ -1,36 +1,77 @@
 #pragma once
-#include "defender/DefenderTypes.h"
+
 #include "atlas/Atlas.h"
 #include <raylib.h>
+#include <optional>
 
 class Game;
+
+enum CursorType
+{
+	Point,
+	Hover
+};
+
+enum class GUIAlignmentV
+{
+	Top,
+	Bottom,
+	Center
+};
+
+enum class GUIAlignmentH
+{
+	Left,
+	Right,
+	Center
+};
+
+struct GUIPosition
+{
+	// position can be treated as margins when horizontal or vertical alignments are defined
+	Vector2 position;
+	std::optional<GUIAlignmentH> horizontalAlignment;
+	std::optional<GUIAlignmentV> verticalAlignment;
+};
+
+struct DrawTextInfo
+{
+	const char* text{};
+	unsigned int fontSize{};
+	Color color;
+	GUIPosition guiPosition;
+};
+
+struct DrawButtonInfo
+{
+	const char* text{};
+	Vector2 size;
+	GUIPosition guiPosition;
+};
 
 class GUI
 {
 public:
-	GUI(Game& game);
+	GUI(Atlas& atlas);
 
 	void loadResources();
 
-	void drawGame(float batteryCharge, float scraps);
 	void drawCursor();
 	void drawHp(float hp, float maxHp, Vector2 pos);
 
-	DefenderType getSelectedDefender() const { return m_selectedDefender; }
-	bool isPaused() const { return m_paused; }
+	void setCursor(CursorType type);
 
-	void reset();
+	bool drawButton(DrawButtonInfo drawButtonInfo);
+	void drawText(DrawTextInfo drawTextInfo);
+
 private:
-	void drawBatteryCharge(float batteryCharge);
-	void drawDefenders();
-	void drawCosts();
+	Vector2 calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const;
+	Vector2 calculateCoordinates(const DrawTextInfo& drawTextInfo) const;
+	Vector2 calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const;
 
-	bool m_paused{};
-	bool m_defenderHover{};
+	Atlas& m_atlas;
 
-	Game& m_game;
-	DefenderType m_selectedDefender;
-
-	const SpriteInfo* m_mouseCursorPoint{};
-	const SpriteInfo* m_mouseCursorHover{};
+	const SpriteInfo* m_mousePointSprite{};
+	const SpriteInfo* m_mouseHoverSprite{};
+	const SpriteInfo* m_mouseCurrentSprite{};
 };

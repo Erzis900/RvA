@@ -26,10 +26,10 @@ WinState::WinState(Game& game) {
 
 void WinState::draw(Game& game)
 {
-	auto& guiHelper = game.getGUIHelper();
-	guiHelper.DrawText({ "You Won!!!", 30, WHITE, { m_textPosition, GUIAlignmentH::Center, GUIAlignmentV::Center } });
+	auto& gui = game.getGUI();
+	gui.drawText({ "You Won!!!", 30, WHITE, { m_textPosition, GUIAlignmentH::Center, GUIAlignmentV::Center } });
 
-	guiHelper.DrawText({ "Press any key to continue", 18, WHITE, { {0, 10}, GUIAlignmentH::Center, GUIAlignmentV::Bottom } });
+	gui.drawText({ "Press any key to continue", 18, WHITE, { {0, 10}, GUIAlignmentH::Center, GUIAlignmentV::Bottom } });
 
 	drawSprites(m_chasers, game);
 	drawSprites(m_defenders, game);

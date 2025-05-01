@@ -5,6 +5,5 @@ enum class DefenderType
 	Solar,
 	Shooter,
 	Catapult,
-	Lasertron,
-	None,
+	Lasertron
 };
