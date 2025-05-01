@@ -96,8 +96,8 @@ Vector2 Enemy::getCenteredPosition() const
 
 Rectangle Enemy::getBoundingBox() const
 {
-    const float bbPadding = 5;
-    return Rectangle{ m_position.x + bbPadding, m_position.y + bbPadding, 32 - bbPadding, 32 - bbPadding };
+    constexpr Vector2 bbPadding = { 10, 5 };
+    return Rectangle{ m_position.x + bbPadding.x, m_position.y + bbPadding.y, 32 - bbPadding.x, 32 - bbPadding.y };
 }
 
 void Enemy::performIdle(float dt)

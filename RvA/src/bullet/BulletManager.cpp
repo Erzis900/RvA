@@ -82,66 +82,22 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet, float dt)
 }
 
 /*
-* Chasing Bullet
-*/
-void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
-{
-	bullet.lifetime = data.maxLifetime;
-	bullet.position = Vector2Add(bullet.position, { 20, 20 });
-	bullet.boundingBox = { bullet.position.x, bullet.position.y, data.radius * 2, data.radius * 2 };
-}
-
-void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float dt)
-{
-	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
-	if (enemy)
-	{
-		auto targetDir = Vector2Normalize(Vector2Subtract(enemy->getCenteredPosition(), bullet.position));
-		data.direction = Vector2Lerp(data.direction, targetDir, 0.1f);
-		if (Vector2Length(data.direction) > data.speed)
-		{
-			data.direction = Vector2Normalize(data.direction);
-		}
-	}
-
-	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
-	bullet.boundingBox.x = bullet.position.x;
-	bullet.boundingBox.y = bullet.position.y;
-}
-
-void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
-{
-	Vector2 forward = Vector2Normalize(data.direction);
-	Vector2 right = { -forward.y, forward.x }; // perpendicular to forward
-
-	Vector2 tip = Vector2Add(bullet.position, Vector2Scale(forward, data.radius));
-	Vector2 baseLeft = Vector2Add(bullet.position, Vector2Scale(right, data.radius * 0.5f));
-	Vector2 baseRight = Vector2Subtract(bullet.position, Vector2Scale(right, data.radius * 0.5f));
-
-	DrawTriangle(baseRight, baseLeft, tip, data.color);
-}
-
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt)
-{
-	bullet.lifetime = 0;
-	enemy.takeDamage(data.damage);
-}
-
-/*
 * Simple Bullet
 */
 void BulletManager::setupBullet(Bullet2& bullet, BulletShotData& data)
 {
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
-	bullet.boundingBox = { bullet.position.x, bullet.position.y, data.radius * 2, data.radius * 2 };
+	
+	auto side = data.radius * 2;
+	bullet.boundingBox = { bullet.position.x - data.radius, bullet.position.y - data.radius, side, side };
 }
 
 void BulletManager::updateBullet(Bullet2& bullet, BulletShotData& data, float dt)
 {
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.velocity, dt));
-	bullet.boundingBox.x = bullet.position.x;
-	bullet.boundingBox.y = bullet.position.y;
+	bullet.boundingBox.x = bullet.position.x - data.radius;
+	bullet.boundingBox.y = bullet.position.y - data.radius;
 }
 
 void BulletManager::drawBullet(Bullet2& bullet, BulletShotData& data)
@@ -202,4 +158,51 @@ void BulletManager::drawBullet(Bullet2& bullet, LaserBeamData& data)
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data, float dt)
 {
 	enemy.takeDamage(data.damage * dt);
+}
+
+/*
+* Chasing Bullet
+*/
+void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
+{
+	bullet.lifetime = data.maxLifetime;
+	bullet.position = Vector2Add(bullet.position, { 20, 20 });
+	auto halfRadius = data.radius * 0.5f;
+	bullet.boundingBox = { bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius };
+}
+
+void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float dt)
+{
+	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
+	if (enemy)
+	{
+		auto targetDir = Vector2Normalize(Vector2Subtract(enemy->getCenteredPosition(), bullet.position));
+		data.direction = Vector2Lerp(data.direction, targetDir, 0.1f);
+		if (Vector2Length(data.direction) > data.speed)
+		{
+			data.direction = Vector2Normalize(data.direction);
+		}
+	}
+
+	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
+	bullet.boundingBox.x = bullet.position.x - data.radius * 0.5f;
+	bullet.boundingBox.y = bullet.position.y - data.radius * 0.5f;
+}
+
+void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
+{
+	Vector2 forward = Vector2Normalize(data.direction);
+	Vector2 right = { -forward.y, forward.x }; // perpendicular to forward
+
+	Vector2 tip = Vector2Add(bullet.position, Vector2Scale(forward, data.radius * 0.5f));
+	Vector2 baseLeft = Vector2Add(bullet.position, Vector2Scale(right, data.radius * 0.5f));
+	Vector2 baseRight = Vector2Subtract(bullet.position, Vector2Scale(right, data.radius * 0.5f));
+
+	DrawTriangle(baseRight, baseLeft, tip, data.color);
+}
+
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt)
+{
+	bullet.lifetime = 0;
+	enemy.takeDamage(data.damage);
 }

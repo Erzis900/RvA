@@ -17,7 +17,11 @@ void PlayState::onExit(Game& game)
 }
 
 PlayState::PlayState(Game& game)
-	: m_game(game), m_defenderManager(game.getAtlas(), game.getGUI()), m_enemyManager(game, game.getEnemyTypeRegistry(), m_defenderManager), m_bulletManager(m_enemyManager)
+	: m_game(game)
+	, m_defenderManager(game.getAtlas(), game.getGUI())
+	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_defenderManager)
+	, m_bulletManager(m_enemyManager)
+	, m_collisionSystem(m_defenderManager, m_enemyManager, m_bulletManager)
 {
 	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
 		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;
@@ -29,8 +33,8 @@ PlayState::PlayState(Game& game)
 
 void PlayState::drawGrid()
 {
-	for (int row = 0; row < m_rows; row++) {
-		for (int col = 0; col < m_cols; col++) {
+	for (int row = 0; row < ROWS; row++) {
+		for (int col = 0; col < COLS; col++) {
 			int x = CELL_SIZE + col * CELL_SIZE;
 			int y = CELL_SIZE + row * CELL_SIZE;
 
@@ -62,6 +66,10 @@ void PlayState::update(Game& game, float dt)
 		{
 			goToWinState(game);
 		}
+		else if (IsKeyPressed(KEY_F1))
+		{
+			m_collisionSystem.toggleDebugView();
+		}
 	}
 }
 
@@ -74,6 +82,8 @@ void PlayState::draw(Game& game)
 	m_bulletManager.draw();
 
 	game.getGUI().drawGame(m_batteryCharge, m_scraps);
+
+	m_collisionSystem.draw();
 }
 
 void PlayState::goToWinState(Game& game)

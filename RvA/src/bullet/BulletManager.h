@@ -30,6 +30,8 @@ public:
 
 	void spawnBullet(const BulletData& data, const Vector2& position);
 
+	auto& getBullets() const { return m_bullets; }
+
 private:
 	void manageEnemyCollisions(Bullet2& bullet, float dt);
 

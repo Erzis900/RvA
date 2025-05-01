@@ -3,6 +3,7 @@
 #include "enemy/EnemyManager.h"
 #include "defender/DefenderManager.h"
 #include "bullet/BulletManager.h"
+#include "collisions/CollisionSystem.h"
 
 class Game;
 
@@ -27,10 +28,8 @@ private:
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
-	int m_rows{ ROWS };
-	int m_cols{ COLS };
 	int m_numberOfDestroyedEnemies{0};
-	int m_numberOfEnemiesToKill{20};
+	int m_numberOfEnemiesToKill{40};
 
 	float m_batteryCharge{ MAX_BATTERY_CHARGE };
 	float m_scraps{};
@@ -39,4 +38,5 @@ private:
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
+	CollisionSystem m_collisionSystem;
 };
