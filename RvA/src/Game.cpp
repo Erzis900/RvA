@@ -16,6 +16,7 @@ Game::Game()
 	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
 
 	m_atlas.load("assets/atlas.png");
+	m_gui.loadResources();
 
 	DisableCursor();
 
@@ -154,10 +155,12 @@ void Game::run()
 
 void Game::registerDefenderTypes()
 {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Solar,
-		.spriteEnabled = "solar_idle",
-		.spriteDisabled = "solar_off",
+		.spriteEnabled = { sprite("solar_idle"), 0.1f },
+		.spriteDisabled = { sprite("solar_off"), 0.1f },
 		.batteryDrain = -5,
 		.scrapsGain = 5,
 		.maxHP = 100,
@@ -165,8 +168,8 @@ void Game::registerDefenderTypes()
 
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Shooter,
-		.spriteEnabled = "shooter_idle",
-		.spriteDisabled = "shooter_off",
+		.spriteEnabled = { sprite("shooter_idle"), 0.1f },
+		.spriteDisabled = { sprite("shooter_off"), 0.1f },
 		.batteryDrain = 5.f,
 		.firstShootCooldown = 1.f,
 		.shootCooldown = 1.f,
@@ -177,8 +180,8 @@ void Game::registerDefenderTypes()
 
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Catapult,
-		.spriteEnabled = "catapult_idle",
-		.spriteDisabled = "catapult_off",
+		.spriteEnabled = { sprite("catapult_idle"), 0.1f },
+		.spriteDisabled = { sprite("catapult_off"), 0.1f },
 		.batteryDrain = 10.f,
 		.firstShootCooldown = 1.f,
 		.shootCooldown = 1.f,
@@ -189,8 +192,8 @@ void Game::registerDefenderTypes()
 
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Lasertron,
-		.spriteEnabled = "lasertron_idle",
-		.spriteDisabled = "lasertron_off",
+		.spriteEnabled = { sprite("lasertron_idle"), 0.1f },
+		.spriteDisabled = { sprite("lasertron_off"), 0.1f },
 		.batteryDrain = 20.f,
 		.firstShootCooldown = 0.5f,
 		.shootCooldown = 4.f,
@@ -234,6 +237,8 @@ void Game::registerBulletTypes()
 
 void Game::registerEnemyTypes()
 {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
 	m_enemyTypeRegistry.registerEnemyType({
 		.type = EnemyType::B1,
 		.spawnChance = 0.7f,
@@ -241,10 +246,10 @@ void Game::registerEnemyTypes()
 		.speed = 40,
 		.attackTime = 0.5f,
 		.damage = 50,
-		.idleAnimation = { "b1_alien_walk", 0.1f },
-		.moveAnimation = { "b1_alien_walk", 0.1f },
-		.attackAnimation = { "b1_alien_walk", 0.1f },
-		.dyingAnimation = { "b1_alien_death", 0.1f, 1 }
+		.idleAnimation = { sprite("b1_alien_walk"), 0.1f },
+		.moveAnimation = { sprite("b1_alien_walk"), 0.1f },
+		.attackAnimation = { sprite("b1_alien_walk"), 0.1f },
+		.dyingAnimation = { sprite("b1_alien_death"), 0.1f, 1 }
 	});
 
 	m_enemyTypeRegistry.registerEnemyType({
@@ -254,9 +259,9 @@ void Game::registerEnemyTypes()
 		.speed = 80,
 		.attackTime = 0.5f,
 		.damage = 50,
-		.idleAnimation = { "b2_alien_walk", 0.1f },
-		.moveAnimation = { "b2_alien_walk", 0.1f },
-		.attackAnimation = { "b2_alien_walk", 0.1f },
-		.dyingAnimation = { "b2_alien_death", 0.1f, 1 }
+		.idleAnimation = { sprite("b2_alien_walk"), 0.1f },
+		.moveAnimation = { sprite("b2_alien_walk"), 0.1f },
+		.attackAnimation = { sprite("b2_alien_walk"), 0.1f },
+		.dyingAnimation = { sprite("b2_alien_death"), 0.1f, 1 }
 	});
 }

@@ -8,13 +8,13 @@
 
 WinState::WinState(Game& game) {
 	auto solarPanelInfo = game.getDefenderRegistry().getDefenderInfo(DefenderType::Solar);
-	m_defenders.push_back(createSpriteItem(game, solarPanelInfo->spriteEnabled.c_str(), {TEX_WIDTH, 100}, {-150, 0}));
+	m_defenders.push_back(createSpriteItem(game, solarPanelInfo->spriteEnabled.spriteInfo, {TEX_WIDTH, 100}, {-150, 0}));
 
 	auto x = TEX_WIDTH + 100.f;
 	for (auto i = 0; i < 3; ++i)
 	{
 		const auto typeInfo = game.getEnemyTypeRegistry().getEnemyTypeInfo(EnemyType::B1);
-		m_chasers.push_back(createSpriteItem(game, typeInfo->moveAnimation.animationName.c_str(), {x, 100}, {-150, 0}));
+		m_chasers.push_back(createSpriteItem(game, typeInfo->moveAnimation.spriteInfo, {x, 100}, {-150, 0}));
 		x += 30.f;
 	}
 
@@ -74,13 +74,13 @@ void WinState::update(Game& game, float dt)
 	m_textPosition.y = sinf(m_textAnimationTime * m_textAnimationSpeed) * m_textAnimationAmplitude;
 }
 
-WinState::SpriteItem WinState::createSpriteItem(Game& game, const char* name, const Vector2& position, const Vector2& velocity)
+WinState::SpriteItem WinState::createSpriteItem(Game& game, const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity)
 {
 	return {
-		name ? name : "",
+		spriteInfo,
 		position,
 		velocity,
-		name ? std::make_unique<Animation>(Animation::createAnimation(name, 0.05f, game.getAtlas())) : nullptr
+		spriteInfo ? std::make_unique<Animation>(Animation::createAnimation({spriteInfo, 0.05f})) : nullptr
 	};
 }
 
@@ -101,7 +101,7 @@ void WinState::drawSprites(std::vector<SpriteItem>& sprites, Game& game)
 {
 	for (auto& sprite : sprites) {
 		if (sprite.animation) {
-			game.getAtlas().drawAnimation(sprite.name.c_str(), sprite.position, sprite.animation->getCurrentFrame(), sprite.flip);
+			game.getAtlas().drawSprite(sprite.spriteInfo, sprite.position, sprite.animation->getCurrentFrame(), sprite.flip);
 		}
 	}
 }

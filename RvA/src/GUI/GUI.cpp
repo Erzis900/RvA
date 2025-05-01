@@ -1,7 +1,6 @@
 #include "GUI.h"
 #include "Game.h"
 #include "states/MenuState.h"
-#include "states/PlayState.h"
 #include "rlgl.h"
 #include <raygui.h>
 #include "constants.h"
@@ -9,6 +8,13 @@
 GUI::GUI(Game& game)
 	:m_game(game), m_selectedDefender(DefenderType::None), m_defenderHover(false)
 {
+}
+
+void GUI::loadResources()
+{
+	// This is not a real load of resources but it's a way to retrieve and store the SpriteInfo
+	m_mouseCursorPoint = m_game.getAtlas().getSpriteInfo("mouse_cursor_point");
+	m_mouseCursorHover = m_game.getAtlas().getSpriteInfo("mouse_cursor_hover");
 }
 
 void GUI::reset()
@@ -38,7 +44,7 @@ void GUI::drawDefenders()
 	for (auto& [type, info] : m_game.getDefenderRegistry().getDefenderInfos())
 	{
 		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		m_game.getAtlas().drawSprite(info.spriteEnabled.c_str(), position);
+		m_game.getAtlas().drawSprite(info.spriteEnabled.spriteInfo, position);
 
 		Rectangle rect = { position.x, position.y, float(CELL_SIZE), float(CELL_SIZE) };
 
@@ -96,11 +102,11 @@ void GUI::drawCursor()
 {
 	if (!m_defenderHover)
 	{
-		m_game.getAtlas().drawSprite("mouse_cursor_point", { GetMousePosition().x - 10, GetMousePosition().y - 5});
+		m_game.getAtlas().drawSprite(m_mouseCursorPoint, { GetMousePosition().x - 10, GetMousePosition().y - 5});
 	}
 	else
 	{
-		m_game.getAtlas().drawSprite("mouse_cursor_hover", { GetMousePosition().x - 10, GetMousePosition().y - 5 });
+		m_game.getAtlas().drawSprite(m_mouseCursorHover, { GetMousePosition().x - 10, GetMousePosition().y - 5 });
 	}
 }
 

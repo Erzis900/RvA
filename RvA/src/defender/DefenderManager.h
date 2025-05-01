@@ -19,8 +19,8 @@ class GUI;
 struct DefenderTypeInfo
 {
     DefenderType type{};
-    std::string spriteEnabled;
-    std::string spriteDisabled;
+    AnimationData spriteEnabled;
+    AnimationData spriteDisabled;
     float batteryDrain{};
     float scrapsGain{};
     float firstShootCooldown{};

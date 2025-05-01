@@ -1,5 +1,6 @@
 #pragma once
 #include "defender/DefenderTypes.h"
+#include "atlas/Atlas.h"
 #include <raylib.h>
 
 class Game;
@@ -8,6 +9,9 @@ class GUI
 {
 public:
 	GUI(Game& game);
+
+	void loadResources();
+
 	void drawGame(float batteryCharge, float scraps);
 	void drawCursor();
 	void drawHp(float hp, float maxHp, Vector2 pos);
@@ -26,4 +30,7 @@ private:
 
 	Game& m_game;
 	DefenderType m_selectedDefender;
+
+	const SpriteInfo* m_mouseCursorPoint{};
+	const SpriteInfo* m_mouseCursorHover{};
 };

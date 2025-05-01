@@ -10,6 +10,8 @@ enum Flip {
 	Horizontal = 1 << 1
 };
 
+using SpriteInfo = texture_atlas_texture_t;
+
 class Atlas
 {
 public:
@@ -17,10 +19,11 @@ public:
 	~Atlas();
 
 	void load(const char* textureName);
-	void drawSprite(const char* name, Vector2 pos);
-	void drawAnimation(const char* name, Vector2 pos, int currentFrame, Flip flip = Flip::None);
+	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None);
 
 	texture_atlas_t* getTextureAtlas() { return m_ta; }
+	const SpriteInfo* getSpriteInfo(const char* textureName) const;
+
 private:
 	texture_atlas_t* m_ta;
 	Texture2D m_texture;

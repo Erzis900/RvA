@@ -3,7 +3,6 @@
 #include <string>
 #include "EnemyTypes.h"
 #include "Animation.h"
-#include <memory>
 
 class Game;
 class Atlas;
@@ -17,13 +16,6 @@ enum class EnemyState
     ReadyToAttack,
     Dying,
     Dead
-};
-
-struct AnimationData
-{
-    std::string animationName;
-    float frameTime{};
-    int loop{ -1 };
 };
 
 struct EnemyTypeInfo

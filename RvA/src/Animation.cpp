@@ -1,17 +1,16 @@
 #include "Animation.h"
 #include <iostream>
 
-Animation Animation::createAnimation(const char* name, float frameTime, Atlas& atlas, int loop)
+Animation Animation::createAnimation(AnimationData animationData)
 {
-	texture_atlas_texture_t* textureInfo = texture_atlas_lookup(atlas.getTextureAtlas(), name);
-	if (textureInfo)
+	if (animationData.spriteInfo)
 	{
-		return Animation(frameTime, textureInfo->num_frames, loop);
+		return Animation(animationData.spriteInfo, animationData.frameTime, animationData.loop);
 	}
 	else
 	{
-		std::cout << "Error: sprite " << name << " not found!" << std::endl;
-		return Animation(frameTime, 0);
+		std::cout << "Error: sprite not found!" << std::endl;
+		return Animation(nullptr, 0, 0);
 	}
 }
 
@@ -19,8 +18,8 @@ Animation::Animation() : Animation(0, 0)
 {
 }
 
-Animation::Animation(float frameTime, int totalFrames, int loop)
-	: m_frameTime(frameTime), m_totalFrames(totalFrames), m_loop(loop)
+Animation::Animation(const SpriteInfo* spriteInfo, float frameTime, int loop)
+	: m_spriteInfo(spriteInfo), m_frameTime(frameTime), m_loop(loop)
 {
 }
 
@@ -36,10 +35,10 @@ void Animation::update(float dt)
     if (m_elapsedTime >= m_frameTime)
     {
         m_elapsedTime = 0.f;
-        m_currentFrame = (m_currentFrame + 1) % m_totalFrames;
+        m_currentFrame = (m_currentFrame + 1) % m_spriteInfo->num_frames;
     }
 
-	if (m_currentFrame == m_totalFrames - 1)
+	if (m_currentFrame == m_spriteInfo->num_frames - 1)
 	{
 		--m_loop;
 	}
@@ -53,4 +52,9 @@ void Animation::setLoop(int loop)
 bool Animation::isOver() const
 {
 	return m_loop == 0;
+}
+
+const SpriteInfo* Animation::getSpriteInfo() const
+{
+	return m_spriteInfo;
 }

@@ -23,8 +23,8 @@ void DefenderManager::draw()
 {
     for (auto& defender : m_defenders)
     {
-        m_atlas.drawAnimation(
-            defender->isActive ? defender->info->spriteEnabled.c_str() : defender->info->spriteDisabled.c_str(),
+        m_atlas.drawSprite(
+            defender->isActive ? defender->info->spriteEnabled.spriteInfo : defender->info->spriteDisabled.spriteInfo,
             defender->position,
             defender->isActive ? defender->animation.getCurrentFrame() : 0);
 
@@ -95,7 +95,7 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
     defender->isActive = false;
     defender->column = column;
     defender->row = row;
-    defender->animation = Animation::createAnimation(defenderTypeInfo->spriteEnabled.c_str(), 0.1f, m_atlas);
+    defender->animation = Animation::createAnimation(defenderTypeInfo->spriteEnabled);
     defender->hp = defender->info->maxHP;
     m_defenderGrid[row][column] = defender.get();
     m_defenders.push_back(std::move(defender));

@@ -76,7 +76,7 @@ void Enemy::update(float dt)
 
 void Enemy::draw(Game& game)
 {
-	game.getAtlas().drawAnimation(m_spriteName.c_str(), m_position, m_animation.getCurrentFrame());
+	game.getAtlas().drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame());
 
     if (!isDying())
     {
@@ -130,6 +130,5 @@ void Enemy::performDying(float dt)
 
 void Enemy::setAnimation(const AnimationData& animationData)
 {
-    m_spriteName = animationData.animationName;
-    m_animation = Animation::createAnimation(animationData.animationName.c_str(), animationData.frameTime, m_atlas, animationData.loop);
+    m_animation = Animation::createAnimation(animationData);
 }

@@ -14,14 +14,14 @@ public:
 
 private:
 	struct SpriteItem {
-		std::string name;
+		const SpriteInfo* spriteInfo;
 		Vector2 position;
 		Vector2 velocity;
 		std::unique_ptr<Animation> animation;
 		Flip flip{};
 	};
 
-	SpriteItem createSpriteItem(Game& game, const char* name, const Vector2& position, const Vector2& velocity);
+	SpriteItem createSpriteItem(Game& game, const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity);
 	void updateSprites(std::vector<SpriteItem>& sprites, float dt);
 	void drawSprites(std::vector<SpriteItem>& sprites, Game& game);
 	void drawBullets(std::vector<SpriteItem>& sprites, Game& game);
