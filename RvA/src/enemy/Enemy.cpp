@@ -24,6 +24,15 @@ void Enemy::setState(EnemyState state)
         case EnemyState::Moving:
             setAnimation(m_typeInfo->moveAnimation);
             break;
+        case EnemyState::DamageTaken:
+            setAnimation(m_typeInfo->moveAnimation);
+            m_damageTakenAnimation.start(0, 1, 0.25f)
+                .onTick([this, position = m_position](const auto& value) {
+                    m_tint = colorLerp(RED, WHITE, value);
+                    m_position = Vector2Add(position, Vector2Lerp({ 0, 0 }, { 16, 0 }, value));
+                })
+                .onComplete([this]() { m_tint = WHITE; setState(EnemyState::Moving); });
+            break;
         case EnemyState::PrepareToAttack:
         case EnemyState::ReadyToAttack:
             setAnimation(m_typeInfo->attackAnimation);
@@ -41,9 +50,15 @@ bool Enemy::isDying() const
     return getState() == EnemyState::Dying || getState() == EnemyState::Dead;
 }
 
+bool Enemy::isAttacking() const
+{
+    return getState() == EnemyState::ReadyToAttack || getState() == EnemyState::PrepareToAttack;
+}
+
 void Enemy::takeDamage(float damage)
 {
 	m_hp -= damage;
+    setState(EnemyState::DamageTaken);
 }
 
 void Enemy::update(float dt)
@@ -55,6 +70,9 @@ void Enemy::update(float dt)
         break;
     case EnemyState::Moving:
         performMove(dt);
+        break;
+    case EnemyState::DamageTaken:
+        performDamageTaken(dt);
         break;
     case EnemyState::PrepareToAttack:
         performPrepareAttack(dt);
@@ -76,7 +94,7 @@ void Enemy::update(float dt)
 
 void Enemy::draw(Game& game)
 {
-	game.getAtlas().drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame());
+	game.getAtlas().drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
 
     if (!isDying())
     {
@@ -104,6 +122,11 @@ void Enemy::performIdle(float dt)
 {
     // We immediately change state to Move for now
     setState(EnemyState::Moving);
+}
+
+void Enemy::performDamageTaken(float dt)
+{
+    m_damageTakenAnimation.update(dt);
 }
 
 void Enemy::performMove(float dt)

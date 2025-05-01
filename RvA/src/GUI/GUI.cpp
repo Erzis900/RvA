@@ -32,6 +32,11 @@ void GUI::drawHp(float hp, float maxHp, Vector2 pos)
 	DrawRectangleRec(fg, GREEN);
 }
 
+void GUI::drawFPS()
+{
+	drawText({ std::to_string(GetFPS()).c_str(), 10, GREEN, {{10, 10}, GUIAlignmentH::Right, GUIAlignmentV::Bottom}});
+}
+
 void GUI::setCursor(CursorType type)
 {
 	switch (type)

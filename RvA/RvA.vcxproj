@@ -170,6 +170,7 @@
     <ClCompile Include="src\states\PlayState.cpp" />
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
+    <ClCompile Include="src\utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\raylib\include\reasings.h" />
@@ -283,7 +284,6 @@
     <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\MusicManager.h" />
-    <ClInclude Include="src\bullet\Bullet.h" />
     <ClInclude Include="src\states\CreditsState.h" />
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
@@ -301,6 +301,7 @@
     <ClInclude Include="src\states\PlayState.h" />
     <ClInclude Include="src\states\MenuState.h" />
     <ClInclude Include="src\states\WinState.h" />
+    <ClInclude Include="src\utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

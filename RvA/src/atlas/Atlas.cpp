@@ -21,7 +21,7 @@ void Atlas::load(const char* textureName)
 	m_texture = LoadTexture(textureName);
 }
 
-void Atlas::drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame, Flip flip)
+void Atlas::drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame, Flip flip, Color tint)
 {
 	texture_atlas_frame_t* frameInfo = spriteInfo->frames + currentFrame;
 
@@ -35,7 +35,7 @@ void Atlas::drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int cur
 	src.width = frameInfo->width * (1 - 2.f * ((flip & Flip::Horizontal) != 0));
 	src.height = frameInfo->height * (1 - 2.f * ((flip & Flip::Vertical) != 0));
 
-	DrawTexturePro(m_texture, src, { pos.x, pos.y, float(frameInfo->width), float(frameInfo->height) }, { 0.f, 0.f }, 0.f, WHITE);
+	DrawTexturePro(m_texture, src, { pos.x, pos.y, float(frameInfo->width), float(frameInfo->height) }, { 0.f, 0.f }, 0.f, tint);
 }
 
 const texture_atlas_texture_t* Atlas::getSpriteInfo(const char* textureName) const

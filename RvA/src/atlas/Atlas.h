@@ -19,7 +19,7 @@ public:
 	~Atlas();
 
 	void load(const char* textureName);
-	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None);
+	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE);
 
 	texture_atlas_t* getTextureAtlas() { return m_ta; }
 	const SpriteInfo* getSpriteInfo(const char* textureName) const;

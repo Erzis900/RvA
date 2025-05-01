@@ -94,7 +94,7 @@ void Game::draw()
 		DrawRectangle(0, 0, int(m_texWidth), int(m_texHeight), fadeColor);
 	}
 
-	drawFPS();
+	m_gui.drawFPS();
 	EndTextureMode();
 
 	BeginDrawing();
@@ -102,14 +102,6 @@ void Game::draw()
 
 	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, float(m_texWidth), -float(m_texHeight) }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
 	EndDrawing();
-}
-
-void Game::drawFPS()
-{
-	const char* fpsText = TextFormat("%d", GetFPS());
-	int textWidth = MeasureText(fpsText, 10);
-
-	DrawText(fpsText, int(m_texWidth) - 16 - textWidth / 2, int(m_texHeight) - 20, 10, GREEN);
 }
 
 void Game::setState(std::unique_ptr<IGameState> newState)

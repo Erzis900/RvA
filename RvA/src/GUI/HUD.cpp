@@ -43,7 +43,12 @@ void HUD::onMenuButtonPressed(std::function<void()> callback)
 
 void HUD::drawScrapAmount()
 {
-	DrawText(std::to_string(m_data.scrapsAmount).c_str(), 10, 10, 5, ORANGE);
+	auto scrapsText = std::to_string(m_data.scrapsAmount);
+	m_gui.drawText({
+		scrapsText.c_str(),
+		5,
+		ORANGE,
+		{{10, 10}, GUIAlignmentH::Left, GUIAlignmentV::Top} });
 }
 
 void HUD::drawBatteryCharge()

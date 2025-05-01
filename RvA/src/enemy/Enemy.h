@@ -3,6 +3,7 @@
 #include <string>
 #include "EnemyTypes.h"
 #include "Animation.h"
+#include "utilities.h"
 
 class Game;
 class Atlas;
@@ -12,6 +13,7 @@ enum class EnemyState
 {
     Idle,
     Moving,
+    DamageTaken,
     PrepareToAttack,
     ReadyToAttack,
     Dying,
@@ -53,9 +55,11 @@ public:
     auto getState() const { return m_state; }
 
     bool isDying() const;
+    bool isAttacking() const;
 
 private:
     void performIdle(float dt);
+    void performDamageTaken(float dt);
     void performMove(float dt);
     void performPrepareAttack(float dt);
     void performDying(float dt);
@@ -67,6 +71,8 @@ private:
     float m_hp{};
     float m_attackTime{};
     int m_row{};
+    Interpolation<> m_damageTakenAnimation;
+    Color m_tint{ WHITE };
 
 	Animation m_animation;
     EnemyState m_state;

@@ -50,7 +50,7 @@ struct ChasingShotData
 
 using BulletData = std::variant<BulletShotData, ChasingShotData, LaserBeamData>;
 
-struct Bullet2
+struct Bullet
 {
 	BulletData data{};
 	Vector2 position{};

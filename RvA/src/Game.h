@@ -19,8 +19,8 @@ public:
 	void setState(std::unique_ptr<IGameState> newState);
 	void run();
 
-	GUI& getGUI() { return m_gui; }
-	Atlas& getAtlas() { return m_atlas; }
+	auto& getGUI() { return m_gui; }
+	auto& getAtlas() { return m_atlas; }
 
 	const auto& getDefenderRegistry() const { return m_defenderTypeRegistry; }
 	const auto& getBulletTypeRegistry() const { return m_bulletTypeRegistry; }
@@ -38,7 +38,6 @@ private:
 	void updateTransition(float dt);
 
 	void draw();
-	void drawFPS();
 
 	void registerDefenderTypes();
 	void registerBulletTypes();

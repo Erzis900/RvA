@@ -140,7 +140,7 @@ void EnemyManager::manageDefenderCollisions(Enemy& enemy)
         }
     }
 
-    if (!collideWithDefenders)
+    if (!collideWithDefenders && enemy.isAttacking())
     {
         enemy.setState(EnemyState::Moving);
     }

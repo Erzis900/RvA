@@ -33,26 +33,26 @@ public:
 	auto& getBullets() const { return m_bullets; }
 
 private:
-	void manageEnemyCollisions(Bullet2& bullet, float dt);
+	void manageEnemyCollisions(Bullet& bullet, float dt);
 
 	// TODO(Gerark): These methods likely belong within the Info structs for better encapsulation.
 	// We'll monitor how the codebase evolves and consider refactoring toward a more OOP approach if it proves beneficial.
-	void setupBullet(Bullet2& bullet, BulletShotData& data);
-	void updateBullet(Bullet2& bullet, BulletShotData& data, float dt);
-	void drawBullet(Bullet2& bullet, BulletShotData& data);
-	void onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data, float dt);
+	void setupBullet(Bullet& bullet, BulletShotData& data);
+	void updateBullet(Bullet& bullet, BulletShotData& data, float dt);
+	void drawBullet(Bullet& bullet, BulletShotData& data);
+	void onEnemyHit(Enemy& enemy, Bullet& bullet, BulletShotData& data, float dt);
 
-	void setupBullet(Bullet2& bullet, LaserBeamData& data);
-	void updateBullet(Bullet2& bullet, LaserBeamData& data, float dt);
-	void drawBullet(Bullet2& bullet, LaserBeamData& data);
-	void onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data, float dt);
+	void setupBullet(Bullet& bullet, LaserBeamData& data);
+	void updateBullet(Bullet& bullet, LaserBeamData& data, float dt);
+	void drawBullet(Bullet& bullet, LaserBeamData& data);
+	void onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data, float dt);
 
-	void setupBullet(Bullet2& bullet, ChasingShotData& data);
-	void updateBullet(Bullet2& bullet, ChasingShotData& data, float dt);
-	void drawBullet(Bullet2& bullet, ChasingShotData& data);
-	void onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt);
+	void setupBullet(Bullet& bullet, ChasingShotData& data);
+	void updateBullet(Bullet& bullet, ChasingShotData& data, float dt);
+	void drawBullet(Bullet& bullet, ChasingShotData& data);
+	void onEnemyHit(Enemy& enemy, Bullet& bullet, ChasingShotData& data, float dt);
 
 	// TODO(Gerark) A vector of unique_ptr isn't really the best choice from a memory layout point of view. It can be improved.
-	std::vector<std::unique_ptr<Bullet2>> m_bullets;
+	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	EnemyManager& m_enemyManager;
 };

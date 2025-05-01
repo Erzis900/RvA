@@ -56,14 +56,14 @@ void BulletManager::draw()
 
 void BulletManager::spawnBullet(const BulletData& data, const Vector2& position)
 {
-	auto bullet = std::make_unique<Bullet2>();
+	auto bullet = std::make_unique<Bullet>();
 	bullet->data = data;
 	bullet->position = position;
 	std::visit([this, &bullet](auto&& data) { setupBullet(*bullet, data); }, bullet->data);
 	m_bullets.push_back(std::move(bullet));
 }
 
-void BulletManager::manageEnemyCollisions(Bullet2& bullet, float dt)
+void BulletManager::manageEnemyCollisions(Bullet& bullet, float dt)
 {
 	// TODO(Gerark): It might be worth separating bullet/enemy collision logic into a more generic collision system.
 	// Currently, each bullet has a bounding box, and we check for collisions directly against the enemy's bounding box.
@@ -84,7 +84,7 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet, float dt)
 /*
 * Simple Bullet
 */
-void BulletManager::setupBullet(Bullet2& bullet, BulletShotData& data)
+void BulletManager::setupBullet(Bullet& bullet, BulletShotData& data)
 {
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
@@ -93,19 +93,19 @@ void BulletManager::setupBullet(Bullet2& bullet, BulletShotData& data)
 	bullet.boundingBox = { bullet.position.x - data.radius, bullet.position.y - data.radius, side, side };
 }
 
-void BulletManager::updateBullet(Bullet2& bullet, BulletShotData& data, float dt)
+void BulletManager::updateBullet(Bullet& bullet, BulletShotData& data, float dt)
 {
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.velocity, dt));
 	bullet.boundingBox.x = bullet.position.x - data.radius;
 	bullet.boundingBox.y = bullet.position.y - data.radius;
 }
 
-void BulletManager::drawBullet(Bullet2& bullet, BulletShotData& data)
+void BulletManager::drawBullet(Bullet& bullet, BulletShotData& data)
 {
 	DrawCircleV(bullet.position, data.radius, BLUE);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data, float dt)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, BulletShotData& data, float dt)
 {
 	bullet.lifetime = 0;
 	enemy.takeDamage(data.damage);
@@ -114,7 +114,7 @@ void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& da
 /*
 * Laser Beam
 */
-void BulletManager::setupBullet(Bullet2& bullet, LaserBeamData& data)
+void BulletManager::setupBullet(Bullet& bullet, LaserBeamData& data)
 {
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
@@ -122,7 +122,7 @@ void BulletManager::setupBullet(Bullet2& bullet, LaserBeamData& data)
 	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
 }
 
-void BulletManager::updateBullet(Bullet2& bullet, LaserBeamData& data, float dt)
+void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt)
 {
 	data.shootAnimationTime += dt * data.shootAnimationSpeed;
 
@@ -133,7 +133,7 @@ void BulletManager::updateBullet(Bullet2& bullet, LaserBeamData& data, float dt)
 	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
 }
 
-void BulletManager::drawBullet(Bullet2& bullet, LaserBeamData& data)
+void BulletManager::drawBullet(Bullet& bullet, LaserBeamData& data)
 {
 	float width = data.beamWidth;
 	float height = data.beamHeight;
@@ -155,7 +155,7 @@ void BulletManager::drawBullet(Bullet2& bullet, LaserBeamData& data)
 	DrawCircleV({ bullet.position.x + width, bullet.position.y + shake }, height * 0.5f, data.beamColor);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data, float dt)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data, float dt)
 {
 	enemy.takeDamage(data.damage * dt);
 }
@@ -163,7 +163,7 @@ void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& dat
 /*
 * Chasing Bullet
 */
-void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
+void BulletManager::setupBullet(Bullet& bullet, ChasingShotData& data)
 {
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
@@ -171,7 +171,7 @@ void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
 	bullet.boundingBox = { bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius };
 }
 
-void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float dt)
+void BulletManager::updateBullet(Bullet& bullet, ChasingShotData& data, float dt)
 {
 	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
 	if (enemy)
@@ -189,7 +189,7 @@ void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float d
 	bullet.boundingBox.y = bullet.position.y - data.radius * 0.5f;
 }
 
-void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
+void BulletManager::drawBullet(Bullet& bullet, ChasingShotData& data)
 {
 	Vector2 forward = Vector2Normalize(data.direction);
 	Vector2 right = { -forward.y, forward.x }; // perpendicular to forward
@@ -201,7 +201,7 @@ void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
 	DrawTriangle(baseRight, baseLeft, tip, data.color);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, ChasingShotData& data, float dt)
 {
 	bullet.lifetime = 0;
 	enemy.takeDamage(data.damage);
