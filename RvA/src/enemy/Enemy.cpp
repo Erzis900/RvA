@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Game.h"
+#include <raymath.h>
 
 const char* Enemy::getEnemyTypeName(EnemyType type)
 {
@@ -84,4 +85,15 @@ void Enemy::draw(Game& game)
 int Enemy::getDamage() const
 {
     return m_damage;
+}
+
+Vector2 Enemy::getCenteredPosition() const
+{
+    return Vector2Add(m_position, { 16, 16 });
+}
+
+Rectangle Enemy::getBoundingBox() const
+{
+    const float bbPadding = 5;
+    return Rectangle{ m_position.x + bbPadding, m_position.y + bbPadding, 32 - bbPadding, 32 - bbPadding };
 }

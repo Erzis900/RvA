@@ -58,7 +58,7 @@ Enemy* EnemyManager::findClosestEnemy(const Vector2& position)
 
     for (auto& enemy : m_enemies)
     {
-        float distSq = Vector2LengthSqr(Vector2Subtract(enemy->getPosition(), position));
+        float distSq = Vector2LengthSqr(Vector2Subtract(enemy->getCenteredPosition(), position));
         if (distSq < closestDistSq)
         {
             closestDistSq = distSq;

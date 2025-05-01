@@ -70,8 +70,7 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet)
 	for (auto& enemy : m_enemyManager.getEnemies())
 	{
 		// For now, we construct the enemy's bounding box on the fly.
-		auto& position = enemy->getPosition();
-		auto enemyBoundingBox = Rectangle{ position.x, position.y, 32, 32 };
+		auto enemyBoundingBox = enemy->getBoundingBox();
 		if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
 		{
 			std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(*enemy, bullet, data); }, bullet.data);
@@ -94,8 +93,12 @@ void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float d
 	auto enemy = m_enemyManager.findClosestEnemy(bullet.position);
 	if (enemy)
 	{
-		auto direction = Vector2Subtract(enemy->getPosition(), bullet.position);
-		data.direction = Vector2Normalize(direction);
+		auto targetDir = Vector2Normalize(Vector2Subtract(enemy->getCenteredPosition(), bullet.position));
+		data.direction = Vector2Lerp(data.direction, targetDir, 0.1f);
+		if (Vector2Length(data.direction) > data.speed)
+		{
+			data.direction = Vector2Normalize(data.direction);
+		}
 	}
 
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
@@ -105,7 +108,14 @@ void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float d
 
 void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
 {
-	DrawCircleV(bullet.position, data.radius, BLUE);
+	Vector2 forward = Vector2Normalize(data.direction);
+	Vector2 right = { -forward.y, forward.x }; // perpendicular to forward
+
+	Vector2 tip = Vector2Add(bullet.position, Vector2Scale(forward, data.radius));
+	Vector2 baseLeft = Vector2Add(bullet.position, Vector2Scale(right, data.radius * 0.5f));
+	Vector2 baseRight = Vector2Subtract(bullet.position, Vector2Scale(right, data.radius * 0.5f));
+
+	DrawTriangle(baseRight, baseLeft, tip, data.color);
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data)

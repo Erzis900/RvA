@@ -23,6 +23,8 @@ public:
 	int getRow() { return m_row; }
     int getDamage() const;
     const Vector2& getPosition() const { return m_position; }
+    Vector2 getCenteredPosition() const;
+    Rectangle getBoundingBox() const;
 
     static const char* getEnemyTypeName(EnemyType type);
 

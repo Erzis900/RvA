@@ -42,6 +42,7 @@ struct ChasingShotData
 	float damage{};
 	float maxLifetime{};
 	float speed{};
+	Color color{};
 
 	Vector2 targetPosition{};
 	Vector2 direction{};

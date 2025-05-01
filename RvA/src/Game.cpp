@@ -210,10 +210,11 @@ void Game::registerBulletTypes()
 
 	m_bulletTypeRegistry.registerBulletType("ChasingShot", ChasingShotData {
 		.startOffset = { 20, 20 },
-		.radius = 5.f,
+		.radius = 10.f,
 		.damage = 50,
 		.maxLifetime = 100,
 		.speed = 150,
+		.color = {255, 0, 0, 255},
 		.direction = { 1, 0 },
 	});
 
