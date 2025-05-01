@@ -14,7 +14,6 @@ enum class EnemyState
 {
     Idle,
     Moving,
-    DamageTaken,
     PrepareToAttack,
     ReadyToAttack,
     Dying,
@@ -60,7 +59,6 @@ public:
 
 private:
     void performIdle(float dt);
-    void performDamageTaken(float dt);
     void performMove(float dt);
     void performPrepareAttack(float dt);
     void performDying(float dt);

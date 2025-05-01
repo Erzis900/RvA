@@ -74,9 +74,6 @@ void Enemy::update(float dt)
     case EnemyState::Moving:
         performMove(dt);
         break;
-    case EnemyState::DamageTaken:
-        performDamageTaken(dt);
-        break;
     case EnemyState::PrepareToAttack:
         performPrepareAttack(dt);
         break;
@@ -126,14 +123,6 @@ void Enemy::performIdle(float dt)
 {
     // We immediately change state to Move for now
     setState(EnemyState::Moving);
-}
-
-void Enemy::performDamageTaken(float dt)
-{
-    m_damageTakenAnimation.update(dt);
-    if (m_latestDamageApplied.bounceBackPower == 0) {
-        performMove(dt);
-    }
 }
 
 void Enemy::performMove(float dt)
