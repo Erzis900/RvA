@@ -32,7 +32,7 @@ void BulletManager::update(float dt)
 
 		std::visit([this, &bullet, dt](auto&& data) { updateBullet(*bullet, data, dt); }, bullet->data);
 
-		manageEnemyCollisions(*bullet);
+		manageEnemyCollisions(*bullet, dt);
 
 		bullet->lifetime -= dt;
 		if (bullet->lifetime <= 0)
@@ -63,7 +63,7 @@ void BulletManager::spawnBullet(const BulletData& data, const Vector2& position)
 	m_bullets.push_back(std::move(bullet));
 }
 
-void BulletManager::manageEnemyCollisions(Bullet2& bullet)
+void BulletManager::manageEnemyCollisions(Bullet2& bullet, float dt)
 {
 	// TODO(Gerark): It might be worth separating bullet/enemy collision logic into a more generic collision system.
 	// Currently, each bullet has a bounding box, and we check for collisions directly against the enemy's bounding box.
@@ -73,7 +73,7 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet)
 		auto enemyBoundingBox = enemy->getBoundingBox();
 		if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
 		{
-			std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(*enemy, bullet, data); }, bullet.data);
+			std::visit([this, &enemy, &bullet, dt](auto&& data) { onEnemyHit(*enemy, bullet, data, dt); }, bullet.data);
 		}
 	}
 }
@@ -118,7 +118,7 @@ void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
 	DrawTriangle(baseRight, baseLeft, tip, data.color);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt)
 {
 	bullet.lifetime = 0;
 	enemy.takeDamage(static_cast<int>(data.damage));
@@ -146,7 +146,7 @@ void BulletManager::drawBullet(Bullet2& bullet, BulletShotData& data)
 	DrawCircleV(bullet.position, data.radius, BLUE);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data, float dt)
 {
 	bullet.lifetime = 0;
 	enemy.takeDamage(static_cast<int>(data.damage));
@@ -196,7 +196,7 @@ void BulletManager::drawBullet(Bullet2& bullet, LaserBeamData& data)
 	DrawCircleV({ bullet.position.x + width, bullet.position.y + shake }, height * 0.5f, data.beamColor);
 }
 
-void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data)
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data, float dt)
 {
-	enemy.takeDamage(static_cast<int>(data.damage));
+	enemy.takeDamage(data.damage * dt);
 }

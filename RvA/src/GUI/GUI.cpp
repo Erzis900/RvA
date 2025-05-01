@@ -104,7 +104,7 @@ void GUI::drawCursor()
 	}
 }
 
-void GUI::drawHp(int hp, int maxHp, Vector2 pos)
+void GUI::drawHp(float hp, int maxHp, Vector2 pos)
 {
 	float barWidth = float(CELL_SIZE);
 	float barHeight = 3.f;

@@ -8,7 +8,7 @@
 */
 struct BulletShotData
 {
-	Vector2 velocity;
+	Vector2 velocity{};
 	float radius{};
 	float damage{};
 	float maxLifetime{};
@@ -52,8 +52,8 @@ using BulletData = std::variant<BulletShotData, ChasingShotData, LaserBeamData>;
 
 struct Bullet2
 {
-	BulletData data;
-	Vector2 position;
-	Rectangle boundingBox;
+	BulletData data{};
+	Vector2 position{};
+	Rectangle boundingBox{};
 	float lifetime{};
 };

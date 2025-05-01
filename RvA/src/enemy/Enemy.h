@@ -17,10 +17,10 @@ public:
     void update(float dt);
     void draw(Game& game);
 
-    void takeDamage(int damage);
+    void takeDamage(float damage);
 
-    int getHp() { return m_hp; }
-	int getRow() { return m_row; }
+    auto getHp() const { return m_hp; }
+    auto getRow() const { return m_row; }
     int getDamage() const;
     const Vector2& getPosition() const { return m_position; }
     Vector2 getCenteredPosition() const;
@@ -42,7 +42,7 @@ private:
 	std::string m_name;
     Vector2 m_position;
     float m_speed;
-    int m_hp;
+    float m_hp;
 	int m_maxHp;
     int m_row;
 

@@ -221,7 +221,7 @@ void Game::registerBulletTypes()
 	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{
 		.startOffset = { 35, 18 },
 		.beamHeight = 6,
-		.damage = 2.5f,
+		.damage = 50.f,
 		.auraSize = 2,
 		.beamColor = BLUE,
 		.auraColor = {255, 255, 255, 200},

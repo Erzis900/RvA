@@ -53,7 +53,7 @@ Enemy::AttackState Enemy::getAttackState() const
     return m_attackState;
 }
 
-void Enemy::takeDamage(int damage)
+void Enemy::takeDamage(float damage)
 {
 	m_hp -= damage;
 }
