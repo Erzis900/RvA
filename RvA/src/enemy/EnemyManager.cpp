@@ -34,7 +34,10 @@ void EnemyManager::update(float dt)
     for (auto& enemy : m_enemies)
     {
         enemy->update(dt);
-        manageDefenderCollisions(*enemy);
+        if (!enemy->isDying())
+        {
+            manageDefenderCollisions(*enemy);
+        }
     }
 
     // Remove enemies reaching the left side of the grid
@@ -44,7 +47,7 @@ void EnemyManager::update(float dt)
     
     // Remove enemies which have been destroyed ( hp == 0 )
     auto numberOfDestroyedEnemies = std::erase_if(m_enemies, [](const auto& enemy) {
-        return enemy->getHp() <= 0.f;
+        return enemy->getState() == EnemyState::Dead;
     });
     if (numberOfDestroyedEnemies > 0) {
         notifyEnemiesDestroyed(static_cast<int>(numberOfDestroyedEnemies));
@@ -60,18 +63,21 @@ void EnemyManager::draw()
     }
 }
 
-Enemy* EnemyManager::findClosestEnemy(const Vector2& position)
+Enemy* EnemyManager::findClosestEnemy(const Vector2& position, bool filterDead)
 {
     Enemy* closestEnemy = nullptr;
     float closestDistSq = std::numeric_limits<float>::max();
 
     for (auto& enemy : m_enemies)
     {
-        float distSq = Vector2LengthSqr(Vector2Subtract(enemy->getCenteredPosition(), position));
-        if (distSq < closestDistSq)
+        if (!filterDead || enemy->isDying() != filterDead)
         {
-            closestDistSq = distSq;
-            closestEnemy = enemy.get();
+            float distSq = Vector2LengthSqr(Vector2Subtract(enemy->getCenteredPosition(), position));
+            if (distSq < closestDistSq)
+            {
+                closestDistSq = distSq;
+                closestEnemy = enemy.get();
+            }
         }
     }
 

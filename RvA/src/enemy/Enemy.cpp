@@ -36,6 +36,11 @@ void Enemy::setState(EnemyState state)
     }
 }
 
+bool Enemy::isDying() const
+{
+    return getState() == EnemyState::Dying || getState() == EnemyState::Dead;
+}
+
 void Enemy::takeDamage(float damage)
 {
 	m_hp -= damage;
@@ -61,13 +66,22 @@ void Enemy::update(float dt)
         break;
     }
 
+    if (m_hp <= 0 && !isDying())
+    {
+        setState(EnemyState::Dying);
+    }
+
 	m_animation.update(dt);
 }
 
 void Enemy::draw(Game& game)
 {
 	game.getAtlas().drawAnimation(m_spriteName.c_str(), m_position, m_animation.getCurrentFrame());
-	game.getGUI().drawHp(m_hp, m_typeInfo->maxHp, m_position);
+
+    if (!isDying())
+    {
+        game.getGUI().drawHp(m_hp, m_typeInfo->maxHp, m_position);
+    }
 }
 
 float Enemy::getDamage() const
@@ -108,10 +122,14 @@ void Enemy::performPrepareAttack(float dt)
 
 void Enemy::performDying(float dt)
 {
+    if (m_animation.isOver())
+    {
+        setState(EnemyState::Dead);
+    }
 }
 
 void Enemy::setAnimation(const AnimationData& animationData)
 {
     m_spriteName = animationData.animationName;
-    m_animation = Animation::createAnimation(animationData.animationName.c_str(), animationData.frameTime, m_atlas);
+    m_animation = Animation::createAnimation(animationData.animationName.c_str(), animationData.frameTime, m_atlas, animationData.loop);
 }

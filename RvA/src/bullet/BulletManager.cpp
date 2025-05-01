@@ -90,7 +90,7 @@ void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
 
 void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float dt)
 {
-	auto enemy = m_enemyManager.findClosestEnemy(bullet.position);
+	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
 	if (enemy)
 	{
 		auto targetDir = Vector2Normalize(Vector2Subtract(enemy->getCenteredPosition(), bullet.position));
@@ -121,7 +121,7 @@ void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data, float dt)
 {
 	bullet.lifetime = 0;
-	enemy.takeDamage(static_cast<int>(data.damage));
+	enemy.takeDamage(data.damage);
 }
 
 /*
@@ -149,7 +149,7 @@ void BulletManager::drawBullet(Bullet2& bullet, BulletShotData& data)
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, BulletShotData& data, float dt)
 {
 	bullet.lifetime = 0;
-	enemy.takeDamage(static_cast<int>(data.damage));
+	enemy.takeDamage(data.damage);
 }
 
 /*

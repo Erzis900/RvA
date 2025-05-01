@@ -23,6 +23,7 @@ struct AnimationData
 {
     std::string animationName;
     float frameTime{};
+    int loop{ -1 };
 };
 
 struct EnemyTypeInfo
@@ -58,6 +59,8 @@ public:
 
     void setState(EnemyState state);
     auto getState() const { return m_state; }
+
+    bool isDying() const;
 
 private:
     void performIdle(float dt);

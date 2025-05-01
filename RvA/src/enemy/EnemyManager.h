@@ -28,7 +28,7 @@ public:
     void draw();
 
     const auto& getEnemies() const { return m_enemies; }
-    Enemy* findClosestEnemy(const Vector2& position);
+    Enemy* findClosestEnemy(const Vector2& position, bool filterDead);
 
     // Register a lambda when enemies are destroyed. The callback receives the number of enemies destroyed.
     // TODO(Gerark) - We're probably going to change this in the future to better know which enemies have been destroyed

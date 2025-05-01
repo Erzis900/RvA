@@ -222,7 +222,7 @@ void Game::registerBulletTypes()
 	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{
 		.startOffset = { 35, 18 },
 		.beamHeight = 6,
-		.damage = 50.f,
+		.damage = 100.f,
 		.auraSize = 2,
 		.beamColor = BLUE,
 		.auraColor = {255, 255, 255, 200},
@@ -244,7 +244,7 @@ void Game::registerEnemyTypes()
 		.idleAnimation = { "b1_alien_walk", 0.1f },
 		.moveAnimation = { "b1_alien_walk", 0.1f },
 		.attackAnimation = { "b1_alien_walk", 0.1f },
-		.dyingAnimation = { "b1_alien_walk", 0.1f }
+		.dyingAnimation = { "b1_alien_death", 0.1f, 1 }
 	});
 
 	m_enemyTypeRegistry.registerEnemyType({
@@ -257,6 +257,6 @@ void Game::registerEnemyTypes()
 		.idleAnimation = { "b2_alien_walk", 0.1f },
 		.moveAnimation = { "b2_alien_walk", 0.1f },
 		.attackAnimation = { "b2_alien_walk", 0.1f },
-		.dyingAnimation = { "b2_alien_walk", 0.1f }
+		.dyingAnimation = { "b2_alien_death", 0.1f, 1 }
 	});
 }
