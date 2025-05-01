@@ -16,10 +16,8 @@ public:
     void update(float dt);
     void draw();
 
-    const std::vector<std::unique_ptr<Enemy>>& getEnemies() const
-    {
-        return m_enemies;
-    }
+    const auto& getEnemies() const { return m_enemies; }
+    Enemy* findClosestEnemy(const Vector2& position);
 
     // Register a lambda when enemies are destroyed. The callback receives the number of enemies destroyed.
     // TODO(Gerark) - We're probably going to change this in the future to better know which enemies have been destroyed

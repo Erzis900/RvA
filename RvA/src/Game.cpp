@@ -179,8 +179,11 @@ void Game::registerDefenderTypes()
 		.spriteEnabled = "catapult_idle",
 		.spriteDisabled = "catapult_off",
 		.batteryDrain = 10.f,
+		.firstShootCooldown = 1.f,
+		.shootCooldown = 1.f,
 		.maxHP = 200,
 		.cost = 20,
+		.bulletType = "ChasingShot"
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -203,6 +206,15 @@ void Game::registerBulletTypes()
 		.radius = 5.f,
 		.damage = 50,
 		.maxLifetime = 100,
+	});
+
+	m_bulletTypeRegistry.registerBulletType("ChasingShot", ChasingShotData {
+		.startOffset = { 20, 20 },
+		.radius = 5.f,
+		.damage = 50,
+		.maxLifetime = 100,
+		.speed = 150,
+		.direction = { 1, 0 },
 	});
 
 	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{

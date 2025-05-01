@@ -1,9 +1,9 @@
 #include "EnemyManager.h"
 #include <raylib.h>
+#include <raymath.h>
 #include "Game.h"
 #include "EnemyTypes.h"
 #include "constants.h"
-#include <ranges>
 
 EnemyManager::EnemyManager(Game& game, DefenderManager& defenderManager) : m_game(game), m_defenderManager(defenderManager)
 {
@@ -49,6 +49,24 @@ void EnemyManager::draw()
         enemy->draw(m_game);
 
     }
+}
+
+Enemy* EnemyManager::findClosestEnemy(const Vector2& position)
+{
+    Enemy* closestEnemy = nullptr;
+    float closestDistSq = std::numeric_limits<float>::max();
+
+    for (auto& enemy : m_enemies)
+    {
+        float distSq = Vector2LengthSqr(Vector2Subtract(enemy->getPosition(), position));
+        if (distSq < closestDistSq)
+        {
+            closestDistSq = distSq;
+            closestEnemy = enemy.get();
+        }
+    }
+
+    return closestEnemy;
 }
 
 void EnemyManager::spawnEnemy()

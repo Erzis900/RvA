@@ -45,6 +45,11 @@ private:
 	void drawBullet(Bullet2& bullet, LaserBeamData& data);
 	void onEnemyHit(Enemy& enemy, Bullet2& bullet, LaserBeamData& data);
 
+	void setupBullet(Bullet2& bullet, ChasingShotData& data);
+	void updateBullet(Bullet2& bullet, ChasingShotData& data, float dt);
+	void drawBullet(Bullet2& bullet, ChasingShotData& data);
+	void onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data);
+
 	// TODO(Gerark) A vector of unique_ptr isn't really the best choice from a memory layout point of view. It can be improved.
 	std::vector<std::unique_ptr<Bullet2>> m_bullets;
 	EnemyManager& m_enemyManager;

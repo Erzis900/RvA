@@ -1,12 +1,7 @@
 #pragma once
 
 #include <variant>
-
-enum class BulletType
-{
-	SimpleBullet,
-	Laser
-};
+#include <raylib.h>
 
 /*
 * Bullet Shot
@@ -37,7 +32,22 @@ struct LaserBeamData
 	float beamWidth{};
 };
 
-using BulletData = std::variant<BulletShotData, LaserBeamData>;
+/*
+* Chasing Shot
+*/
+struct ChasingShotData
+{
+	Vector2 startOffset{};
+	float radius{};
+	float damage{};
+	float maxLifetime{};
+	float speed{};
+
+	Vector2 targetPosition{};
+	Vector2 direction{};
+};
+
+using BulletData = std::variant<BulletShotData, ChasingShotData, LaserBeamData>;
 
 struct Bullet2
 {

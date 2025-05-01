@@ -80,6 +80,41 @@ void BulletManager::manageEnemyCollisions(Bullet2& bullet)
 }
 
 /*
+* Chasing Bullet
+*/
+void BulletManager::setupBullet(Bullet2& bullet, ChasingShotData& data)
+{
+	bullet.lifetime = data.maxLifetime;
+	bullet.position = Vector2Add(bullet.position, { 20, 20 });
+	bullet.boundingBox = { bullet.position.x, bullet.position.y, data.radius * 2, data.radius * 2 };
+}
+
+void BulletManager::updateBullet(Bullet2& bullet, ChasingShotData& data, float dt)
+{
+	auto enemy = m_enemyManager.findClosestEnemy(bullet.position);
+	if (enemy)
+	{
+		auto direction = Vector2Subtract(enemy->getPosition(), bullet.position);
+		data.direction = Vector2Normalize(direction);
+	}
+
+	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
+	bullet.boundingBox.x = bullet.position.x;
+	bullet.boundingBox.y = bullet.position.y;
+}
+
+void BulletManager::drawBullet(Bullet2& bullet, ChasingShotData& data)
+{
+	DrawCircleV(bullet.position, data.radius, BLUE);
+}
+
+void BulletManager::onEnemyHit(Enemy& enemy, Bullet2& bullet, ChasingShotData& data)
+{
+	bullet.lifetime = 0;
+	enemy.takeDamage(static_cast<int>(data.damage));
+}
+
+/*
 * Simple Bullet
 */
 void BulletManager::setupBullet(Bullet2& bullet, BulletShotData& data)
