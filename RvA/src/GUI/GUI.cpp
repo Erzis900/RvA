@@ -18,23 +18,10 @@ void GUI::drawCursor()
 	m_atlas.drawSprite(m_mouseCurrentSprite, { GetMousePosition().x - 10, GetMousePosition().y - 5 });
 }
 
-void GUI::drawHp(float hp, float maxHp, Vector2 pos)
-{
-	float barWidth = float(CELL_SIZE);
-	float barHeight = 3.f;
-	float hpPercent = hp / maxHp;
-
-	Vector2 barPos = { pos.x, pos.y + CELL_SIZE };
-	Rectangle bg = { barPos.x, barPos.y, barWidth, barHeight };
-	Rectangle fg = { barPos.x, barPos.y, barWidth * hpPercent, barHeight };
-
-	DrawRectangleRec(bg, DARKGRAY);
-	DrawRectangleRec(fg, GREEN);
-}
-
 void GUI::drawFPS()
 {
-	drawText({ std::to_string(GetFPS()).c_str(), 10, GREEN, {{10, 10}, GUIAlignmentH::Right, GUIAlignmentV::Bottom}});
+	auto fpsText = std::to_string(GetFPS());
+	drawText({ fpsText.c_str(), 10, GREEN, {{10, 10}, GUIAlignmentH::Right, GUIAlignmentV::Bottom}});
 }
 
 void GUI::setCursor(CursorType type)

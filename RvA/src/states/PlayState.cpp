@@ -42,8 +42,7 @@ void PlayState::update(Game& game, float dt)
 		m_game.setState(std::make_unique<LostState>());
 	}
 
-	m_hud.data().batteryCharge = m_session.getBatteryCharge();
-	m_hud.data().scrapsAmount = static_cast<int>(m_session.getScraps());
+	updateHud();
 
 	if constexpr (DEV_MODE)
 	{
@@ -81,6 +80,37 @@ void PlayState::setupHUD()
 	m_hud.onPauseButtonPressed([this]() { togglePause(); });
 	m_hud.onResumeButtonPressed([this]() { togglePause(); });
 	m_hud.onDefenderSelected([this]() { m_session.setSelectedDefender(m_hud.data().selectedDefender); });
+}
+
+void PlayState::updateHud()
+{
+	auto& hudData = m_hud.data();
+	hudData.batteryCharge = m_session.getBatteryCharge();
+	hudData.scrapsAmount = static_cast<int>(m_session.getScraps());
+
+	// TODO(Gerark) - Not very optimal but we'll see if it's going to be ever a bottleneck.
+	hudData.progressBars.clear();
+	for (auto& defender : m_session.getDefenderManager().getDefenders())
+	{
+		hudData.progressBars.push_back(ProgressBarData{
+			.value = static_cast<float>(defender->hp),
+			.max = static_cast<float>(defender->info->maxHP),
+			.position = defender->position,
+			.bkgColor = DARKGRAY,
+			.fillColor = GREEN
+		});
+	}
+
+	for (auto& enemy : m_session.getEnemyManager().getEnemies())
+	{
+		hudData.progressBars.push_back(ProgressBarData{
+			.value = enemy->getHp(),
+			.max = enemy->getInfo()->maxHp,
+			.position = enemy->getPosition(),
+			.bkgColor = DARKGRAY,
+			.fillColor = GREEN
+		});
+	}
 }
 
 void PlayState::togglePause()

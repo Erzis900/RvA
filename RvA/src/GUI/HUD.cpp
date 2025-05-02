@@ -6,6 +6,7 @@
 
 HUD::HUD(Atlas& atlas, GUI& gui) : m_atlas(atlas), m_gui(gui)
 {
+	m_data.progressBars.reserve(128);
 }
 
 void HUD::draw()
@@ -14,6 +15,7 @@ void HUD::draw()
 	drawBatteryCharge();
 	drawDefenders();
 	drawMenuButtons();
+	drawProgressBars();
 	
 	if (m_data.drawPause)
 	{
@@ -21,9 +23,18 @@ void HUD::draw()
 	}
 }
 
-void HUD::drawHPBar()
+void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor, Color fillColor)
 {
+	float barWidth = float(CELL_SIZE);
+	float barHeight = 3.f;
+	float valPercent = value / max;
 
+	Vector2 barPos = { pos.x, pos.y + CELL_SIZE };
+	Rectangle bg = { barPos.x, barPos.y, barWidth, barHeight };
+	Rectangle fg = { barPos.x, barPos.y, barWidth * valPercent, barHeight };
+
+	DrawRectangleRec(bg, bkgColor);
+	DrawRectangleRec(fg, fillColor);
 }
 
 void HUD::onPauseButtonPressed(std::function<void()> callback)
@@ -137,5 +148,19 @@ void HUD::drawPause()
 	if (m_gui.drawButton({ "Resume", btnSize, { {0, 60}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		m_onResumeButtonPressedCallback();
+	}
+}
+
+void HUD::drawProgressBars()
+{
+	for (auto& progressBar : m_data.progressBars)
+	{
+		drawProgressBar(
+			progressBar.value,
+			progressBar.max,
+			progressBar.position,
+			progressBar.bkgColor,
+			progressBar.fillColor
+		);
 	}
 }

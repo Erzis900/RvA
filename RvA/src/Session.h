@@ -27,6 +27,9 @@ public:
 	float getScraps() const;
 	void setSelectedDefender(std::optional<DefenderType> type);
 
+	const DefenderManager& getDefenderManager() const;
+	const EnemyManager& getEnemyManager() const;
+
 private:
 	void drawGrid();
 	void updateBatteryAndScraps(float scrapGain, float batteryDrain);

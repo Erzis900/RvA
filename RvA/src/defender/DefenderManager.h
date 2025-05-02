@@ -12,7 +12,6 @@
 #include "collisions/Collider.h"
 
 class CollisionSystem;
-class GUI;
 
 /*
 * The DefenderTypeInfo gives us information about the type of defender
@@ -78,7 +77,7 @@ private:
 class DefenderManager
 {
 public:
-    DefenderManager(Atlas& atlas, GUI& gui, CollisionSystem& collisionSystem);
+    DefenderManager(Atlas& atlas, CollisionSystem& collisionSystem);
 
     void draw();
     DefenderUpdateResult update(float dt);
@@ -93,6 +92,5 @@ private:
     std::vector<std::unique_ptr<Defender>> m_defenders;
     std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
     Atlas& m_atlas;
-    GUI& m_gui;
     CollisionSystem& m_collisionSystem;
 };

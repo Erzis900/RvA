@@ -18,6 +18,7 @@ public:
 private:
 	void goToWinState(Game& game);
 	void setupHUD();
+	void updateHud();
 	void togglePause();
 
 	int m_numberOfEnemiesToKill{2000};

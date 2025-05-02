@@ -5,7 +5,7 @@
 Session::Session(Game& game, CollisionSystem& collisionSystem)
 	: m_game(game)
 	, m_collisionSystem(collisionSystem)
-	, m_defenderManager(game.getAtlas(), game.getGUI(), m_collisionSystem)
+	, m_defenderManager(game.getAtlas(), m_collisionSystem)
 	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
 {
@@ -82,6 +82,16 @@ float Session::getScraps() const
 void Session::setSelectedDefender(std::optional<DefenderType> type)
 {
 	m_selectedDefender = type;
+}
+
+const DefenderManager& Session::getDefenderManager() const
+{
+	return m_defenderManager;
+}
+
+const EnemyManager& Session::getEnemyManager() const
+{
+	return m_enemyManager;
 }
 
 void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain)

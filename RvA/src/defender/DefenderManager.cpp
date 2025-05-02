@@ -1,5 +1,5 @@
 #include "DefenderManager.h"
-#include "Game.h"
+#include "collisions/CollisionSystem.h"
 
 void DefenderTypeRegistry::registerDefender(DefenderTypeInfo defenderTypeInfo)
 {
@@ -12,9 +12,8 @@ const DefenderTypeInfo* DefenderTypeRegistry::getDefenderInfo(DefenderType type)
     return (itr != m_defenderTypes.end()) ? &itr->second : nullptr;
 }
 
-DefenderManager::DefenderManager(Atlas& atlas, GUI& gui, CollisionSystem& collisionSystem)
+DefenderManager::DefenderManager(Atlas& atlas, CollisionSystem& collisionSystem)
     : m_atlas(atlas)
-    , m_gui(gui)
     , m_collisionSystem(collisionSystem)
 {
     m_defenders.reserve(128);
@@ -28,8 +27,6 @@ void DefenderManager::draw()
             defender->isActive ? defender->info->spriteEnabled.spriteInfo : defender->info->spriteDisabled.spriteInfo,
             defender->position,
             defender->isActive ? defender->animation.getCurrentFrame() : 0);
-
-        m_gui.drawHp(defender->hp, defender->info->maxHP, defender->position);
     }
 }
 

@@ -57,7 +57,6 @@ public:
 	void loadResources();
 
 	void drawCursor();
-	void drawHp(float hp, float maxHp, Vector2 pos);
 	void drawFPS();
 
 	void setCursor(CursorType type);

@@ -90,11 +90,6 @@ void Enemy::update(float dt)
 void Enemy::draw(Game& game)
 {
 	game.getAtlas().drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
-
-    if (!isDying())
-    {
-        game.getGUI().drawHp(m_hp, m_typeInfo->maxHp, m_position);
-    }
 }
 
 const EnemyTypeInfo* Enemy::getInfo() const

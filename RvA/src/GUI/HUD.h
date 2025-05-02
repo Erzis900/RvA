@@ -16,6 +16,15 @@ struct HUDDefenderData
 	int cost;
 };
 
+struct ProgressBarData
+{
+	float value{};
+	float max{};
+	Vector2 position{};
+	Color bkgColor{};
+	Color fillColor{};
+};
+
 struct HUDData
 {
 	float batteryCharge{};
@@ -24,6 +33,7 @@ struct HUDData
 	int numberOfEnemiesToDefeat{};
 	bool drawPause{};
 	std::vector<HUDDefenderData> defenders;
+	std::vector<ProgressBarData> progressBars;
 
 	std::optional<DefenderType> selectedDefender;
 };
@@ -34,8 +44,6 @@ public:
 	HUD(Atlas& atlas, GUI& gui);
 
 	void draw();
-	void drawHPBar();
-
 	// Events
 	void onPauseButtonPressed(std::function<void()> callback);
 	void onResumeButtonPressed(std::function<void()> callback);
@@ -51,6 +59,9 @@ private:
 	void drawDefenders();
 	void drawMenuButtons();
 	void drawPause();
+	void drawProgressBars();
+	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
+
 
 	bool m_defenderHover{};
 	HUDData m_data;
