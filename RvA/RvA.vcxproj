@@ -151,6 +151,7 @@
     <ClCompile Include="src\collisions\CollisionSystem.cpp" />
     <ClCompile Include="src\GUI\HUD.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
+    <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="src\FixedItemPool.h" />
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\MusicManager.h" />
+    <ClInclude Include="src\Session.h" />
     <ClInclude Include="src\states\CreditsState.h" />
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />

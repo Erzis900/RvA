@@ -75,6 +75,9 @@
     <ClCompile Include="src\utilities\TimedAction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Session.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -474,6 +477,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utilities\TimedAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Session.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

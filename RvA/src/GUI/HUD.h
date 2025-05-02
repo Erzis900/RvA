@@ -40,6 +40,7 @@ public:
 	void onPauseButtonPressed(std::function<void()> callback);
 	void onResumeButtonPressed(std::function<void()> callback);
 	void onMenuButtonPressed(std::function<void()> callback);
+	void onDefenderSelected(std::function<void()> callback);
 
 	// Data
 	auto& data() { return m_data; }
@@ -59,4 +60,5 @@ private:
 	std::function<void()> m_onPauseButtonPressedCallback;
 	std::function<void()> m_onMenuButtonPressedCallback;
 	std::function<void()> m_onResumeButtonPressedCallback;
+	std::function<void()> m_onDefenderSelectedCallback;
 };

@@ -41,6 +41,11 @@ void HUD::onMenuButtonPressed(std::function<void()> callback)
 	m_onMenuButtonPressedCallback = std::move(callback);
 }
 
+void HUD::onDefenderSelected(std::function<void()> callback)
+{
+	m_onDefenderSelectedCallback = std::move(callback);
+}
+
 void HUD::drawScrapAmount()
 {
 	auto scrapsText = std::to_string(m_data.scrapsAmount);
@@ -89,6 +94,7 @@ void HUD::drawDefenders()
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 			{
 				m_data.selectedDefender = defender.type;
+				m_onDefenderSelectedCallback();
 			}
 		}
 
