@@ -1,28 +1,50 @@
 #pragma once
 
+#include "FixedItemPool.h"
+#include "Collider.h"
+#include "utilities/TimedAction.h"
+#include <raylib.h>
+#include <functional>
+
 class DefenderManager;
 class EnemyManager;
 class BulletManager;
 
-// A simple class to track and debug collisions
-
+/*
+* A very basic collision system
+*/
 class CollisionSystem
 {
 public:
 	// TODO(Gerark) - This implementation is going to be quite specific and ad-hoc for the game
-	CollisionSystem(const DefenderManager& defenderManager, const EnemyManager& enemyManager, const BulletManager& bulletManager);
+	CollisionSystem();
+
+	void addColliderMatch(Collider::Flag flagA, Collider::Flag flagB);
 
 	// If set to true the debug view shows all the boundings box for each collider
 	void enableDebugView(bool enabled);
 	void toggleDebugView();
 	auto isDebugViewEnabled() const { return m_enableDebugView; }
 
+	void update(float dt);
 	void draw();
 
-private:
-	bool m_enableDebugView{};
+	ColliderHandle createCollider(Collider::Flag flag, ColliderOwner colliderOwner);
+	void updateCollider(ColliderHandle handle, const Rectangle& boundingBox);
+	void updateColliderPosition(ColliderHandle handle, const Vector2& position);
+	void destroyCollider(ColliderHandle handle);
 
-	const DefenderManager& m_defenderManager;
-	const EnemyManager& m_enemyManager;
-	const BulletManager& m_bulletManager;
+	void onCollision(std::function<void(const Collision&)> callback);
+
+private:
+	void manageScheduledDestruction();
+	void manageCollisions();
+
+	bool m_enableDebugView{};
+	FixedItemPool<Collider, 256> m_colliders;
+	std::vector<Collision> m_collisions;
+	std::function<void(const Collision&)> m_collisionCallback;
+	std::vector<int> m_collisionMatchers;
+	std::vector<ColliderHandle> m_scheduledDestruction;
+	TimedActionList m_debugDrawingList;
 };

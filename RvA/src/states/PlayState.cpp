@@ -19,10 +19,9 @@ void PlayState::onExit(Game& game)
 
 PlayState::PlayState(Game& game)
 	: m_game(game)
-	, m_defenderManager(game.getAtlas(), game.getGUI())
-	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_defenderManager)
-	, m_bulletManager(m_enemyManager)
-	, m_collisionSystem(m_defenderManager, m_enemyManager, m_bulletManager)
+	, m_defenderManager(game.getAtlas(), game.getGUI(), m_collisionSystem)
+	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_collisionSystem)
+	, m_bulletManager(m_enemyManager, m_collisionSystem)
 	, m_hud(m_game.getAtlas(), m_game.getGUI())
 {
 	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
@@ -31,6 +30,10 @@ PlayState::PlayState(Game& game)
 			goToWinState(game);
 		}
 	});
+
+	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
+	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
+	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
 
 	setupHUD();
 }
@@ -52,6 +55,7 @@ void PlayState::update(Game& game, float dt)
 	if (m_isGamePaused) return;
 
 	m_enemyManager.update(dt);
+	m_collisionSystem.update(dt);
 
 	performDefenderSpawnOnInput();
 	auto result = m_defenderManager.update(dt);
@@ -182,3 +186,46 @@ void PlayState::togglePause()
 	m_isGamePaused = !m_isGamePaused;
 	m_hud.data().drawPause = m_isGamePaused;
 }
+
+void PlayState::manageCollision(const Collision& collision)
+{
+	switch (collision.mask)
+	{
+	case cMask(Collider::Flag::Bullet, Collider::Flag::Enemy):
+		if (collision.event == CollisionEvent::Enter || collision.event == CollisionEvent::Ongoing)
+		{
+			const auto& [bullet, enemy] = collision.extractOwners<Bullet, Enemy>();
+			m_bulletManager.executeHit(*bullet, *enemy);
+		}
+		break;
+	case cMask(Collider::Flag::Defender, Collider::Flag::Enemy):
+		const auto& [defender, enemy] = collision.extractOwners<Defender, Enemy>();
+		if (enemy->isDying())
+		{
+			break;
+		}
+
+		switch (collision.event)
+		{
+		case CollisionEvent::Enter:
+			enemy->setState(EnemyState::PrepareToAttack);
+			break;
+		case CollisionEvent::Exit:
+			enemy->setState(EnemyState::Moving);
+			break;
+		case CollisionEvent::Ongoing:
+			if (enemy->getState() == EnemyState::ReadyToAttack)
+			{
+				defender->hp -= static_cast<int>(enemy->getDamage());
+				enemy->setState(EnemyState::PrepareToAttack);
+			}
+			else if(enemy->getState() != EnemyState::PrepareToAttack)
+			{
+				enemy->setState(EnemyState::PrepareToAttack);
+			}
+			break;
+		}
+		break;
+	}
+}
+

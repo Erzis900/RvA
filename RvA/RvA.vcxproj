@@ -171,6 +171,7 @@
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
     <ClCompile Include="src\utilities.cpp" />
+    <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\raylib\include\reasings.h" />
@@ -280,9 +281,11 @@
     <ClInclude Include="deps\spdlog\version.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypes.h" />
+    <ClInclude Include="src\collisions\Collider.h" />
     <ClInclude Include="src\collisions\CollisionSystem.h" />
     <ClInclude Include="src\Damage.h" />
     <ClInclude Include="src\defender\DefenderTypes.h" />
+    <ClInclude Include="src\FixedItemPool.h" />
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\states\CreditsState.h" />
@@ -303,6 +306,7 @@
     <ClInclude Include="src\states\MenuState.h" />
     <ClInclude Include="src\states\WinState.h" />
     <ClInclude Include="src\utilities.h" />
+    <ClInclude Include="src\utilities\TimedAction.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

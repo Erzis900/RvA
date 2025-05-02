@@ -7,6 +7,7 @@
 #include <raylib.h>
 #include <bullet/BulletTypes.h>
 
+class CollisionSystem;
 class EnemyManager;
 class Enemy;
 
@@ -23,18 +24,16 @@ private:
 class BulletManager
 {
 public:
-	BulletManager(EnemyManager& enemyManager);
+	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem);
 
 	void update(float dt);
 	void draw();
 
 	void spawnBullet(const BulletData& data, const Vector2& position);
-
+	void executeHit(Bullet& bullet, Enemy& enemy);
 	auto& getBullets() const { return m_bullets; }
 
 private:
-	void manageEnemyCollisions(Bullet& bullet, float dt);
-
 	// TODO(Gerark): These methods likely belong within the Info structs for better encapsulation.
 	// We'll monitor how the codebase evolves and consider refactoring toward a more OOP approach if it proves beneficial.
 	void setupBullet(Bullet& bullet, BulletShotData& data);
@@ -55,4 +54,6 @@ private:
 	// TODO(Gerark) A vector of unique_ptr isn't really the best choice from a memory layout point of view. It can be improved.
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	EnemyManager& m_enemyManager;
+	CollisionSystem& m_collisionSystem;
+	float m_latestDeltaTime{};
 };

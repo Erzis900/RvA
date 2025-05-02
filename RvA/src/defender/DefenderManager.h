@@ -9,7 +9,9 @@
 #include <constants.h>
 #include "Animation.h"
 #include "defender/DefenderTypes.h"
+#include "collisions/Collider.h"
 
+class CollisionSystem;
 class GUI;
 
 /*
@@ -44,6 +46,7 @@ struct Defender
     int hp{};
     int row{};
     int column{};
+    ColliderHandle colliderHandle{};
 };
 
 struct BulletSpawnAction
@@ -75,7 +78,7 @@ private:
 class DefenderManager
 {
 public:
-    DefenderManager(Atlas& atlas, GUI& gui);
+    DefenderManager(Atlas& atlas, GUI& gui, CollisionSystem& collisionSystem);
 
     void draw();
     DefenderUpdateResult update(float dt);
@@ -91,4 +94,5 @@ private:
     std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
     Atlas& m_atlas;
     GUI& m_gui;
+    CollisionSystem& m_collisionSystem;
 };

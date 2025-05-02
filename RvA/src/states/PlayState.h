@@ -31,17 +31,21 @@ private:
 	void setupHUD();
 	void togglePause();
 
+	void manageCollision(const Collision& collision);
+	void performBulletEnemyCollision(const Collision& collision);
+	void performDefenderEnemyCollision(const Collision& collision);
+
 	int m_numberOfDestroyedEnemies{0};
-	int m_numberOfEnemiesToKill{40};
+	int m_numberOfEnemiesToKill{2000};
 
 	float m_batteryCharge{ MAX_BATTERY_CHARGE };
 	float m_scraps{};
 
 	Game& m_game;
+	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
-	CollisionSystem m_collisionSystem;
 	HUD m_hud;
 	bool m_isGamePaused{};
 };

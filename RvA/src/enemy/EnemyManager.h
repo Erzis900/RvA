@@ -6,7 +6,7 @@
 #include "Enemy.h"
 
 class Game;
-class DefenderManager;
+class CollisionSystem;
 
 class EnemyTypeRegistry
 {
@@ -22,7 +22,7 @@ private:
 class EnemyManager
 {
 public:
-    EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, DefenderManager& defenderManager);
+    EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem);
 
     void update(float dt);
     void draw();
@@ -37,7 +37,6 @@ public:
 private:
     void spawnEnemy();
     void notifyEnemiesDestroyed(int numberOfDestroyedEnemies);
-    void manageDefenderCollisions(Enemy& enemy);
 
     std::vector<std::unique_ptr<Enemy>> m_enemies;
     std::function<void(int)> m_onEnemiesDestroyedCallback;
@@ -45,6 +44,6 @@ private:
     float m_spawnInterval{ 1.f };
 
     Game& m_game;
-    DefenderManager& m_defenderManager;
     const EnemyTypeRegistry& m_enemyTypeRegistry;
+    CollisionSystem& m_collisionSystem;
 };

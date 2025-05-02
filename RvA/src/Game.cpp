@@ -165,7 +165,7 @@ void Game::registerDefenderTypes()
 		.spriteDisabled = { sprite("shooter_off"), 0.1f },
 		.batteryDrain = 5.f,
 		.firstShootCooldown = 1.f,
-		.shootCooldown = 1.f,
+		.shootCooldown = 2.f,
 		.maxHP = 150,
 		.cost = 10,
 		.bulletType = "SimpleShot",
@@ -201,7 +201,7 @@ void Game::registerBulletTypes()
 	m_bulletTypeRegistry.registerBulletType("SimpleShot", BulletShotData {
 		.velocity = { 150, 0 },
 		.radius = 5.f,
-		.damage = { 50, 16 },
+		.damage = { 25, 16 },
 		.maxLifetime = 100,
 	});
 

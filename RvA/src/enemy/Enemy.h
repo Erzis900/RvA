@@ -5,6 +5,7 @@
 #include "Animation.h"
 #include "Damage.h"
 #include "utilities.h"
+#include "collisions/CollisionSystem.h"
 
 class Game;
 class Atlas;
@@ -49,7 +50,9 @@ public:
     float getDamage() const;
     const Vector2& getPosition() const { return m_position; }
     Vector2 getCenteredPosition() const;
-    Rectangle getBoundingBox() const;
+    Rectangle calculateBoundingBox() const;
+    ColliderHandle getColliderHandle() const;
+    void setColliderHandle(ColliderHandle handle);
 
     void setState(EnemyState state);
     auto getState() const { return m_state; }
@@ -78,4 +81,5 @@ private:
     EnemyState m_state;
     Atlas& m_atlas;
     const EnemyTypeInfo* m_typeInfo{};
+    ColliderHandle m_colliderHandle{};
 };

@@ -12,9 +12,10 @@ const DefenderTypeInfo* DefenderTypeRegistry::getDefenderInfo(DefenderType type)
     return (itr != m_defenderTypes.end()) ? &itr->second : nullptr;
 }
 
-DefenderManager::DefenderManager(Atlas& atlas, GUI& gui)
+DefenderManager::DefenderManager(Atlas& atlas, GUI& gui, CollisionSystem& collisionSystem)
     : m_atlas(atlas)
     , m_gui(gui)
+    , m_collisionSystem(collisionSystem)
 {
     m_defenders.reserve(128);
 }
@@ -38,6 +39,11 @@ DefenderUpdateResult DefenderManager::update(float dt)
     for (auto it = m_defenders.begin(); it != m_defenders.end(); )
     {
         auto& defender = *it;
+
+        m_collisionSystem.updateCollider(
+            defender->colliderHandle, 
+            { defender->position.x, defender->position.y, 32, 32 }
+        );
 
         defender->animation.update(dt);
         if (defender->isActive)
@@ -71,6 +77,7 @@ DefenderUpdateResult DefenderManager::update(float dt)
         if (defender->hp <= 0)
         {
             m_defenderGrid[defender->row][defender->column] = nullptr;
+            m_collisionSystem.destroyCollider((*it)->colliderHandle);
             it = m_defenders.erase(it);
         }
         else
@@ -97,6 +104,7 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
     defender->row = row;
     defender->animation = Animation::createAnimation(defenderTypeInfo->spriteEnabled);
     defender->hp = defender->info->maxHP;
+    defender->colliderHandle = m_collisionSystem.createCollider(Collider::Flag::Defender, defender.get());
     m_defenderGrid[row][column] = defender.get();
     m_defenders.push_back(std::move(defender));
 }

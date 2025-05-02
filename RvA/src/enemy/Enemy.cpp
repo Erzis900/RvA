@@ -84,11 +84,6 @@ void Enemy::update(float dt)
         break;
     }
 
-    if (m_hp <= 0 && !isDying())
-    {
-        setState(EnemyState::Dying);
-    }
-
 	m_animation.update(dt);
     m_damageTakenAnimation.update(dt);
 }
@@ -113,10 +108,20 @@ Vector2 Enemy::getCenteredPosition() const
     return Vector2Add(m_position, { 16, 16 });
 }
 
-Rectangle Enemy::getBoundingBox() const
+Rectangle Enemy::calculateBoundingBox() const
 {
     constexpr Vector2 bbPadding = { 10, 5 };
     return Rectangle{ m_position.x + bbPadding.x, m_position.y + bbPadding.y, 32 - bbPadding.x, 32 - bbPadding.y };
+}
+
+ColliderHandle Enemy::getColliderHandle() const
+{
+    return m_colliderHandle;
+}
+
+void Enemy::setColliderHandle(ColliderHandle handle)
+{
+    m_colliderHandle = handle;
 }
 
 void Enemy::performIdle(float dt)

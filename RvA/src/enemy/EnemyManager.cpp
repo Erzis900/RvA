@@ -4,7 +4,6 @@
 #include "Game.h"
 #include "EnemyTypes.h"
 #include "constants.h"
-#include <cassert>
 
 void EnemyTypeRegistry::registerEnemyType(EnemyTypeInfo typeInfo)
 {
@@ -17,8 +16,8 @@ const EnemyTypeInfo* EnemyTypeRegistry::getEnemyTypeInfo(EnemyType type) const
     return (itr != m_enemyTypes.end()) ? &itr->second : nullptr;
 }
 
-EnemyManager::EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, DefenderManager& defenderManager)
-    : m_game(game), m_enemyTypeRegistry(enemyTypeRegistry), m_defenderManager(defenderManager)
+EnemyManager::EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem)
+    : m_game(game), m_enemyTypeRegistry(enemyTypeRegistry), m_collisionSystem(collisionSystem)
 {
 }
 
@@ -31,24 +30,41 @@ void EnemyManager::update(float dt)
         m_spawnTimer = 0.f;
     }
 
-    for (auto& enemy : m_enemies)
+    auto numberOfDestroyedEnemies = 0;
+    for (auto it = m_enemies.begin(); it != m_enemies.end(); )
     {
+        auto& enemy = *it;
         enemy->update(dt);
+
         if (!enemy->isDying())
         {
-            manageDefenderCollisions(*enemy);
+            if (enemy->getHp() <= 0)
+            {
+                enemy->setState(EnemyState::Dying);
+                m_collisionSystem.destroyCollider(enemy->getColliderHandle());
+            }
+            else
+            {
+                m_collisionSystem.updateCollider(enemy->getColliderHandle(), enemy->calculateBoundingBox());
+            }
+        }
+
+        if (enemy->getState() == EnemyState::Dead)
+        {
+            ++numberOfDestroyedEnemies;
+            it = m_enemies.erase(it);
+        }
+        else if (enemy->getPosition().x < CELL_SIZE * 1.5f)
+        {
+            m_collisionSystem.destroyCollider(enemy->getColliderHandle());
+            it = m_enemies.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 
-    // Remove enemies reaching the left side of the grid
-    std::erase_if(m_enemies, [](const auto& enemy) {
-        return enemy->getPosition().x < CELL_SIZE * 1.5f;
-    });
-    
-    // Remove enemies which have been destroyed ( hp == 0 )
-    auto numberOfDestroyedEnemies = std::erase_if(m_enemies, [](const auto& enemy) {
-        return enemy->getState() == EnemyState::Dead;
-    });
     if (numberOfDestroyedEnemies > 0) {
         notifyEnemiesDestroyed(static_cast<int>(numberOfDestroyedEnemies));
     }
@@ -59,7 +75,6 @@ void EnemyManager::draw()
     for (auto& enemy : m_enemies)
     {
         enemy->draw(m_game);
-
     }
 }
 
@@ -105,7 +120,9 @@ void EnemyManager::spawnEnemy()
     float x = TEX_WIDTH - CELL_SIZE * 2.f;
     int y = (randomRow + 1) * CELL_SIZE;
 
-    m_enemies.push_back(std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, m_game.getAtlas(), randomRow));
+    auto enemy = std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, m_game.getAtlas(), randomRow);
+    enemy->setColliderHandle(m_collisionSystem.createCollider(Collider::Flag::Enemy, enemy.get()));
+    m_enemies.push_back(std::move(enemy));
 }
 
 void EnemyManager::onEnemiesDestroyed(std::function<void(int)> callback)
@@ -118,30 +135,3 @@ void EnemyManager::notifyEnemiesDestroyed(int numberOfDestroyedEnemies)
     m_onEnemiesDestroyedCallback(numberOfDestroyedEnemies);
 }
 
-void EnemyManager::manageDefenderCollisions(Enemy& enemy)
-{
-    bool collideWithDefenders{ false };
-    for (auto& defender : m_defenderManager.getDefenders())
-    {
-        if (defender->row == enemy.getRow())
-        {
-            if (enemy.getPosition().x <= defender->position.x + CELL_SIZE && enemy.getPosition().x > defender->position.x)
-            {
-                if (enemy.getState() == EnemyState::ReadyToAttack)
-                {
-                    defender->hp -= static_cast<int>(enemy.getDamage());
-                    enemy.setState(EnemyState::PrepareToAttack);
-                }
-                enemy.setState(EnemyState::PrepareToAttack);
-
-                collideWithDefenders = true;
-                break; // as soon as we collide with the first defender we move on
-            }
-        }
-    }
-
-    if (!collideWithDefenders && enemy.isAttacking())
-    {
-        enemy.setState(EnemyState::Moving);
-    }
-}

@@ -3,6 +3,7 @@
 #include <variant>
 #include <raylib.h>
 #include "Damage.h"
+#include "collisions/CollisionSystem.h"
 
 /*
 * Bullet Shot
@@ -55,6 +56,6 @@ struct Bullet
 {
 	BulletData data{};
 	Vector2 position{};
-	Rectangle boundingBox{};
+	ColliderHandle colliderHandle{};
 	float lifetime{};
 };

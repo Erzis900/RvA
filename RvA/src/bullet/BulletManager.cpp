@@ -1,10 +1,13 @@
 #include "bullet/BulletManager.h"
 #include "enemy/EnemyManager.h"
+#include "collisions/CollisionSystem.h"
 #include <raymath.h>
 #include <reasings.h>
-#include <constants.h>
+#include "constants.h"
 
-BulletManager::BulletManager(EnemyManager& enemyManager) : m_enemyManager(enemyManager)
+BulletManager::BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem)
+	: m_enemyManager(enemyManager)
+	, m_collisionSystem(collisionSystem)
 {
 	m_bullets.reserve(128);
 }
@@ -26,17 +29,17 @@ const BulletData* BulletTypeRegistry::getBulletInfo(const std::string& id) const
 
 void BulletManager::update(float dt)
 {
+	m_latestDeltaTime = dt;
 	for (auto it = m_bullets.begin(); it != m_bullets.end(); )
 	{
 		auto& bullet = *it;
 
 		std::visit([this, &bullet, dt](auto&& data) { updateBullet(*bullet, data, dt); }, bullet->data);
 
-		manageEnemyCollisions(*bullet, dt);
-
 		bullet->lifetime -= dt;
 		if (bullet->lifetime <= 0)
 		{
+			m_collisionSystem.destroyCollider((*it)->colliderHandle);
 			it = m_bullets.erase(it);
 		}
 		else
@@ -59,26 +62,14 @@ void BulletManager::spawnBullet(const BulletData& data, const Vector2& position)
 	auto bullet = std::make_unique<Bullet>();
 	bullet->data = data;
 	bullet->position = position;
+	bullet->colliderHandle = m_collisionSystem.createCollider(Collider::Flag::Bullet, bullet.get());
 	std::visit([this, &bullet](auto&& data) { setupBullet(*bullet, data); }, bullet->data);
 	m_bullets.push_back(std::move(bullet));
 }
 
-void BulletManager::manageEnemyCollisions(Bullet& bullet, float dt)
+void BulletManager::executeHit(Bullet& bullet, Enemy& enemy)
 {
-	// TODO(Gerark): It might be worth separating bullet/enemy collision logic into a more generic collision system.
-	// Currently, each bullet has a bounding box, and we check for collisions directly against the enemy's bounding box.
-	for (auto& enemy : m_enemyManager.getEnemies())
-	{
-		if (!enemy->isDying())
-		{
-			// For now, we construct the enemy's bounding box on the fly.
-			auto enemyBoundingBox = enemy->getBoundingBox();
-			if (CheckCollisionRecs(bullet.boundingBox, enemyBoundingBox))
-			{
-				std::visit([this, &enemy, &bullet, dt](auto&& data) { onEnemyHit(*enemy, bullet, data, dt); }, bullet.data);
-			}
-		}
-	}
+	std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(enemy, bullet, data, m_latestDeltaTime); }, bullet.data);
 }
 
 /*
@@ -90,14 +81,18 @@ void BulletManager::setupBullet(Bullet& bullet, BulletShotData& data)
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
 	
 	auto side = data.radius * 2;
-	bullet.boundingBox = { bullet.position.x - data.radius, bullet.position.y - data.radius, side, side };
+	m_collisionSystem.updateCollider(
+		bullet.colliderHandle,
+		{ bullet.position.x - data.radius, bullet.position.y - data.radius, side, side });
 }
 
 void BulletManager::updateBullet(Bullet& bullet, BulletShotData& data, float dt)
 {
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.velocity, dt));
-	bullet.boundingBox.x = bullet.position.x - data.radius;
-	bullet.boundingBox.y = bullet.position.y - data.radius;
+	m_collisionSystem.updateColliderPosition(
+		bullet.colliderHandle,
+		{ bullet.position.x - data.radius, bullet.position.y - data.radius }
+	);
 }
 
 void BulletManager::drawBullet(Bullet& bullet, BulletShotData& data)
@@ -119,7 +114,10 @@ void BulletManager::setupBullet(Bullet& bullet, LaserBeamData& data)
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
 	data.beamWidth = 0;
-	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
+	m_collisionSystem.updateCollider(
+		bullet.colliderHandle,
+		{ bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight }
+	);
 }
 
 void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt)
@@ -130,7 +128,10 @@ void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt)
 	float value = EaseSineIn(currentValue, 0, 1, data.shootAnimationDuration);
 	data.beamWidth = (TEX_WIDTH - CELL_SIZE - bullet.position.x) * value;
 
-	bullet.boundingBox = { bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight };
+	m_collisionSystem.updateCollider(
+		bullet.colliderHandle,
+		{ bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight }
+	);
 }
 
 void BulletManager::drawBullet(Bullet& bullet, LaserBeamData& data)
@@ -166,7 +167,9 @@ void BulletManager::setupBullet(Bullet& bullet, ChasingShotData& data)
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, { 20, 20 });
 	auto halfRadius = data.radius * 0.5f;
-	bullet.boundingBox = { bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius };
+	m_collisionSystem.updateCollider(
+		bullet.colliderHandle,
+		{ bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius });
 }
 
 void BulletManager::updateBullet(Bullet& bullet, ChasingShotData& data, float dt)
@@ -183,8 +186,9 @@ void BulletManager::updateBullet(Bullet& bullet, ChasingShotData& data, float dt
 	}
 
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
-	bullet.boundingBox.x = bullet.position.x - data.radius * 0.5f;
-	bullet.boundingBox.y = bullet.position.y - data.radius * 0.5f;
+	m_collisionSystem.updateColliderPosition(
+		bullet.colliderHandle,
+		{ bullet.position.x - data.radius * 0.5f, bullet.position.y - data.radius * 0.5f });
 }
 
 void BulletManager::drawBullet(Bullet& bullet, ChasingShotData& data)
