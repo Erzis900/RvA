@@ -8,10 +8,16 @@
 
 class Game;
 
+struct Wall
+{
+	ColliderHandle colliderHandle;
+};
+
 class PlayState : public IGameState
 {
 public:
 	PlayState(Game& game);
+	~PlayState();
 
 	void update(Game& game, float dt) override;
 	void draw(Game& game) override;
@@ -32,8 +38,9 @@ private:
 	void togglePause();
 
 	void manageCollision(const Collision& collision);
-	void performBulletEnemyCollision(const Collision& collision);
-	void performDefenderEnemyCollision(const Collision& collision);
+	void manageBulletEnemyCollision(const Collision& collision);
+	void manageDefenderEnemyCollision(const Collision& collision);
+	void manageBaseWallEnemyCollision(const Collision& collision);
 
 	int m_numberOfDestroyedEnemies{0};
 	int m_numberOfEnemiesToKill{2000};
@@ -48,4 +55,6 @@ private:
 	BulletManager m_bulletManager;
 	HUD m_hud;
 	bool m_isGamePaused{};
+
+	Wall m_baseWall;
 };

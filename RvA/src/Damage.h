@@ -1,9 +1,16 @@
 #pragma once
 
+enum class DamageSource
+{
+	Bullet,
+	BaseWall,
+};
+
 struct Damage
 {
 	float value{};
 	float bounceBackPower{};
+	DamageSource source{ DamageSource::Bullet };
 };
 
 struct DamageInfo

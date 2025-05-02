@@ -60,7 +60,6 @@ void Enemy::applyDamage(const Damage& damage)
         })
         .onComplete([this]() {
             m_tint = WHITE;
-            m_latestDamageApplied = {};
         });
 }
 
@@ -98,9 +97,9 @@ void Enemy::draw(Game& game)
     }
 }
 
-float Enemy::getDamage() const
+const EnemyTypeInfo* Enemy::getInfo() const
 {
-    return m_typeInfo->damage;
+    return m_typeInfo;
 }
 
 Vector2 Enemy::getCenteredPosition() const
@@ -122,6 +121,11 @@ ColliderHandle Enemy::getColliderHandle() const
 void Enemy::setColliderHandle(ColliderHandle handle)
 {
     m_colliderHandle = handle;
+}
+
+const Damage& Enemy::getLatestDamageApplied() const
+{
+    return m_latestDamageApplied;
 }
 
 void Enemy::performIdle(float dt)

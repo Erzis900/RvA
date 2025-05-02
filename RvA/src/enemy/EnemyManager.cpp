@@ -51,12 +51,7 @@ void EnemyManager::update(float dt)
 
         if (enemy->getState() == EnemyState::Dead)
         {
-            ++numberOfDestroyedEnemies;
-            it = m_enemies.erase(it);
-        }
-        else if (enemy->getPosition().x < CELL_SIZE * 1.5f)
-        {
-            m_collisionSystem.destroyCollider(enemy->getColliderHandle());
+            numberOfDestroyedEnemies += enemy->getLatestDamageApplied().source == DamageSource::Bullet ? 1 : 0;
             it = m_enemies.erase(it);
         }
         else

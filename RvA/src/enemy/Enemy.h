@@ -28,7 +28,8 @@ struct EnemyTypeInfo
     float maxHp{};
     float speed{};
     float attackTime{};
-    float damage{};
+    float defenderDamage{};
+    float baseWallDamage{};
     AnimationData idleAnimation;
     AnimationData moveAnimation;
     AnimationData attackAnimation;
@@ -47,12 +48,13 @@ public:
 
     auto getHp() const { return m_hp; }
     auto getRow() const { return m_row; }
-    float getDamage() const;
+    const EnemyTypeInfo* getInfo() const;
     const Vector2& getPosition() const { return m_position; }
     Vector2 getCenteredPosition() const;
     Rectangle calculateBoundingBox() const;
     ColliderHandle getColliderHandle() const;
     void setColliderHandle(ColliderHandle handle);
+    const Damage& getLatestDamageApplied() const;
 
     void setState(EnemyState state);
     auto getState() const { return m_state; }

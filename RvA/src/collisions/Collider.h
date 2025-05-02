@@ -10,9 +10,10 @@ using ColliderHandle = int;
 
 struct Bullet;
 struct Defender;
+struct Wall;
 class Enemy;
 
-using ColliderOwner = std::variant<::Bullet*, ::Enemy*, ::Defender*>;
+using ColliderOwner = std::variant<::Bullet*, ::Enemy*, ::Defender*, ::Wall*>;
 
 struct Collider
 {
@@ -20,7 +21,8 @@ struct Collider
 	{
 		Defender = 1 << 0,
 		Bullet = 1 << 1,
-		Enemy = 1 << 2
+		Enemy = 1 << 2,
+		BaseWall = 1 << 3
 	};
 
 	ColliderHandle handle;

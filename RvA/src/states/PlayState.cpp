@@ -7,16 +7,6 @@
 #include "Game.h"
 #include "constants.h"
 
-void PlayState::onEnter(Game& game)
-{
-	game.getMusicManager().play(game.getMusicManager().getGameMusic());
-}
-
-void PlayState::onExit(Game& game)
-{
-	game.getMusicManager().stop(game.getMusicManager().getGameMusic());
-}
-
 PlayState::PlayState(Game& game)
 	: m_game(game)
 	, m_defenderManager(game.getAtlas(), game.getGUI(), m_collisionSystem)
@@ -33,9 +23,30 @@ PlayState::PlayState(Game& game)
 
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
+	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
+	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
+	m_collisionSystem.updateCollider(
+		m_baseWall.colliderHandle, 
+		{ CELL_SIZE - 5, CELL_SIZE, 5, CELL_SIZE * ROWS }
+	);
 
 	setupHUD();
+}
+
+PlayState::~PlayState()
+{
+	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
+}
+
+void PlayState::onEnter(Game& game)
+{
+	game.getMusicManager().play(game.getMusicManager().getGameMusic());
+}
+
+void PlayState::onExit(Game& game)
+{
+	game.getMusicManager().stop(game.getMusicManager().getGameMusic());
 }
 
 void PlayState::drawGrid()
@@ -192,38 +203,81 @@ void PlayState::manageCollision(const Collision& collision)
 	switch (collision.mask)
 	{
 	case cMask(Collider::Flag::Bullet, Collider::Flag::Enemy):
-		if (collision.event == CollisionEvent::Enter || collision.event == CollisionEvent::Ongoing)
-		{
-			const auto& [bullet, enemy] = collision.extractOwners<Bullet, Enemy>();
-			m_bulletManager.executeHit(*bullet, *enemy);
-		}
+		manageBulletEnemyCollision(collision);
 		break;
 	case cMask(Collider::Flag::Defender, Collider::Flag::Enemy):
-		const auto& [defender, enemy] = collision.extractOwners<Defender, Enemy>();
-		if (enemy->isDying())
-		{
-			break;
-		}
+		manageDefenderEnemyCollision(collision);
+		break;
+	case cMask(Collider::Flag::BaseWall, Collider::Flag::Enemy):
+		manageBaseWallEnemyCollision(collision);
+		break;
+	}
+}
 
-		switch (collision.event)
+void PlayState::manageBulletEnemyCollision(const Collision& collision)
+{
+	if (collision.event == CollisionEvent::Enter || collision.event == CollisionEvent::Ongoing)
+	{
+		const auto& [bullet, enemy] = collision.extractOwners<Bullet, Enemy>();
+		m_bulletManager.executeHit(*bullet, *enemy);
+	}
+}
+
+void PlayState::manageDefenderEnemyCollision(const Collision& collision)
+{
+	const auto& [defender, enemy] = collision.extractOwners<Defender, Enemy>();
+	if (enemy->isDying())
+	{
+		return;
+	}
+
+	switch (collision.event)
+	{
+	case CollisionEvent::Enter:
+		enemy->setState(EnemyState::PrepareToAttack);
+		break;
+	case CollisionEvent::Exit:
+		enemy->setState(EnemyState::Moving);
+		break;
+	case CollisionEvent::Ongoing:
+		if (enemy->getState() == EnemyState::ReadyToAttack)
 		{
-		case CollisionEvent::Enter:
+			defender->hp -= static_cast<int>(enemy->getInfo()->defenderDamage);
 			enemy->setState(EnemyState::PrepareToAttack);
-			break;
-		case CollisionEvent::Exit:
-			enemy->setState(EnemyState::Moving);
-			break;
-		case CollisionEvent::Ongoing:
-			if (enemy->getState() == EnemyState::ReadyToAttack)
-			{
-				defender->hp -= static_cast<int>(enemy->getDamage());
-				enemy->setState(EnemyState::PrepareToAttack);
-			}
-			else if(enemy->getState() != EnemyState::PrepareToAttack)
-			{
-				enemy->setState(EnemyState::PrepareToAttack);
-			}
-			break;
+		}
+		else if (enemy->getState() != EnemyState::PrepareToAttack)
+		{
+			enemy->setState(EnemyState::PrepareToAttack);
+		}
+		break;
+	}
+}
+
+void PlayState::manageBaseWallEnemyCollision(const Collision& collision)
+{
+	const auto& [defender, enemy] = collision.extractOwners<Defender, Enemy>();
+	if (enemy->isDying())
+	{
+		return;
+	}
+
+	switch (collision.event)
+	{
+	case CollisionEvent::Enter:
+		enemy->setState(EnemyState::PrepareToAttack);
+		break;
+	case CollisionEvent::Exit:
+		break;
+	case CollisionEvent::Ongoing:
+		if (enemy->getState() == EnemyState::ReadyToAttack)
+		{
+			m_batteryCharge -= static_cast<int>(enemy->getInfo()->baseWallDamage);
+			enemy->applyDamage({ 50, false, DamageSource::BaseWall });
+			enemy->setState(EnemyState::PrepareToAttack);
+		}
+		else if (enemy->getState() != EnemyState::PrepareToAttack)
+		{
+			enemy->setState(EnemyState::PrepareToAttack);
 		}
 		break;
 	}
