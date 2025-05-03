@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "states/PlayState.h"
 #include "states/CreditsState.h"
+#include "states/OptionsState.h"
 
 void MenuState::onEnter(Game& game)
 {
@@ -17,16 +18,19 @@ void MenuState::draw(Game& game)
 {
 	auto btnSize = Vector2{ 200.f, 60.f };
 	auto& gui = game.getGUI();
-	if (gui.drawButton({ "Exit", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	if (gui.drawButton({ "Exit", btnSize, { {0, 2 * btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		game.scheduleClose();
 	}
 
-	if (gui.drawButton({ "Credits", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	if (gui.drawButton({ "Credits", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		game.setState(std::make_unique<CreditsState>());
 	}
-
+	if (gui.drawButton({ "Options", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	{
+		game.setState(std::make_unique<OptionsState>());
+	}
 	if (gui.drawButton({ "Play", btnSize, { {0, -btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		game.setState(std::make_unique<PlayState>(game));

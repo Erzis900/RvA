@@ -168,6 +168,7 @@
     <ClCompile Include="src\GUI\GUI.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\states\OptionsState.cpp" />
     <ClCompile Include="src\states\PlayState.cpp" />
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
@@ -304,6 +305,7 @@
     <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\IGameState.h" />
+    <ClInclude Include="src\states\OptionsState.h" />
     <ClInclude Include="src\states\PlayState.h" />
     <ClInclude Include="src\states\MenuState.h" />
     <ClInclude Include="src\states\WinState.h" />
