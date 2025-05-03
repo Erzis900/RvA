@@ -18,7 +18,7 @@ void OptionsState::draw(Game& game)
 	auto& gui = game.getGUI();
 
 	if (gui.drawButton({
-		.text = "Toggle Music",
+		.text = (GetMasterVolume() > 0.f) ? "Turn off music" : "Turn on music",
 		.size = {200.f, 60.f},
 		.guiPosition = {
 			.position = { 10, 10 },
@@ -37,10 +37,22 @@ void OptionsState::draw(Game& game)
 	}
 
 	if (gui.drawButton({
-		.text = "Back to Main Menu",
+		.text = "Toggle Fullscreen",
 		.size = {200.f, 60.f},
 		.guiPosition = {
 			.position = { 10, 70 },
+			.horizontalAlignment = GUIAlignmentH::Center,
+			.verticalAlignment = GUIAlignmentV::Center,
+		} }))
+	{
+		ToggleFullscreen();
+	}
+
+	if (gui.drawButton({
+		.text = "Back to Main Menu",
+		.size = {200.f, 60.f},
+		.guiPosition = {
+			.position = { 10, 130 },
 			.horizontalAlignment = GUIAlignmentH::Center,
 			.verticalAlignment = GUIAlignmentV::Center,
 		} }))
