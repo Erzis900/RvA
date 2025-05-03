@@ -37,7 +37,7 @@ void OptionsState::draw(Game& game)
 	}
 
 	if (gui.drawButton({
-		.text = "Toggle Fullscreen",
+		.text = IsWindowFullscreen() ? "Window mode" : "Fullscreen Mode",
 		.size = {200.f, 60.f},
 		.guiPosition = {
 			.position = { 10, 70 },
