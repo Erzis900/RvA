@@ -16,7 +16,13 @@ public:
 	Game();
 	~Game();
 
-	void setState(std::unique_ptr<IGameState> newState);
+	template<typename T, typename ...Args>
+    void setState(Args&&... args) requires std::derived_from<T, IGameState> {
+        static_assert(std::is_constructible_v<T, Args&&...>, "T must be constructible with Args...");
+        internalSetState(std::make_unique<T>(std::forward<Args>(args)...));
+    }
+
+	void internalSetState(std::unique_ptr<IGameState> newState);
 	void run();
 
 	auto& getGUI() { return m_gui; }

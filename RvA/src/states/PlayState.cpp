@@ -39,7 +39,7 @@ void PlayState::update(Game& game, float dt)
 
 		if (m_session.getBatteryCharge() <= 0)
 		{
-			m_game.setState(std::make_unique<LostState>());
+			m_game.setState<LostState>();
 		}
 
 		updateHud();
@@ -71,7 +71,7 @@ void PlayState::draw(Game& game)
 
 void PlayState::goToWinState(Game& game)
 {
-	game.setState(std::make_unique<WinState>(game));
+	game.setState<WinState>(game);
 }
 
 void PlayState::setupHUD()
@@ -82,7 +82,7 @@ void PlayState::setupHUD()
 		hudData.defenders.emplace_back(type, defenderInfo.spriteEnabled.spriteInfo, defenderInfo.cost);
 	}
 
-	m_hud.onMenuButtonPressed([this]() { m_game.setState(std::make_unique<MenuState>()); });
+	m_hud.onMenuButtonPressed([this]() { m_game.setState<MenuState>(); });
 	m_hud.onPauseButtonPressed([this]() { togglePause(); });
 	m_hud.onResumeButtonPressed([this]() { togglePause(); });
 	m_hud.onDefenderSelected([this]() { m_session.setSelectedDefender(m_hud.data().selectedDefender); });

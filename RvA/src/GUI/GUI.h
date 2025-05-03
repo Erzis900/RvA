@@ -1,8 +1,10 @@
 #pragma once
 
 #include "atlas/Atlas.h"
+#include "GUI/Widgets.h"
 #include <raylib.h>
 #include <optional>
+#include <unordered_map>
 
 class Game;
 
@@ -10,28 +12,6 @@ enum CursorType
 {
 	Point,
 	Hover
-};
-
-enum class GUIAlignmentV
-{
-	Top,
-	Bottom,
-	Center
-};
-
-enum class GUIAlignmentH
-{
-	Left,
-	Right,
-	Center
-};
-
-struct GUIPosition
-{
-	// position can be treated as margins when horizontal or vertical alignments are defined
-	Vector2 position;
-	std::optional<GUIAlignmentH> horizontalAlignment;
-	std::optional<GUIAlignmentV> verticalAlignment;
 };
 
 struct DrawTextInfo
@@ -56,22 +36,39 @@ public:
 
 	void loadResources();
 
-	void drawCursor();
-	void drawFPS();
-
+	void draw();
+	
 	void setCursor(CursorType type);
 
 	bool drawButton(DrawButtonInfo drawButtonInfo);
 	void drawText(DrawTextInfo drawTextInfo);
+
+    void destroyScreen(const char *name);
+	ScreenBuilder buildScreen(const char *name);
 
 private:
 	Vector2 calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const;
 	Vector2 calculateCoordinates(const DrawTextInfo& drawTextInfo) const;
 	Vector2 calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const;
 
+	void drawCursor();
+	void drawFPS();
+	void drawScreens();
+    void drawWidget(UINode &node, Screen &screen);
+
 	Atlas& m_atlas;
 
 	const SpriteInfo* m_mousePointSprite{};
 	const SpriteInfo* m_mouseHoverSprite{};
 	const SpriteInfo* m_mouseCurrentSprite{};
+
+	bool m_isStack{};
+	int m_stackIndex{};
+    GUIOrientation m_stackOrientation{};
+	Vector2 m_currentStackOffset;
+	Vector2 m_currentStackPadding;
+
+	bool m_drawingScreens{};
+    std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
+    std::vector<std::string> m_screensToDestroy;
 };

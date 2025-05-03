@@ -22,6 +22,6 @@ void LostState::draw(Game& game)
 	DrawText("YOU LOST", int(TEX_WIDTH / 2 - MeasureText("YOU LOST!", 20) / 2), int(TEX_HEIGHT / 2 - 100), 20, WHITE);
 	if (GuiButton({ TEX_WIDTH / 2 - btnSize.x / 2, TEX_HEIGHT / 2, btnSize.x, btnSize.y }, "Menu"))
 	{
-		game.setState(std::make_unique<MenuState>());
+		game.setState<MenuState>();
 	}
 }

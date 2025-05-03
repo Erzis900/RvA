@@ -1,5 +1,9 @@
 #include "GUI.h"
+
 #include <raygui.h>
+#include <raymath.h>
+
+#include "LayoutHelper.h"
 #include "constants.h"
 
 GUI::GUI(Atlas& atlas) : m_atlas(atlas)
@@ -13,6 +17,13 @@ void GUI::loadResources()
 	m_mouseHoverSprite = m_atlas.getSpriteInfo("mouse_cursor_hover");
 }
 
+void GUI::draw()
+{
+    drawScreens();
+    drawFPS();
+    drawCursor();
+}
+
 void GUI::drawCursor()
 {
 	m_atlas.drawSprite(m_mouseCurrentSprite, { GetMousePosition().x - 10, GetMousePosition().y - 5 });
@@ -22,6 +33,48 @@ void GUI::drawFPS()
 {
 	auto fpsText = std::to_string(GetFPS());
 	drawText({ fpsText.c_str(), 10, GREEN, {{10, 10}, GUIAlignmentH::Right, GUIAlignmentV::Bottom}});
+}
+
+void GUI::drawScreens()
+{
+    for (const auto& name : m_screensToDestroy) {
+        auto it = m_screens.find(name);
+        if (it != m_screens.end()) {
+            m_screens.erase(it);
+        }
+    }
+	m_screensToDestroy.clear();
+
+	m_drawingScreens = true;
+	for (auto &[name, screen] : m_screens) {
+		auto &root = screen->getRootNode();
+
+        LayoutHelper::measure(root, *screen, { TEX_WIDTH, TEX_HEIGHT });
+        LayoutHelper::arrange(root, *screen, { 0, 0, TEX_WIDTH, TEX_HEIGHT });
+		drawWidget(root, *screen);
+	}
+	m_drawingScreens = false;
+}
+
+void GUI::drawWidget(UINode &node, Screen &screen) {
+	switch (node.type) {
+	case WidgetType::Button: {
+		auto &button = screen.getButton(node.handle);
+		if (::GuiButton(node.finalRect, button.text.c_str())) {
+			button.onClick();
+		}
+		break;
+	}
+	case WidgetType::Text: {
+		auto &text = screen.getText(node.handle);
+		::DrawText(text.text.c_str(), node.finalRect.x, node.finalRect.y, text.fontSize, text.color);
+		break;
+	}
+	}
+
+	for (auto &child : node.children) {
+        drawWidget(*child, screen);
+	}
 }
 
 void GUI::setCursor(CursorType type)
@@ -115,4 +168,27 @@ Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPos
 	}
 
 	return result;
+}
+
+void GUI::destroyScreen(const char* name)
+{
+	auto it = m_screens.find(name);
+	if (it != m_screens.end())
+	{
+		if (m_drawingScreens) 
+		{
+			m_screensToDestroy.push_back(name);
+		}
+        else 
+		{
+            m_screens.erase(it);
+        }
+    }
+}
+
+ScreenBuilder GUI::buildScreen(const char *name) {
+	auto screen = std::make_unique<Screen>(name);
+	auto screenPtr = screen.get();
+	m_screens.insert({ name, std::move(screen) });
+	return ScreenBuilder(*screenPtr);
 }

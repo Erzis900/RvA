@@ -43,7 +43,7 @@ void WinState::update(Game& game, float dt)
 		IsMouseButtonDown(MOUSE_LEFT_BUTTON) ||
 		IsMouseButtonDown(MOUSE_RIGHT_BUTTON) ||
 		IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-		game.setState(std::make_unique<MenuState>());
+		game.setState<MenuState>();
 	}
 
 	updateSprites(m_defenders, dt);

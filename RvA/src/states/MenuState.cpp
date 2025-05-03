@@ -7,32 +7,26 @@
 void MenuState::onEnter(Game& game)
 {
 	game.getMusicManager().play(game.getMusicManager().getMenuMusic());
+
+	auto btnSize = Vector2{ autoSize, 40.f };
+	auto& gui = game.getGUI();
+	gui.buildScreen("MainMenu")
+		.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } })
+		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+			.space({ 0, 40.f })
+			.button({ "Play", {}, btnSize, [&game]() { game.setState<PlayState>(game); } })
+			.button({ "Options", {}, btnSize, [&game]() { game.setState<OptionsState>(); } })
+			.button({ "Credits", {}, btnSize, [&game]() { game.setState<CreditsState>(); } })
+			.button({ "Exit", {}, btnSize, [&game]() {  game.scheduleClose(); } })
+		.end();
 }
 
 void MenuState::onExit(Game& game)
 {
 	game.getMusicManager().stop(game.getMusicManager().getMenuMusic());
+    game.getGUI().destroyScreen("MainMenu");
 }
 
 void MenuState::draw(Game& game)
 {
-	auto btnSize = Vector2{ 200.f, 60.f };
-	auto& gui = game.getGUI();
-	if (gui.drawButton({ "Exit", btnSize, { {0, 2 * btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		game.scheduleClose();
-	}
-
-	if (gui.drawButton({ "Credits", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		game.setState(std::make_unique<CreditsState>());
-	}
-	if (gui.drawButton({ "Options", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		game.setState(std::make_unique<OptionsState>());
-	}
-	if (gui.drawButton({ "Play", btnSize, { {0, -btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		game.setState(std::make_unique<PlayState>(game));
-	}
 }

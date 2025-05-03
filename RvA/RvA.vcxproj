@@ -150,6 +150,8 @@
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\collisions\CollisionSystem.cpp" />
     <ClCompile Include="src\GUI\HUD.cpp" />
+    <ClCompile Include="src\GUI\LayoutHelper.cpp" />
+    <ClCompile Include="src\GUI\Widgets.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
     <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
@@ -289,6 +291,8 @@
     <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\FixedItemPool.h" />
     <ClInclude Include="src\GUI\HUD.h" />
+    <ClInclude Include="src\GUI\LayoutHelper.h" />
+    <ClInclude Include="src\GUI\Widgets.h" />
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\Session.h" />
     <ClInclude Include="src\states\CreditsState.h" />

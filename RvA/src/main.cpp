@@ -1,4 +1,7 @@
 #define RAYGUI_IMPLEMENTATION
+
+#define NOMINMAX
+
 #include <raygui.h>
 
 #include <raylib_win32.h>

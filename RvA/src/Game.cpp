@@ -93,7 +93,7 @@ void Game::draw()
 
 	m_currentState->draw(*this);
 
-	m_gui.drawCursor();
+    m_gui.draw();
 
 	if (m_fadingOut || m_fadingIn)
 	{
@@ -101,7 +101,6 @@ void Game::draw()
 		DrawRectangle(0, 0, int(m_texWidth), int(m_texHeight), fadeColor);
 	}
 
-	m_gui.drawFPS();
 	EndTextureMode();
 
 	BeginDrawing();
@@ -111,14 +110,12 @@ void Game::draw()
 	EndDrawing();
 }
 
-void Game::setState(std::unique_ptr<IGameState> newState)
+void Game::internalSetState(std::unique_ptr<IGameState> newState)
 {
 	m_currentState->onExit(*this);
 
 	m_nextState = std::move(newState);
-	m_fadingOut = true;
-
-	m_nextState->onEnter(*this);
+	m_fadingOut = true;	
 }
 
 void Game::updateTransition(float dt)
@@ -129,6 +126,7 @@ void Game::updateTransition(float dt)
 		if (m_fadeAlpha >= 1.f)
 		{
 			m_currentState = std::move(m_nextState);
+			m_currentState->onEnter(*this);
 			m_fadingOut = false;
 			m_fadingIn = true;
 		}

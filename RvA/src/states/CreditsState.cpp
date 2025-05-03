@@ -1,62 +1,65 @@
 #include "CreditsState.h"
+
+#include <raylib.h>
+#include <vector>
+#include <string>
+
 #include "Game.h"
 #include "states/MenuState.h"
 
-// TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
-const std::vector<CreditsItem> CreditsState::creditsItems{
-	{ "CREDITS", 24, WHITE },
-	{},
-	{ "PROGRAMMING", 20, WHITE },
-	{ "Erzis", 20, DARKGRAY },
-	{ "Zazeraz", 20, DARKGRAY },
-	{ "Gerark", 20, DARKGRAY },
-	{},
-	{ "PIXEL ART", 20, WHITE },
-	{ "Marvin", 20, DARKGRAY },
-	{},
-	{ "CONCEPT ART", 20, WHITE },
-	{ "yeahno", 20, DARKGRAY },
-	{},
-	{ "MUSIC", 20, WHITE },
-	{ "Trim", 20, DARKGRAY },
-	{ "POG LIZARD", 20, DARKGRAY },
+struct CreditsItem {
+	std::string label;
+	unsigned int fontSize;
+	Color color;
 };
 
-void CreditsState::draw(Game& game)
-{
-	auto& gui = game.getGUI();
+// TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
+const std::vector<CreditsItem> creditsItems {
+	{ "CREDITS", 20, WHITE },
+	{},
+	{ "PROGRAMMING", 18, WHITE },
+	{ "Erzis", 18, DARKGRAY },
+	{ "Zazeraz", 18, DARKGRAY },
+	{ "Gerark", 18, DARKGRAY },
+	{},
+	{ "PIXEL ART", 18, WHITE },
+	{ "Marvin", 18, DARKGRAY },
+	{},
+	{ "CONCEPT ART", 18, WHITE },
+	{ "yeahno", 18, DARKGRAY },
+	{},
+	{ "MUSIC", 18, WHITE },
+	{ "Trim", 18, DARKGRAY },
+	{ "POG LIZARD", 18, DARKGRAY },
+};
 
-	auto y = 25.f;
+void CreditsState::onEnter(Game& game)
+{
+	auto builder = game.getGUI().buildScreen("Credits");
+	builder.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } });
+
 	for (auto& item : creditsItems)
 	{
 		if (!item.label.empty())
 		{
-			gui.drawText({
+			builder.text({
 				.text = item.label.c_str(),
 				.fontSize = item.fontSize,
 				.color = item.color,
-				.guiPosition = {
-					.position = {0, y},
-					.horizontalAlignment = GUIAlignmentH::Center
-				}
+				.horizontalAlignment = GUIAlignmentH::Center
 			});
-			y += item.fontSize;
 		}
 		else
 		{
-			y += 15;
+            builder.space({ 0, 10.f });
 		}
 	}
 
-	if (gui.drawButton({
-		.text = "Back",
-		.size = {100.f, 40.f},
-		.guiPosition = {
-			.position = { 10, 10 },
-			.horizontalAlignment = GUIAlignmentH::Right,
-			.verticalAlignment = GUIAlignmentV::Bottom,
-		}}))
-	{
-		game.setState(std::make_unique<MenuState>());
-	}
+    builder.button({ "Back", {}, {autoSize, 40.f}, [&game]() { game.setState<MenuState>(); } });
+	builder.end();
+}
+
+void CreditsState::onExit(Game& game)
+{
+    game.getGUI().destroyScreen("Credits");
 }
