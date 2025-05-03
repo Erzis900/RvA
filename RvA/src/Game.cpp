@@ -254,7 +254,7 @@ void Game::registerEnemyTypes()
 		.baseWallDamage = 10,
 		.idleAnimation = { sprite("b1_alien_walk"), 0.1f },
 		.moveAnimation = { sprite("b1_alien_walk"), 0.1f },
-		.attackAnimation = { sprite("b1_alien_walk"), 0.1f },
+		.attackAnimation = { sprite("b1_alien_attack"), 0.1f },
 		.dyingAnimation = { sprite("b1_alien_death"), 0.1f, 1 }
 	});
 
@@ -268,7 +268,7 @@ void Game::registerEnemyTypes()
 		.baseWallDamage = 10,
 		.idleAnimation = { sprite("b2_alien_walk"), 0.1f },
 		.moveAnimation = { sprite("b2_alien_walk"), 0.1f },
-		.attackAnimation = { sprite("b2_alien_walk"), 0.1f },
+		.attackAnimation = { sprite("b2_alien_attack"), 0.1f },
 		.dyingAnimation = { sprite("b2_alien_death"), 0.1f, 1 }
 	});
 }
