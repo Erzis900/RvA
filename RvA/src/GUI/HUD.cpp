@@ -14,7 +14,6 @@ void HUD::draw()
 	drawScrapAmount();
 	drawBatteryCharge();
 	drawDefenders();
-	drawMenuButtons();
 	drawProgressBars();
 	
 	if (m_data.drawPause)
@@ -125,29 +124,20 @@ void HUD::drawDefenders()
 	}
 }
 
-void HUD::drawMenuButtons()
-{
-	Vector2 btnSize = { 64.f, 16.f };
-	if (GuiButton({ TEX_WIDTH - btnSize.x, 0, btnSize.x, btnSize.y }, "Menu") && !m_data.drawPause)
-	{
-		m_onMenuButtonPressedCallback();
-	}
-
-	if (GuiButton({ TEX_WIDTH - btnSize.x, btnSize.y, btnSize.x, btnSize.y }, "Pause") && !m_data.drawPause)
-	{
-		m_onPauseButtonPressedCallback();
-	}
-}
-
 void HUD::drawPause()
 {
 	DrawRectangle(0, 0, TEX_WIDTH, TEX_HEIGHT, {0, 0, 0, 100});
-	m_gui.drawText({ "Paused", 20, WHITE, { {}, GUIAlignmentH::Center, GUIAlignmentV::Center} });
+	m_gui.drawText({ "PAUSE", 20, WHITE, { {0, 40}, GUIAlignmentH::Center, GUIAlignmentV::Top} });
 
 	auto btnSize = Vector2{ 100.f, 30.f };
-	if (m_gui.drawButton({ "Resume", btnSize, { {0, 60}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	if (m_gui.drawButton({ "Resume", btnSize, { {0, -40}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
 		m_onResumeButtonPressedCallback();
+	}
+
+	if (m_gui.drawButton({ "Exit to Menu", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
+	{
+		m_onMenuButtonPressedCallback();
 	}
 }
 

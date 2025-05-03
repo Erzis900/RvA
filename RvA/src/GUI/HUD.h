@@ -57,7 +57,6 @@ private:
 	void drawScrapAmount();
 	void drawBatteryCharge();
 	void drawDefenders();
-	void drawMenuButtons();
 	void drawPause();
 	void drawProgressBars();
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);

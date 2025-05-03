@@ -29,31 +29,37 @@ void PlayState::onExit(Game& game)
 
 void PlayState::update(Game& game, float dt)
 {
-	if (m_isGamePaused) return;
-
-	m_session.update(game, dt);
-
-	if (m_session.getNumberOfDestroyedEnemies() >= m_numberOfEnemiesToKill) {
-		goToWinState(game);
-	}
-
-	if (m_session.getBatteryCharge() <= 0)
+	if (!m_isGamePaused)
 	{
-		m_game.setState(std::make_unique<LostState>());
-	}
+		m_session.update(game, dt);
 
-	updateHud();
-
-	if constexpr (DEV_MODE)
-	{
-		if (IsKeyPressed(KEY_W))
-		{
+		if (m_session.getNumberOfDestroyedEnemies() >= m_numberOfEnemiesToKill) {
 			goToWinState(game);
 		}
-		else if (IsKeyPressed(KEY_F1))
+
+		if (m_session.getBatteryCharge() <= 0)
 		{
-			m_collisionSystem.toggleDebugView();
+			m_game.setState(std::make_unique<LostState>());
 		}
+
+		updateHud();
+
+		if constexpr (DEV_MODE)
+		{
+			if (IsKeyPressed(KEY_W))
+			{
+				goToWinState(game);
+			}
+			else if (IsKeyPressed(KEY_F1))
+			{
+				m_collisionSystem.toggleDebugView();
+			}
+		}
+	}
+
+	if (IsKeyPressed(KEY_ESCAPE))
+	{
+		togglePause();
 	}
 }
 

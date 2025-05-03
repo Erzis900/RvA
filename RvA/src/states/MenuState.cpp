@@ -19,7 +19,7 @@ void MenuState::draw(Game& game)
 	auto& gui = game.getGUI();
 	if (gui.drawButton({ "Exit", btnSize, { {0, btnSize.y}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
 	{
-		exit(0);
+		game.scheduleClose();
 	}
 
 	if (gui.drawButton({ "Credits", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))

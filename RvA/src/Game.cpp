@@ -30,6 +30,8 @@ Game::Game()
 
 	m_currentState = std::make_unique<MenuState>();
 	m_currentState->onEnter(*this);
+
+	SetExitKey(0);
 }
 
 Game::~Game()
@@ -37,6 +39,11 @@ Game::~Game()
 	UnloadRenderTexture(m_renderTexture);
 	CloseAudioDevice();
 	CloseWindow();
+}
+
+void Game::scheduleClose()
+{
+	m_scheduleClose = true;
 }
 
 void Game::update()
@@ -137,9 +144,14 @@ void Game::updateTransition(float dt)
 	}
 }
 
+bool Game::shouldClose() const
+{
+	return WindowShouldClose() || m_scheduleClose;
+}
+
 void Game::run()
 {
-	while (!WindowShouldClose())
+	while (!shouldClose())
 	{
 		update();
 		draw();

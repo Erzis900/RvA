@@ -28,6 +28,8 @@ public:
 
 	MusicManager& getMusicManager() { return m_musicManager; }
 
+	void scheduleClose();
+
 private:
 	std::unique_ptr<IGameState> m_currentState;
 	std::unique_ptr<IGameState> m_nextState;
@@ -36,6 +38,7 @@ private:
 	void updateRenderRec();
 	void updateMouse();
 	void updateTransition(float dt);
+	bool shouldClose() const;
 
 	void draw();
 
@@ -46,18 +49,19 @@ private:
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;
 
-	float m_scale;
+	float m_scale{};
 
-	int m_texWidth;
-	int m_texHeight;
+	int m_texWidth{};
+	int m_texHeight{};
 
-	int m_screenWidth;
-	int m_screenHeight;
+	int m_screenWidth{};
+	int m_screenHeight{};
 
-	float m_fadeAlpha;
-	float m_transitionSpeed;
-	bool m_fadingOut;
-	bool m_fadingIn;
+	float m_fadeAlpha{};
+	float m_transitionSpeed{};
+	bool m_fadingOut{};
+	bool m_fadingIn{};
+	bool m_scheduleClose{};
 
 	GUI m_gui;
 	Atlas m_atlas;
