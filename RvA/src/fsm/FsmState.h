@@ -16,7 +16,7 @@ public:
 	/*
 	 * @brief Called during each Fsm::update() iteration if this state is the current state in the Fsm.
 	 */
-	virtual FsmAction update() = 0;
+	virtual FsmAction update(float dt) = 0;
 
 	/**
 	 * @brief Invoked within Fsm::update() when transitioning to this state as the new current state.

@@ -1,16 +1,24 @@
 #pragma once
+
+#include "fsm/FsmState.h"
 #include "IGameState.h"
+
 #include <raygui.h>
 
 class Game;
 
-class LostState : public IGameState
+class LostState : public IGameState, public flow::FsmState
 {
 public:
-	void onEnter(Game& game) override;
-	void onExit(Game& game) override;
-private:
-	void restart(Game& game);
+	LostState(Game& game);
 
-	Vector2 btnSize;
+	flow::FsmAction update(float dt) override;
+	flow::FsmAction enter() override;
+	void exit() override;
+
+private:
+	void restart();
+
+    std::string m_nextTransition;
+	Game& m_game;
 };

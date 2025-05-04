@@ -1,28 +1,41 @@
 #include "OptionsState.h"
 #include "Game.h"
-#include "states/MenuState.h"
 
-void OptionsState::onEnter(Game& game)
+OptionsState::OptionsState(Game& game) : m_game(game)
 {
-	game.getMusicManager().play(game.getMusicManager().getMenuMusic());
+}
+
+flow::FsmAction OptionsState::enter()
+{
+	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
 	
 	auto btnSize = Vector2{ autoSize, 40.f };
-	auto& gui = game.getGUI();
+	auto& gui = m_game.getGUI();
 	m_screen = gui.buildScreen("Options")
         .vertical_stack(5, 200.f)
 		    .text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
 			.button({ "Turn off music", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
 			.button({ "Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); } }, &m_windowButton)
-			.button({ "Back", {}, btnSize, [&game]() { game.setState<MenuState>(); } })
+			.button({ "Back", {}, btnSize, [this]() { m_nextTransition = "back"; }})
 		.end()
-		.screen();
+	.screen();
+
+    return flow::FsmAction::none();
 }
 
-void OptionsState::onExit(Game& game)
+flow::FsmAction OptionsState::update(float dt) {
+    if (!m_nextTransition.empty()) {
+        return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
+    }
+
+    return flow::FsmAction::none();
+}
+
+void OptionsState::exit()
 {
-	game.getMusicManager().stop(game.getMusicManager().getMenuMusic());
-    game.getGUI().destroyScreen("Options");
+	m_game.getMusicManager().stop(m_game.getMusicManager().getMenuMusic());
+    m_game.getGUI().destroyScreen("Options");
 }
 
 void OptionsState::toggleMusic()
@@ -45,8 +58,4 @@ void OptionsState::toggleFullscreen()
         ToggleFullscreen();
         m_screen->getButton(m_windowButton).text = "Fullscreen Mode";
     }
-}
-
-void OptionsState::draw(Game& game)
-{
 }

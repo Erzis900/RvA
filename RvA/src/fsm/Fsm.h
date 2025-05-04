@@ -16,7 +16,7 @@ public:
 	/**
 	 * @brief Updates the current state of the Fsm and executes any transition.
 	 */
-	void update();
+	void update(float dt);
 
 	/*
 	 * @brief Check if the Fsm has reached its internal Fsm::exitState.

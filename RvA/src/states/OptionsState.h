@@ -1,17 +1,18 @@
 #pragma once
 
+#include "fsm/FsmState.h"
 #include "IGameState.h"
 
 #include "GUI/Widgets.h"
 
-#include <raylib.h>
-
-class OptionsState : public IGameState
+class OptionsState : public IGameState, public flow::FsmState
 {
 public:
-	void draw(Game& game) override;
-	void onEnter(Game& game) override;
-	void onExit(Game& game) override;
+	OptionsState(Game& game);
+
+	flow::FsmAction update(float dt) override;
+	flow::FsmAction enter() override;
+	void exit() override;
 
 private:
     void toggleMusic();
@@ -20,4 +21,6 @@ private:
 	WidgetHandle m_musicButton{};
 	WidgetHandle m_windowButton{};
     Screen* m_screen{};
+    std::string m_nextTransition{};
+	Game& m_game;
 };

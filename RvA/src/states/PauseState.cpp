@@ -1,56 +1,49 @@
 #include "states/PauseState.h"
 
 #include "Game.h"
-#include "states/PlayState.h"
-#include "states/MenuState.h"
-#include "states/OptionsState.h"
 
-PauseState::PauseState(Session& gameSession) : m_gameSession(gameSession)
+PauseState::PauseState(Game& game) : m_game(game)
 {
 }
 
-void PauseState::onEnter(Game& game)
+flow::FsmAction PauseState::enter()
 {
-	game.getGameSession().setPause(true);
+	m_game.getGameSession().setPause(true);
 
 	auto btnSize = Vector2{ autoSize, 40.f };
-	auto& gui = game.getGUI();
+	auto& gui = m_game.getGUI();
 	gui.buildScreen("Pause")
 		.rect({ 0, 0, TEX_WIDTH, TEX_HEIGHT }, Fade(BLACK, 0.5f))
 		.vertical_stack(5, 200.f)
 			.text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
-			.button({ "Resume", {}, btnSize, [&game]() { game.setState<PlayState, false>(game); } })
-			.button({ "Restart", {}, btnSize, [this, &game]() { restart(game); }})
-			.button({ "Exit to Menu", {}, btnSize, [this, &game]() { exitGameSession(game); } })
+			.button({ "Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; }})
+			.button({ "Restart", {}, btnSize, [this]() { restart(); }})
+			.button({ "Exit to Menu", {}, btnSize, [this]() { exitGameSession(); } })
 		.end();
+
+    return flow::FsmAction::none();
 }
 
-void PauseState::onExit(Game& game)
-{
-    game.getGUI().destroyScreen("Pause");
+flow::FsmAction PauseState::update(float dt) {
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
+	}
+
+	return flow::FsmAction::none();
 }
 
-void PauseState::exitGameSession(Game& game)
+void PauseState::exit()
 {
-    m_gameSession.end();
-	game.setState<MenuState>();
+    m_game.getGUI().destroyScreen("Pause");
 }
 
-void PauseState::restart(Game& game)
-{
-    m_gameSession.end();
-    game.setState<PlayState, false>(game);
+void PauseState::exitGameSession() {
+	m_game.getGameSession().end();
+	m_nextTransition = "menu";
 }
 
-void PauseState::update(Game& game, float dt)
-{
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        game.setState<PlayState, false>(game);
-    }
-}
-
-void PauseState::draw(Game& game)
-{
-    m_gameSession.draw(game.getAtlas());
+void PauseState::restart() {
+	m_game.getGameSession().end();
+	m_nextTransition = "restart";
 }

@@ -1,61 +1,65 @@
 #include "WinState.h"
-#include "MenuState.h"
+
 #include "Game.h"
-#include "enemy/Enemy.h"
 #include "constants.h"
+
 #include <raylib.h>
 #include <raymath.h>
 
-WinState::WinState(Game& game) {
-	auto solarPanelInfo = game.getDefenderRegistry().getDefenderInfo(DefenderType::Solar);
-	m_defenders.push_back(createSpriteItem(game, solarPanelInfo->spriteEnabled.spriteInfo, {TEX_WIDTH, 100}, {-150, 0}));
+WinState::WinState(Game& game) : m_game(game) {
+}
 
+flow::FsmAction WinState::enter()
+{
+	m_defenders.clear();
+	auto solarPanelInfo = m_game.getDefenderRegistry().getDefenderInfo(DefenderType::Solar);
+	m_defenders.push_back(createSpriteItem(solarPanelInfo->spriteEnabled.spriteInfo, { TEX_WIDTH, 100 }, { -150, 0 }));
+
+	m_chasers.clear();
 	auto x = TEX_WIDTH + 100.f;
-	for (auto i = 0; i < 3; ++i)
-	{
-		const auto typeInfo = game.getEnemyTypeRegistry().getEnemyTypeInfo(EnemyType::B1);
-		m_chasers.push_back(createSpriteItem(game, typeInfo->moveAnimation.spriteInfo, {x, 100}, {-150, 0}));
+	for (auto i = 0; i < 3; ++i) {
+		const auto typeInfo = m_game.getEnemyTypeRegistry().getEnemyTypeInfo(EnemyType::B1);
+		m_chasers.push_back(createSpriteItem(typeInfo->moveAnimation.spriteInfo, { x, 100 }, { -150, 0 }));
 		x += 30.f;
 	}
 
-	for (auto i = 0; i < 4; ++i)
-	{
-		m_bullets.push_back(createSpriteItem(game, nullptr, { -100, 116 }, {}));
+	m_bullets.clear();
+	for (auto i = 0; i < 4; ++i) {
+		m_bullets.push_back(createSpriteItem(nullptr, { -100, 116 }, {}));
 	}
-}
 
-void WinState::onEnter(Game& game)
-{
-	game.getGameSession().end();
+	m_drawingCallbackHandle = m_game.registerDrawingCallback([this]() {
+		drawSprites(m_defenders);
+		drawSprites(m_chasers);
+		drawBullets(m_bullets);
+	});
+
+	m_game.getGameSession().end();
 	
-	auto& gui = game.getGUI();
+	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "You Won!!!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
 			.text({ .text = "Press any key to continue", .fontSize = 8, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 		.end();
+
+    return flow::FsmAction::none();
 }
 
-void WinState::onExit(Game& game) {
-    game.getGUI().destroyScreen("Win");
+void WinState::exit() {
+    m_drawingCallbackHandle = {};
+    m_game.getGUI().destroyScreen("Win");
 }
 
-void WinState::draw(Game& game)
-{
-	drawSprites(m_chasers, game);
-	drawSprites(m_defenders, game);
-	drawBullets(m_bullets, game);
-}
-
-void WinState::update(Game& game, float dt)
+flow::FsmAction WinState::update(float dt)
 {
 	if(
 		GetKeyPressed() ||
 		IsMouseButtonDown(MOUSE_LEFT_BUTTON) ||
 		IsMouseButtonDown(MOUSE_RIGHT_BUTTON) ||
 		IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-		game.setState<MenuState>();
+        return flow::FsmAction::transition("menu");
 	}
 
 	updateSprites(m_defenders, dt);
@@ -84,9 +88,11 @@ void WinState::update(Game& game, float dt)
 
 	m_textAnimationTime += dt;
 	m_textPosition.y = sinf(m_textAnimationTime * m_textAnimationSpeed) * m_textAnimationAmplitude;
+
+    return flow::FsmAction::none();
 }
 
-WinState::SpriteItem WinState::createSpriteItem(Game& game, const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity)
+WinState::SpriteItem WinState::createSpriteItem(const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity)
 {
 	return {
 		spriteInfo,
@@ -109,16 +115,16 @@ void WinState::updateSprites(std::vector<SpriteItem>& sprites, float dt)
 	}
 }
 
-void WinState::drawSprites(std::vector<SpriteItem>& sprites, Game& game)
+void WinState::drawSprites(std::vector<SpriteItem>& sprites)
 {
 	for (auto& sprite : sprites) {
 		if (sprite.animation) {
-			game.getAtlas().drawSprite(sprite.spriteInfo, sprite.position, sprite.animation->getCurrentFrame(), sprite.flip);
+			m_game.getAtlas().drawSprite(sprite.spriteInfo, sprite.position, sprite.animation->getCurrentFrame(), sprite.flip);
 		}
 	}
 }
 
-void WinState::drawBullets(std::vector<SpriteItem>& sprites, Game& game)
+void WinState::drawBullets(std::vector<SpriteItem>& sprites)
 {
 	for (auto& sprite : sprites) {
 		DrawCircleV(sprite.position, 5.f, BLUE);

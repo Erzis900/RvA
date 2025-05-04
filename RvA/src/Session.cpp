@@ -39,6 +39,8 @@ bool Session::isPaused() const
 
 void Session::start()
 {
+	m_isStarted = true;
+
 	setupHUD();
 	m_hud.setEnable(true);
 
@@ -58,6 +60,7 @@ void Session::start()
 
 void Session::end()
 {
+	m_isStarted = false;
 	m_isPaused = false;
     m_defenderManager.clear();
     m_enemyManager.clear();
@@ -83,7 +86,7 @@ void Session::drawGrid()
 	}
 }
 
-void Session::update(Game& game, float dt)
+void Session::update(float dt)
 {
 	m_enemyManager.update(dt);
 	m_collisionSystem.update(dt);
@@ -100,13 +103,16 @@ void Session::update(Game& game, float dt)
 
 void Session::draw(Atlas& atlas)
 {
-	drawGrid();
+	if(m_isStarted)
+	{
+		drawGrid();
 
-	m_defenderManager.draw(atlas);
-	m_enemyManager.draw(atlas);
-	m_bulletManager.draw();
-	m_collisionSystem.draw();
-	m_hud.draw(atlas);
+		m_defenderManager.draw(atlas);
+		m_enemyManager.draw(atlas);
+		m_bulletManager.draw();
+		m_collisionSystem.draw();
+		m_hud.draw(atlas);
+	}
 }
 
 void Session::setSelectedDefender(std::optional<DefenderType> type)

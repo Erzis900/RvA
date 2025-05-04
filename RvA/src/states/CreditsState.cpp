@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Game.h"
-#include "states/MenuState.h"
 
 struct CreditsItem {
 	std::string label;
@@ -33,9 +32,12 @@ const std::vector<CreditsItem> creditsItems {
 	{ "POG LIZARD", 8, DARKGRAY },
 };
 
-void CreditsState::onEnter(Game& game)
+CreditsState::CreditsState(Game& game) : m_game(game) {
+}
+
+flow::FsmAction CreditsState::enter()
 {
-	auto builder = game.getGUI().buildScreen("Credits");
+	auto builder = m_game.getGUI().buildScreen("Credits");
 	builder.vertical_stack(2, 100.f);
 
 	for (auto& item : creditsItems)
@@ -56,11 +58,21 @@ void CreditsState::onEnter(Game& game)
 	}
 
     builder.space({ 0, 20.f });
-    builder.button({ "Back", {}, {autoSize, 40.f}, [&game]() { game.setState<MenuState>(); } });
+	builder.button({ "Back", {}, {autoSize, 40.f}, [this]() { m_nextTransition = "back"; } });
 	builder.end();
+
+    return flow::FsmAction::none();
 }
 
-void CreditsState::onExit(Game& game)
+flow::FsmAction CreditsState::update(float dt) {
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
+	}
+
+	return flow::FsmAction::none();
+}
+
+void CreditsState::exit()
 {
-    game.getGUI().destroyScreen("Credits");
+    m_game.getGUI().destroyScreen("Credits");
 }

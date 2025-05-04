@@ -1,19 +1,21 @@
 #pragma once
 
+#include "fsm/FsmState.h"
 #include "IGameState.h"
 #include "Animation.h"
+#include "utilities/CallbackRegistry.h"
+
 #include <vector>
 #include <memory>
 
-class WinState : public IGameState
+class WinState : public IGameState, public flow::FsmState
 {
 public:
 	WinState(Game& game);
 
-    void onEnter(Game& game) override;
-    void onExit(Game& game) override;
-	void draw(Game& game) override;
-	void update(Game& game, float dt) override;
+	flow::FsmAction update(float dt) override;
+	flow::FsmAction enter() override;
+	void exit() override;
 
 private:
 	struct SpriteItem {
@@ -24,10 +26,10 @@ private:
 		Flip flip{};
 	};
 
-	SpriteItem createSpriteItem(Game& game, const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity);
+	SpriteItem createSpriteItem(const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity);
 	void updateSprites(std::vector<SpriteItem>& sprites, float dt);
-	void drawSprites(std::vector<SpriteItem>& sprites, Game& game);
-	void drawBullets(std::vector<SpriteItem>& sprites, Game& game);
+	void drawSprites(std::vector<SpriteItem>& sprites);
+	void drawBullets(std::vector<SpriteItem>& sprites);
 
 	std::vector<SpriteItem> m_defenders;
 	std::vector<SpriteItem> m_chasers;
@@ -37,4 +39,6 @@ private:
 	float m_textAnimationSpeed{2.5f};
 	float m_textAnimationAmplitude{10.f};
 	Vector2 m_textPosition;
+	Game& m_game;
+    CallbackHandle m_drawingCallbackHandle;
 };

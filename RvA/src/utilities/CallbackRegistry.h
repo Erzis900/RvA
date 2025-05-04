@@ -13,14 +13,14 @@ class CallbackRegistry {
 public:
     using Callback = std::function<void(Args...)>;
 
-    CallbackHandle registerCallback(Callback cb) {
+    [[nodiscard]] CallbackHandle registerCallback(Callback cb) {
         auto token = std::make_shared<int>(0);
         callbacks[token] = std::move(cb);
 
         return CallbackHandle{ token };
     }
 
-    void triggerCallbacks(Args&&... args) {
+    void executeCallbacks(Args&&... args) {
         for (auto it = callbacks.begin(); it != callbacks.end(); ) {
             if (it->first.expired()) {
                 it = callbacks.erase(it);

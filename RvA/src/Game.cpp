@@ -1,6 +1,13 @@
 #include "Game.h"
 
 #include "states/MenuState.h"
+#include "states/OptionsState.h"
+#include "states/CreditsState.h"
+#include "states/PlayState.h"
+#include "states/PauseState.h"
+#include "states/WinState.h"
+#include "states/LostState.h"
+
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
 
@@ -31,7 +38,7 @@ Game::Game()
 
 	setupFSM();
 
-	m_currentState = std::make_unique<MenuState>();
+	m_currentState = std::make_unique<MenuState>(*this);
 	m_currentState->onEnter(*this);
 
 	SetExitKey(0);
@@ -44,21 +51,13 @@ Game::~Game()
 	CloseWindow();
 }
 
-void Game::scheduleClose()
-{
-	m_scheduleClose = true;
-}
-
 void Game::update()
 {
 	float dt = GetFrameTime();
 	updateRenderRec();
 	updateMouse();
 
-	if (!m_isTransitionInProgress)
-	{
-		m_currentState->update(*this, dt);
-	}
+	m_fsm->update(dt);
 
     m_gui.update(dt);
 	m_musicManager.updateStream();
@@ -92,6 +91,8 @@ void Game::draw()
 	ClearBackground(GRAY);
 
 	m_currentState->draw(*this);
+    m_gameSession.draw(m_atlas);
+    m_drawCallbacks.executeCallbacks();
 
     m_gui.draw();
 
@@ -104,6 +105,7 @@ void Game::draw()
 	EndDrawing();
 }
 
+/* Keeping this commented as a reference for the fade/transition to be restored
 void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 {
 	m_currentState->onExit(*this);
@@ -124,13 +126,49 @@ void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 		m_currentState->onEnter(*this);
 	}
 }
+*/
 
 bool Game::shouldClose() const
 {
-	return WindowShouldClose() || m_scheduleClose;
+	return WindowShouldClose() || m_fsm->hasReachedExitState();
 }
 
 void Game::setupFSM() {
+	auto fsmBuilder = flow::FsmBuilder();
+	fsmBuilder
+		// Menus
+		.state<MenuState>("MainMenu", *this)
+            .on("play").jumpTo("Play")
+            .on("options").jumpTo("Options")
+            .on("credits").jumpTo("Credits")
+            .on("exit").exitFsm()
+
+	    .state<OptionsState>("Options", *this)
+            .on("back").jumpTo("MainMenu")
+
+	    .state<CreditsState>("Credits", *this)
+            .on("back").jumpTo("MainMenu")
+
+		// In Game States
+	    .state<PlayState>("Play", *this)
+            .on("pause").jumpTo("PauseMenu")
+            .on("win").jumpTo("WinScreen")
+            .on("lost").jumpTo("LoseScreen")
+
+		.state<PauseState>("PauseMenu", *this)
+			.on("resume").jumpTo("Play")
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu")
+
+		.state<WinState>("WinScreen", *this)
+			.on("menu").jumpTo("MainMenu")
+
+		.state<LostState>("LoseScreen", *this)
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu");
+
+	auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
+	m_fsm = std::move(fsm);
 }
 
 void Game::run()

@@ -27,7 +27,7 @@ public:
 	void setPause(bool paused);
 	bool isPaused() const;
 
-	void update(Game& game, float dt);
+	void update(float dt);
 	void draw(Atlas& atlas);
 
     auto getNumberOfDestroyedEnemies() const { return m_numberOfDestroyedEnemies; }
@@ -63,6 +63,7 @@ private:
 	std::optional<DefenderType> m_selectedDefender;
 	Wall m_baseWall;
     bool m_isPaused{ false };
+    bool m_isStarted{ false };
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 
     const DefenderTypeRegistry& m_defenderTypeRegistry;

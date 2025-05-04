@@ -1,32 +1,40 @@
 #include "MenuState.h"
 #include "Game.h"
-#include "states/PlayState.h"
-#include "states/CreditsState.h"
-#include "states/OptionsState.h"
 
-void MenuState::onEnter(Game& game)
+MenuState::MenuState(Game& game) : m_game(game)
 {
-	game.getMusicManager().play(game.getMusicManager().getMenuMusic());
+}
+
+flow::FsmAction MenuState::enter()
+{
+	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
 
 	auto btnSize = Vector2{ autoSize, 40.f };
-	auto& gui = game.getGUI();
+	auto& gui = m_game.getGUI();
 	gui.buildScreen("MainMenu")
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
-			.button({ "Play", {}, btnSize, [&game]() { game.setState<PlayState>(game); } })
-			.button({ "Options", {}, btnSize, [&game]() { game.setState<OptionsState>(); } })
-			.button({ "Credits", {}, btnSize, [&game]() { game.setState<CreditsState>(); } })
-			.button({ "Exit", {}, btnSize, [&game]() {  game.scheduleClose(); } })
+			.button({ "Play", {}, btnSize, [this]() { m_nextTransition = "play"; }})
+			.button({ "Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})
+			.button({ "Credits", {}, btnSize, [this]() { m_nextTransition = "credits"; }})
+			.button({ "Exit", {}, btnSize, [this]() { m_nextTransition = "exit"; }})
 		.end();
+
+    return flow::FsmAction::none();
 }
 
-void MenuState::onExit(Game& game)
+flow::FsmAction MenuState::update(float dt)
 {
-	game.getMusicManager().stop(game.getMusicManager().getMenuMusic());
-    game.getGUI().destroyScreen("MainMenu");
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
+	}
+
+    return flow::FsmAction::none();
 }
 
-void MenuState::draw(Game& game)
+void MenuState::exit()
 {
+	m_game.getMusicManager().stop(m_game.getMusicManager().getMenuMusic());
+	m_game.getGUI().destroyScreen("MainMenu");
 }

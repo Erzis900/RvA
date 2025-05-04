@@ -18,7 +18,7 @@ Fsm::Fsm(FsmStateEntries states, const HashId& startStateName, FsmExternalContro
 	}
 }
 
-void Fsm::update() {
+void Fsm::update(float dt) {
 	if (!_currentState) {
 		_goToState(_startStateName);
 	}
@@ -31,7 +31,7 @@ void Fsm::update() {
 		return;
 	}
 
-	FsmAction action = _currentState->state->update();
+	FsmAction action = _currentState->state->update(dt);
 	_performAction<FsmAction>(action);
 }
 

@@ -99,7 +99,7 @@ void HUD::drawDefenders(Atlas& atlas)
 				DrawRectangleLinesEx(rect, 1, SKYBLUE);
 				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 					m_data.selectedDefender = defender.type;
-					m_onDefenderSelectedCallbacks.triggerCallbacks();
+					m_onDefenderSelectedCallbacks.executeCallbacks();
 				}
 			}
 		}

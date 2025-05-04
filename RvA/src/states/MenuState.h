@@ -1,14 +1,21 @@
 #pragma once
 
+#include "fsm/FsmState.h"
 #include "IGameState.h"
 #include <raygui.h>
 
 class Game;
 
-class MenuState : public IGameState
+class MenuState : public IGameState, public flow::FsmState
 {
 public:
-	void draw(Game& game) override;
-	void onEnter(Game& game) override;
-	void onExit(Game& game) override;
+	MenuState(Game& game);
+
+	flow::FsmAction update(float dt) override;
+	flow::FsmAction enter() override;
+	void exit() override;
+
+private:
+	Game& m_game;
+    std::string m_nextTransition;
 };
