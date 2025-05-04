@@ -17,8 +17,8 @@ flow::FsmAction LostState::enter()
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "You Lost!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
-			.button({ "Restart", {}, btnSize, [this]() { restart(); }})
-			.button({ "Menu", {}, btnSize, [this]() { m_nextTransition = "menu"; }})
+			.button({ "Restart", {}, btnSize, [this]() { m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); restart(); }})
+			.button({ "Menu", {}, btnSize, [this]() { m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); m_nextTransition = "menu"; }})
 		.end();
 
     return flow::FsmAction::none();

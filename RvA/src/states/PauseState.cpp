@@ -17,9 +17,9 @@ flow::FsmAction PauseState::enter()
 		.vertical_stack(5, 200.f)
 			.text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
-			.button({ "Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; }})
-			.button({ "Restart", {}, btnSize, [this]() { restart(); }})
-			.button({ "Exit to Menu", {}, btnSize, [this]() { exitGameSession(); } })
+			.button({ "Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+			.button({ "Restart", {}, btnSize, [this]() { restart(); m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+			.button({ "Exit to Menu", {}, btnSize, [this]() { exitGameSession(); m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); } })
 		.end();
 
     return flow::FsmAction::none();

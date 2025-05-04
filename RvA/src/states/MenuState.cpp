@@ -15,10 +15,10 @@ flow::FsmAction MenuState::enter()
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
-			.button({ "Play", {}, btnSize, [this]() { m_nextTransition = "play"; }})
-			.button({ "Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})
-			.button({ "Credits", {}, btnSize, [this]() { m_nextTransition = "credits"; }})
-			.button({ "Exit", {}, btnSize, [this]() { m_nextTransition = "exit"; }})
+			.button({ "Play", {}, btnSize, [this]() { m_nextTransition = "play"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+			.button({ "Options", {}, btnSize, [this]() { m_nextTransition = "options"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+			.button({ "Credits", {}, btnSize, [this]() { m_nextTransition = "credits"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+			.button({ "Exit", {}, btnSize, [this]() { m_nextTransition = "exit"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
 		.end();
 
     return flow::FsmAction::none();
