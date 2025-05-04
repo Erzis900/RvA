@@ -1,6 +1,8 @@
 #include "Game.h"
+
 #include "states/MenuState.h"
 #include "constants.h"
+#include "fsm/FsmBuilder.h"
 
 Game::Game()
 	:m_renderRec(), m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
@@ -26,6 +28,8 @@ Game::Game()
 
 	InitAudioDevice();
 	m_musicManager.load();
+
+	setupFSM();
 
 	m_currentState = std::make_unique<MenuState>();
 	m_currentState->onEnter(*this);
@@ -124,6 +128,9 @@ void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 bool Game::shouldClose() const
 {
 	return WindowShouldClose() || m_scheduleClose;
+}
+
+void Game::setupFSM() {
 }
 
 void Game::run()

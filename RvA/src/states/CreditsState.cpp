@@ -15,28 +15,28 @@ struct CreditsItem {
 
 // TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
 const std::vector<CreditsItem> creditsItems {
-	{ "CREDITS", 20, WHITE },
+	{ "Credits", 20, WHITE },
 	{},
-	{ "PROGRAMMING", 18, WHITE },
-	{ "Erzis", 18, DARKGRAY },
-	{ "Zazeraz", 18, DARKGRAY },
-	{ "Gerark", 18, DARKGRAY },
+	{ "PROGRAMMING", 8, WHITE },
+	{ "Erzis", 8, DARKGRAY },
+	{ "Zazeraz", 8, DARKGRAY },
+	{ "Gerark", 8, DARKGRAY },
 	{},
-	{ "PIXEL ART", 18, WHITE },
-	{ "Marvin", 18, DARKGRAY },
+	{ "PIXEL ART", 8, WHITE },
+	{ "Marvin", 8, DARKGRAY },
 	{},
-	{ "CONCEPT ART", 18, WHITE },
-	{ "yeahno", 18, DARKGRAY },
+	{ "CONCEPT ART", 8, WHITE },
+	{ "yeahno", 8, DARKGRAY },
 	{},
-	{ "MUSIC", 18, WHITE },
-	{ "Trim", 18, DARKGRAY },
-	{ "POG LIZARD", 18, DARKGRAY },
+	{ "MUSIC", 8, WHITE },
+	{ "Trim", 8, DARKGRAY },
+	{ "POG LIZARD", 8, DARKGRAY },
 };
 
 void CreditsState::onEnter(Game& game)
 {
 	auto builder = game.getGUI().buildScreen("Credits");
-	builder.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } });
+	builder.vertical_stack(2, 100.f);
 
 	for (auto& item : creditsItems)
 	{
@@ -55,6 +55,7 @@ void CreditsState::onEnter(Game& game)
 		}
 	}
 
+    builder.space({ 0, 20.f });
     builder.button({ "Back", {}, {autoSize, 40.f}, [&game]() { game.setState<MenuState>(); } });
 	builder.end();
 }

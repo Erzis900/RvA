@@ -11,6 +11,7 @@ public:
 	WinState(Game& game);
 
     void onEnter(Game& game) override;
+    void onExit(Game& game) override;
 	void draw(Game& game) override;
 	void update(Game& game, float dt) override;
 

@@ -50,6 +50,8 @@ private:
 	void updateRenderRec();
 	void updateMouse();
 	bool shouldClose() const;
+	
+	void setupFSM();
 
 	void draw();
 

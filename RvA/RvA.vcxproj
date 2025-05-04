@@ -149,6 +149,9 @@
   <ItemGroup>
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\collisions\CollisionSystem.cpp" />
+    <ClCompile Include="src\fsm\Fsm.cpp" />
+    <ClCompile Include="src\fsm\FsmAction.cpp" />
+    <ClCompile Include="src\fsm\FsmBuilder.cpp" />
     <ClCompile Include="src\GUI\HUD.cpp" />
     <ClCompile Include="src\GUI\LayoutHelper.cpp" />
     <ClCompile Include="src\GUI\Widgets.cpp" />
@@ -292,6 +295,13 @@
     <ClInclude Include="src\Damage.h" />
     <ClInclude Include="src\defender\DefenderTypes.h" />
     <ClInclude Include="src\FixedItemPool.h" />
+    <ClInclude Include="src\fsm\Fsm.h" />
+    <ClInclude Include="src\fsm\FsmAction.h" />
+    <ClInclude Include="src\fsm\FsmBuilder.h" />
+    <ClInclude Include="src\fsm\FsmExternalController.h" />
+    <ClInclude Include="src\fsm\FsmState.h" />
+    <ClInclude Include="src\fsm\FsmStateWithServices.h" />
+    <ClInclude Include="src\fsm\FsmTypes.h" />
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\GUI\LayoutHelper.h" />
     <ClInclude Include="src\GUI\Widgets.h" />

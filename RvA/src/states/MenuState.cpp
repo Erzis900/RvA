@@ -11,9 +11,9 @@ void MenuState::onEnter(Game& game)
 	auto btnSize = Vector2{ autoSize, 40.f };
 	auto& gui = game.getGUI();
 	gui.buildScreen("MainMenu")
-		.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } })
+		.vertical_stack(5, 200.f)
 		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
-			.space({ 0, 40.f })
+			.space({ 0, 35.f })
 			.button({ "Play", {}, btnSize, [&game]() { game.setState<PlayState>(game); } })
 			.button({ "Options", {}, btnSize, [&game]() { game.setState<OptionsState>(); } })
 			.button({ "Credits", {}, btnSize, [&game]() { game.setState<CreditsState>(); } })

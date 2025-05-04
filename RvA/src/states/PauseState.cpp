@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "states/PlayState.h"
 #include "states/MenuState.h"
+#include "states/OptionsState.h"
 
 PauseState::PauseState(Session& gameSession) : m_gameSession(gameSession)
 {
@@ -16,10 +17,11 @@ void PauseState::onEnter(Game& game)
 	auto& gui = game.getGUI();
 	gui.buildScreen("Pause")
 		.rect({ 0, 0, TEX_WIDTH, TEX_HEIGHT }, Fade(BLACK, 0.5f))
-		.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } })
+		.vertical_stack(5, 200.f)
 			.text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
 			.button({ "Resume", {}, btnSize, [&game]() { game.setState<PlayState, false>(game); } })
+			.button({ "Restart", {}, btnSize, [this, &game]() { restart(game); }})
 			.button({ "Exit to Menu", {}, btnSize, [this, &game]() { exitGameSession(game); } })
 		.end();
 }
@@ -33,6 +35,12 @@ void PauseState::exitGameSession(Game& game)
 {
     m_gameSession.end();
 	game.setState<MenuState>();
+}
+
+void PauseState::restart(Game& game)
+{
+    m_gameSession.end();
+    game.setState<PlayState, false>(game);
 }
 
 void PauseState::update(Game& game, float dt)

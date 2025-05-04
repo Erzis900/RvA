@@ -66,6 +66,26 @@ ScreenBuilder &ScreenBuilder::stack(UIStack stack) {
     return *this;
 }
 
+ScreenBuilder& ScreenBuilder::vertical_stack(float padding, float size) {
+    return stack({
+        .orientation = GUIOrientation::Vertical,
+        .padding = { 0, padding },
+        .horizontalAlignment = GUIAlignmentH::Center,
+        .verticalAlignment = GUIAlignmentV::Center,
+        .size = { size, autoSize }
+    });
+}
+
+ScreenBuilder& ScreenBuilder::horizontal_stack(float padding, float size) {
+    return stack({
+        .orientation = GUIOrientation::Horizontal,
+        .padding = { padding, 0 },
+        .horizontalAlignment = GUIAlignmentH::Center,
+        .verticalAlignment = GUIAlignmentV::Center,
+        .size = { autoSize, size }
+    });
+}
+
 ScreenBuilder& ScreenBuilder::end() {
     assert(m_nodeStack.size() > 1 && "Cannot end root stack");
     m_nodeStack.pop();
@@ -112,7 +132,7 @@ ScreenBuilder& ScreenBuilder::rect(const Rectangle& rect, Color color, WidgetHan
     return shape(shapeData);
 }
 
-ScreenBuilder &ScreenBuilder::space(UISpace space) {
+ScreenBuilder& ScreenBuilder::space(UISpace space) {
     auto handle = m_screen.create(std::move(space));
 
     auto node = std::make_unique<UINode>();

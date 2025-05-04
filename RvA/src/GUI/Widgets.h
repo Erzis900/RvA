@@ -171,6 +171,8 @@ public:
     ScreenBuilder(Screen& screen);
 
     ScreenBuilder& stack(UIStack stack);
+    ScreenBuilder& vertical_stack(float padding, float size);
+    ScreenBuilder& horizontal_stack(float padding, float size);
     ScreenBuilder& end();
 
     ScreenBuilder& shape(UIShape shape, WidgetHandle* handleResult = nullptr);

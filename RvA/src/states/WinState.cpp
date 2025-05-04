@@ -27,15 +27,22 @@ WinState::WinState(Game& game) {
 void WinState::onEnter(Game& game)
 {
 	game.getGameSession().end();
+	
+	auto& gui = game.getGUI();
+	gui.buildScreen("Win")
+		.vertical_stack(5, 200.f)
+		    .text({ .text = "You Won!!!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+			.space({ 0, 35.f })
+			.text({ .text = "Press any key to continue", .fontSize = 8, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+		.end();
+}
+
+void WinState::onExit(Game& game) {
+    game.getGUI().destroyScreen("Win");
 }
 
 void WinState::draw(Game& game)
 {
-	auto& gui = game.getGUI();
-	gui.drawText({ "You Won!!!", 30, WHITE, { m_textPosition, GUIAlignmentH::Center, GUIAlignmentV::Center } });
-
-	gui.drawText({ "Press any key to continue", 18, WHITE, { {0, 10}, GUIAlignmentH::Center, GUIAlignmentV::Bottom } });
-
 	drawSprites(m_chasers, game);
 	drawSprites(m_defenders, game);
 	drawBullets(m_bullets, game);

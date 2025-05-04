@@ -9,7 +9,7 @@ void OptionsState::onEnter(Game& game)
 	auto btnSize = Vector2{ autoSize, 40.f };
 	auto& gui = game.getGUI();
 	m_screen = gui.buildScreen("Options")
-		.stack({ .orientation = GUIOrientation::Vertical, .horizontalAlignment = GUIAlignmentH::Center, .verticalAlignment = GUIAlignmentV::Center, .size = { 100.f, autoSize } })
+        .vertical_stack(5, 200.f)
 		    .text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
 			.button({ "Turn off music", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)

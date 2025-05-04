@@ -15,6 +15,7 @@ public:
 
 private:
     void exitGameSession(Game& game);
+    void restart(Game& game);
 
     Session& m_gameSession;
 };
