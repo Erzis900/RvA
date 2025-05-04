@@ -9,6 +9,7 @@ LostState::LostState()
 
 void LostState::onEnter(Game& game)
 {
+	game.getGameSession().end();
 	game.getMusicManager().play(game.getMusicManager().getLostMusic());
 }
 

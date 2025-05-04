@@ -24,7 +24,13 @@ enum class WidgetType
     ProgressBar,
     Stack,
     Space,
+    Shape,
     Root
+};
+
+enum class ShapeType
+{
+    Rectangle,
 };
 
 enum class GUIAlignmentV {
@@ -100,6 +106,17 @@ struct UIButton
     WidgetHandle handle{};
 };
 
+struct UIShape
+{
+    Vector2 position{};
+    Vector2 size{ MaxValue, MaxValue };
+    Color color{};
+    ShapeType type{};
+    GUIAlignmentH horizontalAlignment{};
+    GUIAlignmentV verticalAlignment{};
+    WidgetHandle handle{};
+};
+
 /*
 * A simple class meant to create a retained UI system to represent a Menu/Screen.
 * The class is meant to manage screens with few items.
@@ -113,6 +130,7 @@ public:
 
     WidgetHandle create(UIButton button, WidgetHandle* handleResult = nullptr);
     WidgetHandle create(UIText text, WidgetHandle* handleResult = nullptr);
+    WidgetHandle create(UIShape shape, WidgetHandle* handleResult = nullptr);
     WidgetHandle create(UIStack stack);
     WidgetHandle create(UISpace space);
 
@@ -132,6 +150,10 @@ public:
         return *m_spacePool.getItem(handle);
     }
 
+    UIShape& getShape(WidgetHandle handle) {
+        return *m_shapePool.getItem(handle);
+    }
+
 private:
     UINode m_rootNode;
 
@@ -139,6 +161,7 @@ private:
     FixedItemPool<UIButton, 32> m_buttonPool;
     FixedItemPool<UIText, 32> m_textPool;
     FixedItemPool<UISpace, 32> m_spacePool;
+    FixedItemPool<UIShape, 32> m_shapePool;
     std::string m_name;
 };
 
@@ -150,6 +173,8 @@ public:
     ScreenBuilder& stack(UIStack stack);
     ScreenBuilder& end();
 
+    ScreenBuilder& shape(UIShape shape, WidgetHandle* handleResult = nullptr);
+    ScreenBuilder& rect(const Rectangle& rect, Color color, WidgetHandle* handleResult = nullptr);
     ScreenBuilder& button(UIButton button, WidgetHandle *handleResult = nullptr);
     ScreenBuilder& text(UIText text, WidgetHandle *handleResult = nullptr);
     ScreenBuilder& space(UISpace space);

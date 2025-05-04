@@ -5,8 +5,10 @@
 #include "defender/DefenderManager.h"
 #include "bullet/BulletManager.h"
 #include "collisions/CollisionSystem.h"
+#include "GUI/HUD.h"
 
 class Game;
+class GUI;
 
 struct Wall
 {
@@ -16,19 +18,27 @@ struct Wall
 class Session
 {
 public:
-	Session(Game& game, CollisionSystem& collisionSystem);
+	Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry);
 	~Session();
 
+	void start();
+	void end();
+
+	void setPause(bool paused);
+	bool isPaused() const;
+
 	void update(Game& game, float dt);
-	void draw(Game& game);
+	void draw(Atlas& atlas);
 
-	int getNumberOfDestroyedEnemies() const;
-	float getBatteryCharge() const;
-	float getScraps() const;
+    auto getNumberOfDestroyedEnemies() const { return m_numberOfDestroyedEnemies; }
+    auto getBatteryCharge() const { return m_batteryCharge; }
+    auto getScraps() const { return m_scraps; }
+
 	void setSelectedDefender(std::optional<DefenderType> type);
-
-	const DefenderManager& getDefenderManager() const;
-	const EnemyManager& getEnemyManager() const;
+	
+	auto& getCollisionSystem() { return m_collisionSystem; }
+    const auto& getDefenderManager() const { return m_defenderManager; }
+    const auto& getEnemyManager() const { return m_enemyManager; }
 
 private:
 	void drawGrid();
@@ -39,22 +49,28 @@ private:
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
+	void setupHUD();
+	void updateHUD();
+
 	void manageCollision(const Collision& collision);
 	void manageBulletEnemyCollision(const Collision& collision);
 	void manageDefenderEnemyCollision(const Collision& collision);
 	void manageBaseWallEnemyCollision(const Collision& collision);
 
 	int m_numberOfDestroyedEnemies{ 0 };
-
 	float m_batteryCharge{ MAX_BATTERY_CHARGE };
 	float m_scraps{};
+	std::optional<DefenderType> m_selectedDefender;
+	Wall m_baseWall;
+    bool m_isPaused{ false };
+	CallbackHandle m_onDefenderSelectedCallbackHandle;
 
-	Game& m_game;
-	CollisionSystem& m_collisionSystem;
+    const DefenderTypeRegistry& m_defenderTypeRegistry;
+    const EnemyTypeRegistry& m_enemyTypeRegistry;
+    const BulletTypeRegistry& m_bulletTypeRegistry;
+	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
-	std::optional<DefenderType> m_selectedDefender;
-
-	Wall m_baseWall;
+	HUD m_hud;
 };

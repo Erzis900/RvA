@@ -1,7 +1,10 @@
 #pragma once
+
 #include "IGameState.h"
+
 #include <memory>
 #include <raylib.h>
+
 #include "GUI/GUI.h"
 #include "atlas/Atlas.h"
 #include "MusicManager.h"
@@ -10,19 +13,22 @@
 #include "bullet/BulletManager.h"
 #include "enemy/EnemyManager.h"
 
+#include "collisions/CollisionSystem.h"
+#include "Session.h"
+
 class Game
 {
 public:
 	Game();
 	~Game();
 
-	template<typename T, typename ...Args>
+	template<typename T, bool UseFade = true, typename ...Args>
     void setState(Args&&... args) requires std::derived_from<T, IGameState> {
         static_assert(std::is_constructible_v<T, Args&&...>, "T must be constructible with Args...");
-        internalSetState(std::make_unique<T>(std::forward<Args>(args)...));
+        internalSetState(std::make_unique<T>(std::forward<Args>(args)...), UseFade);
     }
 
-	void internalSetState(std::unique_ptr<IGameState> newState);
+	void internalSetState(std::unique_ptr<IGameState> newState, bool useFade);
 	void run();
 
 	auto& getGUI() { return m_gui; }
@@ -31,8 +37,8 @@ public:
 	const auto& getDefenderRegistry() const { return m_defenderTypeRegistry; }
 	const auto& getBulletTypeRegistry() const { return m_bulletTypeRegistry; }
 	const auto& getEnemyTypeRegistry() const { return m_enemyTypeRegistry; }
-
-	MusicManager& getMusicManager() { return m_musicManager; }
+	auto& getMusicManager() { return m_musicManager; }
+    auto& getGameSession() { return m_gameSession; }
 
 	void scheduleClose();
 
@@ -43,7 +49,6 @@ private:
 	void update();
 	void updateRenderRec();
 	void updateMouse();
-	void updateTransition(float dt);
 	bool shouldClose() const;
 
 	void draw();
@@ -63,16 +68,16 @@ private:
 	int m_screenWidth{};
 	int m_screenHeight{};
 
-	float m_fadeAlpha{};
-	float m_transitionSpeed{};
-	bool m_fadingOut{};
-	bool m_fadingIn{};
+	bool m_isTransitionInProgress{};
 	bool m_scheduleClose{};
 
 	GUI m_gui;
 	Atlas m_atlas;
+	MusicManager m_musicManager;
+
 	DefenderTypeRegistry m_defenderTypeRegistry;
 	BulletTypeRegistry m_bulletTypeRegistry;
 	EnemyTypeRegistry m_enemyTypeRegistry;
-	MusicManager m_musicManager;
+
+	Session m_gameSession;
 };

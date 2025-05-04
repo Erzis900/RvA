@@ -23,6 +23,7 @@ public:
 	void addTimedAction(std::function<void()> action, float duration);
 	void updateTimers(float dt);
 	void callActions();
+	void clear();
 
 private:
 	std::vector<std::unique_ptr<TimedAction>> m_actions;

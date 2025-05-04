@@ -26,6 +26,7 @@ public:
 	void toggleDebugView();
 	auto isDebugViewEnabled() const { return m_enableDebugView; }
 
+	void clearColliders();
 	void update(float dt);
 	void draw();
 

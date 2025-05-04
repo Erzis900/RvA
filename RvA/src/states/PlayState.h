@@ -1,7 +1,11 @@
 #pragma once
+
 #include "IGameState.h"
-#include "Session.h"
-#include "GUI/HUD.h"
+
+#include "utilities/CallbackRegistry.h"
+
+class Session;
+class HUD;
 
 class PlayState : public IGameState
 {
@@ -16,17 +20,12 @@ public:
 	void onExit(Game& game) override;
 
 private:
-	void goToWinState(Game& game);
-	void setupHUD();
-	void updateHud();
-	void togglePause();
+	void goToWinState();
+	void goToPauseState();
 
 	int m_numberOfEnemiesToKill{2000};
-
 	bool m_isGamePaused{};
 
 	Game& m_game;
-	HUD m_hud;	
-	CollisionSystem m_collisionSystem;
-	Session m_session;
+	Session& m_session;
 };

@@ -20,6 +20,14 @@ void CollisionSystem::toggleDebugView()
 	m_enableDebugView = !m_enableDebugView;
 }
 
+void CollisionSystem::clearColliders()
+{
+    m_colliders.clear();
+    m_scheduledDestruction.clear();
+    m_collisions.clear();
+    m_debugDrawingList.clear();
+}
+
 void CollisionSystem::update(float dt)
 {
 	m_collisions.clear();
@@ -149,7 +157,6 @@ void CollisionSystem::updateColliderPosition(ColliderHandle handle, const Vector
 
 void CollisionSystem::destroyCollider(ColliderHandle handle)
 {
-	m_colliders.getItem(handle);
 	m_scheduledDestruction.push_back(handle);
 }
 

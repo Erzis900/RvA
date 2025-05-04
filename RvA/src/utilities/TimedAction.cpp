@@ -50,3 +50,8 @@ void TimedActionList::callActions()
 		action->callAction();
 	}
 }
+
+void TimedActionList::clear()
+{
+    m_actions.clear();
+}

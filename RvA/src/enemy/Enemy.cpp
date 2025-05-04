@@ -2,8 +2,8 @@
 #include "Game.h"
 #include <raymath.h>
 
-Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, Atlas& atlas, int row)
-    : m_position(position), m_row(row), m_atlas(atlas), m_typeInfo(typeInfo)
+Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row)
+    : m_position(position), m_row(row), m_typeInfo(typeInfo)
 {
     m_hp = typeInfo->maxHp;
     m_attackTime = typeInfo->attackTime;
@@ -87,9 +87,9 @@ void Enemy::update(float dt)
     m_damageTakenAnimation.update(dt);
 }
 
-void Enemy::draw(Game& game)
+void Enemy::draw(Atlas& atlas)
 {
-	game.getAtlas().drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
+	atlas.drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
 }
 
 const EnemyTypeInfo* Enemy::getInfo() const

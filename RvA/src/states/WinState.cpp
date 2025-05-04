@@ -24,6 +24,11 @@ WinState::WinState(Game& game) {
 	}
 }
 
+void WinState::onEnter(Game& game)
+{
+	game.getGameSession().end();
+}
+
 void WinState::draw(Game& game)
 {
 	auto& gui = game.getGUI();

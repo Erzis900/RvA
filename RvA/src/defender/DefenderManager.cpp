@@ -12,18 +12,30 @@ const DefenderTypeInfo* DefenderTypeRegistry::getDefenderInfo(DefenderType type)
     return (itr != m_defenderTypes.end()) ? &itr->second : nullptr;
 }
 
-DefenderManager::DefenderManager(Atlas& atlas, CollisionSystem& collisionSystem)
-    : m_atlas(atlas)
-    , m_collisionSystem(collisionSystem)
+DefenderManager::DefenderManager(CollisionSystem& collisionSystem)
+    : m_collisionSystem(collisionSystem)
 {
     m_defenders.reserve(128);
 }
 
-void DefenderManager::draw()
+void DefenderManager::clear()
+{
+    for (auto& defender : m_defenders) {
+        m_collisionSystem.destroyCollider(defender->colliderHandle);
+    }
+    m_defenders.clear();
+    for (auto& row : m_defenderGrid) {
+        for (auto& defender : row) {
+            defender = nullptr;
+        }
+    }
+}
+
+void DefenderManager::draw(Atlas& atlas)
 {
     for (auto& defender : m_defenders)
     {
-        m_atlas.drawSprite(
+        atlas.drawSprite(
             defender->isActive ? defender->info->spriteEnabled.spriteInfo : defender->info->spriteDisabled.spriteInfo,
             defender->position,
             defender->isActive ? defender->animation.getCurrentFrame() : 0);

@@ -59,6 +59,15 @@ public:
         }
     }
 
+    void clear()
+    {
+        for (int i = 0; i < Capacity; ++i) {
+            if (used[i]) {
+                releaseItem(i);
+            }
+        }
+    }
+
 private:
     std::array<T, Capacity> items;
     std::array<bool, Capacity> used;

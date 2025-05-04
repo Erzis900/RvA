@@ -3,10 +3,9 @@
 #include "constants.h"
 
 Game::Game()
-	:m_renderRec(), m_fadingOut(false), m_fadingIn(false), m_fadeAlpha(0.f),
-	m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
-	m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT),
-	m_transitionSpeed(4.f), m_gui(m_atlas)
+	:m_renderRec(), m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
+    m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas),
+    m_gameSession(m_gui, m_enemyTypeRegistry, m_defenderTypeRegistry, m_bulletTypeRegistry)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
@@ -52,15 +51,12 @@ void Game::update()
 	updateRenderRec();
 	updateMouse();
 
-	if (m_fadingOut || m_fadingIn)
-	{
-		updateTransition(dt);
-	}
-	else
+	if (!m_isTransitionInProgress)
 	{
 		m_currentState->update(*this, dt);
 	}
 
+    m_gui.update(dt);
 	m_musicManager.updateStream();
 }
 
@@ -95,12 +91,6 @@ void Game::draw()
 
     m_gui.draw();
 
-	if (m_fadingOut || m_fadingIn)
-	{
-		Color fadeColor = Fade(BLACK, m_fadeAlpha);
-		DrawRectangle(0, 0, int(m_texWidth), int(m_texHeight), fadeColor);
-	}
-
 	EndTextureMode();
 
 	BeginDrawing();
@@ -110,35 +100,24 @@ void Game::draw()
 	EndDrawing();
 }
 
-void Game::internalSetState(std::unique_ptr<IGameState> newState)
+void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 {
 	m_currentState->onExit(*this);
 
-	m_nextState = std::move(newState);
-	m_fadingOut = true;	
-}
-
-void Game::updateTransition(float dt)
-{
-	if (m_fadingOut)
+    if (useFade)
 	{
-		m_fadeAlpha += dt * m_transitionSpeed;
-		if (m_fadeAlpha >= 1.f)
-		{
+		m_nextState = std::move(newState);
+
+		m_gui.startFadingInOut([this] {
 			m_currentState = std::move(m_nextState);
 			m_currentState->onEnter(*this);
-			m_fadingOut = false;
-			m_fadingIn = true;
-		}
-	}
-	else if (m_fadingIn)
+		}, [this] { m_isTransitionInProgress = false; }, 0.5f);
+		m_isTransitionInProgress = true;
+    }
+	else
 	{
-		m_fadeAlpha -= dt * m_transitionSpeed;
-		if (m_fadeAlpha <= 0.f)
-		{
-			m_fadingIn = false;
-			m_fadeAlpha = 0.f;
-		}
+		m_currentState = std::move(newState);
+		m_currentState->onEnter(*this);
 	}
 }
 

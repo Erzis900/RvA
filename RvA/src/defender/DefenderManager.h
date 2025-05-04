@@ -7,6 +7,7 @@
 #include <optional>
 #include <unordered_map>
 #include <constants.h>
+
 #include "Animation.h"
 #include "defender/DefenderTypes.h"
 #include "collisions/Collider.h"
@@ -77,9 +78,10 @@ private:
 class DefenderManager
 {
 public:
-    DefenderManager(Atlas& atlas, CollisionSystem& collisionSystem);
+    DefenderManager(CollisionSystem& collisionSystem);
 
-    void draw();
+    void clear();
+    void draw(Atlas& atlas);
     DefenderUpdateResult update(float dt);
 
     const std::vector<std::unique_ptr<Defender>>& getDefenders() const;
@@ -91,6 +93,5 @@ public:
 private:
     std::vector<std::unique_ptr<Defender>> m_defenders;
     std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
-    Atlas& m_atlas;
     CollisionSystem& m_collisionSystem;
 };

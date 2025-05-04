@@ -2,6 +2,8 @@
 
 #include "atlas/Atlas.h"
 #include "GUI/Widgets.h"
+#include "utilities/Interpolation.h"
+
 #include <raylib.h>
 #include <optional>
 #include <unordered_map>
@@ -36,12 +38,15 @@ public:
 
 	void loadResources();
 
+	void update(float dt);
 	void draw();
 	
 	void setCursor(CursorType type);
 
 	bool drawButton(DrawButtonInfo drawButtonInfo);
 	void drawText(DrawTextInfo drawTextInfo);
+
+	void startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds);
 
     void destroyScreen(const char *name);
 	ScreenBuilder buildScreen(const char *name);
@@ -55,6 +60,7 @@ private:
 	void drawFPS();
 	void drawScreens();
     void drawWidget(UINode &node, Screen &screen);
+	void drawFading();
 
 	Atlas& m_atlas;
 
@@ -62,11 +68,7 @@ private:
 	const SpriteInfo* m_mouseHoverSprite{};
 	const SpriteInfo* m_mouseCurrentSprite{};
 
-	bool m_isStack{};
-	int m_stackIndex{};
-    GUIOrientation m_stackOrientation{};
-	Vector2 m_currentStackOffset;
-	Vector2 m_currentStackPadding;
+    Interpolation<Color> m_fading;
 
 	bool m_drawingScreens{};
     std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;

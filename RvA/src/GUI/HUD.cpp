@@ -1,25 +1,27 @@
 #include "GUI/HUD.h"
 #include "GUI/GUI.h"
+
 #include <rlgl.h>
 #include <raygui.h>
+
 #include "constants.h"
 
-HUD::HUD(Atlas& atlas, GUI& gui) : m_atlas(atlas), m_gui(gui)
+HUD::HUD(GUI& gui) : m_gui(gui)
 {
 	m_data.progressBars.reserve(128);
 }
 
-void HUD::draw()
+void HUD::setEnable(bool enabled)
+{
+    m_isEnabled = enabled;
+}
+
+void HUD::draw(Atlas& atlas)
 {
 	drawScrapAmount();
 	drawBatteryCharge();
-	drawDefenders();
+	drawDefenders(atlas);
 	drawProgressBars();
-	
-	if (m_data.drawPause)
-	{
-		drawPause();
-	}
 }
 
 void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor, Color fillColor)
@@ -36,24 +38,18 @@ void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgC
 	DrawRectangleRec(fg, fillColor);
 }
 
-void HUD::onPauseButtonPressed(std::function<void()> callback)
+CallbackHandle HUD::onDefenderSelected(std::function<void()> callback)
 {
-	m_onPauseButtonPressedCallback = std::move(callback);
+    return m_onDefenderSelectedCallbacks.registerCallback(std::move(callback));
 }
 
-void HUD::onResumeButtonPressed(std::function<void()> callback)
+void HUD::clear()
 {
-	m_onResumeButtonPressedCallback = std::move(callback);
-}
-
-void HUD::onMenuButtonPressed(std::function<void()> callback)
-{
-	m_onMenuButtonPressedCallback = std::move(callback);
-}
-
-void HUD::onDefenderSelected(std::function<void()> callback)
-{
-	m_onDefenderSelectedCallback = std::move(callback);
+    m_data.defenders.clear();
+    m_data.progressBars.clear();
+    m_data.scrapsAmount = 0;
+    m_data.batteryCharge = 0.f;
+    m_data.selectedDefender.reset();
 }
 
 void HUD::drawScrapAmount()
@@ -80,7 +76,7 @@ void HUD::drawBatteryCharge()
 	rlPopMatrix();
 }
 
-void HUD::drawDefenders()
+void HUD::drawDefenders(Atlas& atlas)
 {
 	m_defenderHover = false;
 
@@ -88,23 +84,23 @@ void HUD::drawDefenders()
 	for (auto& defender : m_data.defenders)
 	{
 		Vector2 position = { float(CELL_SIZE + CELL_SIZE * i), 0.f };
-		m_atlas.drawSprite(defender.spriteInfo, position);
+		atlas.drawSprite(defender.spriteInfo, position);
 
 		Rectangle rect = { position.x, position.y, float(CELL_SIZE), float(CELL_SIZE) };
 
-		if (m_data.selectedDefender == defender.type)
+		if(m_isEnabled)
 		{
-			DrawRectangleLinesEx(rect, 1, GREEN);
-		}
+			if (m_data.selectedDefender == defender.type) {
+				DrawRectangleLinesEx(rect, 1, GREEN);
+			}
 
-		if (CheckCollisionPointRec(GetMousePosition(), rect) && !m_data.drawPause)
-		{
-			m_defenderHover = true;
-			DrawRectangleLinesEx(rect, 1, SKYBLUE);
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-			{
-				m_data.selectedDefender = defender.type;
-				m_onDefenderSelectedCallback();
+			if (CheckCollisionPointRec(GetMousePosition(), rect)) {
+				m_defenderHover = true;
+				DrawRectangleLinesEx(rect, 1, SKYBLUE);
+				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+					m_data.selectedDefender = defender.type;
+					m_onDefenderSelectedCallbacks.triggerCallbacks();
+				}
 			}
 		}
 
@@ -121,23 +117,6 @@ void HUD::drawDefenders()
 	else
 	{
 		m_gui.setCursor(CursorType::Point);
-	}
-}
-
-void HUD::drawPause()
-{
-	DrawRectangle(0, 0, TEX_WIDTH, TEX_HEIGHT, {0, 0, 0, 100});
-	m_gui.drawText({ "PAUSE", 20, WHITE, { {0, 40}, GUIAlignmentH::Center, GUIAlignmentV::Top} });
-
-	auto btnSize = Vector2{ 100.f, 30.f };
-	if (m_gui.drawButton({ "Resume", btnSize, { {0, -40}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		m_onResumeButtonPressedCallback();
-	}
-
-	if (m_gui.drawButton({ "Exit to Menu", btnSize, { {0, 0}, GUIAlignmentH::Center, GUIAlignmentV::Center } }))
-	{
-		m_onMenuButtonPressedCallback();
 	}
 }
 

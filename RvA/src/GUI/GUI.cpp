@@ -17,11 +17,17 @@ void GUI::loadResources()
 	m_mouseHoverSprite = m_atlas.getSpriteInfo("mouse_cursor_hover");
 }
 
+void GUI::update(float dt)
+{
+	m_fading.update(dt);
+}
+
 void GUI::draw()
 {
     drawScreens();
     drawFPS();
     drawCursor();
+	drawFading();
 }
 
 void GUI::drawCursor()
@@ -32,7 +38,8 @@ void GUI::drawCursor()
 void GUI::drawFPS()
 {
 	auto fpsText = std::to_string(GetFPS());
-	drawText({ fpsText.c_str(), 10, GREEN, {{10, 10}, GUIAlignmentH::Right, GUIAlignmentV::Bottom}});
+	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, { 10, 10 }, {0, 0, TEX_WIDTH, TEX_HEIGHT }, GUIAlignmentH::Right, GUIAlignmentV::Bottom);
+	::DrawText(fpsText.c_str(), static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
 }
 
 void GUI::drawScreens()
@@ -59,22 +66,37 @@ void GUI::drawScreens()
 void GUI::drawWidget(UINode &node, Screen &screen) {
 	switch (node.type) {
 	case WidgetType::Button: {
-		auto &button = screen.getButton(node.handle);
+		auto& button = screen.getButton(node.handle);
 		if (::GuiButton(node.finalRect, button.text.c_str())) {
 			button.onClick();
 		}
 		break;
 	}
 	case WidgetType::Text: {
-		auto &text = screen.getText(node.handle);
+		auto& text = screen.getText(node.handle);
 		::DrawText(text.text.c_str(), node.finalRect.x, node.finalRect.y, text.fontSize, text.color);
+		break;
+	}
+	case WidgetType::Shape: {
+		auto& shape = screen.getShape(node.handle);
+		switch (shape.type) {
+		case ShapeType::Rectangle:
+			::DrawRectangleRec(node.finalRect, shape.color);
+			break;
+		}
 		break;
 	}
 	}
 
-	for (auto &child : node.children) {
+	for (auto &child : node.children)
+	{
         drawWidget(*child, screen);
 	}
+}
+
+void GUI::drawFading()
+{
+	DrawRectangle(0, 0, TEX_WIDTH, TEX_HEIGHT, m_fading.getValue());
 }
 
 void GUI::setCursor(CursorType type)
@@ -105,6 +127,19 @@ void GUI::drawText(DrawTextInfo drawTextInfo)
 {
 	auto position = calculateCoordinates(drawTextInfo);
 	::DrawText(drawTextInfo.text, static_cast<int>(position.x), static_cast<int>(position.y), drawTextInfo.fontSize, drawTextInfo.color);
+}
+
+void GUI::startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds)
+{
+	seconds *= 0.5f;
+    m_fading.start(Fade(BLACK, 0.f), Fade(BLACK, 1.f), seconds)
+		.onComplete([this, fadingInDone = std::move(onFadingInDone), fadingOutDone = std::move(onFadingOutDone), seconds] {
+			fadingInDone();
+			m_fading.start(Fade(BLACK, 1.f), Fade(BLACK, 0.f), seconds)
+				.onComplete([this, fadingOutDone = std::move(fadingOutDone)] {
+					fadingOutDone();
+				});
+	});
 }
 
 Vector2 GUI::calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const

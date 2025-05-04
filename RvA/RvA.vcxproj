@@ -171,10 +171,12 @@
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\states\OptionsState.cpp" />
+    <ClCompile Include="src\states\PauseState.cpp" />
     <ClCompile Include="src\states\PlayState.cpp" />
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
-    <ClCompile Include="src\utilities.cpp" />
+    <ClCompile Include="src\utilities\CallbackRegistry.cpp" />
+    <ClCompile Include="src\utilities\Interpolation.cpp" />
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -310,10 +312,12 @@
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\IGameState.h" />
     <ClInclude Include="src\states\OptionsState.h" />
+    <ClInclude Include="src\states\PauseState.h" />
     <ClInclude Include="src\states\PlayState.h" />
     <ClInclude Include="src\states\MenuState.h" />
     <ClInclude Include="src\states\WinState.h" />
-    <ClInclude Include="src\utilities.h" />
+    <ClInclude Include="src\utilities\CallbackRegistry.h" />
+    <ClInclude Include="src\utilities\Interpolation.h" />
     <ClInclude Include="src\utilities\TimedAction.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -43,7 +43,10 @@ public:
 			this->time += dt;
 			float t = this->time / this->duration;
 			this->value = this->from + (t * (this->to - this->from));
-			this->onTickCallback(this->value);
+			if(this->onTickCallback)
+			{
+				this->onTickCallback(this->value);
+			}
 			if (this->time >= this->duration)
 			{
 				this->started = false;

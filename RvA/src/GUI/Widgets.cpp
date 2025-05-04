@@ -27,6 +27,15 @@ WidgetHandle Screen::create(UIText text, WidgetHandle* handleResult) {
     return handle;
 }
 
+WidgetHandle Screen::create(UIShape shape, WidgetHandle* handleResult) {
+    auto handle = m_shapePool.createItem(std::move(shape));
+    m_shapePool.getItem(handle)->handle = handle;
+    if (handleResult) {
+        *handleResult = handle;
+    }
+    return handle;
+}
+
 WidgetHandle Screen::create(UIStack stack) {
     auto handle = m_stackPool.createItem(std::move(stack));
     m_stackPool.getItem(handle)->handle = handle;
@@ -64,7 +73,7 @@ ScreenBuilder& ScreenBuilder::end() {
 }
 
 ScreenBuilder& ScreenBuilder::button(UIButton button, WidgetHandle* handleResult) {
-    auto handle = m_screen.create(button, handleResult);
+    auto handle = m_screen.create(std::move(button), handleResult);
 
     auto node = std::make_unique<UINode>();
     node->handle = handle;
@@ -76,7 +85,7 @@ ScreenBuilder& ScreenBuilder::button(UIButton button, WidgetHandle* handleResult
 }
 
 ScreenBuilder& ScreenBuilder::text(UIText text, WidgetHandle* handleResult) {
-    auto handle = m_screen.create(text, handleResult);
+    auto handle = m_screen.create(std::move(text), handleResult);
 
     auto node = std::make_unique<UINode>();
     node->handle = handle;
@@ -87,8 +96,24 @@ ScreenBuilder& ScreenBuilder::text(UIText text, WidgetHandle* handleResult) {
     return *this;
 }
 
+ScreenBuilder& ScreenBuilder::shape(UIShape shape, WidgetHandle* handleResult) {
+    auto handle = m_screen.create(std::move(shape), handleResult);
+
+    auto node = std::make_unique<UINode>();
+    node->handle = handle;
+    node->type = WidgetType::Shape;
+    node->parent = m_nodeStack.top();
+    m_nodeStack.top()->children.push_back(std::move(node));
+    return *this;
+}
+
+ScreenBuilder& ScreenBuilder::rect(const Rectangle& rect, Color color, WidgetHandle* handleResult) {
+    auto shapeData = UIShape{ { rect.x, rect.y }, { rect.width, rect.height }, color, ShapeType::Rectangle };
+    return shape(shapeData);
+}
+
 ScreenBuilder &ScreenBuilder::space(UISpace space) {
-    auto handle = m_screen.create(space);
+    auto handle = m_screen.create(std::move(space));
 
     auto node = std::make_unique<UINode>();
     node->handle = handle;

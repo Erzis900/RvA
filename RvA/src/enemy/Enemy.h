@@ -4,7 +4,7 @@
 #include "EnemyTypes.h"
 #include "Animation.h"
 #include "Damage.h"
-#include "utilities.h"
+#include "utilities/Interpolation.h"
 #include "collisions/CollisionSystem.h"
 
 class Game;
@@ -39,10 +39,10 @@ struct EnemyTypeInfo
 class Enemy
 {
 public:
-    Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, Atlas& atlas, int row);
+    Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
         
     void update(float dt);
-    void draw(Game& game);
+    void draw(Atlas& atlas);
 
     void applyDamage(const Damage& damage);
 
@@ -81,7 +81,6 @@ private:
 
 	Animation m_animation;
     EnemyState m_state;
-    Atlas& m_atlas;
     const EnemyTypeInfo* m_typeInfo{};
     ColliderHandle m_colliderHandle{};
 };

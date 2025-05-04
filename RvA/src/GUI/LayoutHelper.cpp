@@ -28,6 +28,12 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
         node.preferredSize = adjustSize(space.size, availableSize);
         break;
     }
+    case WidgetType::Shape:
+    {
+        auto& shape = screen.getShape(node.handle);
+        node.preferredSize = adjustSize(shape.size, availableSize);
+        break;
+    }
     case WidgetType::Stack:
     {
         auto &stack = screen.getStack(node.handle);
@@ -79,6 +85,13 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
     {
         auto &text = screen.getText(node.handle);
         node.finalRect = arrangePositionAndSize(text.position, node.preferredSize, finalRect, text.horizontalAlignment, text.verticalAlignment);
+        break;
+    }
+    case WidgetType::Shape:
+    {
+        auto& shape = screen.getShape(node.handle);
+        auto size = adjustSize(shape.size, node.preferredSize);
+        node.finalRect = arrangePositionAndSize(shape.position, size, finalRect, shape.horizontalAlignment, shape.verticalAlignment);
         break;
     }
     case WidgetType::Space:
@@ -150,4 +163,9 @@ Rectangle LayoutHelper::arrangePositionAndSize(const Vector2& position, const Ve
     }
 
     return { result.x, result.y, size.x, size.y };
+}
+
+Rectangle LayoutHelper::arrangePositionAndSize(const char* text, float fontSize, const Vector2& position, const Rectangle& availableArea, GUIAlignmentH horizontalAlignment, GUIAlignmentV verticalAlignment) {
+    auto textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 1);
+    return arrangePositionAndSize(position, { textSize.x, textSize.y }, availableArea, horizontalAlignment, verticalAlignment);
 }

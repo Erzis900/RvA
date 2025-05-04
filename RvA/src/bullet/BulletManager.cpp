@@ -27,6 +27,15 @@ const BulletData* BulletTypeRegistry::getBulletInfo(const std::string& id) const
 	return nullptr;
 }
 
+void BulletManager::clear()
+{
+    for (auto& bullet : m_bullets) {
+        m_collisionSystem.destroyCollider(bullet->colliderHandle);
+    }
+    m_bullets.clear();
+    m_latestDeltaTime = 0;
+}
+
 void BulletManager::update(float dt)
 {
 	m_latestDeltaTime = dt;

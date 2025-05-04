@@ -1,11 +1,13 @@
 #pragma once
+
 #include <vector>
 #include <memory>
 #include <unordered_map>
 #include <functional>
+
 #include "Enemy.h"
 
-class Game;
+class Atlas;
 class CollisionSystem;
 
 class EnemyTypeRegistry
@@ -22,10 +24,11 @@ private:
 class EnemyManager
 {
 public:
-    EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem);
+    EnemyManager(const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem);
 
+    void clear();
     void update(float dt);
-    void draw();
+    void draw(Atlas& atlas);
 
     const auto& getEnemies() const { return m_enemies; }
     Enemy* findClosestEnemy(const Vector2& position, bool filterDead);
@@ -43,7 +46,6 @@ private:
     float m_spawnTimer{};
     float m_spawnInterval{ 1.f };
 
-    Game& m_game;
     const EnemyTypeRegistry& m_enemyTypeRegistry;
     CollisionSystem& m_collisionSystem;
 };

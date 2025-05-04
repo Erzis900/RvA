@@ -16,9 +16,18 @@ const EnemyTypeInfo* EnemyTypeRegistry::getEnemyTypeInfo(EnemyType type) const
     return (itr != m_enemyTypes.end()) ? &itr->second : nullptr;
 }
 
-EnemyManager::EnemyManager(Game& game, const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem)
-    : m_game(game), m_enemyTypeRegistry(enemyTypeRegistry), m_collisionSystem(collisionSystem)
+EnemyManager::EnemyManager(const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem)
+    : m_enemyTypeRegistry(enemyTypeRegistry), m_collisionSystem(collisionSystem)
 {
+}
+
+void EnemyManager::clear()
+{
+    for (auto& enemy : m_enemies) {
+        m_collisionSystem.destroyCollider(enemy->getColliderHandle());
+    }
+    m_enemies.clear();
+    m_spawnTimer = 0.f;
 }
 
 void EnemyManager::update(float dt)
@@ -65,11 +74,11 @@ void EnemyManager::update(float dt)
     }
 }
 
-void EnemyManager::draw()
+void EnemyManager::draw(Atlas& atlas)
 {
     for (auto& enemy : m_enemies)
     {
-        enemy->draw(m_game);
+        enemy->draw(atlas);
     }
 }
 
@@ -115,7 +124,7 @@ void EnemyManager::spawnEnemy()
     float x = TEX_WIDTH - CELL_SIZE * 2.f;
     int y = (randomRow + 1) * CELL_SIZE - 5;
 
-    auto enemy = std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, m_game.getAtlas(), randomRow);
+    auto enemy = std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, randomRow);
     enemy->setColliderHandle(m_collisionSystem.createCollider(Collider::Flag::Enemy, enemy.get()));
     m_enemies.push_back(std::move(enemy));
 }

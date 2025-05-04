@@ -2,14 +2,16 @@
 #include "Session.h"
 #include <raymath.h>
 
-Session::Session(Game& game, CollisionSystem& collisionSystem)
-	: m_game(game)
-	, m_collisionSystem(collisionSystem)
-	, m_defenderManager(game.getAtlas(), m_collisionSystem)
-	, m_enemyManager(game, game.getEnemyTypeRegistry(), m_collisionSystem)
+Session::Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry)
+	: m_enemyTypeRegistry(enemyTypeRegistry)
+    , m_defenderTypeRegistry(defenderTypeRegistry)
+	, m_bulletTypeRegistry(bulletTypeRegistry)
+	, m_defenderManager(m_collisionSystem)
+	, m_enemyManager(enemyTypeRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
+	, m_hud(gui)
 {
-	m_enemyManager.onEnemiesDestroyed([this, &game](int numberOfDestroyedEnemies) {
+	m_enemyManager.onEnemiesDestroyed([this](int numberOfDestroyedEnemies) {
 		m_numberOfDestroyedEnemies += numberOfDestroyedEnemies;
 	});
 
@@ -17,16 +19,56 @@ Session::Session(Game& game, CollisionSystem& collisionSystem)
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
-	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
-	m_collisionSystem.updateCollider(
-		m_baseWall.colliderHandle,
-		{ CELL_SIZE - 5, CELL_SIZE, 5, CELL_SIZE * ROWS }
-	);
 }
 
 Session::~Session()
 {
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
+}
+
+void Session::setPause(bool paused)
+{
+	m_isPaused = paused;
+    m_hud.setEnable(!paused);
+}
+
+bool Session::isPaused() const
+{
+	return m_isPaused;
+}
+
+void Session::start()
+{
+	setupHUD();
+	m_hud.setEnable(true);
+
+	if (m_isPaused)
+	{
+		setPause(false);
+	}
+	else
+	{
+		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
+		m_collisionSystem.updateCollider(
+			m_baseWall.colliderHandle,
+			{ CELL_SIZE - 5, CELL_SIZE, 5, CELL_SIZE * ROWS }
+		);
+	}
+}
+
+void Session::end()
+{
+	m_isPaused = false;
+    m_defenderManager.clear();
+    m_enemyManager.clear();
+    m_bulletManager.clear();
+    m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
+	m_collisionSystem.clearColliders();
+    m_numberOfDestroyedEnemies = 0;
+    m_batteryCharge = MAX_BATTERY_CHARGE;
+    m_scraps = 0;
+    m_selectedDefender.reset();
+	m_hud.clear();
 }
 
 void Session::drawGrid()
@@ -52,46 +94,24 @@ void Session::update(Game& game, float dt)
 	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
 	m_bulletManager.update(dt);
+
+	updateHUD();
 }
 
-void Session::draw(Game& game)
+void Session::draw(Atlas& atlas)
 {
 	drawGrid();
 
-	m_defenderManager.draw();
-	m_enemyManager.draw();
+	m_defenderManager.draw(atlas);
+	m_enemyManager.draw(atlas);
 	m_bulletManager.draw();
 	m_collisionSystem.draw();
-}
-
-int Session::getNumberOfDestroyedEnemies() const
-{
-	return m_numberOfDestroyedEnemies;
-}
-
-float Session::getBatteryCharge() const
-{
-	return m_batteryCharge;
-}
-
-float Session::getScraps() const
-{
-	return m_scraps;
+	m_hud.draw(atlas);
 }
 
 void Session::setSelectedDefender(std::optional<DefenderType> type)
 {
 	m_selectedDefender = type;
-}
-
-const DefenderManager& Session::getDefenderManager() const
-{
-	return m_defenderManager;
-}
-
-const EnemyManager& Session::getEnemyManager() const
-{
-	return m_enemyManager;
 }
 
 void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain)
@@ -115,7 +135,7 @@ void Session::performDefenderSpawnOnInput()
 			{
 				if (canPlaceDefender(row, column))
 				{
-					auto defenderInfo = m_game.getDefenderRegistry().getDefenderInfo(*m_selectedDefender);
+					auto defenderInfo = m_defenderTypeRegistry.getDefenderInfo(*m_selectedDefender);
 					if (defenderInfo && canAffordCost(defenderInfo->cost))
 					{
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
@@ -144,7 +164,7 @@ void Session::performActions(const Actions& actions)
 
 void Session::performAction(const BulletSpawnAction& action)
 {
-	auto bulletInfo = m_game.getBulletTypeRegistry().getBulletInfo(action.bulletType);
+	auto bulletInfo = m_bulletTypeRegistry.getBulletInfo(action.bulletType);
 	if (bulletInfo)
 	{
 		m_bulletManager.spawnBullet(*bulletInfo, action.position);
@@ -159,6 +179,17 @@ bool Session::canAffordCost(int cost) const
 bool Session::canPlaceDefender(int x, int y) const
 {
 	return !m_defenderManager.hasDefender(x, y);
+}
+
+void Session::setupHUD()
+{
+	auto& hudData = m_hud.data();
+	hudData.defenders.clear();
+	for (const auto& [type, defenderInfo] : m_defenderTypeRegistry.getDefenderInfos()) {
+		hudData.defenders.emplace_back(type, defenderInfo.spriteEnabled.spriteInfo, defenderInfo.cost);
+	}
+
+	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this]() { setSelectedDefender(m_hud.data().selectedDefender); });
 }
 
 void Session::manageCollision(const Collision& collision)
@@ -243,5 +274,33 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision)
 			enemy->setState(EnemyState::PrepareToAttack);
 		}
 		break;
+	}
+}
+
+void Session::updateHUD() {
+	auto& hudData = m_hud.data();
+	hudData.batteryCharge = getBatteryCharge();
+	hudData.scrapsAmount = static_cast<int>(getScraps());
+
+	// TODO(Gerark) - Not very optimal but we'll see if it's going to ever be a bottleneck.
+	hudData.progressBars.clear();
+	for (auto& defender : getDefenderManager().getDefenders()) {
+		hudData.progressBars.push_back(ProgressBarData{
+			.value = static_cast<float>(defender->hp),
+			.max = static_cast<float>(defender->info->maxHP),
+			.position = defender->position,
+			.bkgColor = DARKGRAY,
+			.fillColor = GREEN
+			});
+	}
+
+	for (auto& enemy : getEnemyManager().getEnemies()) {
+		hudData.progressBars.push_back(ProgressBarData{
+			.value = enemy->getHp(),
+			.max = enemy->getInfo()->maxHp,
+			.position = enemy->getPosition(),
+			.bkgColor = DARKGRAY,
+			.fillColor = GREEN
+			});
 	}
 }

@@ -3,8 +3,10 @@
 #include <vector>
 #include <optional>
 #include <functional>
+
 #include "defender/DefenderTypes.h"
 #include "atlas/Atlas.h"
+#include "utilities/CallbackRegistry.h"
 
 class GUI;
 class Atlas;
@@ -31,7 +33,6 @@ struct HUDData
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
 	int numberOfEnemiesToDefeat{};
-	bool drawPause{};
 	std::vector<HUDDefenderData> defenders;
 	std::vector<ProgressBarData> progressBars;
 
@@ -41,34 +42,30 @@ struct HUDData
 class HUD
 {
 public:
-	HUD(Atlas& atlas, GUI& gui);
+	HUD(GUI& gui);
 
-	void draw();
+	void setEnable(bool enabled);
+	void draw(Atlas& atlas);
+
 	// Events
-	void onPauseButtonPressed(std::function<void()> callback);
-	void onResumeButtonPressed(std::function<void()> callback);
-	void onMenuButtonPressed(std::function<void()> callback);
-	void onDefenderSelected(std::function<void()> callback);
+	CallbackHandle onDefenderSelected(std::function<void()> callback);
 
 	// Data
 	auto& data() { return m_data; }
+	void clear();
 
 private:
 	void drawScrapAmount();
 	void drawBatteryCharge();
-	void drawDefenders();
-	void drawPause();
+	void drawDefenders(Atlas& atlas);
 	void drawProgressBars();
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 
 
 	bool m_defenderHover{};
+    bool m_isEnabled{ true };
 	HUDData m_data;
-	Atlas& m_atlas;
 	GUI& m_gui;
 
-	std::function<void()> m_onPauseButtonPressedCallback;
-	std::function<void()> m_onMenuButtonPressedCallback;
-	std::function<void()> m_onResumeButtonPressedCallback;
-	std::function<void()> m_onDefenderSelectedCallback;
+	CallbackRegistry<> m_onDefenderSelectedCallbacks;
 };

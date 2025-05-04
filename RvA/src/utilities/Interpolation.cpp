@@ -1,4 +1,6 @@
-#include "utilities.h"
+#include "utilities/Interpolation.h"
+
+#include <raymath.h>
 
 Color colorLerp(Color a, Color b, float t) {
     Color result;
@@ -14,9 +16,12 @@ void Interpolation<Color>::update(float dt)
 	if (started)
 	{
 		time += dt;
-		float t = time / duration;
+		float t = Clamp(time / duration, 0, 1);
 		value = colorLerp(from, to, t);
-		onTickCallback(value);
+		if(onTickCallback)
+		{
+			onTickCallback(value);
+		}
 		if (time >= duration)
 		{
 			started = false;

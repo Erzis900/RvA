@@ -26,6 +26,7 @@ class BulletManager
 public:
 	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem);
 
+	void clear();
 	void update(float dt);
 	void draw();
 
