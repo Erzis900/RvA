@@ -1,12 +1,14 @@
 #include "GUI.h"
 
+#include "MusicManager.h"
+
 #include <raygui.h>
 #include <raymath.h>
 
 #include "LayoutHelper.h"
 #include "constants.h"
 
-GUI::GUI(Atlas& atlas) : m_atlas(atlas)
+GUI::GUI(Atlas& atlas, MusicManager& musicManager) : m_atlas(atlas), m_musicManager(musicManager)
 {
 }
 
@@ -68,7 +70,7 @@ void GUI::drawWidget(UINode &node, Screen &screen) {
 	case WidgetType::Button: {
 		auto& button = screen.getButton(node.handle);
 		if (::GuiButton(node.finalRect, button.text.c_str())) {
-			// Can we play ButtonClick sound here? maybe by using a global to avoid passing &game all the way to here?
+			m_musicManager.play(*m_defaultButtonSound);
 			button.onClick();
 		}
 		break;
@@ -227,4 +229,9 @@ ScreenBuilder GUI::buildScreen(const char *name) {
 	auto screenPtr = screen.get();
 	m_screens.insert({ name, std::move(screen) });
 	return ScreenBuilder(*screenPtr);
+}
+
+void GUI::setDefaultButtonSound(Sound* sound)
+{
+    m_defaultButtonSound = sound;
 }

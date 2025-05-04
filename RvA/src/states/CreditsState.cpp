@@ -58,7 +58,7 @@ flow::FsmAction CreditsState::enter()
 	}
 
     builder.space({ 0, 20.f });
-    builder.button({ "Back", {}, {autoSize, 40.f}, [this]() { m_nextTransition = "back"; m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); } });
+    builder.button({ "Back", {}, {autoSize, 40.f}, [this]() { m_nextTransition = "back"; } });
 	builder.end();
 
     return flow::FsmAction::none();

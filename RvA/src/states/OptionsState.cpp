@@ -15,9 +15,9 @@ flow::FsmAction OptionsState::enter()
         .vertical_stack(5, 200.f)
 		    .text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
-			.button({ "Turn off music", {}, btnSize, [this]() { toggleMusic();  m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }}, &m_musicButton)
-			.button({ "Window Mode", {}, btnSize, [this]() { ToggleFullscreen();  m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); } }, &m_windowButton)
-			.button({ "Back", {}, btnSize, [this]() { m_nextTransition = "back";  m_game.getMusicManager().play(m_game.getMusicManager().getButtonClick()); }})
+            .button({ "Turn off music", {}, btnSize, [this]() { toggleMusic(); } }, &m_musicButton)
+            .button({ "Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); } }, &m_windowButton)
+			.button({ "Back", {}, btnSize, [this]() { m_nextTransition = "back"; }})
 		.end()
 	.screen();
 

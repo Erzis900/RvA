@@ -13,7 +13,7 @@
 
 Game::Game()
 	:m_renderRec(), m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
-    m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas),
+    m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager),
     m_gameSession(m_gui, m_enemyTypeRegistry, m_defenderTypeRegistry, m_bulletTypeRegistry)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -35,6 +35,7 @@ Game::Game()
 
 	InitAudioDevice();
 	m_musicManager.load();
+    m_gui.setDefaultButtonSound(&m_musicManager.getButtonClick());
 
 	setupFSM();
 
@@ -258,7 +259,7 @@ void Game::registerBulletTypes()
 		.auraColor = {255, 255, 255, 200},
 		.maxLifetime = 0.5f,
 		.shootAnimationSpeed = 15,
-		.shootAnimationDuration = 2.f
+		.shootAnimationDuration = 2.f,
 	});
 }
 

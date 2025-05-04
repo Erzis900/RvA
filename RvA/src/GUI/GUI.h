@@ -31,10 +31,12 @@ struct DrawButtonInfo
 	GUIPosition guiPosition;
 };
 
+class MusicManager;
+
 class GUI
 {
 public:
-	GUI(Atlas& atlas);
+	GUI(Atlas& atlas, MusicManager& musicManager);
 
 	void loadResources();
 
@@ -51,6 +53,8 @@ public:
     void destroyScreen(const char *name);
 	ScreenBuilder buildScreen(const char *name);
 
+	void setDefaultButtonSound(Sound* sound);
+
 private:
 	Vector2 calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const;
 	Vector2 calculateCoordinates(const DrawTextInfo& drawTextInfo) const;
@@ -63,6 +67,7 @@ private:
 	void drawFading();
 
 	Atlas& m_atlas;
+    MusicManager& m_musicManager;
 
 	const SpriteInfo* m_mousePointSprite{};
 	const SpriteInfo* m_mouseHoverSprite{};
@@ -73,4 +78,5 @@ private:
 	bool m_drawingScreens{};
     std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
     std::vector<std::string> m_screensToDestroy;
+    Sound* m_defaultButtonSound{};
 };

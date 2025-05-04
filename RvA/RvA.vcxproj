@@ -327,7 +327,9 @@
     <ClInclude Include="src\states\MenuState.h" />
     <ClInclude Include="src\states\WinState.h" />
     <ClInclude Include="src\utilities\CallbackRegistry.h" />
+    <ClInclude Include="src\utilities\ClassId.h" />
     <ClInclude Include="src\utilities\Interpolation.h" />
+    <ClInclude Include="src\utilities\ServiceLocator.h" />
     <ClInclude Include="src\utilities\TimedAction.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
