@@ -34,7 +34,6 @@ flow::FsmAction LostState::update(float dt) {
 
 void LostState::exit()
 {
-	m_game.getMusicManager().stop(m_game.getMusicManager().getLostMusic());
 	m_game.getGUI().destroyScreen("Lose");
 }
 

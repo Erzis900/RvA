@@ -42,5 +42,4 @@ flow::FsmAction PlayState::update(float dt) {
 }
 
 void PlayState::exit() {
-    m_game.getMusicManager().stop(m_game.getMusicManager().getGameMusic());
 }

@@ -45,5 +45,6 @@ void PauseState::exitGameSession() {
 
 void PauseState::restart() {
 	m_game.getGameSession().end();
+    m_game.getMusicManager().stop(m_game.getMusicManager().getGameMusic());
 	m_nextTransition = "restart";
 }

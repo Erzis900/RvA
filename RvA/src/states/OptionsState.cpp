@@ -34,7 +34,6 @@ flow::FsmAction OptionsState::update(float dt) {
 
 void OptionsState::exit()
 {
-	m_game.getMusicManager().stop(m_game.getMusicManager().getMenuMusic());
     m_game.getGUI().destroyScreen("Options");
 }
 

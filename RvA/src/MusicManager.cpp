@@ -24,8 +24,12 @@ void MusicManager::load()
 
 void MusicManager::play(Music& music)
 {
-	m_currentMusic = music; 
-	PlayMusicStream(m_currentMusic);
+    if (!IsMusicStreamPlaying(music))
+	{
+        StopMusicStream(m_currentMusic);
+		m_currentMusic = music;
+		PlayMusicStream(m_currentMusic);
+	}
 }
 
 void MusicManager::play(Sound& sound)

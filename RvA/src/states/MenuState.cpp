@@ -35,6 +35,5 @@ flow::FsmAction MenuState::update(float dt)
 
 void MenuState::exit()
 {
-	m_game.getMusicManager().stop(m_game.getMusicManager().getMenuMusic());
 	m_game.getGUI().destroyScreen("MainMenu");
 }
