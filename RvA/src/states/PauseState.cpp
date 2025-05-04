@@ -20,9 +20,9 @@ void PauseState::onEnter(Game& game)
 		.vertical_stack(5, 200.f)
 			.text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
-			.button({ "Resume", {}, btnSize, [&game]() { game.setState<PlayState, false>(game); } })
-			.button({ "Restart", {}, btnSize, [this, &game]() { restart(game); }})
-			.button({ "Exit to Menu", {}, btnSize, [this, &game]() { exitGameSession(game); } })
+			.button({ "Resume", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<PlayState, false>(game); } })
+			.button({ "Restart", {}, btnSize, [this, &game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); restart(game); }})
+			.button({ "Exit to Menu", {}, btnSize, [this, &game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); exitGameSession(game); } })
 		.end();
 }
 

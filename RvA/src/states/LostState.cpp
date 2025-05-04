@@ -16,8 +16,8 @@ void LostState::onEnter(Game& game)
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "You Lost!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
-			.button({ "Restart", {}, btnSize, [this, &game]() { restart(game); }})
-			.button({ "Menu", {}, btnSize, [&game]() { game.setState<MenuState>(); } })
+			.button({ "Restart", {}, btnSize, [this, &game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); restart(game); }})
+			.button({ "Menu", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<MenuState>(); } })
 		.end();
 }
 

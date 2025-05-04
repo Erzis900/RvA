@@ -56,7 +56,7 @@ void CreditsState::onEnter(Game& game)
 	}
 
     builder.space({ 0, 20.f });
-    builder.button({ "Back", {}, {autoSize, 40.f}, [&game]() { game.setState<MenuState>(); } });
+    builder.button({ "Back", {}, {autoSize, 40.f}, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<MenuState>(); } });
 	builder.end();
 }
 

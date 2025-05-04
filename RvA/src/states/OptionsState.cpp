@@ -12,9 +12,9 @@ void OptionsState::onEnter(Game& game)
         .vertical_stack(5, 200.f)
 		    .text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 40.f })
-			.button({ "Turn off music", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
-			.button({ "Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); } }, &m_windowButton)
-			.button({ "Back", {}, btnSize, [&game]() { game.setState<MenuState>(); } })
+			.button({ "Turn off music", {}, btnSize, [this, &game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); toggleMusic(); }}, &m_musicButton)
+			.button({ "Window Mode", {}, btnSize, [this, &game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); ToggleFullscreen(); } }, &m_windowButton)
+			.button({ "Back", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<MenuState>(); } })
 		.end()
 		.screen();
 }
@@ -25,14 +25,16 @@ void OptionsState::onExit(Game& game)
     game.getGUI().destroyScreen("Options");
 }
 
+//TODO SetMasterVolume includes volume of ALL sounds, MusicManager should handle Volume to differentiate Music and Sound Volume
+//TODO add Volume slider in options screen
 void OptionsState::toggleMusic()
 {
     if (GetMasterVolume() > 0.f) {
         SetMasterVolume(0.f);
-        m_screen->getButton(m_musicButton).text = "Turn on music";
+        m_screen->getButton(m_musicButton).text = "Turn on sound";
     } else {
         SetMasterVolume(1.0f);
-        m_screen->getButton(m_musicButton).text = "Turn off music";
+        m_screen->getButton(m_musicButton).text = "Turn off sound";
     }
 }
 

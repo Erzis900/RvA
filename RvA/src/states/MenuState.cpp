@@ -14,9 +14,9 @@ void MenuState::onEnter(Game& game)
 		.vertical_stack(5, 200.f)
 		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
 			.space({ 0, 35.f })
-			.button({ "Play", {}, btnSize, [&game]() { game.setState<PlayState>(game); } })
-			.button({ "Options", {}, btnSize, [&game]() { game.setState<OptionsState>(); } })
-			.button({ "Credits", {}, btnSize, [&game]() { game.setState<CreditsState>(); } })
+			.button({ "Play", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<PlayState>(game); } })
+			.button({ "Options", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<OptionsState>(); } })
+			.button({ "Credits", {}, btnSize, [&game]() { game.getMusicManager().play(game.getMusicManager().getButtonClick()); game.setState<CreditsState>(); } })
 			.button({ "Exit", {}, btnSize, [&game]() {  game.scheduleClose(); } })
 		.end();
 }

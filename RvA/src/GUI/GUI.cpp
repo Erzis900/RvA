@@ -68,6 +68,7 @@ void GUI::drawWidget(UINode &node, Screen &screen) {
 	case WidgetType::Button: {
 		auto& button = screen.getButton(node.handle);
 		if (::GuiButton(node.finalRect, button.text.c_str())) {
+			// Can we play ButtonClick sound here? maybe by using a global to avoid passing &game all the way to here?
 			button.onClick();
 		}
 		break;
