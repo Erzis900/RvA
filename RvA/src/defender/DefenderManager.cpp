@@ -107,7 +107,7 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
     auto defender = std::make_unique<Defender>();
     defender->info = defenderTypeInfo;
     defender->shootTime = defenderTypeInfo->firstShootCooldown;
-    defender->position = Vector2{ float(column) * CELL_SIZE + CELL_SIZE, float(row) * CELL_SIZE - 5 + CELL_SIZE };
+    defender->position = Vector2{ GRID_OFFSET.x + (float(column) * CELL_SIZE), GRID_OFFSET.y + (float(row) * CELL_SIZE) - 5};
     defender->isActive = false;
     defender->column = column;
     defender->row = row;

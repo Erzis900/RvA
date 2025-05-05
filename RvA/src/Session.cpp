@@ -134,8 +134,8 @@ void Session::performDefenderSpawnOnInput()
 	if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
 	{
 		auto mousePos = GetMousePosition();
-		int row = int(mousePos.y) / CELL_SIZE - 1;
-		int column = int(mousePos.x) / CELL_SIZE - 1;
+		int row = (int(mousePos.y) - GRID_OFFSET.y) / CELL_SIZE;
+		int column = (int(mousePos.x) - GRID_OFFSET.x) / CELL_SIZE;
 
 		if (row >= 0 && row < ROWS && column >= 0 && column < COLS)
 		{
