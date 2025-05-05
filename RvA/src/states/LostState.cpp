@@ -15,7 +15,7 @@ flow::FsmAction LostState::enter()
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Lose")
 		.vertical_stack(5, 200.f)
-		    .text({ .text = "You Lost!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+		    .medium_text({ .text = "You Lost!", .color = WHITE, .hAlign = HAlign::Center })
 			.space({ 0, 35.f })
 			.button({ "Restart", {}, btnSize, [this]() { restart(); }})
 			.button({ "Menu", {}, btnSize, [this]() { m_nextTransition = "menu"; }})

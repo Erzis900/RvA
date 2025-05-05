@@ -1,5 +1,7 @@
 #include "Widgets.h"
 
+#include "constants.h"
+
 Screen::Screen(const char *name) : m_name(name)
 {
     m_rootNode.type = WidgetType::Root;
@@ -48,6 +50,21 @@ WidgetHandle Screen::create(UISpace space) {
     return handle;
 }
 
+WidgetHandle Screen::create(UICustom custom) {
+    auto handle = m_customPool.createItem(std::move(custom));
+    m_customPool.getItem(handle)->handle = handle;
+    return handle;
+}
+
+WidgetHandle Screen::create(UIBorder border, WidgetHandle* handleResult) {
+    auto handle = m_borderPool.createItem(std::move(border));
+    m_borderPool.getItem(handle)->handle = handle;
+    if (handleResult) {
+        *handleResult = handle;
+    }
+    return handle;
+}
+
 ScreenBuilder::ScreenBuilder(Screen &screen) : m_screen(screen) {
     m_nodeStack.push(&m_screen.getRootNode());
 }
@@ -66,23 +83,25 @@ ScreenBuilder &ScreenBuilder::stack(UIStack stack) {
     return *this;
 }
 
-ScreenBuilder& ScreenBuilder::vertical_stack(float padding, float size) {
+ScreenBuilder& ScreenBuilder::vertical_stack(float padding, float size, VAlign vAlignment, HAlign hAlignment, ContentAlign cAlignment) {
     return stack({
         .orientation = GUIOrientation::Vertical,
         .padding = { 0, padding },
-        .horizontalAlignment = GUIAlignmentH::Center,
-        .verticalAlignment = GUIAlignmentV::Center,
-        .size = { size, autoSize }
+        .hAlign = hAlignment,
+        .vAlign = vAlignment,
+        .size = { size, autoSize },
+        .contentAlignment = cAlignment
     });
 }
 
-ScreenBuilder& ScreenBuilder::horizontal_stack(float padding, float size) {
+ScreenBuilder& ScreenBuilder::horizontal_stack(float padding, float size, HAlign hAlignment, VAlign vAlignment, ContentAlign cAlignment) {
     return stack({
         .orientation = GUIOrientation::Horizontal,
         .padding = { padding, 0 },
-        .horizontalAlignment = GUIAlignmentH::Center,
-        .verticalAlignment = GUIAlignmentV::Center,
-        .size = { autoSize, size }
+        .hAlign = hAlignment,
+        .vAlign = vAlignment,
+        .size = { autoSize, size },
+        .contentAlignment = cAlignment
     });
 }
 
@@ -116,6 +135,21 @@ ScreenBuilder& ScreenBuilder::text(UIText text, WidgetHandle* handleResult) {
     return *this;
 }
 
+ScreenBuilder& ScreenBuilder::small_text(UIText text, WidgetHandle* handleResult) {
+    text.fontSize = FONT_SMALL;
+    return this->text(std::move(text), handleResult);
+}
+
+ScreenBuilder& ScreenBuilder::medium_text(UIText text, WidgetHandle* handleResult) {
+    text.fontSize = FONT_MEDIUM;
+    return this->text(std::move(text), handleResult);
+}
+
+ScreenBuilder& ScreenBuilder::big_text(UIText text, WidgetHandle* handleResult) {
+    text.fontSize = FONT_BIG;
+    return this->text(std::move(text), handleResult);
+}
+
 ScreenBuilder& ScreenBuilder::shape(UIShape shape, WidgetHandle* handleResult) {
     auto handle = m_screen.create(std::move(shape), handleResult);
 
@@ -140,5 +174,29 @@ ScreenBuilder& ScreenBuilder::space(UISpace space) {
     node->type = WidgetType::Space;
     node->parent = m_nodeStack.top();
     m_nodeStack.top()->children.push_back(std::move(node));
+    return *this;
+}
+
+ScreenBuilder& ScreenBuilder::custom(UICustom custom) {
+    auto handle = m_screen.create(std::move(custom));
+
+    auto node = std::make_unique<UINode>();
+    node->handle = handle;
+    node->type = WidgetType::Custom;
+    node->parent = m_nodeStack.top();
+    m_nodeStack.top()->children.push_back(std::move(node));
+    return *this;
+}
+
+ScreenBuilder& ScreenBuilder::border(UIBorder border, WidgetHandle* handleResult) {
+    auto handle = m_screen.create(std::move(border), handleResult);
+
+    auto node = std::make_unique<UINode>();
+    node->handle = handle;
+    node->type = WidgetType::Border;
+    node->parent = m_nodeStack.top();
+    auto nodePtr = node.get();
+    m_nodeStack.top()->children.push_back(std::move(node));
+    m_nodeStack.push(nodePtr);
     return *this;
 }

@@ -15,7 +15,7 @@ flow::FsmAction PauseState::enter()
 	gui.buildScreen("Pause")
 		.rect({ 0, 0, TEX_WIDTH, TEX_HEIGHT }, Fade(BLACK, 0.5f))
 		.vertical_stack(5, 200.f)
-			.text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+			.medium_text({ .text = "Options", .color = WHITE, .hAlign = HAlign::Center })
 			.space({ 0, 40.f })
 			.button({ "Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; }})
 			.button({ "Restart", {}, btnSize, [this]() { restart(); }})
@@ -29,6 +29,10 @@ flow::FsmAction PauseState::update(float dt) {
 	if (!m_nextTransition.empty()) {
 		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}
+
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        m_nextTransition = "resume";
+    }
 
 	return flow::FsmAction::none();
 }

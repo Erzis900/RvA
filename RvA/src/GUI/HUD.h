@@ -7,9 +7,12 @@
 #include "defender/DefenderTypes.h"
 #include "atlas/Atlas.h"
 #include "utilities/CallbackRegistry.h"
+#include "GUI/Widgets.h"
 
 class GUI;
+class Screen;
 class Atlas;
+struct UIText;
 
 struct HUDDefenderData
 {
@@ -44,8 +47,9 @@ class HUD
 public:
 	HUD(GUI& gui);
 
+	void update(float dt);
+    void setVisible(bool visible);
 	void setEnable(bool enabled);
-	void draw(Atlas& atlas);
 
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void()> callback);
@@ -55,10 +59,10 @@ public:
 	void clear();
 
 private:
-	void drawScrapAmount();
-	void drawBatteryCharge();
-	void drawDefenders(Atlas& atlas);
-	void drawProgressBars();
+	void drawBatteryCharge(Atlas& atlas, const Rectangle& bounds);
+	Vector2 measureDefenders(const Vector2& availableSize);
+	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
+	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 
 
@@ -68,4 +72,7 @@ private:
 	GUI& m_gui;
 
 	CallbackRegistry<> m_onDefenderSelectedCallbacks;
+	Screen* m_screen{};
+	WidgetHandle m_scrapTextHandle{};
+	WidgetHandle m_batteryTextHandle{};
 };

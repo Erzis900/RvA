@@ -122,7 +122,7 @@ void EnemyManager::spawnEnemy()
 
     int randomRow = GetRandomValue(0, ROWS - 1);
     float x = TEX_WIDTH - CELL_SIZE * 2.f;
-    int y = (randomRow + 1) * CELL_SIZE - 5;
+    int y = randomRow * CELL_SIZE - 5 + GRID_OFFSET.y;
 
     auto enemy = std::make_unique<Enemy>(Vector2{ x, float(y) }, enemyTypeInfo, randomRow);
     enemy->setColliderHandle(m_collisionSystem.createCollider(Collider::Flag::Enemy, enemy.get()));

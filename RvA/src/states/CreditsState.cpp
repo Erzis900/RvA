@@ -8,28 +8,25 @@
 
 struct CreditsItem {
 	std::string label;
-	unsigned int fontSize;
 	Color color;
 };
 
 // TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
 const std::vector<CreditsItem> creditsItems {
-	{ "Credits", 20, WHITE },
+	{ "PROGRAMMING", WHITE },
+	{ "Erzis", DARKGRAY },
+	{ "Zazeraz", DARKGRAY },
+	{ "Gerark", DARKGRAY },
 	{},
-	{ "PROGRAMMING", 8, WHITE },
-	{ "Erzis", 8, DARKGRAY },
-	{ "Zazeraz", 8, DARKGRAY },
-	{ "Gerark", 8, DARKGRAY },
+	{ "PIXEL ART", WHITE },
+	{ "Marvin", DARKGRAY },
 	{},
-	{ "PIXEL ART", 8, WHITE },
-	{ "Marvin", 8, DARKGRAY },
+	{ "CONCEPT ART", WHITE },
+	{ "yeahno", DARKGRAY },
 	{},
-	{ "CONCEPT ART", 8, WHITE },
-	{ "yeahno", 8, DARKGRAY },
-	{},
-	{ "MUSIC", 8, WHITE },
-	{ "Trim", 8, DARKGRAY },
-	{ "POG LIZARD", 8, DARKGRAY },
+	{ "MUSIC", WHITE },
+	{ "Trim", DARKGRAY },
+	{ "POG LIZARD", DARKGRAY },
 };
 
 CreditsState::CreditsState(Game& game) : m_game(game) {
@@ -39,16 +36,21 @@ flow::FsmAction CreditsState::enter()
 {
 	auto builder = m_game.getGUI().buildScreen("Credits");
 	builder.vertical_stack(2, 100.f);
+	
+	builder.medium_text({
+		.text = "CREDITS",
+		.color = WHITE,
+		.hAlign = HAlign::Center
+	});
 
 	for (auto& item : creditsItems)
 	{
 		if (!item.label.empty())
 		{
-			builder.text({
+			builder.small_text({
 				.text = item.label.c_str(),
-				.fontSize = item.fontSize,
 				.color = item.color,
-				.horizontalAlignment = GUIAlignmentH::Center
+				.hAlign = HAlign::Center
 			});
 		}
 		else

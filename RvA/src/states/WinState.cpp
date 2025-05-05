@@ -39,9 +39,9 @@ flow::FsmAction WinState::enter()
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
 		.vertical_stack(5, 200.f)
-		    .text({ .text = "You Won!!!", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+		    .medium_text({ .text = "You Won!!!", .color = WHITE, .hAlign = HAlign::Center })
 			.space({ 0, 35.f })
-			.text({ .text = "Press any key to continue", .fontSize = 8, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+			.small_text({ .text = "Press any key to continue", .color = WHITE, .hAlign = HAlign::Center })
 		.end();
 
     return flow::FsmAction::none();

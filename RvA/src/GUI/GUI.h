@@ -37,6 +37,7 @@ class GUI
 {
 public:
 	GUI(Atlas& atlas, MusicManager& musicManager);
+	~GUI();
 
 	void loadResources();
 
@@ -54,6 +55,8 @@ public:
 	ScreenBuilder buildScreen(const char *name);
 
 	void setDefaultButtonSound(Sound* sound);
+
+	void toggleDebugView();
 
 private:
 	Vector2 calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const;
@@ -79,4 +82,6 @@ private:
     std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
     std::vector<std::string> m_screensToDestroy;
     Sound* m_defaultButtonSound{};
+    bool m_isDebugViewEnabled{false};
+    Font m_font{};
 };

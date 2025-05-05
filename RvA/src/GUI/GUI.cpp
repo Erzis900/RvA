@@ -12,8 +12,17 @@ GUI::GUI(Atlas& atlas, MusicManager& musicManager) : m_atlas(atlas), m_musicMana
 {
 }
 
+GUI::~GUI()
+{
+    UnloadFont(m_font);
+}
+
 void GUI::loadResources()
 {
+	m_font = LoadFont("assets/fonts/mecha.png");
+	GuiSetFont(m_font);
+	GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SMALL);
+
 	// This is not a real load of resources but it's a way to retrieve and store the SpriteInfo
 	m_mousePointSprite = m_atlas.getSpriteInfo("mouse_cursor_point");
 	m_mouseHoverSprite = m_atlas.getSpriteInfo("mouse_cursor_hover");
@@ -40,7 +49,7 @@ void GUI::drawCursor()
 void GUI::drawFPS()
 {
 	auto fpsText = std::to_string(GetFPS());
-	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, { 10, 10 }, {0, 0, TEX_WIDTH, TEX_HEIGHT }, GUIAlignmentH::Right, GUIAlignmentV::Bottom);
+	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, { 10, 10 }, 1, {0, 0, TEX_WIDTH, TEX_HEIGHT }, HAlign::Right, VAlign::Bottom);
 	::DrawText(fpsText.c_str(), static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
 }
 
@@ -56,6 +65,7 @@ void GUI::drawScreens()
 
 	m_drawingScreens = true;
 	for (auto &[name, screen] : m_screens) {
+		if (!screen->isVisible()) continue;
 		auto &root = screen->getRootNode();
 
         LayoutHelper::measure(root, *screen, { TEX_WIDTH, TEX_HEIGHT });
@@ -77,7 +87,12 @@ void GUI::drawWidget(UINode &node, Screen &screen) {
 	}
 	case WidgetType::Text: {
 		auto& text = screen.getText(node.handle);
-		::DrawText(text.text.c_str(), node.finalRect.x, node.finalRect.y, text.fontSize, text.color);
+		::DrawTextEx(m_font, text.text.c_str(), { node.finalRect.x, node.finalRect.y }, node.finalRect.height, text.fontSpacing, text.color);
+		break;
+	}
+	case WidgetType::Custom: {
+		auto& custom = screen.getCustom(node.handle);
+		custom.draw(m_atlas, node.finalRect);
 		break;
 	}
 	case WidgetType::Shape: {
@@ -89,7 +104,24 @@ void GUI::drawWidget(UINode &node, Screen &screen) {
 		}
 		break;
 	}
+	case WidgetType::Border: {
+		auto& border = screen.getBorder(node.handle);
+		::DrawRectangleLinesEx(node.finalRect, border.thickness, border.color);
+		break;
 	}
+	}
+
+    if (m_isDebugViewEnabled) {
+        if (node.type == WidgetType::Space)
+		{
+			auto& rect = node.finalRect;
+			::DrawLineEx({ rect.x, rect.y }, { rect.x + rect.width, rect.y + rect.height }, 2, BLUE);
+		}
+		else
+		{
+			::DrawRectangleLinesEx(node.finalRect, 1, RED);
+		}
+    }
 
 	for (auto &child : node.children)
 	{
@@ -161,21 +193,21 @@ Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPos
 {
 	auto result = guiPosition.position;
 
-	if (guiPosition.horizontalAlignment.has_value())
+	if (guiPosition.hAlign.has_value())
 	{
-		switch (*guiPosition.horizontalAlignment)
+		switch (*guiPosition.hAlign)
 		{
-		case GUIAlignmentH::Left:
+		case HAlign::Left:
 		{
 			result.x = guiPosition.position.x;
 			break;
 		}
-		case GUIAlignmentH::Right:
+		case HAlign::Right:
 		{
 			result.x = TEX_WIDTH - (size.x + guiPosition.position.x);
 			break;
 		}
-		case GUIAlignmentH::Center:
+		case HAlign::Center:
 		{
 			result.x = TEX_WIDTH / 2 - (size.x / 2) + guiPosition.position.x;
 			break;
@@ -183,21 +215,21 @@ Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPos
 		}
 	}
 
-	if (guiPosition.verticalAlignment.has_value())
+	if (guiPosition.vAlign.has_value())
 	{
-		switch (*guiPosition.verticalAlignment)
+		switch (*guiPosition.vAlign)
 		{
-		case GUIAlignmentV::Top:
+		case VAlign::Top:
 		{
 			result.y = guiPosition.position.y;
 			break;
 		}
-		case GUIAlignmentV::Bottom:
+		case VAlign::Bottom:
 		{
 			result.y = TEX_HEIGHT - (size.y + guiPosition.position.y);
 			break;
 		}
-		case GUIAlignmentV::Center:
+		case VAlign::Center:
 		{
 			result.y = TEX_HEIGHT / 2 - (size.y / 2) + guiPosition.position.y;
 			break;
@@ -234,4 +266,9 @@ ScreenBuilder GUI::buildScreen(const char *name) {
 void GUI::setDefaultButtonSound(Sound* sound)
 {
     m_defaultButtonSound = sound;
+}
+
+void GUI::toggleDebugView()
+{
+	m_isDebugViewEnabled = !m_isDebugViewEnabled;
 }

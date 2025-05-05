@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Session.h"
+
 #include <raymath.h>
 
 Session::Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry)
@@ -43,6 +44,7 @@ void Session::start()
 
 	setupHUD();
 	m_hud.setEnable(true);
+	m_hud.setVisible(true);
 
 	if (m_isPaused)
 	{
@@ -53,7 +55,7 @@ void Session::start()
 		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 		m_collisionSystem.updateCollider(
 			m_baseWall.colliderHandle,
-			{ CELL_SIZE - 5, CELL_SIZE, 5, CELL_SIZE * ROWS }
+			{ GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS }
 		);
 	}
 }
@@ -72,14 +74,15 @@ void Session::end()
     m_scraps = 0;
     m_selectedDefender.reset();
 	m_hud.clear();
+	m_hud.setVisible(false);
 }
 
 void Session::drawGrid()
 {
 	for (int row = 0; row < ROWS; row++) {
 		for (int col = 0; col < COLS; col++) {
-			int x = CELL_SIZE + col * CELL_SIZE;
-			int y = CELL_SIZE + row * CELL_SIZE;
+			int x = GRID_OFFSET.x + col * CELL_SIZE;
+			int y = GRID_OFFSET.y + row * CELL_SIZE;
 
 			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, BLACK);
 		}
@@ -98,7 +101,7 @@ void Session::update(float dt)
 
 	m_bulletManager.update(dt);
 
-	updateHUD();
+	updateHUD(dt);
 }
 
 void Session::draw(Atlas& atlas)
@@ -111,7 +114,6 @@ void Session::draw(Atlas& atlas)
 		m_enemyManager.draw(atlas);
 		m_bulletManager.draw();
 		m_collisionSystem.draw();
-		m_hud.draw(atlas);
 	}
 }
 
@@ -283,7 +285,7 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision)
 	}
 }
 
-void Session::updateHUD() {
+void Session::updateHUD(float dt) {
 	auto& hudData = m_hud.data();
 	hudData.batteryCharge = getBatteryCharge();
 	hudData.scrapsAmount = static_cast<int>(getScraps());
@@ -309,4 +311,6 @@ void Session::updateHUD() {
 			.fillColor = GREEN
 			});
 	}
+
+	m_hud.update(dt);
 }

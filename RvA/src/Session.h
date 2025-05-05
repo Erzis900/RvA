@@ -50,7 +50,7 @@ private:
 	bool canPlaceDefender(int x, int y) const;
 
 	void setupHUD();
-	void updateHUD();
+	void updateHUD(float dt);
 
 	void manageCollision(const Collision& collision);
 	void manageBulletEnemyCollision(const Collision& collision);

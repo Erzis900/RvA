@@ -60,6 +60,11 @@ void Game::update()
 
 	m_fsm->update(dt);
 
+	if(DEV_MODE && IsKeyPressed(KEY_F2))
+	{
+		m_gui.toggleDebugView();
+	}
+
     m_gui.update(dt);
 	m_musicManager.updateStream();
 }

@@ -13,7 +13,7 @@ flow::FsmAction MenuState::enter()
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("MainMenu")
 		.vertical_stack(5, 200.f)
-		    .text({ .text = "RvA", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+		    .medium_text({ .text = "TEMP NAME", .color = WHITE, .hAlign = HAlign::Center })
 			.space({ 0, 35.f })
 			.button({ "Play", {}, btnSize, [this]() { m_nextTransition = "play"; }})
 			.button({ "Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})

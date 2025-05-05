@@ -13,7 +13,7 @@ flow::FsmAction OptionsState::enter()
 	auto& gui = m_game.getGUI();
 	m_screen = gui.buildScreen("Options")
         .vertical_stack(5, 200.f)
-		    .text({ .text = "Options", .fontSize = 20, .color = WHITE, .horizontalAlignment = GUIAlignmentH::Center })
+		    .medium_text({ .text = "Options", .color = WHITE, .hAlign = HAlign::Center })
 			.space({ 0, 40.f })
             .button({ "Turn off music", {}, btnSize, [this]() { toggleMusic(); } }, &m_musicButton)
             .button({ "Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); } }, &m_windowButton)
