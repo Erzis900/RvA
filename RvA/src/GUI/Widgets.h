@@ -2,14 +2,13 @@
 
 #include "FixedItemPool.h"
 
-#include <vector>
-#include <memory>
-#include <string>
 #include <functional>
-#include <optional>
 #include <limits>
-
+#include <memory>
+#include <optional>
 #include <raylib.h>
+#include <string>
+#include <vector>
 
 constexpr float MaxValue = std::numeric_limits<float>::max();
 constexpr float autoSize = MaxValue;
@@ -17,229 +16,225 @@ constexpr float autoSize = MaxValue;
 using WidgetHandle = unsigned int;
 class Atlas;
 
-enum class WidgetType
-{
-    Button,
-    Text,
-    Image,
-    ProgressBar,
-    Stack,
-    Space,
-    Custom,
-    Shape,
-    Border,
-    Root
+enum class WidgetType {
+	Button,
+	Text,
+	Image,
+	ProgressBar,
+	Stack,
+	Space,
+	Custom,
+	Shape,
+	Border,
+	Root
 };
 
-enum class ShapeType
-{
-    Rectangle,
+enum class ShapeType {
+	Rectangle,
 };
 
 enum class VAlign {
-    Top,
-    Bottom,
-    Center,
-    Stretch
+	Top,
+	Bottom,
+	Center,
+	Stretch
 };
 
 enum class HAlign {
-    Left,
-    Right,
-    Center,
-    Stretch
+	Left,
+	Right,
+	Center,
+	Stretch
 };
 
-enum class ContentAlign
-{
-    Start,
-    Center,
-    End
+enum class ContentAlign {
+	Start,
+	Center,
+	End
 };
 
 enum class GUIOrientation {
-    Horizontal,
-    Vertical
+	Horizontal,
+	Vertical
 };
 
 struct GUIPosition {
-    // position can be treated as margins when horizontal or vertical alignments are defined
-    Vector2 position;
-    std::optional<HAlign> hAlign;
-    std::optional<VAlign> vAlign;
+	// position can be treated as margins when horizontal or vertical alignments are defined
+	Vector2 position;
+	std::optional<HAlign> hAlign;
+	std::optional<VAlign> vAlign;
 };
 
-struct UINode
-{
-    WidgetHandle handle{};
-    WidgetType type{};
-    std::vector<std::unique_ptr<UINode>> children;
-    UINode* parent{};
-    Vector2 preferredSize{};
-    Rectangle finalRect{};
+struct UINode {
+	WidgetHandle handle{};
+	WidgetType type{};
+	std::vector<std::unique_ptr<UINode>> children;
+	UINode* parent{};
+	Vector2 preferredSize{};
+	Rectangle finalRect{};
 };
 
-struct UIStack
-{
-    GUIOrientation orientation{};
-    Vector2 padding{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    Vector2 size{ MaxValue, MaxValue };
-    Vector2 pos{};
-    ContentAlign contentAlignment{};
-    WidgetHandle handle{};
+struct UIStack {
+	GUIOrientation orientation{};
+	Vector2 padding{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	Vector2 size{MaxValue, MaxValue};
+	Vector2 pos{};
+	ContentAlign contentAlignment{};
+	WidgetHandle handle{};
 };
 
-struct UIText
-{
-    std::string text;
-    unsigned int fontSize{};
-    Color color{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    Vector2 pos{};
-    float fontSpacing{1};
-    WidgetHandle handle{};
+struct UIText {
+	std::string text;
+	unsigned int fontSize{};
+	Color color{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	Vector2 pos{};
+	float fontSpacing{1};
+	WidgetHandle handle{};
 };
 
-struct UISpace
-{
-    Vector2 size{};
-    WidgetHandle handle{};
+struct UISpace {
+	Vector2 size{};
+	WidgetHandle handle{};
 };
 
-struct UIBorder
-{
-    Color color{};
-    float thickness{1};
-    Vector2 pos{};
-    Vector2 padding{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    WidgetHandle handle{};
+struct UIBorder {
+	Color color{};
+	float thickness{1};
+	Vector2 pos{};
+	Vector2 padding{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	WidgetHandle handle{};
 };
 
-struct UIButton
-{
-    std::string text;
-    Vector2 pos{};
-    Vector2 size{ MaxValue, MaxValue };
-    std::function<void()> onClick{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    WidgetHandle handle{};
+struct UIButton {
+	std::string text;
+	Vector2 pos{};
+	Vector2 size{MaxValue, MaxValue};
+	std::function<void()> onClick{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	WidgetHandle handle{};
 };
 
-struct UIShape
-{
-    Vector2 pos{};
-    Vector2 size{ MaxValue, MaxValue };
-    Color color{};
-    ShapeType type{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    WidgetHandle handle{};
+struct UIShape {
+	Vector2 pos{};
+	Vector2 size{MaxValue, MaxValue};
+	Color color{};
+	ShapeType type{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	WidgetHandle handle{};
 };
 
-struct UICustom
-{
-    Vector2 pos{};
-    std::function<void(Atlas&, const Rectangle& bounds)> draw{};
-    std::function<Vector2(const Vector2&)> measure{};
-    HAlign hAlign{};
-    VAlign vAlign{};
-    WidgetHandle handle{};
+struct UICustom {
+	Vector2 pos{};
+	std::function<void(Atlas&, const Rectangle& bounds)> draw{};
+	std::function<Vector2(const Vector2&)> measure{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	WidgetHandle handle{};
 };
 
 /*
-* A simple class meant to create a retained UI system to represent a Menu/Screen.
-* The class is meant to manage screens with few items.
-*/
-class Screen
-{
+ * A simple class meant to create a retained UI system to represent a Menu/Screen.
+ * The class is meant to manage screens with few items.
+ */
+class Screen {
 public:
-    Screen(const char* name);
+	Screen(const char* name);
 
-    UINode& getRootNode() { return m_rootNode; }
+	UINode& getRootNode() {
+		return m_rootNode;
+	}
 
-    WidgetHandle create(UIButton button, WidgetHandle* handleResult = nullptr);
-    WidgetHandle create(UIText text, WidgetHandle* handleResult = nullptr);
-    WidgetHandle create(UIShape shape, WidgetHandle* handleResult = nullptr);
-    WidgetHandle create(UIBorder border, WidgetHandle* handleResult = nullptr);
-    WidgetHandle create(UIStack stack);
-    WidgetHandle create(UISpace space);
-    WidgetHandle create(UICustom custom);
+	WidgetHandle create(UIButton button, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIText text, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIShape shape, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIBorder border, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIStack stack);
+	WidgetHandle create(UISpace space);
+	WidgetHandle create(UICustom custom);
 
-    UIButton& getButton(WidgetHandle handle) {
-        return *m_buttonPool.getItem(handle);
-    }
+	UIButton& getButton(WidgetHandle handle) {
+		return *m_buttonPool.getItem(handle);
+	}
 
-    UIText& getText(WidgetHandle handle) {
-        return *m_textPool.getItem(handle);
-    }
+	UIText& getText(WidgetHandle handle) {
+		return *m_textPool.getItem(handle);
+	}
 
-    UIStack& getStack(WidgetHandle handle) {
-        return *m_stackPool.getItem(handle);
-    }
+	UIStack& getStack(WidgetHandle handle) {
+		return *m_stackPool.getItem(handle);
+	}
 
-    UISpace& getSpace(WidgetHandle handle) {
-        return *m_spacePool.getItem(handle);
-    }
+	UISpace& getSpace(WidgetHandle handle) {
+		return *m_spacePool.getItem(handle);
+	}
 
-    UIShape& getShape(WidgetHandle handle) {
-        return *m_shapePool.getItem(handle);
-    }
+	UIShape& getShape(WidgetHandle handle) {
+		return *m_shapePool.getItem(handle);
+	}
 
-    UICustom& getCustom(WidgetHandle handle) {
-        return *m_customPool.getItem(handle);
-    }
+	UICustom& getCustom(WidgetHandle handle) {
+		return *m_customPool.getItem(handle);
+	}
 
-    UIBorder& getBorder(WidgetHandle handle) {
-        return *m_borderPool.getItem(handle);
-    }
+	UIBorder& getBorder(WidgetHandle handle) {
+		return *m_borderPool.getItem(handle);
+	}
 
-    void setVisible(bool visible) { m_isVisible = visible; }
-    [[nodiscard]] bool isVisible() const { return m_isVisible; }
+	void setVisible(bool visible) {
+		m_isVisible = visible;
+	}
+
+	[[nodiscard]] bool isVisible() const {
+		return m_isVisible;
+	}
 
 private:
-    UINode m_rootNode;
+	UINode m_rootNode;
 
-    FixedItemPool<UIStack, 32> m_stackPool;
-    FixedItemPool<UIButton, 32> m_buttonPool;
-    FixedItemPool<UIText, 32> m_textPool;
-    FixedItemPool<UISpace, 32> m_spacePool;
-    FixedItemPool<UIShape, 32> m_shapePool;
-    FixedItemPool<UICustom, 32> m_customPool;
-    FixedItemPool<UIBorder, 32> m_borderPool;
-    std::string m_name;
-    bool m_isVisible{true};
+	FixedItemPool<UIStack, 32> m_stackPool;
+	FixedItemPool<UIButton, 32> m_buttonPool;
+	FixedItemPool<UIText, 32> m_textPool;
+	FixedItemPool<UISpace, 32> m_spacePool;
+	FixedItemPool<UIShape, 32> m_shapePool;
+	FixedItemPool<UICustom, 32> m_customPool;
+	FixedItemPool<UIBorder, 32> m_borderPool;
+	std::string m_name;
+	bool m_isVisible{true};
 };
 
-class ScreenBuilder
-{
+class ScreenBuilder {
 public:
-    ScreenBuilder(Screen& screen);
+	ScreenBuilder(Screen& screen);
 
-    ScreenBuilder& stack(UIStack stack);
-    ScreenBuilder& vertical_stack(float padding, float size, VAlign vAlignment = VAlign::Center, HAlign hAlignment = HAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
-    ScreenBuilder& horizontal_stack(float padding, float size, HAlign hAlignment = HAlign::Center, VAlign vAlignment = VAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
-    ScreenBuilder& end();
+	ScreenBuilder& stack(UIStack stack);
+	ScreenBuilder& vertical_stack(float padding, float size, VAlign vAlignment = VAlign::Center, HAlign hAlignment = HAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
+	ScreenBuilder& horizontal_stack(float padding, float size, HAlign hAlignment = HAlign::Center, VAlign vAlignment = VAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
+	ScreenBuilder& end();
 
-    ScreenBuilder& shape(UIShape shape, WidgetHandle* handleResult = nullptr);
-    ScreenBuilder& rect(const Rectangle& rect, Color color, WidgetHandle* handleResult = nullptr);
-    ScreenBuilder& button(UIButton button, WidgetHandle *handleResult = nullptr);
-    ScreenBuilder& text(UIText text, WidgetHandle *handleResult = nullptr);
-    ScreenBuilder& small_text(UIText text, WidgetHandle *handleResult = nullptr);
-    ScreenBuilder& medium_text(UIText text, WidgetHandle *handleResult = nullptr);
-    ScreenBuilder& big_text(UIText text, WidgetHandle *handleResult = nullptr);
-    ScreenBuilder& space(UISpace space);
-    ScreenBuilder& custom(UICustom custom);
-    ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& shape(UIShape shape, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& rect(const Rectangle& rect, Color color, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& button(UIButton button, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& text(UIText text, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& small_text(UIText text, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& medium_text(UIText text, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& big_text(UIText text, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& space(UISpace space);
+	ScreenBuilder& custom(UICustom custom);
+	ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
 
-    Screen* screen() { return &m_screen; }
+	Screen* screen() {
+		return &m_screen;
+	}
 
 private:
-    Screen& m_screen;
-    std::stack<UINode*> m_nodeStack{};
+	Screen& m_screen;
+	std::stack<UINode*> m_nodeStack{};
 };

@@ -1,22 +1,20 @@
 #pragma once
 
-#include "collisions/Collider.h"
-#include "enemy/EnemyManager.h"
-#include "defender/DefenderManager.h"
-#include "bullet/BulletManager.h"
-#include "collisions/CollisionSystem.h"
 #include "GUI/HUD.h"
+#include "bullet/BulletManager.h"
+#include "collisions/Collider.h"
+#include "collisions/CollisionSystem.h"
+#include "defender/DefenderManager.h"
+#include "enemy/EnemyManager.h"
 
 class Game;
 class GUI;
 
-struct Wall
-{
+struct Wall {
 	ColliderHandle colliderHandle;
 };
 
-class Session
-{
+class Session {
 public:
 	Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry);
 	~Session();
@@ -30,15 +28,31 @@ public:
 	void update(float dt);
 	void draw(Atlas& atlas);
 
-    auto getNumberOfDestroyedEnemies() const { return m_numberOfDestroyedEnemies; }
-    auto getBatteryCharge() const { return m_batteryCharge; }
-    auto getScraps() const { return m_scraps; }
+	auto getNumberOfDestroyedEnemies() const {
+		return m_numberOfDestroyedEnemies;
+	}
+
+	auto getBatteryCharge() const {
+		return m_batteryCharge;
+	}
+
+	auto getScraps() const {
+		return m_scraps;
+	}
 
 	void setSelectedDefender(std::optional<DefenderType> type);
-	
-	auto& getCollisionSystem() { return m_collisionSystem; }
-    const auto& getDefenderManager() const { return m_defenderManager; }
-    const auto& getEnemyManager() const { return m_enemyManager; }
+
+	auto& getCollisionSystem() {
+		return m_collisionSystem;
+	}
+
+	const auto& getDefenderManager() const {
+		return m_defenderManager;
+	}
+
+	const auto& getEnemyManager() const {
+		return m_enemyManager;
+	}
 
 private:
 	void drawGrid();
@@ -57,18 +71,18 @@ private:
 	void manageDefenderEnemyCollision(const Collision& collision);
 	void manageBaseWallEnemyCollision(const Collision& collision);
 
-	int m_numberOfDestroyedEnemies{ 0 };
-	float m_batteryCharge{ MAX_BATTERY_CHARGE };
+	int m_numberOfDestroyedEnemies{0};
+	float m_batteryCharge{MAX_BATTERY_CHARGE};
 	float m_scraps{};
 	std::optional<DefenderType> m_selectedDefender;
 	Wall m_baseWall;
-    bool m_isPaused{ false };
-    bool m_isStarted{ false };
+	bool m_isPaused{false};
+	bool m_isStarted{false};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 
-    const DefenderTypeRegistry& m_defenderTypeRegistry;
-    const EnemyTypeRegistry& m_enemyTypeRegistry;
-    const BulletTypeRegistry& m_bulletTypeRegistry;
+	const DefenderTypeRegistry& m_defenderTypeRegistry;
+	const EnemyTypeRegistry& m_enemyTypeRegistry;
+	const BulletTypeRegistry& m_bulletTypeRegistry;
 	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;

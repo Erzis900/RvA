@@ -1,15 +1,15 @@
 #pragma once
 
-#include <variant>
-#include <raylib.h>
 #include "Damage.h"
 #include "collisions/CollisionSystem.h"
 
+#include <raylib.h>
+#include <variant>
+
 /*
-* Bullet Shot
-*/
-struct BulletShotData
-{
+ * Bullet Shot
+ */
+struct BulletShotData {
 	Vector2 velocity{};
 	float radius{};
 	DamageInfo damage{};
@@ -17,16 +17,15 @@ struct BulletShotData
 };
 
 /*
-* Laser Beam
-*/
-struct LaserBeamData
-{
+ * Laser Beam
+ */
+struct LaserBeamData {
 	Vector2 startOffset{};
 	float beamHeight{};
 	DamageInfo damage{};
-	float auraSize{ 4 };
-	Color beamColor{ 255, 0, 0, 255 };
-	Color auraColor{ 255, 255, 255, 128 };
+	float auraSize{4};
+	Color beamColor{255, 0, 0, 255};
+	Color auraColor{255, 255, 255, 128};
 	float maxLifetime{};
 	float shootAnimationSpeed{};
 	float shootAnimationDuration{};
@@ -35,10 +34,9 @@ struct LaserBeamData
 };
 
 /*
-* Chasing Shot
-*/
-struct ChasingShotData
-{
+ * Chasing Shot
+ */
+struct ChasingShotData {
 	Vector2 startOffset{};
 	float radius{};
 	DamageInfo damage{};
@@ -52,8 +50,7 @@ struct ChasingShotData
 
 using BulletData = std::variant<BulletShotData, ChasingShotData, LaserBeamData>;
 
-struct Bullet
-{
+struct Bullet {
 	BulletData data{};
 	Vector2 position{};
 	ColliderHandle colliderHandle{};

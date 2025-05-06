@@ -1,86 +1,97 @@
 #pragma once
-#include <raylib.h>
-#include <string>
-#include "EnemyTypes.h"
 #include "Animation.h"
 #include "Damage.h"
-#include "utilities/Interpolation.h"
+#include "EnemyTypes.h"
 #include "collisions/CollisionSystem.h"
+#include "utilities/Interpolation.h"
+
+#include <raylib.h>
+#include <string>
 
 class Game;
 class Atlas;
 class Animation;
 
-enum class EnemyState
-{
-    Idle,
-    Moving,
-    PrepareToAttack,
-    ReadyToAttack,
-    Dying,
-    Dead
+enum class EnemyState {
+	Idle,
+	Moving,
+	PrepareToAttack,
+	ReadyToAttack,
+	Dying,
+	Dead
 };
 
-struct EnemyTypeInfo
-{
-    EnemyType type{};
-    float spawnChance{};
-    float maxHp{};
-    float speed{};
-    float attackTime{};
-    float defenderDamage{};
-    float baseWallDamage{};
-    AnimationData idleAnimation;
-    AnimationData moveAnimation;
-    AnimationData attackAnimation;
-    AnimationData dyingAnimation;
+struct EnemyTypeInfo {
+	EnemyType type{};
+	float spawnChance{};
+	float maxHp{};
+	float speed{};
+	float attackTime{};
+	float defenderDamage{};
+	float baseWallDamage{};
+	AnimationData idleAnimation;
+	AnimationData moveAnimation;
+	AnimationData attackAnimation;
+	AnimationData dyingAnimation;
 };
 
-class Enemy
-{
+class Enemy {
 public:
-    Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
-        
-    void update(float dt);
-    void draw(Atlas& atlas);
+	Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
 
-    void applyDamage(const Damage& damage);
+	void update(float dt);
+	void draw(Atlas& atlas);
 
-    auto getHp() const { return m_hp; }
-    auto getRow() const { return m_row; }
-    const EnemyTypeInfo* getInfo() const;
-    const Vector2& getPosition() const { return m_position; }
-    Vector2 getCenteredPosition() const;
-    Rectangle calculateBoundingBox() const;
-    ColliderHandle getColliderHandle() const;
-    void setColliderHandle(ColliderHandle handle);
-    const Damage& getLatestDamageApplied() const;
+	void applyDamage(const Damage& damage);
 
-    void setState(EnemyState state);
-    auto getState() const { return m_state; }
+	auto getHp() const {
+		return m_hp;
+	}
 
-    bool isDying() const;
-    bool isAttacking() const;
+	auto getRow() const {
+		return m_row;
+	}
+
+	const EnemyTypeInfo* getInfo() const;
+
+	const Vector2& getPosition() const {
+		return m_position;
+	}
+
+	Vector2 getCenteredPosition() const;
+	Rectangle calculateBoundingBox() const;
+	ColliderHandle getColliderHandle() const;
+	void setColliderHandle(ColliderHandle handle);
+	const Damage& getLatestDamageApplied() const;
+
+	void setState(EnemyState state);
+
+	auto getState() const {
+		return m_state;
+	}
+
+	bool isDying() const;
+	bool isAttacking() const;
 
 private:
-    void performIdle(float dt);
-    void performMove(float dt);
-    void performPrepareAttack(float dt);
-    void performDying(float dt);
+	void performIdle(float dt);
+	void performMove(float dt);
+	void performPrepareAttack(float dt);
+	void performDying(float dt);
 
-    void setAnimation(const AnimationData& animationData);
+	void setAnimation(const AnimationData& animationData);
 
 	std::string m_spriteName;
-    Vector2 m_position{};
-    float m_hp{};
-    float m_attackTime{};
-    int m_row{};
-    Interpolation<> m_damageTakenAnimation;
-    Color m_tint{ WHITE };
-    Damage m_latestDamageApplied;
+	Vector2 m_position{};
+	float m_hp{};
+	float m_attackTime{};
+	int m_row{};
+	Interpolation<> m_damageTakenAnimation;
+	Color m_tint{WHITE};
+	Damage m_latestDamageApplied;
 
 	Animation m_animation;
-    EnemyState m_state;
-    const EnemyTypeInfo* m_typeInfo{};
-    ColliderHandle m_colliderHandle{};
+	EnemyState m_state;
+	const EnemyTypeInfo* m_typeInfo{};
+	ColliderHandle m_colliderHandle{};
 };

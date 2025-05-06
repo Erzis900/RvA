@@ -3,8 +3,7 @@
 #include <functional>
 #include <memory>
 
-class TimedAction
-{
+class TimedAction {
 public:
 	TimedAction(std::function<void()> action, float duration);
 
@@ -17,8 +16,7 @@ private:
 	std::function<void()> m_action;
 };
 
-class TimedActionList
-{
+class TimedActionList {
 public:
 	void addTimedAction(std::function<void()> action, float duration);
 	void updateTimers(float dt);

@@ -1,12 +1,10 @@
 #pragma once
 
-#include "fsm/FsmState.h"
-#include "IGameState.h"
-
 #include "GUI/Widgets.h"
+#include "IGameState.h"
+#include "fsm/FsmState.h"
 
-class OptionsState : public IGameState, public flow::FsmState
-{
+class OptionsState : public IGameState, public flow::FsmState {
 public:
 	OptionsState(Game& game);
 
@@ -15,12 +13,12 @@ public:
 	void exit() override;
 
 private:
-    void toggleMusic();
+	void toggleMusic();
 	void toggleFullscreen();
 
 	WidgetHandle m_musicButton{};
 	WidgetHandle m_windowButton{};
-    Screen* m_screen{};
-    std::string m_nextTransition{};
+	Screen* m_screen{};
+	std::string m_nextTransition{};
 	Game& m_game;
 };

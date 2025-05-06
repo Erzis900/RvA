@@ -1,23 +1,23 @@
 #pragma once
 
-#include <fsm/FsmState.h>
 #include "IGameState.h"
+
+#include <fsm/FsmState.h>
 
 class Game;
 
-class PauseState : public IGameState, public flow::FsmState
-{
+class PauseState : public IGameState, public flow::FsmState {
 public:
-    PauseState(Game& game);
+	PauseState(Game& game);
 
-    flow::FsmAction update(float dt) override;
-    flow::FsmAction enter() override;
-    void exit() override;
+	flow::FsmAction update(float dt) override;
+	flow::FsmAction enter() override;
+	void exit() override;
 
 private:
-    void exitGameSession();
-    void restart();
+	void exitGameSession();
+	void restart();
 
-    std::string m_nextTransition;
-    Game& m_game;
+	std::string m_nextTransition;
+	Game& m_game;
 };

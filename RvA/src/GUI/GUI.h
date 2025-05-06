@@ -1,31 +1,28 @@
 #pragma once
 
-#include "atlas/Atlas.h"
 #include "GUI/Widgets.h"
+#include "atlas/Atlas.h"
 #include "utilities/Interpolation.h"
 
-#include <raylib.h>
 #include <optional>
+#include <raylib.h>
 #include <unordered_map>
 
 class Game;
 
-enum CursorType
-{
+enum CursorType {
 	Point,
 	Hover
 };
 
-struct DrawTextInfo
-{
+struct DrawTextInfo {
 	const char* text{};
 	unsigned int fontSize{};
 	Color color;
 	GUIPosition guiPosition;
 };
 
-struct DrawButtonInfo
-{
+struct DrawButtonInfo {
 	const char* text{};
 	Vector2 size;
 	GUIPosition guiPosition;
@@ -33,8 +30,7 @@ struct DrawButtonInfo
 
 class MusicManager;
 
-class GUI
-{
+class GUI {
 public:
 	GUI(Atlas& atlas, MusicManager& musicManager);
 	~GUI();
@@ -43,7 +39,7 @@ public:
 
 	void update(float dt);
 	void draw();
-	
+
 	void setCursor(CursorType type);
 
 	bool drawButton(DrawButtonInfo drawButtonInfo);
@@ -51,8 +47,8 @@ public:
 
 	void startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds);
 
-    void destroyScreen(const char *name);
-	ScreenBuilder buildScreen(const char *name);
+	void destroyScreen(const char* name);
+	ScreenBuilder buildScreen(const char* name);
 
 	void setDefaultButtonSound(Sound* sound);
 
@@ -66,22 +62,22 @@ private:
 	void drawCursor();
 	void drawFPS();
 	void drawScreens();
-    void drawWidget(UINode &node, Screen &screen);
+	void drawWidget(UINode& node, Screen& screen);
 	void drawFading();
 
 	Atlas& m_atlas;
-    MusicManager& m_musicManager;
+	MusicManager& m_musicManager;
 
 	const SpriteInfo* m_mousePointSprite{};
 	const SpriteInfo* m_mouseHoverSprite{};
 	const SpriteInfo* m_mouseCurrentSprite{};
 
-    Interpolation<Color> m_fading;
+	Interpolation<Color> m_fading;
 
 	bool m_drawingScreens{};
-    std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
-    std::vector<std::string> m_screensToDestroy;
-    Sound* m_defaultButtonSound{};
-    bool m_isDebugViewEnabled{false};
-    Font m_font{};
+	std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
+	std::vector<std::string> m_screensToDestroy;
+	Sound* m_defaultButtonSound{};
+	bool m_isDebugViewEnabled{false};
+	Font m_font{};
 };

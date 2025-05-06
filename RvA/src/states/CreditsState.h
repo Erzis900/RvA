@@ -1,12 +1,11 @@
 #pragma once
 
-#include "fsm/FsmState.h"
 #include "IGameState.h"
+#include "fsm/FsmState.h"
 
-class CreditsState : public IGameState, public flow::FsmState
-{
+class CreditsState : public IGameState, public flow::FsmState {
 public:
-    CreditsState(Game& game);
+	CreditsState(Game& game);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
@@ -14,5 +13,5 @@ public:
 
 private:
 	Game& m_game;
-    std::string m_nextTransition;
+	std::string m_nextTransition;
 };

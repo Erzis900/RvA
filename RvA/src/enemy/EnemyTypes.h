@@ -1,7 +1,7 @@
 #pragma once
 
-enum class EnemyType
-{
+enum class EnemyType {
 	B1,
-	B2
+	B2,
+	Portal
 };

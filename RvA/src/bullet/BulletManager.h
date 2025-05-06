@@ -1,18 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <unordered_map>
-#include <string>
-#include <raylib.h>
 #include <bullet/BulletTypes.h>
+#include <memory>
+#include <raylib.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class CollisionSystem;
 class EnemyManager;
 class Enemy;
 
-class BulletTypeRegistry
-{
+class BulletTypeRegistry {
 public:
 	void registerBulletType(std::string id, BulletData typeInfo);
 	const BulletData* getBulletInfo(const std::string& id) const;
@@ -21,8 +20,7 @@ private:
 	std::unordered_map<std::string, BulletData> m_bulletTypes;
 };
 
-class BulletManager
-{
+class BulletManager {
 public:
 	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem);
 
@@ -32,7 +30,10 @@ public:
 
 	void spawnBullet(const BulletData& data, const Vector2& position);
 	void executeHit(Bullet& bullet, Enemy& enemy);
-	auto& getBullets() const { return m_bullets; }
+
+	auto& getBullets() const {
+		return m_bullets;
+	}
 
 private:
 	// TODO(Gerark): These methods likely belong within the Info structs for better encapsulation.

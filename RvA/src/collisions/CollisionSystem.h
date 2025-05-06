@@ -1,20 +1,20 @@
 #pragma once
 
-#include "FixedItemPool.h"
 #include "Collider.h"
+#include "FixedItemPool.h"
 #include "utilities/TimedAction.h"
-#include <raylib.h>
+
 #include <functional>
+#include <raylib.h>
 
 class DefenderManager;
 class EnemyManager;
 class BulletManager;
 
 /*
-* A very basic collision system
-*/
-class CollisionSystem
-{
+ * A very basic collision system
+ */
+class CollisionSystem {
 public:
 	// TODO(Gerark) - This implementation is going to be quite specific and ad-hoc for the game
 	CollisionSystem();
@@ -24,7 +24,10 @@ public:
 	// If set to true the debug view shows all the boundings box for each collider
 	void enableDebugView(bool enabled);
 	void toggleDebugView();
-	auto isDebugViewEnabled() const { return m_enableDebugView; }
+
+	auto isDebugViewEnabled() const {
+		return m_enableDebugView;
+	}
 
 	void clearColliders();
 	void update(float dt);

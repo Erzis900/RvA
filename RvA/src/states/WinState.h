@@ -1,15 +1,14 @@
 #pragma once
 
-#include "fsm/FsmState.h"
-#include "IGameState.h"
 #include "Animation.h"
+#include "IGameState.h"
+#include "fsm/FsmState.h"
 #include "utilities/CallbackRegistry.h"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
-class WinState : public IGameState, public flow::FsmState
-{
+class WinState : public IGameState, public flow::FsmState {
 public:
 	WinState(Game& game);
 
@@ -40,5 +39,5 @@ private:
 	float m_textAnimationAmplitude{10.f};
 	Vector2 m_textPosition;
 	Game& m_game;
-    CallbackHandle m_drawingCallbackHandle;
+	CallbackHandle m_drawingCallbackHandle;
 };

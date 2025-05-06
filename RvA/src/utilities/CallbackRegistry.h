@@ -5,32 +5,31 @@
 #include <memory>
 
 struct CallbackHandle {
-    std::shared_ptr<int> token; // Owning pointer to track lifetime
+	std::shared_ptr<int> token; // Owning pointer to track lifetime
 };
 
-template <typename... Args>
-class CallbackRegistry {
+template<typename... Args> class CallbackRegistry {
 public:
-    using Callback = std::function<void(Args...)>;
+	using Callback = std::function<void(Args...)>;
 
-    [[nodiscard]] CallbackHandle registerCallback(Callback cb) {
-        auto token = std::make_shared<int>(0);
-        callbacks[token] = std::move(cb);
+	[[nodiscard]] CallbackHandle registerCallback(Callback cb) {
+		auto token = std::make_shared<int>(0);
+		callbacks[token] = std::move(cb);
 
-        return CallbackHandle{ token };
-    }
+		return CallbackHandle{token};
+	}
 
-    void executeCallbacks(Args&&... args) {
-        for (auto it = callbacks.begin(); it != callbacks.end(); ) {
-            if (it->first.expired()) {
-                it = callbacks.erase(it);
-            } else {
-                it->second(std::forward<Args>(args)...);
-                ++it;
-            }
-        }
-    }
+	void executeCallbacks(Args&&... args) {
+		for (auto it = callbacks.begin(); it != callbacks.end();) {
+			if (it->first.expired()) {
+				it = callbacks.erase(it);
+			} else {
+				it->second(std::forward<Args>(args)...);
+				++it;
+			}
+		}
+	}
 
 private:
-    std::map<std::weak_ptr<void>, Callback, std::owner_less<std::weak_ptr<void>>> callbacks;
+	std::map<std::weak_ptr<void>, Callback, std::owner_less<std::weak_ptr<void>>> callbacks;
 };
