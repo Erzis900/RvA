@@ -1,7 +1,6 @@
 #pragma once
 
-enum class DefenderType
-{
+enum class DefenderType {
 	Solar,
 	Shooter,
 	Catapult,

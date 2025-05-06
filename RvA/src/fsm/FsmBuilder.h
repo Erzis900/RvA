@@ -46,8 +46,7 @@ public:
 	FsmBuilder& jumpTo(std::string_view targetState);
 	FsmBuilder& jumpTo(std::function<bool()> condition, std::string_view targetState);
 
-	std::tuple<std::unique_ptr<Fsm>, std::unique_ptr<FsmInfo>> build(const HashId& startStateName,
-																	 FsmExternalController* externalController);
+	std::tuple<std::unique_ptr<Fsm>, std::unique_ptr<FsmInfo>> build(const HashId& startStateName, FsmExternalController* externalController);
 
 	static const HashId appExitRequestTransition;
 

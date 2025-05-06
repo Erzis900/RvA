@@ -1,6 +1,7 @@
 #pragma once
 
 #include "textureatlas.h"
+
 #include <raylib.h>
 #include <string>
 
@@ -12,8 +13,7 @@ enum Flip {
 
 using SpriteInfo = texture_atlas_texture_t;
 
-class Atlas
-{
+class Atlas {
 public:
 	Atlas();
 	~Atlas();
@@ -21,7 +21,10 @@ public:
 	void load(const char* textureName);
 	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE);
 
-	texture_atlas_t* getTextureAtlas() { return m_ta; }
+	texture_atlas_t* getTextureAtlas() {
+		return m_ta;
+	}
+
 	const SpriteInfo* getSpriteInfo(const char* textureName) const;
 
 private:

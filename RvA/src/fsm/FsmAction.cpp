@@ -1,7 +1,7 @@
 #include "FsmAction.h"
 
-#include <string>
 #include <cassert>
+#include <string>
 
 namespace flow {
 

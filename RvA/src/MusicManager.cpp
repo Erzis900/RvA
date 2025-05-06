@@ -1,14 +1,12 @@
 #include "MusicManager.h"
 
-MusicManager::~MusicManager()
-{
+MusicManager::~MusicManager() {
 	UnloadMusicStream(m_menuMusic);
 	UnloadMusicStream(m_gameMusic);
 	UnloadMusicStream(m_lostMusic);
 }
 
-void MusicManager::load()
-{
+void MusicManager::load() {
 	// TODO make sure all the music files have consistent formats
 	m_menuMusic = LoadMusicStream("sfx/menu.wav");
 	m_gameMusic = LoadMusicStream("sfx/game.mp3");
@@ -22,27 +20,22 @@ void MusicManager::load()
 	s_alienDeath = LoadSound("sfx/alienDeath.wav");
 }
 
-void MusicManager::play(Music& music)
-{
-    if (!IsMusicStreamPlaying(music))
-	{
-        StopMusicStream(m_currentMusic);
+void MusicManager::play(Music& music) {
+	if (!IsMusicStreamPlaying(music)) {
+		StopMusicStream(m_currentMusic);
 		m_currentMusic = music;
 		PlayMusicStream(m_currentMusic);
 	}
 }
 
-void MusicManager::play(Sound& sound)
-{
+void MusicManager::play(Sound& sound) {
 	PlaySound(sound);
 }
 
-void MusicManager::stop(Music& music)
-{
+void MusicManager::stop(Music& music) {
 	StopMusicStream(music);
 }
 
-void MusicManager::updateStream()
-{
+void MusicManager::updateStream() {
 	UpdateMusicStream(m_currentMusic);
 }

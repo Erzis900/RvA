@@ -70,8 +70,7 @@ FsmBuilder& FsmBuilder::jumpTo(std::function<bool()> condition, std::string_view
 	return _jumpTo(condition, HashId(targetState));
 }
 
-std::tuple<std::unique_ptr<Fsm>, std::unique_ptr<FsmInfo>>
-FsmBuilder::build(const HashId& startStateName, FsmExternalController* externalController) {
+std::tuple<std::unique_ptr<Fsm>, std::unique_ptr<FsmInfo>> FsmBuilder::build(const HashId& startStateName, FsmExternalController* externalController) {
 	if (!_states.contains(startStateName)) {
 		assert(0 && "Can't build FSM. Start state is not valid");
 	} else if (_states.empty()) {

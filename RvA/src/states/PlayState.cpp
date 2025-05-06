@@ -1,17 +1,15 @@
 #include "PlayState.h"
+
 #include "Game.h"
 #include "constants.h"
 
-PlayState::PlayState(Game& game)
-	: m_game(game)
-{
-}
+PlayState::PlayState(Game& game) : m_game(game) {}
 
 flow::FsmAction PlayState::enter() {
 	m_game.getGameSession().start();
 	m_game.getMusicManager().play(m_game.getMusicManager().getGameMusic());
 
-    return flow::FsmAction::none();
+	return flow::FsmAction::none();
 }
 
 flow::FsmAction PlayState::update(float dt) {
@@ -41,5 +39,4 @@ flow::FsmAction PlayState::update(float dt) {
 	return flow::FsmAction::none();
 }
 
-void PlayState::exit() {
-}
+void PlayState::exit() {}

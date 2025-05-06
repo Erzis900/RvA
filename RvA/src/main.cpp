@@ -2,15 +2,13 @@
 
 #define NOMINMAX
 
-#include <raygui.h>
+#include "Game.h"
 
+#include <raygui.h>
 #include <raylib_win32.h>
 #include <spdlog/spdlog.h>
 
-#include "Game.h"
-
-int main()
-{
+int main() {
 	SetTraceLogLevel(LOG_ERROR);
 	spdlog::info("Hello from spdlog");
 
