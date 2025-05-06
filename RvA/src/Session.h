@@ -5,6 +5,7 @@
 #include "collisions/Collider.h"
 #include "collisions/CollisionSystem.h"
 #include "defender/DefenderManager.h"
+#include "defender/DefenderPicker.h"
 #include "enemy/EnemyManager.h"
 
 class Game;

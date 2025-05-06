@@ -11,6 +11,7 @@ Session::Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const Def
 	, m_defenderManager(m_collisionSystem)
 	, m_enemyManager(enemyTypeRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
+	, m_defenderPicker(*this, defenderTypeRegistry)
 	, m_hud(gui) {
 	m_enemyManager.onEnemiesDestroyed([this](int numberOfDestroyedEnemies) { m_numberOfDestroyedEnemies += numberOfDestroyedEnemies; });
 
@@ -36,15 +37,16 @@ bool Session::isPaused() const {
 void Session::start() {
 	m_isStarted = true;
 
-	setupHUD();
 	m_hud.setEnable(true);
 	m_hud.setVisible(true);
 
 	if (m_isPaused) {
 		setPause(false);
 	} else {
+		m_defenderPicker.reset();
 		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 		m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
+		setupHUD();
 	}
 }
 
@@ -85,6 +87,7 @@ void Session::update(float dt) {
 	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
 	m_bulletManager.update(dt);
+	m_defenderPicker.update(dt);
 
 	updateHUD(dt);
 }

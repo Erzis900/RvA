@@ -137,52 +137,40 @@ bool Game::shouldClose() const {
 
 void Game::setupFSM() {
 	auto fsmBuilder = flow::FsmBuilder();
+
+	// clang-format off
 	fsmBuilder
 		// Menus
 		.state<MenuState>("MainMenu", *this)
-		.on("play")
-		.jumpTo("Play")
-		.on("options")
-		.jumpTo("Options")
-		.on("credits")
-		.jumpTo("Credits")
-		.on("exit")
-		.exitFsm()
+			.on("play").jumpTo("Play")
+			.on("options").jumpTo("Options")
+			.on("credits").jumpTo("Credits")
+			.on("exit").exitFsm()
 
 		.state<OptionsState>("Options", *this)
-		.on("back")
-		.jumpTo("MainMenu")
+			.on("back").jumpTo("MainMenu")
 
 		.state<CreditsState>("Credits", *this)
-		.on("back")
-		.jumpTo("MainMenu")
+			.on("back").jumpTo("MainMenu")
 
 		// In Game States
 		.state<PlayState>("Play", *this)
-		.on("pause")
-		.jumpTo("PauseMenu")
-		.on("win")
-		.jumpTo("WinScreen")
-		.on("lost")
-		.jumpTo("LoseScreen")
+			.on("pause").jumpTo("PauseMenu")
+			.on("win").jumpTo("WinScreen")
+			.on("lost").jumpTo("LoseScreen")
 
 		.state<PauseState>("PauseMenu", *this)
-		.on("resume")
-		.jumpTo("Play")
-		.on("restart")
-		.jumpTo("Play")
-		.on("menu")
-		.jumpTo("MainMenu")
+			.on("resume").jumpTo("Play")
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu")
 
 		.state<WinState>("WinScreen", *this)
-		.on("menu")
-		.jumpTo("MainMenu")
+			.on("menu").jumpTo("MainMenu")
 
 		.state<LostState>("LoseScreen", *this)
-		.on("restart")
-		.jumpTo("Play")
-		.on("menu")
-		.jumpTo("MainMenu");
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu");
+	// clang-format on
 
 	auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
 	m_fsm = std::move(fsm);

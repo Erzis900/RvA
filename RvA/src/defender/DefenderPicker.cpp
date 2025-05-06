@@ -1,21 +1,50 @@
 #include "DefenderPicker.h"
 
+#include "DefenderManager.h"
 #include "Session.h"
 
 DefenderPicker::DefenderPicker(Session& session, const DefenderTypeRegistry& defenderTypeRegistry) : m_gameSession(session), m_defenderTypeRegistry(defenderTypeRegistry) {}
 
-void DefenderPicker::update(float dt) {}
+void DefenderPicker::reset() {
+	auto& defenderTypeInfos = m_defenderTypeRegistry.getDefenderInfos();
+
+	m_pickableItems.reserve(defenderTypeInfos.size());
+	for (auto& [type, info] : defenderTypeInfos) {
+		m_pickableItems.emplace(type, Item{.type = type, .cost = info.cost, .maxCooldown = info.buildCooldown});
+	}
+}
+
+void DefenderPicker::update(float dt) {
+	for (auto& [type, item] : m_pickableItems) {
+		item.currentCooldown -= dt;
+		if (item.currentCooldown < 0.f) {
+			item.currentCooldown = 0.f;
+		}
+	}
+}
 
 bool DefenderPicker::canAfford(DefenderType type) const {
-	const auto& defenderInfo = m_gameSession.getDefenderTypeRegistry().getDefenderInfo(type);
+	const auto& defenderInfo = m_defenderTypeRegistry.getDefenderInfo(type);
+	assert(defenderInfo);
 	if (!defenderInfo) {
 		return false;
 	}
 	return m_gameSession.getScraps() >= defenderInfo->cost;
 }
 
-bool DefenderPicker::isInCooldown(DefenderType type) const {
-	return false;
+float DefenderPicker::getCurrentCooldown(DefenderType type) const {
+	auto it = m_pickableItems.find(type);
+	assert(it != m_pickableItems.end());
+	if (it != m_pickableItems.end()) {
+		return it->second.currentCooldown;
+	}
+	return 0.f;
 }
 
-void DefenderPicker::startCooldown(DefenderType type) {}
+void DefenderPicker::startCooldown(DefenderType type) {
+	auto it = m_pickableItems.find(type);
+	assert(it != m_pickableItems.end());
+	if (it != m_pickableItems.end()) {
+		it->second.currentCooldown = it->second.maxCooldown;
+	}
+}
