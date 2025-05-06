@@ -17,7 +17,7 @@ struct Wall {
 
 class Session {
 public:
-	Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry);
+	Session(GUI& gui, const GameRegistry& gameRegistry);
 	~Session();
 
 	void start();
@@ -82,9 +82,7 @@ private:
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 
-	const DefenderTypeRegistry& m_defenderTypeRegistry;
-	const EnemyTypeRegistry& m_enemyTypeRegistry;
-	const BulletTypeRegistry& m_bulletTypeRegistry;
+	const GameRegistry& m_gameRegistry;
 	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;

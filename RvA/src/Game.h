@@ -1,14 +1,11 @@
 #pragma once
 
 #include "GUI/GUI.h"
+#include "GameRegistry.h"
 #include "IGameState.h"
 #include "MusicManager.h"
 #include "Session.h"
 #include "atlas/Atlas.h"
-#include "bullet/BulletManager.h"
-#include "collisions/CollisionSystem.h"
-#include "defender/DefenderManager.h"
-#include "enemy/EnemyManager.h"
 #include "fsm/Fsm.h"
 #include "utilities/CallbackRegistry.h"
 
@@ -30,16 +27,8 @@ public:
 		return m_atlas;
 	}
 
-	const auto& getDefenderRegistry() const {
-		return m_defenderTypeRegistry;
-	}
-
-	const auto& getBulletTypeRegistry() const {
-		return m_bulletTypeRegistry;
-	}
-
-	const auto& getEnemyTypeRegistry() const {
-		return m_enemyTypeRegistry;
+	const auto& getGameRegistry() const {
+		return m_gameRegistry;
 	}
 
 	auto& getMusicManager() {
@@ -92,9 +81,7 @@ private:
 	Atlas m_atlas;
 	MusicManager m_musicManager;
 
-	DefenderTypeRegistry m_defenderTypeRegistry;
-	BulletTypeRegistry m_bulletTypeRegistry;
-	EnemyTypeRegistry m_enemyTypeRegistry;
+	GameRegistry m_gameRegistry;
 
 	Session m_gameSession;
 	std::unique_ptr<flow::Fsm> m_fsm;

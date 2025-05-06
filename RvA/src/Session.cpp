@@ -1,17 +1,16 @@
 #include "Session.h"
 
 #include "Game.h"
+#include "GameRegistry.h"
 
 #include <raymath.h>
 
-Session::Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const DefenderTypeRegistry& defenderTypeRegistry, const BulletTypeRegistry& bulletTypeRegistry)
-	: m_enemyTypeRegistry(enemyTypeRegistry)
-	, m_defenderTypeRegistry(defenderTypeRegistry)
-	, m_bulletTypeRegistry(bulletTypeRegistry)
+Session::Session(GUI& gui, const GameRegistry& gameRegistry)
+	: m_gameRegistry(gameRegistry)
 	, m_defenderManager(m_collisionSystem)
-	, m_enemyManager(enemyTypeRegistry, m_collisionSystem)
+	, m_enemyManager(m_gameRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
-	, m_defenderPicker(*this, defenderTypeRegistry)
+	, m_defenderPicker(*this, m_gameRegistry)
 	, m_hud(gui) {
 	m_enemyManager.onEnemiesDestroyed([this](int numberOfDestroyedEnemies) { m_numberOfDestroyedEnemies += numberOfDestroyedEnemies; });
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
@@ -123,7 +122,7 @@ void Session::performDefenderSpawnOnInput() {
 		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && m_selectedDefender) {
 				if (canPlaceDefender(row, column)) {
-					auto defenderInfo = m_defenderTypeRegistry.getDefenderInfo(*m_selectedDefender);
+					auto defenderInfo = m_gameRegistry.getDefender(*m_selectedDefender);
 					if (defenderInfo && canAffordCost(defenderInfo->cost)) {
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
 						m_scraps -= defenderInfo->cost;
@@ -149,7 +148,7 @@ void Session::performActions(const Actions& actions) {
 }
 
 void Session::performAction(const BulletSpawnAction& action) {
-	auto bulletInfo = m_bulletTypeRegistry.getBulletInfo(action.bulletType);
+	auto bulletInfo = m_gameRegistry.getBullet(action.bulletType);
 	if (bulletInfo) {
 		m_bulletManager.spawnBullet(*bulletInfo, action.position);
 	}
@@ -167,7 +166,7 @@ void Session::setupHUD() {
 	auto& hudData = m_hud.data();
 	hudData.defenders.clear();
 	for (const auto& [type, pickableDefender] : m_defenderPicker.getAvailableDefenders()) {
-		auto defenderInfo = m_defenderTypeRegistry.getDefenderInfo(type);
+		auto defenderInfo = m_gameRegistry.getDefender(type);
 		hudData.defenders.emplace_back(type, defenderInfo->spriteEnabled.spriteInfo, defenderInfo->cost);
 	}
 

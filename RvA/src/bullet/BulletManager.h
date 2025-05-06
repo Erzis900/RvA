@@ -1,24 +1,14 @@
 #pragma once
 
-#include <bullet/BulletTypes.h>
+#include "bullet/BulletTypeRegistry.h"
+
 #include <memory>
 #include <raylib.h>
-#include <string>
-#include <unordered_map>
 #include <vector>
 
 class CollisionSystem;
 class EnemyManager;
 class Enemy;
-
-class BulletTypeRegistry {
-public:
-	void registerBulletType(std::string id, BulletData typeInfo);
-	const BulletData* getBulletInfo(const std::string& id) const;
-
-private:
-	std::unordered_map<std::string, BulletData> m_bulletTypes;
-};
 
 class BulletManager {
 public:

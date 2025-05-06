@@ -1,8 +1,9 @@
 #pragma once
+
 #include "Animation.h"
 #include "Damage.h"
-#include "EnemyTypes.h"
 #include "collisions/CollisionSystem.h"
+#include "enemy/EnemyTypeRegistry.h"
 #include "utilities/Interpolation.h"
 
 #include <raylib.h>
@@ -19,20 +20,6 @@ enum class EnemyState {
 	ReadyToAttack,
 	Dying,
 	Dead
-};
-
-struct EnemyTypeInfo {
-	EnemyType type{};
-	float spawnChance{};
-	float maxHp{};
-	float speed{};
-	float attackTime{};
-	float defenderDamage{};
-	float baseWallDamage{};
-	AnimationData idleAnimation;
-	AnimationData moveAnimation;
-	AnimationData attackAnimation;
-	AnimationData dyingAnimation;
 };
 
 class Enemy {

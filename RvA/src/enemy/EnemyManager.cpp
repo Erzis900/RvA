@@ -1,22 +1,12 @@
 #include "EnemyManager.h"
 
-#include "EnemyTypes.h"
-#include "Game.h"
+#include "GameRegistry.h"
 #include "constants.h"
 
 #include <raylib.h>
 #include <raymath.h>
 
-void EnemyTypeRegistry::registerEnemyType(EnemyTypeInfo typeInfo) {
-	m_enemyTypes.insert({typeInfo.type, std::move(typeInfo)});
-}
-
-const EnemyTypeInfo* EnemyTypeRegistry::getEnemyTypeInfo(EnemyType type) const {
-	auto itr = m_enemyTypes.find(type);
-	return (itr != m_enemyTypes.end()) ? &itr->second : nullptr;
-}
-
-EnemyManager::EnemyManager(const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem) : m_enemyTypeRegistry(enemyTypeRegistry), m_collisionSystem(collisionSystem) {}
+EnemyManager::EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem) : m_gameRegistry(gameRegistry), m_collisionSystem(collisionSystem) {}
 
 void EnemyManager::clear() {
 	for (auto& enemy : m_enemies) {
@@ -87,7 +77,7 @@ void EnemyManager::spawnEnemy() {
 	float randomValue = GetRandomValue(0, 100) / 100.0f;
 
 	float cumulativeChance = 0.0f;
-	const auto& typeInfos = m_enemyTypeRegistry.getEnemyTypeInfos();
+	const auto& typeInfos = m_gameRegistry.getEnemies();
 	const EnemyTypeInfo* enemyTypeInfo = &(typeInfos.begin()->second);
 	for (const auto& [type, typeInfo] : typeInfos) {
 		cumulativeChance += typeInfo.spawnChance;

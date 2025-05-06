@@ -4,28 +4,15 @@
 
 #include <functional>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 class Atlas;
 class CollisionSystem;
-
-class EnemyTypeRegistry {
-public:
-	void registerEnemyType(EnemyTypeInfo typeInfo);
-	const EnemyTypeInfo* getEnemyTypeInfo(EnemyType type) const;
-
-	const auto& getEnemyTypeInfos() const {
-		return m_enemyTypes;
-	};
-
-private:
-	std::unordered_map<EnemyType, EnemyTypeInfo> m_enemyTypes;
-};
+class GameRegistry;
 
 class EnemyManager {
 public:
-	EnemyManager(const EnemyTypeRegistry& enemyTypeRegistry, CollisionSystem& collisionSystem);
+	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem);
 
 	void clear();
 	void update(float dt);
@@ -50,6 +37,6 @@ private:
 	float m_spawnTimer{};
 	float m_spawnInterval{1.f};
 
-	const EnemyTypeRegistry& m_enemyTypeRegistry;
+	const GameRegistry& m_gameRegistry;
 	CollisionSystem& m_collisionSystem;
 };

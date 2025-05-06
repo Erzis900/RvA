@@ -5,11 +5,11 @@
 #include <unordered_map>
 
 class Session;
-class DefenderTypeRegistry;
+class GameRegistry;
 
 class DefenderPicker {
 public:
-	DefenderPicker(Session& session, const DefenderTypeRegistry& defenderTypeRegistry);
+	DefenderPicker(Session& session, const GameRegistry& gameRegistry);
 
 	void reset();
 	void update(float dt);
@@ -27,7 +27,7 @@ public:
 
 private:
 	Session& m_gameSession;
-	const DefenderTypeRegistry& m_defenderTypeRegistry;
+	const GameRegistry& m_gameRegistry;
 
 	struct Item {
 		DefenderType type{};

@@ -18,7 +18,7 @@ Game::Game()
 	, m_screenWidth(SCREEN_WIDTH)
 	, m_screenHeight(SCREEN_HEIGHT)
 	, m_gui(m_atlas, m_musicManager)
-	, m_gameSession(m_gui, m_enemyTypeRegistry, m_defenderTypeRegistry, m_bulletTypeRegistry) {
+	, m_gameSession(m_gui, m_gameRegistry) {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
@@ -186,7 +186,7 @@ void Game::run() {
 void Game::registerDefenderTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
-	m_defenderTypeRegistry.registerDefender({
+	m_gameRegistry.addDefender({
 		.type = DefenderType::Solar,
 		.spriteEnabled = {sprite("solar_idle"), 0.1f},
 		.spriteDisabled = {sprite("solar_off"), 0.1f},
@@ -196,116 +196,116 @@ void Game::registerDefenderTypes() {
 		.buildCooldown = 2.f,
 	});
 
-	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Shooter,
-											 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
-											 .spriteDisabled = {sprite("shooter_off"), 0.1f},
-											 .spriteShoot = {sprite("shooter_shoot"), 0.1f},
-											 .batteryDrain = 5.f,
-											 .firstShootCooldown = 3.f,
-											 .shootCooldown = 2.f,
-											 .maxHP = 150,
-											 .cost = 10,
-											 .bulletType = "SimpleShot",
-											 .shootingAnimationTime = 0.8f,
-											 .buildCooldown = 3.f});
+	m_gameRegistry.addDefender({.type = DefenderType::Shooter,
+								.spriteEnabled = {sprite("shooter_idle"), 0.1f},
+								.spriteDisabled = {sprite("shooter_off"), 0.1f},
+								.spriteShoot = {sprite("shooter_shoot"), 0.1f},
+								.batteryDrain = 5.f,
+								.firstShootCooldown = 3.f,
+								.shootCooldown = 2.f,
+								.maxHP = 150,
+								.cost = 10,
+								.bulletType = "SimpleShot",
+								.shootingAnimationTime = 0.8f,
+								.buildCooldown = 3.f});
 
-	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Catapult,
-											 .spriteEnabled = {sprite("catapult_idle"), 0.1f},
-											 .spriteDisabled = {sprite("catapult_off"), 0.1f},
-											 .spriteShoot = {sprite("catapult_shoot"), 0.1f},
-											 .batteryDrain = 10.f,
-											 .firstShootCooldown = 3.f,
-											 .shootCooldown = 1.f,
-											 .maxHP = 200,
-											 .cost = 20,
-											 .bulletType = "ChasingShot",
-											 .shootingAnimationTime = 0.7f,
-											 .buildCooldown = 5.f});
+	m_gameRegistry.addDefender({.type = DefenderType::Catapult,
+								.spriteEnabled = {sprite("catapult_idle"), 0.1f},
+								.spriteDisabled = {sprite("catapult_off"), 0.1f},
+								.spriteShoot = {sprite("catapult_shoot"), 0.1f},
+								.batteryDrain = 10.f,
+								.firstShootCooldown = 3.f,
+								.shootCooldown = 1.f,
+								.maxHP = 200,
+								.cost = 20,
+								.bulletType = "ChasingShot",
+								.shootingAnimationTime = 0.7f,
+								.buildCooldown = 5.f});
 
-	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Lasertron,
-											 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
-											 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
-											 .spriteShoot = {sprite("lasertron_shoot"), 0.1f},
-											 .batteryDrain = 20.f,
-											 .firstShootCooldown = 3.f,
-											 .shootCooldown = 2.f,
-											 .maxHP = 250,
-											 .cost = 30,
-											 .bulletType = "LaserBeam",
-											 .shootingAnimationTime = 1.2f,
-											 .buildCooldown = 5.f});
+	m_gameRegistry.addDefender({.type = DefenderType::Lasertron,
+								.spriteEnabled = {sprite("lasertron_idle"), 0.1f},
+								.spriteDisabled = {sprite("lasertron_off"), 0.1f},
+								.spriteShoot = {sprite("lasertron_shoot"), 0.1f},
+								.batteryDrain = 20.f,
+								.firstShootCooldown = 3.f,
+								.shootCooldown = 2.f,
+								.maxHP = 250,
+								.cost = 30,
+								.bulletType = "LaserBeam",
+								.shootingAnimationTime = 1.2f,
+								.buildCooldown = 5.f});
 }
 
 void Game::registerBulletTypes() {
-	m_bulletTypeRegistry.registerBulletType("SimpleShot",
-											BulletShotData{
-												.velocity = {150, 0},
-												.radius = 5.f,
-												.damage = {25, 16},
-												.maxLifetime = 100,
-											});
+	m_gameRegistry.addBullet("SimpleShot",
+							 BulletShotData{
+								 .velocity = {150, 0},
+								 .radius = 5.f,
+								 .damage = {25, 16},
+								 .maxLifetime = 100,
+							 });
 
-	m_bulletTypeRegistry.registerBulletType("ChasingShot",
-											ChasingShotData{
-												.startOffset = {20, 20},
-												.radius = 10.f,
-												.damage = {50, 16},
-												.maxLifetime = 100,
-												.speed = 150,
-												.color = {255, 0, 0, 255},
-												.direction = {1, 0},
-											});
+	m_gameRegistry.addBullet("ChasingShot",
+							 ChasingShotData{
+								 .startOffset = {20, 20},
+								 .radius = 10.f,
+								 .damage = {50, 16},
+								 .maxLifetime = 100,
+								 .speed = 150,
+								 .color = {255, 0, 0, 255},
+								 .direction = {1, 0},
+							 });
 
-	m_bulletTypeRegistry.registerBulletType("LaserBeam",
-											LaserBeamData{
-												.startOffset = {35, 18},
-												.beamHeight = 2,
-												.damage = {100.f, 0, true},
-												.auraSize = 2,
-												.beamColor = BLUE,
-												.auraColor = {255, 255, 255, 200},
-												.maxLifetime = 0.5f,
-												.shootAnimationSpeed = 15,
-												.shootAnimationDuration = 2.f,
-											});
+	m_gameRegistry.addBullet("LaserBeam",
+							 LaserBeamData{
+								 .startOffset = {35, 18},
+								 .beamHeight = 2,
+								 .damage = {100.f, 0, true},
+								 .auraSize = 2,
+								 .beamColor = BLUE,
+								 .auraColor = {255, 255, 255, 200},
+								 .maxLifetime = 0.5f,
+								 .shootAnimationSpeed = 15,
+								 .shootAnimationDuration = 2.f,
+							 });
 }
 
 void Game::registerEnemyTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
-	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::B1,
-										   .spawnChance = 0.2f,
-										   .maxHp = 100,
-										   .speed = 40,
-										   .attackTime = 0.4f,
-										   .defenderDamage = 50,
-										   .baseWallDamage = 10,
-										   .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
-										   .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
-										   .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-										   .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+	m_gameRegistry.addEnemy({.type = EnemyType::B1,
+							 .spawnChance = 0.2f,
+							 .maxHp = 100,
+							 .speed = 40,
+							 .attackTime = 0.4f,
+							 .defenderDamage = 50,
+							 .baseWallDamage = 10,
+							 .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+							 .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+							 .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+							 .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
 
-	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::B2,
-										   .spawnChance = 0.3f,
-										   .maxHp = 150,
-										   .speed = 80,
-										   .attackTime = 0.5f,
-										   .defenderDamage = 50,
-										   .baseWallDamage = 10,
-										   .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
-										   .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
-										   .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
-										   .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
+	m_gameRegistry.addEnemy({.type = EnemyType::B2,
+							 .spawnChance = 0.3f,
+							 .maxHp = 150,
+							 .speed = 80,
+							 .attackTime = 0.5f,
+							 .defenderDamage = 50,
+							 .baseWallDamage = 10,
+							 .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
+							 .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
+							 .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
+							 .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
 
-	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::Portal,
-										   .spawnChance = 0.5f,
-										   .maxHp = 60,
-										   .speed = 30,
-										   .attackTime = 0.5f,
-										   .defenderDamage = 50,
-										   .baseWallDamage = 10,
-										   .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
-										   .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
-										   .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
-										   .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
+	m_gameRegistry.addEnemy({.type = EnemyType::Portal,
+							 .spawnChance = 0.5f,
+							 .maxHp = 60,
+							 .speed = 30,
+							 .attackTime = 0.5f,
+							 .defenderDamage = 50,
+							 .baseWallDamage = 10,
+							 .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
+							 .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
+							 .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
+							 .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
 }
