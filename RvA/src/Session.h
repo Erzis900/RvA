@@ -5,6 +5,7 @@
 #include "collisions/Collider.h"
 #include "collisions/CollisionSystem.h"
 #include "defender/DefenderManager.h"
+#include "defender/DefenderPicker.h"
 #include "enemy/EnemyManager.h"
 
 class Game;
@@ -79,6 +80,7 @@ private:
 	bool m_isPaused{false};
 	bool m_isStarted{false};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
+	CallbackHandle m_onDefenderDestroyedHandle;
 
 	const DefenderTypeRegistry& m_defenderTypeRegistry;
 	const EnemyTypeRegistry& m_enemyTypeRegistry;
@@ -87,5 +89,6 @@ private:
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
+	DefenderPicker m_defenderPicker;
 	HUD m_hud;
 };

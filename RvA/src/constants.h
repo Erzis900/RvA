@@ -1,6 +1,7 @@
 #pragma once
 
 #include <raylib.h>
+#include <tuple>
 
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
@@ -20,3 +21,6 @@ constexpr bool DEV_MODE = true;
 constexpr int FONT_SMALL = 16;
 constexpr int FONT_MEDIUM = 32;
 constexpr int FONT_BIG = 64;
+
+std::tuple<int, int> getCoordinates(const Vector2& position);
+Vector2 getSnappedPosition(const Vector2& position);

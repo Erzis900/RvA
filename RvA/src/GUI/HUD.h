@@ -18,6 +18,9 @@ struct HUDDefenderData {
 	DefenderType type;
 	const SpriteInfo* spriteInfo;
 	int cost;
+	float cooldown{};
+	float maxCooldown{};
+	bool canAfford{true};
 };
 
 struct ProgressBarData {
@@ -36,7 +39,14 @@ struct HUDData {
 	std::vector<HUDDefenderData> defenders;
 	std::vector<ProgressBarData> progressBars;
 
-	std::optional<DefenderType> selectedDefender;
+	std::optional<int> selectedDefenderIndex;
+
+	struct OccupiedCell {
+		int row{};
+		int column{};
+	};
+
+	std::vector<OccupiedCell> occupiedCells;
 };
 
 class HUD {
@@ -48,7 +58,7 @@ public:
 	void setEnable(bool enabled);
 
 	// Events
-	CallbackHandle onDefenderSelected(std::function<void()> callback);
+	CallbackHandle onDefenderSelected(std::function<void(int)> callback);
 
 	// Data
 	auto& data() {
@@ -69,7 +79,7 @@ private:
 	HUDData m_data;
 	GUI& m_gui;
 
-	CallbackRegistry<> m_onDefenderSelectedCallbacks;
+	CallbackRegistry<const int&> m_onDefenderSelectedCallbacks;
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};

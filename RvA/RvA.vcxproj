@@ -149,6 +149,8 @@
   <ItemGroup>
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\collisions\CollisionSystem.cpp" />
+    <ClCompile Include="src\constants.cpp" />
+    <ClCompile Include="src\defender\DefenderPicker.cpp" />
     <ClCompile Include="src\fsm\Fsm.cpp" />
     <ClCompile Include="src\fsm\FsmAction.cpp" />
     <ClCompile Include="src\fsm\FsmBuilder.cpp" />

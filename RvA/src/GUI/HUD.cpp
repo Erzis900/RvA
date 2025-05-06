@@ -3,7 +3,9 @@
 #include "GUI/GUI.h"
 #include "constants.h"
 
+#include <algorithm>
 #include <raygui.h>
+#include <raymath.h>
 #include <rlgl.h>
 
 const float defenderSize = CELL_SIZE;
@@ -88,7 +90,7 @@ void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgC
 	DrawRectangleRec(fg, fillColor);
 }
 
-CallbackHandle HUD::onDefenderSelected(std::function<void()> callback) {
+CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
 	return m_onDefenderSelectedCallbacks.registerCallback(std::move(callback));
 }
 
@@ -97,7 +99,9 @@ void HUD::clear() {
 	m_data.progressBars.clear();
 	m_data.scrapsAmount = 0;
 	m_data.batteryCharge = 0.f;
-	m_data.selectedDefender.reset();
+	m_data.selectedDefenderIndex.reset();
+	m_data.numberOfEnemiesDefeated = 0;
+	m_data.occupiedCells.clear();
 }
 
 void HUD::drawBatteryCharge(Atlas& atlas, const Rectangle& bounds) {
@@ -135,19 +139,21 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		Vector2 position = {bounds.x + defenderSize * i + defenderPadding * i, bounds.y};
 
 		float halfPadding = defenderPadding / 2;
-		Rectangle rect = {position.x - halfPadding, position.y - halfPadding, defenderSize + defenderPadding, defenderSize + defenderPadding};
+		Rectangle frameRect = {position.x - halfPadding, position.y - halfPadding, defenderSize + defenderPadding, defenderSize + defenderPadding};
+
+		const bool canBuild = defender.canAfford && defender.cooldown <= 0;
 
 		if (m_isEnabled) {
-			if (m_data.selectedDefender == defender.type) {
-				DrawRectangleLinesEx(rect, 1, GREEN);
+			if (m_data.selectedDefenderIndex == i) {
+				DrawRectangleLinesEx(frameRect, 2, SKYBLUE);
 			}
 
-			if (CheckCollisionPointRec(GetMousePosition(), rect)) {
+			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
 				m_defenderHover = true;
-				DrawRectangleRec(rect, Fade(SKYBLUE, 0.5f));
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-					m_data.selectedDefender = defender.type;
-					m_onDefenderSelectedCallbacks.executeCallbacks();
+				DrawRectangleRec(frameRect, canBuild ? Fade(SKYBLUE, 0.5f) : Fade(RED, 0.5f));
+				if (canBuild && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+					m_data.selectedDefenderIndex = i;
+					m_onDefenderSelectedCallbacks.executeCallbacks(*m_data.selectedDefenderIndex);
 				}
 			}
 		}
@@ -156,7 +162,12 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
 		auto size = MeasureText("00", 10);
 		DrawRectangleRec({position.x - 1, position.y - 1, (float)size + 2, 9}, Fade(BLACK, 0.5f));
-		DrawText(costText.c_str(), int(position.x), int(position.y), 10, defender.cost <= m_data.scrapsAmount ? WHITE : RED);
+		DrawText(costText.c_str(), int(position.x), int(position.y), 10, defender.canAfford ? WHITE : RED);
+
+		if (defender.cooldown > 0) {
+			DrawRectangleRec(frameRect, Fade(BLACK, 0.5f));
+			DrawText(TextFormat("%.1f", defender.cooldown), int(position.x) + 9, int(position.y + 10), 10, WHITE);
+		}
 
 		++i;
 	}
@@ -165,6 +176,21 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		m_gui.setCursor(CursorType::Hover);
 	} else {
 		m_gui.setCursor(CursorType::Point);
+	}
+
+	if (m_data.selectedDefenderIndex) {
+		auto mousePos = GetMousePosition();
+		auto [row, column] = getCoordinates(mousePos);
+		auto position = getSnappedPosition(mousePos);
+
+		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
+			const bool isOccupied = std::ranges::any_of(m_data.occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; });
+			DrawRectangleRec({position.x, position.y, CELL_SIZE, CELL_SIZE}, isOccupied ? Fade(RED, 0.5f) : Fade(SKYBLUE, 0.5f));
+		}
+
+		position = Vector2Add(mousePos, {-defenderSize * 0.7f, -defenderSize * 0.7f});
+		auto& defender = m_data.defenders[*m_data.selectedDefenderIndex];
+		atlas.drawSprite(defender.spriteInfo, position, 0, None, Fade(WHITE, 0.7f));
 	}
 }
 

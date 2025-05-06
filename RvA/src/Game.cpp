@@ -137,52 +137,40 @@ bool Game::shouldClose() const {
 
 void Game::setupFSM() {
 	auto fsmBuilder = flow::FsmBuilder();
+
+	// clang-format off
 	fsmBuilder
 		// Menus
 		.state<MenuState>("MainMenu", *this)
-		.on("play")
-		.jumpTo("Play")
-		.on("options")
-		.jumpTo("Options")
-		.on("credits")
-		.jumpTo("Credits")
-		.on("exit")
-		.exitFsm()
+			.on("play").jumpTo("Play")
+			.on("options").jumpTo("Options")
+			.on("credits").jumpTo("Credits")
+			.on("exit").exitFsm()
 
 		.state<OptionsState>("Options", *this)
-		.on("back")
-		.jumpTo("MainMenu")
+			.on("back").jumpTo("MainMenu")
 
 		.state<CreditsState>("Credits", *this)
-		.on("back")
-		.jumpTo("MainMenu")
+			.on("back").jumpTo("MainMenu")
 
 		// In Game States
 		.state<PlayState>("Play", *this)
-		.on("pause")
-		.jumpTo("PauseMenu")
-		.on("win")
-		.jumpTo("WinScreen")
-		.on("lost")
-		.jumpTo("LoseScreen")
+			.on("pause").jumpTo("PauseMenu")
+			.on("win").jumpTo("WinScreen")
+			.on("lost").jumpTo("LoseScreen")
 
 		.state<PauseState>("PauseMenu", *this)
-		.on("resume")
-		.jumpTo("Play")
-		.on("restart")
-		.jumpTo("Play")
-		.on("menu")
-		.jumpTo("MainMenu")
+			.on("resume").jumpTo("Play")
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu")
 
 		.state<WinState>("WinScreen", *this)
-		.on("menu")
-		.jumpTo("MainMenu")
+			.on("menu").jumpTo("MainMenu")
 
 		.state<LostState>("LoseScreen", *this)
-		.on("restart")
-		.jumpTo("Play")
-		.on("menu")
-		.jumpTo("MainMenu");
+			.on("restart").jumpTo("Play")
+			.on("menu").jumpTo("MainMenu");
+	// clang-format on
 
 	auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
 	m_fsm = std::move(fsm);
@@ -205,49 +193,47 @@ void Game::registerDefenderTypes() {
 		.batteryDrain = -5,
 		.scrapsGain = 5,
 		.maxHP = 100,
+		.buildCooldown = 2.f,
 	});
 
-	m_defenderTypeRegistry.registerDefender({
-		.type = DefenderType::Shooter,
-		.spriteEnabled = { sprite("shooter_idle"), 0.1f },
-		.spriteDisabled = { sprite("shooter_off"), 0.1f },
-		.spriteShoot = {sprite("shooter_shoot"), 0.1f},
-		.batteryDrain = 5.f,
-		.firstShootCooldown = 3.f,
-		.shootCooldown = 2.f,
-		.maxHP = 150,
-		.cost = 10,
-		.bulletType = "SimpleShot",
-		.shootingAnimationTime = 0.8f
-	});
+	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Shooter,
+											 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
+											 .spriteDisabled = {sprite("shooter_off"), 0.1f},
+											 .spriteShoot = {sprite("shooter_shoot"), 0.1f},
+											 .batteryDrain = 5.f,
+											 .firstShootCooldown = 3.f,
+											 .shootCooldown = 2.f,
+											 .maxHP = 150,
+											 .cost = 10,
+											 .bulletType = "SimpleShot",
+											 .shootingAnimationTime = 0.8f,
+											 .buildCooldown = 3.f});
 
-	m_defenderTypeRegistry.registerDefender({
-		.type = DefenderType::Catapult,
-		.spriteEnabled = { sprite("catapult_idle"), 0.1f },
-		.spriteDisabled = { sprite("catapult_off"), 0.1f },
-		.spriteShoot = {sprite("catapult_shoot"), 0.1f},
-		.batteryDrain = 10.f,
-		.firstShootCooldown = 3.f,
-		.shootCooldown = 1.f,
-		.maxHP = 200,
-		.cost = 20,
-		.bulletType = "ChasingShot",
-		.shootingAnimationTime = 0.7f
-	});
+	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Catapult,
+											 .spriteEnabled = {sprite("catapult_idle"), 0.1f},
+											 .spriteDisabled = {sprite("catapult_off"), 0.1f},
+											 .spriteShoot = {sprite("catapult_shoot"), 0.1f},
+											 .batteryDrain = 10.f,
+											 .firstShootCooldown = 3.f,
+											 .shootCooldown = 1.f,
+											 .maxHP = 200,
+											 .cost = 20,
+											 .bulletType = "ChasingShot",
+											 .shootingAnimationTime = 0.7f,
+											 .buildCooldown = 5.f});
 
-	m_defenderTypeRegistry.registerDefender({
-		.type = DefenderType::Lasertron,
-		.spriteEnabled = { sprite("lasertron_idle"), 0.1f },
-		.spriteDisabled = { sprite("lasertron_off"), 0.1f },
-		.spriteShoot = {sprite("lasertron_shoot"), 0.1f},
-		.batteryDrain = 20.f,
-		.firstShootCooldown = 3.f,
-		.shootCooldown = 2.f,
-		.maxHP = 250,
-		.cost = 30,
-		.bulletType = "LaserBeam",
-		.shootingAnimationTime = 1.2f
-	});
+	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Lasertron,
+											 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
+											 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
+											 .spriteShoot = {sprite("lasertron_shoot"), 0.1f},
+											 .batteryDrain = 20.f,
+											 .firstShootCooldown = 3.f,
+											 .shootCooldown = 2.f,
+											 .maxHP = 250,
+											 .cost = 30,
+											 .bulletType = "LaserBeam",
+											 .shootingAnimationTime = 1.2f,
+											 .buildCooldown = 5.f});
 }
 
 void Game::registerBulletTypes() {
