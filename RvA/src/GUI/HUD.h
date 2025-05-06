@@ -1,28 +1,26 @@
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <functional>
-
-#include "defender/DefenderTypes.h"
-#include "atlas/Atlas.h"
-#include "utilities/CallbackRegistry.h"
 #include "GUI/Widgets.h"
+#include "atlas/Atlas.h"
+#include "defender/DefenderTypes.h"
+#include "utilities/CallbackRegistry.h"
+
+#include <functional>
+#include <optional>
+#include <vector>
 
 class GUI;
 class Screen;
 class Atlas;
 struct UIText;
 
-struct HUDDefenderData
-{
+struct HUDDefenderData {
 	DefenderType type;
 	const SpriteInfo* spriteInfo;
 	int cost;
 };
 
-struct ProgressBarData
-{
+struct ProgressBarData {
 	float value{};
 	float max{};
 	Vector2 position{};
@@ -30,8 +28,7 @@ struct ProgressBarData
 	Color fillColor{};
 };
 
-struct HUDData
-{
+struct HUDData {
 	float batteryCharge{};
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
@@ -42,20 +39,22 @@ struct HUDData
 	std::optional<DefenderType> selectedDefender;
 };
 
-class HUD
-{
+class HUD {
 public:
 	HUD(GUI& gui);
 
 	void update(float dt);
-    void setVisible(bool visible);
+	void setVisible(bool visible);
 	void setEnable(bool enabled);
 
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void()> callback);
 
 	// Data
-	auto& data() { return m_data; }
+	auto& data() {
+		return m_data;
+	}
+
 	void clear();
 
 private:
@@ -65,9 +64,8 @@ private:
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 
-
 	bool m_defenderHover{};
-    bool m_isEnabled{ true };
+	bool m_isEnabled{true};
 	HUDData m_data;
 	GUI& m_gui;
 
