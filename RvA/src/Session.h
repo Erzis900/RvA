@@ -80,6 +80,7 @@ private:
 	bool m_isPaused{false};
 	bool m_isStarted{false};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
+	CallbackHandle m_onDefenderDestroyedHandle;
 
 	const DefenderTypeRegistry& m_defenderTypeRegistry;
 	const EnemyTypeRegistry& m_enemyTypeRegistry;

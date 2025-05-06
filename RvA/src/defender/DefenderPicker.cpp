@@ -8,7 +8,7 @@ DefenderPicker::DefenderPicker(Session& session, const DefenderTypeRegistry& def
 void DefenderPicker::reset() {
 	auto& defenderTypeInfos = m_defenderTypeRegistry.getDefenderInfos();
 
-	m_pickableItems.reserve(defenderTypeInfos.size());
+	m_pickableItems.clear();
 	for (auto& [type, info] : defenderTypeInfos) {
 		m_pickableItems.emplace(type, Item{.type = type, .cost = info.cost, .maxCooldown = info.buildCooldown});
 	}
@@ -30,15 +30,6 @@ bool DefenderPicker::canAfford(DefenderType type) const {
 		return false;
 	}
 	return m_gameSession.getScraps() >= defenderInfo->cost;
-}
-
-float DefenderPicker::getCurrentCooldown(DefenderType type) const {
-	auto it = m_pickableItems.find(type);
-	assert(it != m_pickableItems.end());
-	if (it != m_pickableItems.end()) {
-		return it->second.currentCooldown;
-	}
-	return 0.f;
 }
 
 void DefenderPicker::startCooldown(DefenderType type) {

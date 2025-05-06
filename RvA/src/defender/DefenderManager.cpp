@@ -75,6 +75,7 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 		if (defender->hp <= 0) {
 			m_defenderGrid[defender->row][defender->column] = nullptr;
 			m_collisionSystem.destroyCollider((*it)->colliderHandle);
+			m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
 			it = m_defenders.erase(it);
 		} else {
 			++it;
@@ -124,6 +125,10 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 		default							  : break;
 		}
 	}
+}
+
+CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(int, int)> callback) {
+	return m_onDefenderDestroyedCallbacks.registerCallback(std::move(callback));
 }
 
 void DefenderManager::performPrepareShoot(Defender& defender, float dt) {

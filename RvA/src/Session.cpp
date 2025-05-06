@@ -14,6 +14,8 @@ Session::Session(GUI& gui, const EnemyTypeRegistry& enemyTypeRegistry, const Def
 	, m_defenderPicker(*this, defenderTypeRegistry)
 	, m_hud(gui) {
 	m_enemyManager.onEnemiesDestroyed([this](int numberOfDestroyedEnemies) { m_numberOfDestroyedEnemies += numberOfDestroyedEnemies; });
+	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
+		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });
 
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
@@ -116,8 +118,7 @@ void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain) {
 void Session::performDefenderSpawnOnInput() {
 	if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))) {
 		auto mousePos = GetMousePosition();
-		int row = (int(mousePos.y) - GRID_OFFSET.y) / CELL_SIZE;
-		int column = (int(mousePos.x) - GRID_OFFSET.x) / CELL_SIZE;
+		auto [row, column] = getCoordinates(mousePos);
 
 		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && m_selectedDefender) {
@@ -126,6 +127,10 @@ void Session::performDefenderSpawnOnInput() {
 					if (defenderInfo && canAffordCost(defenderInfo->cost)) {
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
 						m_scraps -= defenderInfo->cost;
+						m_defenderPicker.startCooldown(*m_selectedDefender);
+						m_selectedDefender = std::nullopt;
+						m_hud.data().selectedDefenderIndex.reset();
+						m_hud.data().occupiedCells.emplace_back(row, column);
 					}
 				}
 			} else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
@@ -161,11 +166,12 @@ bool Session::canPlaceDefender(int x, int y) const {
 void Session::setupHUD() {
 	auto& hudData = m_hud.data();
 	hudData.defenders.clear();
-	for (const auto& [type, defenderInfo] : m_defenderTypeRegistry.getDefenderInfos()) {
-		hudData.defenders.emplace_back(type, defenderInfo.spriteEnabled.spriteInfo, defenderInfo.cost);
+	for (const auto& [type, pickableDefender] : m_defenderPicker.getAvailableDefenders()) {
+		auto defenderInfo = m_defenderTypeRegistry.getDefenderInfo(type);
+		hudData.defenders.emplace_back(type, defenderInfo->spriteEnabled.spriteInfo, defenderInfo->cost);
 	}
 
-	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this]() { setSelectedDefender(m_hud.data().selectedDefender); });
+	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].type); });
 }
 
 void Session::manageCollision(const Collision& collision) {
@@ -238,6 +244,14 @@ void Session::updateHUD(float dt) {
 
 	for (auto& enemy : getEnemyManager().getEnemies()) {
 		hudData.progressBars.push_back(ProgressBarData{.value = enemy->getHp(), .max = enemy->getInfo()->maxHp, .position = enemy->getPosition(), .bkgColor = DARKGRAY, .fillColor = GREEN});
+	}
+
+	for (auto& hudDefender : hudData.defenders) {
+		auto& pickableDefender = m_defenderPicker.getDefender(hudDefender.type);
+		hudDefender.cost = pickableDefender.cost;
+		hudDefender.cooldown = pickableDefender.currentCooldown;
+		hudDefender.maxCooldown = pickableDefender.maxCooldown;
+		hudDefender.canAfford = m_defenderPicker.canAfford(hudDefender.type);
 	}
 
 	m_hud.update(dt);

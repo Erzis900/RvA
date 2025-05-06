@@ -19,12 +19,12 @@ public:
 		return CallbackHandle{token};
 	}
 
-	void executeCallbacks(Args&&... args) {
+	template<typename... CallArgs> void executeCallbacks(CallArgs&&... args) {
 		for (auto it = callbacks.begin(); it != callbacks.end();) {
 			if (it->first.expired()) {
 				it = callbacks.erase(it);
 			} else {
-				it->second(std::forward<Args>(args)...);
+				it->second(std::forward<CallArgs>(args)...);
 				++it;
 			}
 		}

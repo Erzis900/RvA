@@ -14,8 +14,15 @@ public:
 	void reset();
 	void update(float dt);
 
+	const auto& getAvailableDefenders() const {
+		return m_pickableItems;
+	}
+
+	const auto& getDefender(DefenderType type) const {
+		return m_pickableItems.at(type);
+	}
+
 	bool canAfford(DefenderType type) const;
-	float getCurrentCooldown(DefenderType type) const;
 	void startCooldown(DefenderType type);
 
 private:
