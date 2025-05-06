@@ -52,7 +52,7 @@ DefenderUpdateResult DefenderManager::update(float dt)
         );
 
         defender->animation.update(dt);
-        if (defender->isActive)
+        if (defender->state != DefenderState::Off)
         {
             result.amountOfBatteryDrain += dt * defender->info->batteryDrain;
             
@@ -74,12 +74,12 @@ DefenderUpdateResult DefenderManager::update(float dt)
                     defender->shootTime -= dt;
                     if (defender->shootTime <= 0)
                     {
-						setState(defender.get(), DefenderState::PrepareToShoot);
 						defender->shootTime = defender->info->firstShootCooldown;
+						setState(*defender, DefenderState::PrepareToShoot);
                     }
                     break;
                 case DefenderState::PrepareToShoot:
-					performPrepareShoot(defender.get(), dt);
+					performPrepareShoot(*defender, dt);
                     break;
 				case DefenderState::ReadyToShoot:
 					defender->prepareShootTime = defender->info->shootingAnimationTime;
@@ -88,7 +88,7 @@ DefenderUpdateResult DefenderManager::update(float dt)
                         .position = defender->position
                                             });
 
-					setState(defender.get(), DefenderState::On);
+					setState(*defender, DefenderState::On);
                     break;
                 }
             }
@@ -119,7 +119,6 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
     defender->info = defenderTypeInfo;
     defender->shootTime = defenderTypeInfo->firstShootCooldown;
     defender->position = Vector2{ float(column) * CELL_SIZE + CELL_SIZE, float(row) * CELL_SIZE - 5 + CELL_SIZE };
-    defender->isActive = true;
     defender->column = column;
     defender->row = row;
     defender->animation = Animation::createAnimation(defenderTypeInfo->spriteEnabled);
@@ -135,8 +134,7 @@ void DefenderManager::toggleDefender(int row, int column)
     auto defender = m_defenderGrid[row][column];
     if (defender)
     {
-        defender->isActive = !defender->isActive;
-		setState(defender, defender->isActive ? DefenderState::On : DefenderState::Off);
+		setState(*defender, defender->state == DefenderState::On ? DefenderState::Off : DefenderState::On);
     }
 }
 
@@ -146,21 +144,21 @@ bool DefenderManager::hasDefender(int row, int column) const
     return defender != nullptr;
 }
 
-void DefenderManager::setState(Defender* defender, DefenderState state)
+void DefenderManager::setState(Defender& defender, DefenderState state)
 {
-	if (defender && defender->state != state)
+	if (defender.state != state)
 	{
-		defender->state = state;
+		defender.state = state;
 		switch (state)
 		{
 		case DefenderState::On:
-			defender->animation = Animation::createAnimation(defender->info->spriteEnabled);
+			defender.animation = Animation::createAnimation(defender.info->spriteEnabled);
 			break;
 		case DefenderState::Off:
-			defender->animation = Animation::createAnimation(defender->info->spriteDisabled);
+			defender.animation = Animation::createAnimation(defender.info->spriteDisabled);
 			break;
         case DefenderState::PrepareToShoot:
-            defender->animation = Animation::createAnimation(defender->info->spriteShoot);
+            defender.animation = Animation::createAnimation(defender.info->spriteShoot);
             break;
 		default:
 			break;
@@ -168,10 +166,10 @@ void DefenderManager::setState(Defender* defender, DefenderState state)
 	}
 }
 
-void DefenderManager::performPrepareShoot(Defender* defender, float dt)
+void DefenderManager::performPrepareShoot(Defender& defender, float dt)
 {
-    defender->prepareShootTime -= dt;
-    if (defender->prepareShootTime <= 0.f)
+    defender.prepareShootTime -= dt;
+    if (defender.prepareShootTime <= 0.f)
     {
         setState(defender, DefenderState::ReadyToShoot);
     }

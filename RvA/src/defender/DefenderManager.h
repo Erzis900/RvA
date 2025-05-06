@@ -37,6 +37,7 @@ struct DefenderTypeInfo
     float batteryDrain{};
     float scrapsGain{};
     float firstShootCooldown{};
+    // TODO: one of the cooldowns is not used, remove one of them
 	float shootCooldown{}; // this is not used anywhere, why is it here?
     int maxHP{};
     int cost{};
@@ -51,7 +52,6 @@ struct Defender
 {
     const DefenderTypeInfo* info{};
     Vector2 position{};
-    bool isActive{};
     Animation animation;
     float shootTime{};
 	float prepareShootTime{};
@@ -104,10 +104,10 @@ public:
     void toggleDefender(int row, int column);
     void spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
     bool hasDefender(int row, int column) const;
-    void setState(Defender* defender, DefenderState state);
+    void setState(Defender& defender, DefenderState state);
 
 private:
-    void performPrepareShoot(Defender* defender, float dt);
+    void performPrepareShoot(Defender& defender, float dt);
 
     std::vector<std::unique_ptr<Defender>> m_defenders;
     std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
