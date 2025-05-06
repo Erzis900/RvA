@@ -3,5 +3,6 @@
 enum class EnemyType
 {
 	B1,
-	B2
+	B2,
+	Portal
 };

@@ -1,21 +1,24 @@
 #include "Game.h"
 
-#include "states/MenuState.h"
-#include "states/OptionsState.h"
-#include "states/CreditsState.h"
-#include "states/PlayState.h"
-#include "states/PauseState.h"
-#include "states/WinState.h"
-#include "states/LostState.h"
-
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
+#include "states/CreditsState.h"
+#include "states/LostState.h"
+#include "states/MenuState.h"
+#include "states/OptionsState.h"
+#include "states/PauseState.h"
+#include "states/PlayState.h"
+#include "states/WinState.h"
 
 Game::Game()
-	:m_renderRec(), m_scale(1.f), m_texWidth(TEX_WIDTH), m_texHeight(TEX_HEIGHT),
-    m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager),
-    m_gameSession(m_gui, m_enemyTypeRegistry, m_defenderTypeRegistry, m_bulletTypeRegistry)
-{
+	: m_renderRec()
+	, m_scale(1.f)
+	, m_texWidth(TEX_WIDTH)
+	, m_texHeight(TEX_HEIGHT)
+	, m_screenWidth(SCREEN_WIDTH)
+	, m_screenHeight(SCREEN_HEIGHT)
+	, m_gui(m_atlas, m_musicManager)
+	, m_gameSession(m_gui, m_enemyTypeRegistry, m_defenderTypeRegistry, m_bulletTypeRegistry) {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
@@ -35,7 +38,7 @@ Game::Game()
 
 	InitAudioDevice();
 	m_musicManager.load();
-    m_gui.setDefaultButtonSound(&m_musicManager.getButtonClick());
+	m_gui.setDefaultButtonSound(&m_musicManager.getButtonClick());
 
 	setupFSM();
 
@@ -45,32 +48,28 @@ Game::Game()
 	SetExitKey(0);
 }
 
-Game::~Game()
-{
+Game::~Game() {
 	UnloadRenderTexture(m_renderTexture);
 	CloseAudioDevice();
 	CloseWindow();
 }
 
-void Game::update()
-{
+void Game::update() {
 	float dt = GetFrameTime();
 	updateRenderRec();
 	updateMouse();
 
 	m_fsm->update(dt);
 
-	if(DEV_MODE && IsKeyPressed(KEY_F2))
-	{
+	if (DEV_MODE && IsKeyPressed(KEY_F2)) {
 		m_gui.toggleDebugView();
 	}
 
-    m_gui.update(dt);
+	m_gui.update(dt);
 	m_musicManager.updateStream();
 }
 
-void Game::updateRenderRec()
-{
+void Game::updateRenderRec() {
 	m_screenWidth = GetScreenWidth();
 	m_screenHeight = GetScreenHeight();
 
@@ -81,8 +80,7 @@ void Game::updateRenderRec()
 	m_renderRec.y = (m_screenHeight - m_renderRec.height) / 2.f;
 }
 
-void Game::updateMouse()
-{
+void Game::updateMouse() {
 	int offsetX = int(-(m_screenWidth - (m_texWidth * m_scale)) / 2.f);
 	int offsetY = int(-(m_screenHeight - (m_texHeight * m_scale)) / 2.f);
 
@@ -90,24 +88,23 @@ void Game::updateMouse()
 	SetMouseScale(1 / m_scale, 1 / m_scale);
 }
 
-void Game::draw()
-{
+void Game::draw() {
 	BeginTextureMode(m_renderTexture);
 
 	ClearBackground(GRAY);
 
 	m_currentState->draw(*this);
-    m_gameSession.draw(m_atlas);
-    m_drawCallbacks.executeCallbacks();
+	m_gameSession.draw(m_atlas);
+	m_drawCallbacks.executeCallbacks();
 
-    m_gui.draw();
+	m_gui.draw();
 
 	EndTextureMode();
 
 	BeginDrawing();
 	ClearBackground(BLACK);
 
-	DrawTexturePro(m_renderTexture.texture, { 0.f, 0.f, float(m_texWidth), -float(m_texHeight) }, m_renderRec, { 0.f, 0.f }, 0.f, WHITE);
+	DrawTexturePro(m_renderTexture.texture, {0.f, 0.f, float(m_texWidth), -float(m_texHeight)}, m_renderRec, {0.f, 0.f}, 0.f, WHITE);
 	EndDrawing();
 }
 
@@ -116,7 +113,7 @@ void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 {
 	m_currentState->onExit(*this);
 
-    if (useFade)
+	if (useFade)
 	{
 		m_nextState = std::move(newState);
 
@@ -125,7 +122,7 @@ void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 			m_currentState->onEnter(*this);
 		}, [this] { m_isTransitionInProgress = false; }, 0.5f);
 		m_isTransitionInProgress = true;
-    }
+	}
 	else
 	{
 		m_currentState = std::move(newState);
@@ -134,8 +131,7 @@ void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
 }
 */
 
-bool Game::shouldClose() const
-{
+bool Game::shouldClose() const {
 	return WindowShouldClose() || m_fsm->hasReachedExitState();
 }
 
@@ -144,56 +140,68 @@ void Game::setupFSM() {
 	fsmBuilder
 		// Menus
 		.state<MenuState>("MainMenu", *this)
-            .on("play").jumpTo("Play")
-            .on("options").jumpTo("Options")
-            .on("credits").jumpTo("Credits")
-            .on("exit").exitFsm()
+		.on("play")
+		.jumpTo("Play")
+		.on("options")
+		.jumpTo("Options")
+		.on("credits")
+		.jumpTo("Credits")
+		.on("exit")
+		.exitFsm()
 
-	    .state<OptionsState>("Options", *this)
-            .on("back").jumpTo("MainMenu")
+		.state<OptionsState>("Options", *this)
+		.on("back")
+		.jumpTo("MainMenu")
 
-	    .state<CreditsState>("Credits", *this)
-            .on("back").jumpTo("MainMenu")
+		.state<CreditsState>("Credits", *this)
+		.on("back")
+		.jumpTo("MainMenu")
 
 		// In Game States
-	    .state<PlayState>("Play", *this)
-            .on("pause").jumpTo("PauseMenu")
-            .on("win").jumpTo("WinScreen")
-            .on("lost").jumpTo("LoseScreen")
+		.state<PlayState>("Play", *this)
+		.on("pause")
+		.jumpTo("PauseMenu")
+		.on("win")
+		.jumpTo("WinScreen")
+		.on("lost")
+		.jumpTo("LoseScreen")
 
 		.state<PauseState>("PauseMenu", *this)
-			.on("resume").jumpTo("Play")
-			.on("restart").jumpTo("Play")
-			.on("menu").jumpTo("MainMenu")
+		.on("resume")
+		.jumpTo("Play")
+		.on("restart")
+		.jumpTo("Play")
+		.on("menu")
+		.jumpTo("MainMenu")
 
 		.state<WinState>("WinScreen", *this)
-			.on("menu").jumpTo("MainMenu")
+		.on("menu")
+		.jumpTo("MainMenu")
 
 		.state<LostState>("LoseScreen", *this)
-			.on("restart").jumpTo("Play")
-			.on("menu").jumpTo("MainMenu");
+		.on("restart")
+		.jumpTo("Play")
+		.on("menu")
+		.jumpTo("MainMenu");
 
 	auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
 	m_fsm = std::move(fsm);
 }
 
-void Game::run()
-{
-	while (!shouldClose())
-	{
+void Game::run() {
+	while (!shouldClose()) {
 		update();
 		draw();
 	}
 }
 
-void Game::registerDefenderTypes()
-{
+void Game::registerDefenderTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Solar,
-		.spriteEnabled = { sprite("solar_idle"), 0.1f },
-		.spriteDisabled = { sprite("solar_off"), 0.1f },
+		.spriteEnabled = {sprite("solar_idle"), 0.1f},
+		.spriteDisabled = {sprite("solar_off"), 0.1f},
 		.batteryDrain = -5,
 		.scrapsGain = 5,
 		.maxHP = 100,
@@ -201,8 +209,8 @@ void Game::registerDefenderTypes()
 
 	m_defenderTypeRegistry.registerDefender({
 		.type = DefenderType::Shooter,
-		.spriteEnabled = { sprite("shooter_idle"), 0.1f },
-		.spriteDisabled = { sprite("shooter_off"), 0.1f },
+		.spriteEnabled = {sprite("shooter_idle"), 0.1f},
+		.spriteDisabled = {sprite("shooter_off"), 0.1f},
 		.batteryDrain = 5.f,
 		.firstShootCooldown = 1.f,
 		.shootCooldown = 2.f,
@@ -211,92 +219,97 @@ void Game::registerDefenderTypes()
 		.bulletType = "SimpleShot",
 	});
 
-	m_defenderTypeRegistry.registerDefender({
-		.type = DefenderType::Catapult,
-		.spriteEnabled = { sprite("catapult_idle"), 0.1f },
-		.spriteDisabled = { sprite("catapult_off"), 0.1f },
-		.batteryDrain = 10.f,
-		.firstShootCooldown = 1.f,
-		.shootCooldown = 1.f,
-		.maxHP = 200,
-		.cost = 20,
-		.bulletType = "ChasingShot"
-	});
+	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Catapult,
+											 .spriteEnabled = {sprite("catapult_idle"), 0.1f},
+											 .spriteDisabled = {sprite("catapult_off"), 0.1f},
+											 .batteryDrain = 10.f,
+											 .firstShootCooldown = 1.f,
+											 .shootCooldown = 1.f,
+											 .maxHP = 200,
+											 .cost = 20,
+											 .bulletType = "ChasingShot"});
 
-	m_defenderTypeRegistry.registerDefender({
-		.type = DefenderType::Lasertron,
-		.spriteEnabled = { sprite("lasertron_idle"), 0.1f },
-		.spriteDisabled = { sprite("lasertron_off"), 0.1f },
-		.batteryDrain = 20.f,
-		.firstShootCooldown = 0.5f,
-		.shootCooldown = 2.f,
-		.maxHP = 250,
-		.cost = 30,
-		.bulletType = "LaserBeam"
-	});
+	m_defenderTypeRegistry.registerDefender({.type = DefenderType::Lasertron,
+											 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
+											 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
+											 .batteryDrain = 20.f,
+											 .firstShootCooldown = 0.5f,
+											 .shootCooldown = 2.f,
+											 .maxHP = 250,
+											 .cost = 30,
+											 .bulletType = "LaserBeam"});
 }
 
-void Game::registerBulletTypes()
-{
-	m_bulletTypeRegistry.registerBulletType("SimpleShot", BulletShotData {
-		.velocity = { 150, 0 },
-		.radius = 5.f,
-		.damage = { 25, 16 },
-		.maxLifetime = 100,
-	});
+void Game::registerBulletTypes() {
+	m_bulletTypeRegistry.registerBulletType("SimpleShot",
+											BulletShotData{
+												.velocity = {150, 0},
+												.radius = 5.f,
+												.damage = {25, 16},
+												.maxLifetime = 100,
+											});
 
-	m_bulletTypeRegistry.registerBulletType("ChasingShot", ChasingShotData {
-		.startOffset = { 20, 20 },
-		.radius = 10.f,
-		.damage = { 50, 16 },
-		.maxLifetime = 100,
-		.speed = 150,
-		.color = {255, 0, 0, 255},
-		.direction = { 1, 0 },
-	});
+	m_bulletTypeRegistry.registerBulletType("ChasingShot",
+											ChasingShotData{
+												.startOffset = {20, 20},
+												.radius = 10.f,
+												.damage = {50, 16},
+												.maxLifetime = 100,
+												.speed = 150,
+												.color = {255, 0, 0, 255},
+												.direction = {1, 0},
+											});
 
-	m_bulletTypeRegistry.registerBulletType("LaserBeam", LaserBeamData{
-		.startOffset = { 35, 18 },
-		.beamHeight = 2,
-		.damage = { 100.f, 0, true },
-		.auraSize = 2,
-		.beamColor = BLUE,
-		.auraColor = {255, 255, 255, 200},
-		.maxLifetime = 0.5f,
-		.shootAnimationSpeed = 15,
-		.shootAnimationDuration = 2.f,
-	});
+	m_bulletTypeRegistry.registerBulletType("LaserBeam",
+											LaserBeamData{
+												.startOffset = {35, 18},
+												.beamHeight = 2,
+												.damage = {100.f, 0, true},
+												.auraSize = 2,
+												.beamColor = BLUE,
+												.auraColor = {255, 255, 255, 200},
+												.maxLifetime = 0.5f,
+												.shootAnimationSpeed = 15,
+												.shootAnimationDuration = 2.f,
+											});
 }
 
-void Game::registerEnemyTypes()
-{
+void Game::registerEnemyTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
-	m_enemyTypeRegistry.registerEnemyType({
-		.type = EnemyType::B1,
-		.spawnChance = 0.7f,
-		.maxHp = 100,
-		.speed = 40,
-		.attackTime = 0.5f,
-		.defenderDamage = 50,
-		.baseWallDamage = 10,
-		.idleAnimation = { sprite("b1_alien_walk"), 0.1f },
-		.moveAnimation = { sprite("b1_alien_walk"), 0.1f },
-		.attackAnimation = { sprite("b1_alien_attack"), 0.1f },
-		.dyingAnimation = { sprite("b1_alien_death"), 0.1f, 1 }
-	});
+	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::B1,
+										   .spawnChance = 0.2f,
+										   .maxHp = 100,
+										   .speed = 40,
+										   .attackTime = 0.4f,
+										   .defenderDamage = 50,
+										   .baseWallDamage = 10,
+										   .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+										   .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+										   .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+										   .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
 
-	m_enemyTypeRegistry.registerEnemyType({
-		.type = EnemyType::B2,
-		.spawnChance = 0.3f,
-		.maxHp = 150,
-		.speed = 80,
-		.attackTime = 0.5f,
-		.defenderDamage = 50,
-		.baseWallDamage = 10,
-		.idleAnimation = { sprite("b2_alien_walk"), 0.1f },
-		.moveAnimation = { sprite("b2_alien_walk"), 0.1f },
-		.attackAnimation = { sprite("b2_alien_attack"), 0.1f },
-		.dyingAnimation = { sprite("b2_alien_death"), 0.1f, 1 }
-	});
+	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::B2,
+										   .spawnChance = 0.3f,
+										   .maxHp = 150,
+										   .speed = 80,
+										   .attackTime = 0.5f,
+										   .defenderDamage = 50,
+										   .baseWallDamage = 10,
+										   .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
+										   .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
+										   .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
+										   .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
+
+	m_enemyTypeRegistry.registerEnemyType({.type = EnemyType::Portal,
+										   .spawnChance = 0.5f,
+										   .maxHp = 60,
+										   .speed = 30,
+										   .attackTime = 0.5f,
+										   .defenderDamage = 50,
+										   .baseWallDamage = 10,
+										   .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
+										   .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
+										   .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
+										   .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
 }
