@@ -44,7 +44,7 @@ private:
     std::vector<std::unique_ptr<Enemy>> m_enemies;
     std::function<void(int)> m_onEnemiesDestroyedCallback;
     float m_spawnTimer{};
-    float m_spawnInterval{ 1.f };
+    float m_spawnInterval{ 100.f };
 
     const EnemyTypeRegistry& m_enemyTypeRegistry;
     CollisionSystem& m_collisionSystem;

@@ -14,6 +14,16 @@
 
 class CollisionSystem;
 
+enum class DefenderState
+{
+    On,
+    Off,
+    PrepareToShoot,
+    ReadyToShoot,
+    Dying,
+    Dead
+};
+
 /*
 * The DefenderTypeInfo gives us information about the type of defender
 * For example what's the max number of HP or how much it cost, and so on.
@@ -27,10 +37,11 @@ struct DefenderTypeInfo
     float batteryDrain{};
     float scrapsGain{};
     float firstShootCooldown{};
-    float shootCooldown{};
+	float shootCooldown{}; // this is not used anywhere, why is it here?
     int maxHP{};
     int cost{};
     std::optional<std::string> bulletType;
+    float shootingAnimationTime{};
 };
 
 /*
@@ -43,11 +54,14 @@ struct Defender
     bool isActive{};
     Animation animation;
     float shootTime{};
+	float prepareShootTime{};
     float scrapsGainTime{};
     int hp{};
     int row{};
     int column{};
     ColliderHandle colliderHandle{};
+	DefenderState state{ DefenderState::On };
+    Color tint{ WHITE };
 };
 
 struct BulletSpawnAction
@@ -90,8 +104,11 @@ public:
     void toggleDefender(int row, int column);
     void spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
     bool hasDefender(int row, int column) const;
+    void setState(Defender* defender, DefenderState state);
 
 private:
+    void performPrepareShoot(Defender* defender, float dt);
+
     std::vector<std::unique_ptr<Defender>> m_defenders;
     std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = { nullptr };
     CollisionSystem& m_collisionSystem;
