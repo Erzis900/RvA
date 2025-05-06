@@ -73,5 +73,6 @@ private:
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
+	DefenderPicker m_defenderPicker;
 	HUD m_hud;
 };

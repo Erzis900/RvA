@@ -29,6 +29,7 @@ struct DefenderTypeInfo
     float shootCooldown{};
     int maxHP{};
     int cost{};
+	float buildCooldown{};
     std::optional<std::string> bulletType;
 };
 

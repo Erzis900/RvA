@@ -197,6 +197,7 @@ void Game::registerDefenderTypes()
 		.batteryDrain = -5,
 		.scrapsGain = 5,
 		.maxHP = 100,
+		.buildCooldown = 5.f,
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -208,6 +209,7 @@ void Game::registerDefenderTypes()
 		.shootCooldown = 2.f,
 		.maxHP = 150,
 		.cost = 10,
+		.buildCooldown = 5.f,
 		.bulletType = "SimpleShot",
 	});
 
@@ -220,7 +222,8 @@ void Game::registerDefenderTypes()
 		.shootCooldown = 1.f,
 		.maxHP = 200,
 		.cost = 20,
-		.bulletType = "ChasingShot"
+		.buildCooldown = 10.f,
+		.bulletType = "ChasingShot",
 	});
 
 	m_defenderTypeRegistry.registerDefender({
@@ -232,7 +235,8 @@ void Game::registerDefenderTypes()
 		.shootCooldown = 2.f,
 		.maxHP = 250,
 		.cost = 30,
-		.bulletType = "LaserBeam"
+		.buildCooldown = 8.f,
+		.bulletType = "LaserBeam",
 	});
 }
 
