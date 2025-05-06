@@ -1,6 +1,7 @@
 #include "GUI/HUD.h"
 
 #include "GUI/GUI.h"
+#include "GUI/LayoutHelper.h"
 #include "constants.h"
 
 #include <algorithm>
@@ -9,6 +10,7 @@
 #include <rlgl.h>
 
 const float defenderSize = CELL_SIZE;
+const float defenderHSize = CELL_SIZE * 0.5f;
 const float defenderPadding = 5.f;
 
 HUD::HUD(GUI& gui) : m_gui(gui) {
@@ -159,14 +161,23 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		}
 
 		atlas.drawSprite(defender.spriteInfo, position);
-		std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
-		auto size = MeasureText("00", 10);
-		DrawRectangleRec({position.x - 1, position.y - 1, (float)size + 2, 9}, Fade(BLACK, 0.5f));
-		DrawText(costText.c_str(), int(position.x), int(position.y), 10, defender.canAfford ? WHITE : RED);
 
 		if (defender.cooldown > 0) {
-			DrawRectangleRec(frameRect, Fade(BLACK, 0.5f));
-			DrawText(TextFormat("%.1f", defender.cooldown), int(position.x) + 9, int(position.y + 10), 10, WHITE);
+			DrawRectangleRec(frameRect, Fade(BLACK, 0.1f));
+			auto progress = defender.cooldown / defender.maxCooldown;
+
+			DrawCircleSector({position.x + defenderHSize, position.y + defenderHSize}, 20, -90, -90 - 360 * progress, 100, Fade(BLACK, 0.5f));
+
+			auto cooldownText = TextFormat("%.1fs", defender.cooldown);
+			auto rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
+			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
+			DrawText(cooldownText, rect.x, rect.y, rect.height, GRAY);
+		} else {
+			std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
+			auto cooldownText = TextFormat("%.1f", defender.cooldown);
+			auto rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
+			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
+			DrawText(costText.c_str(), rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
 		}
 
 		++i;
