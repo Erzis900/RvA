@@ -59,21 +59,26 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 
 					setState(*defender, DefenderState::On);
 					break;
-				case DefenderState::Dying: performDying(*defender); break;
-				case DefenderState::Dead:
-					m_defenderGrid[defender->row][defender->column] = nullptr;
-					m_collisionSystem.destroyCollider((*it)->colliderHandle);
-					m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
-					it = m_defenders.erase(it);
-					break;
 				}
 			}
 		}
 
-		if (defender->hp <= 0) {
+		if (defender->hp <= 0 && defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
 			setState(*defender, DefenderState::Dying);
-		} else {
+		}
+
+		switch (defender->state) {
+		case DefenderState::Dying:
+			performDying(*defender);
 			++it;
+			break;
+		case DefenderState::Dead:
+			m_defenderGrid[defender->row][defender->column] = nullptr;
+			m_collisionSystem.destroyCollider((*it)->colliderHandle);
+			m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
+			it = m_defenders.erase(it);
+			break;
+		default: ++it;
 		}
 	}
 	return result;
@@ -118,7 +123,7 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 		case DefenderState::Off			  : defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
 		case DefenderState::PrepareToShoot: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
 		case DefenderState::Dying		  : defender.animation = Animation::createAnimation(defender.info->spriteDying); break;
-		default							  : break;
+		case DefenderState::Dead		  : break;
 		}
 	}
 }

@@ -190,6 +190,7 @@ void Game::registerDefenderTypes() {
 		.type = DefenderType::Solar,
 		.spriteEnabled = {sprite("solar_idle"), 0.1f},
 		.spriteDisabled = {sprite("solar_off"), 0.1f},
+		.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 		.batteryDrain = -5,
 		.scrapsGain = 5,
 		.maxHP = 100,
