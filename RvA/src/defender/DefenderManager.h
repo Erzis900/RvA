@@ -75,6 +75,7 @@ public:
 
 private:
 	void performPrepareShoot(Defender& defender, float dt);
+	void performDying(Defender& defender);
 
 	std::vector<std::unique_ptr<Defender>> m_defenders;
 	std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = {nullptr};

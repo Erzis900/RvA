@@ -59,15 +59,19 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 
 					setState(*defender, DefenderState::On);
 					break;
+				case DefenderState::Dying: performDying(*defender); break;
+				case DefenderState::Dead:
+					m_defenderGrid[defender->row][defender->column] = nullptr;
+					m_collisionSystem.destroyCollider((*it)->colliderHandle);
+					m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
+					it = m_defenders.erase(it);
+					break;
 				}
 			}
 		}
 
 		if (defender->hp <= 0) {
-			m_defenderGrid[defender->row][defender->column] = nullptr;
-			m_collisionSystem.destroyCollider((*it)->colliderHandle);
-			m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
-			it = m_defenders.erase(it);
+			setState(*defender, DefenderState::Dying);
 		} else {
 			++it;
 		}
@@ -97,7 +101,7 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
 void DefenderManager::toggleDefender(int row, int column) {
 	auto defender = m_defenderGrid[row][column];
 	if (defender) {
-		setState(*defender, defender->state == DefenderState::On ? DefenderState::Off : DefenderState::On);
+		setState(*defender, defender->state != DefenderState::Off ? DefenderState::Off : DefenderState::On);
 	}
 }
 
@@ -113,6 +117,7 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 		case DefenderState::On			  : defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
 		case DefenderState::Off			  : defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
 		case DefenderState::PrepareToShoot: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
+		case DefenderState::Dying		  : defender.animation = Animation::createAnimation(defender.info->spriteDying); break;
 		default							  : break;
 		}
 	}
@@ -126,5 +131,11 @@ void DefenderManager::performPrepareShoot(Defender& defender, float dt) {
 	defender.prepareShootTime -= dt;
 	if (defender.prepareShootTime <= 0.f) {
 		setState(defender, DefenderState::ReadyToShoot);
+	}
+}
+
+void DefenderManager::performDying(Defender& defender) {
+	if (defender.animation.isOver()) {
+		setState(defender, DefenderState::Dead);
 	}
 }

@@ -15,6 +15,7 @@ struct DefenderTypeInfo {
 	AnimationData spriteEnabled;
 	AnimationData spriteDisabled;
 	AnimationData spriteShoot;
+	AnimationData spriteDying;
 	float batteryDrain{};
 	float scrapsGain{};
 	float firstShootCooldown{};
