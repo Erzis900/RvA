@@ -8,6 +8,7 @@
 #include "atlas/Atlas.h"
 #include "fsm/Fsm.h"
 #include "utilities/CallbackRegistry.h"
+#include "utilities/Random.h"
 
 #include <memory>
 #include <raylib.h>
@@ -63,6 +64,7 @@ private:
 	void registerDefenderTypes();
 	void registerBulletTypes();
 	void registerEnemyTypes();
+	void registerDropTypes();
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;
@@ -86,4 +88,5 @@ private:
 	Session m_gameSession;
 	std::unique_ptr<flow::Fsm> m_fsm;
 	CallbackRegistry<> m_drawCallbacks;
+	Random m_random;
 };

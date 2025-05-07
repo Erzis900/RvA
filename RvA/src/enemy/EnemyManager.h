@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Enemy.h"
+#include "utilities/CallbackRegistry.h"
 
 #include <functional>
 #include <memory>
@@ -9,6 +10,12 @@
 class Atlas;
 class CollisionSystem;
 class GameRegistry;
+
+struct EnemyDestroyedInfo {
+	const EnemyTypeInfo* info{};
+	Vector2 position{};
+	DamageSource damageSource{};
+};
 
 class EnemyManager {
 public:
@@ -23,17 +30,14 @@ public:
 	}
 
 	Enemy* findClosestEnemy(const Vector2& position, bool filterDead);
-
-	// Register a lambda when enemies are destroyed. The callback receives the number of enemies destroyed.
-	// TODO(Gerark) - We're probably going to change this in the future to better know which enemies have been destroyed
-	void onEnemiesDestroyed(std::function<void(int)> callback);
+	CallbackHandle onEnemiesDestroyed(std::function<void(const std::vector<EnemyDestroyedInfo>&)> callback);
 
 private:
 	void spawnEnemy();
-	void notifyEnemiesDestroyed(int numberOfDestroyedEnemies);
 
 	std::vector<std::unique_ptr<Enemy>> m_enemies;
-	std::function<void(int)> m_onEnemiesDestroyedCallback;
+	CallbackRegistry<const std::vector<EnemyDestroyedInfo>&> m_onEnemiesDestroyedCallbacks;
+	std::vector<EnemyDestroyedInfo> m_enemyDestroyedInfos;
 	float m_spawnTimer{};
 	float m_spawnInterval{1.f};
 

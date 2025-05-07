@@ -153,6 +153,8 @@
     <ClCompile Include="src\constants.cpp" />
     <ClCompile Include="src\defender\DefenderPicker.cpp" />
     <ClCompile Include="src\defender\DefenderTypeRegistry.cpp" />
+    <ClCompile Include="src\drops\DropManager.cpp" />
+    <ClCompile Include="src\drops\DropRegistry.cpp" />
     <ClCompile Include="src\enemy\EnemyTypeRegistry.cpp" />
     <ClCompile Include="src\fsm\Fsm.cpp" />
     <ClCompile Include="src\fsm\FsmAction.cpp" />
@@ -185,7 +187,9 @@
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
     <ClCompile Include="src\utilities\CallbackRegistry.cpp" />
+    <ClCompile Include="src\utilities\ConfigValue.cpp" />
     <ClCompile Include="src\utilities\Interpolation.cpp" />
+    <ClCompile Include="src\utilities\Random.cpp" />
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +306,9 @@
     <ClInclude Include="src\Damage.h" />
     <ClInclude Include="src\defender\DefenderTypeRegistry.h" />
     <ClInclude Include="src\defender\DefenderTypes.h" />
+    <ClInclude Include="src\drops\DropManager.h" />
+    <ClInclude Include="src\drops\DropRegistry.h" />
+    <ClInclude Include="src\drops\DropTypes.h" />
     <ClInclude Include="src\enemy\EnemyTypeRegistry.h" />
     <ClInclude Include="src\FixedItemPool.h" />
     <ClInclude Include="src\fsm\Fsm.h" />
@@ -338,7 +345,9 @@
     <ClInclude Include="src\states\WinState.h" />
     <ClInclude Include="src\utilities\CallbackRegistry.h" />
     <ClInclude Include="src\utilities\ClassId.h" />
+    <ClInclude Include="src\utilities\ConfigValue.h" />
     <ClInclude Include="src\utilities\Interpolation.h" />
+    <ClInclude Include="src\utilities\Random.h" />
     <ClInclude Include="src\utilities\ServiceLocator.h" />
     <ClInclude Include="src\utilities\TimedAction.h" />
   </ItemGroup>

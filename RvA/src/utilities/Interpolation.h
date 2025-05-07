@@ -61,3 +61,40 @@ template<> class Interpolation<Color> : public InterpolationBase<Color> {
 public:
 	void update(float dt);
 };
+
+enum Ease {
+	InSine,
+	OutSine,
+	InOutSine,
+	InQuad,
+	OutQuad,
+	InOutQuad,
+	InCubic,
+	OutCubic,
+	InOutCubic,
+	InQuart,
+	OutQuart,
+	InOutQuart,
+	InQuint,
+	OutQuint,
+	InOutQuint,
+	InExpo,
+	OutExpo,
+	InOutExpo,
+	InCirc,
+	OutCirc,
+	InOutCirc,
+	InBack,
+	OutBack,
+	InOutBack,
+	InElastic,
+	OutElastic,
+	InOutElastic,
+	InBounce,
+	OutBounce,
+	InOutBounce
+};
+
+typedef double (*easingFunction)(double);
+
+easingFunction getEasingFunction(Ease ease);

@@ -14,6 +14,7 @@ void EnemyManager::clear() {
 	}
 	m_enemies.clear();
 	m_spawnTimer = 0.f;
+	m_enemyDestroyedInfos.reserve(32);
 }
 
 void EnemyManager::update(float dt) {
@@ -23,7 +24,7 @@ void EnemyManager::update(float dt) {
 		m_spawnTimer = 0.f;
 	}
 
-	auto numberOfDestroyedEnemies = 0;
+	m_enemyDestroyedInfos.clear();
 	for (auto it = m_enemies.begin(); it != m_enemies.end();) {
 		auto& enemy = *it;
 		enemy->update(dt);
@@ -38,15 +39,15 @@ void EnemyManager::update(float dt) {
 		}
 
 		if (enemy->getState() == EnemyState::Dead) {
-			numberOfDestroyedEnemies += enemy->getLatestDamageApplied().source == DamageSource::Bullet ? 1 : 0;
+			m_enemyDestroyedInfos.emplace_back(enemy->getInfo(), enemy->getCenteredPosition(), enemy->getLatestDamageApplied().source);
 			it = m_enemies.erase(it);
 		} else {
 			++it;
 		}
 	}
 
-	if (numberOfDestroyedEnemies > 0) {
-		notifyEnemiesDestroyed(static_cast<int>(numberOfDestroyedEnemies));
+	if (!m_enemyDestroyedInfos.empty()) {
+		m_onEnemiesDestroyedCallbacks.executeCallbacks(m_enemyDestroyedInfos);
 	}
 }
 
@@ -96,11 +97,6 @@ void EnemyManager::spawnEnemy() {
 	m_enemies.push_back(std::move(enemy));
 }
 
-void EnemyManager::onEnemiesDestroyed(std::function<void(int)> callback) {
-	m_onEnemiesDestroyedCallback = callback;
+CallbackHandle EnemyManager::onEnemiesDestroyed(std::function<void(const std::vector<EnemyDestroyedInfo>&)> callback) {
+	return m_onEnemiesDestroyedCallbacks.registerCallback(std::move(callback));
 }
-
-void EnemyManager::notifyEnemiesDestroyed(int numberOfDestroyedEnemies) {
-	m_onEnemiesDestroyedCallback(numberOfDestroyedEnemies);
-}
-

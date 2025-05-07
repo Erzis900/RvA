@@ -19,6 +19,7 @@ Game::Game()
 	, m_screenHeight(SCREEN_HEIGHT)
 	, m_gui(m_atlas, m_musicManager)
 	, m_gameSession(m_gui, m_gameRegistry) {
+	Random::setInstance(&m_random);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
@@ -35,6 +36,7 @@ Game::Game()
 	registerDefenderTypes();
 	registerBulletTypes();
 	registerEnemyTypes();
+	registerDropTypes();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -192,7 +194,7 @@ void Game::registerDefenderTypes() {
 		.spriteDisabled = {sprite("solar_off"), 0.1f},
 		.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 		.batteryDrain = -5,
-		.scrapsGain = 5,
+		//.scrapsGain = 5,
 		.maxHP = 100,
 		.buildCooldown = 2.f,
 	});
@@ -203,8 +205,8 @@ void Game::registerDefenderTypes() {
 								.spriteShoot = {sprite("shooter_shoot"), 0.1f},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 								.batteryDrain = 5.f,
-								.firstShootCooldown = 3.f,
-								.shootCooldown = 2.f,
+								.firstShootCooldown = 1.5f,
+								.shootCooldown = 0.1f,
 								.maxHP = 150,
 								.cost = 10,
 								.bulletType = "SimpleShot",
@@ -284,6 +286,8 @@ void Game::registerEnemyTypes() {
 							 .attackTime = 0.4f,
 							 .defenderDamage = 50,
 							 .baseWallDamage = 10,
+							 .dropType = "simpleScraps",
+							 .dropAmount = FixedValue{10},
 							 .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 							 .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 							 .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
@@ -296,6 +300,8 @@ void Game::registerEnemyTypes() {
 							 .attackTime = 0.5f,
 							 .defenderDamage = 50,
 							 .baseWallDamage = 10,
+							 .dropType = "simpleScraps",
+							 .dropAmount = RandomRangeStep{20, 40, 10},
 							 .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
 							 .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
 							 .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
@@ -308,8 +314,20 @@ void Game::registerEnemyTypes() {
 							 .attackTime = 0.5f,
 							 .defenderDamage = 50,
 							 .baseWallDamage = 10,
+							 .dropType = "simpleScraps",
+							 .dropAmount = RandomRangeStep{100, 200, 10},
 							 .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
 							 .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
 							 .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
 							 .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
+}
+
+void Game::registerDropTypes() {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
+	m_gameRegistry.addDrop("simpleScraps",
+						   {
+							   .type = DropType::Scraps,
+							   .idleAnimation = {sprite("scraps"), 0.1f},
+						   });
 }

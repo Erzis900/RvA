@@ -48,7 +48,7 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 				case DefenderState::On:
 					defender->shootTime -= dt;
 					if (defender->shootTime <= 0) {
-						defender->shootTime = defender->info->firstShootCooldown;
+						defender->shootTime = defender->info->shootCooldown;
 						setState(*defender, DefenderState::PrepareToShoot);
 					}
 					break;

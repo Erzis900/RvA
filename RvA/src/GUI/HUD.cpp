@@ -169,16 +169,16 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 			DrawCircleSector({position.x + defenderHSize, position.y + defenderHSize}, 20, -90, -90 - 360 * progress, 100, Fade(BLACK, 0.5f));
 
 			auto cooldownText = TextFormat("%.1fs", defender.cooldown);
-			auto rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
+			auto rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, {position.x, position.y, defenderSize, defenderSize}, HAlign::Center, VAlign::Center);
 			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
-			DrawText(cooldownText, rect.x, rect.y, rect.height, GRAY);
-		} else {
-			std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
-			auto cooldownText = TextFormat("%.1f", defender.cooldown);
-			auto rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
-			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
-			DrawText(costText.c_str(), rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
+			DrawText(cooldownText, rect.x, rect.y, rect.height, WHITE);
 		}
+
+		std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
+		auto cooldownText = TextFormat("%.1f", defender.cooldown);
+		auto rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
+		DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
+		DrawText(costText.c_str(), rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
 
 		++i;
 	}
