@@ -6,7 +6,7 @@
 
 class OptionsState : public IGameState, public flow::FsmState {
 public:
-	OptionsState(Game& game);
+	OptionsState(Game& game, bool showBackground);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
@@ -20,5 +20,6 @@ private:
 	WidgetHandle m_windowButton{};
 	Screen* m_screen{};
 	std::string m_nextTransition{};
+	bool m_showBackground{};
 	Game& m_game;
 };

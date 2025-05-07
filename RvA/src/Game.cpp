@@ -149,7 +149,7 @@ void Game::setupFSM() {
 			.on("credits").jumpTo("Credits")
 			.on("exit").exitFsm()
 
-		.state<OptionsState>("Options", *this)
+		.state<OptionsState>("Options", *this, false)
 			.on("back").jumpTo("MainMenu")
 
 		.state<CreditsState>("Credits", *this)
@@ -164,7 +164,11 @@ void Game::setupFSM() {
 		.state<PauseState>("PauseMenu", *this)
 			.on("resume").jumpTo("Play")
 			.on("restart").jumpTo("Play")
+			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("MainMenu")
+		
+		.state<OptionsState>("InGameOptions", *this, true)
+			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
 			.on("menu").jumpTo("MainMenu")

@@ -16,6 +16,7 @@ flow::FsmAction PauseState::enter() {
 		.space({0, 40.f})
 		.button({"Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; }})
 		.button({"Restart", {}, btnSize, [this]() { restart(); }})
+		.button({"Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})
 		.button({"Exit to Menu", {}, btnSize, [this]() { exitGameSession(); }})
 		.end();
 

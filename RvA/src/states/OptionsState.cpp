@@ -2,23 +2,30 @@
 
 #include "Game.h"
 
-OptionsState::OptionsState(Game& game) : m_game(game) {}
+OptionsState::OptionsState(Game& game, bool showBackground) : m_game(game), m_showBackground(showBackground) {}
 
 flow::FsmAction OptionsState::enter() {
 	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
 
 	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();
-	m_screen = gui.buildScreen("Options")
-				   .vertical_stack(5, 200.f)
-				   .medium_text({.text = "Options", .color = WHITE, .hAlign = HAlign::Center})
-				   .space({0, 40.f})
-				   .button({"Turn off music", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
-				   .button({"Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
-				   .button({"Back", {}, btnSize, [this]() { m_nextTransition = "back"; }})
-				   .end()
-				   .screen();
+	// clang-format off
+	auto builder = gui.buildScreen("Options");
+	if(m_showBackground) {
+		builder.rect({0, 0, TEX_WIDTH, TEX_HEIGHT}, Fade(BLACK, 0.5f));
+	}
 
+	builder
+		.vertical_stack(5, 200.f)
+			.medium_text({.text = "Options", .color = WHITE, .hAlign = HAlign::Center})
+			.space({0, 40.f})
+			.button({"Turn off music", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
+			.button({"Window Mode", {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
+			.button({"Back", {}, btnSize, [this]() { m_nextTransition = "back"; }})
+		.end();
+	// clang-format on
+
+	m_screen = builder.screen();
 	return flow::FsmAction::none();
 }
 
