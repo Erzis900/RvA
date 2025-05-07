@@ -39,7 +39,7 @@ void EnemyManager::update(float dt) {
 		}
 
 		if (enemy->getState() == EnemyState::Dead) {
-			m_enemyDestroyedInfos.emplace_back(enemy->getInfo()->scraps, enemy->getCenteredPosition(), enemy->getLatestDamageApplied().source);
+			m_enemyDestroyedInfos.emplace_back(enemy->getInfo(), enemy->getCenteredPosition(), enemy->getLatestDamageApplied().source);
 			it = m_enemies.erase(it);
 		} else {
 			++it;

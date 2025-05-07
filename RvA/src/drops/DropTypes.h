@@ -9,12 +9,14 @@ enum class DropType {
 
 struct DropTypeInfo {
 	DropType type{};
-	Animation spritInfo{};
+	Animation idleAnimation{};
 };
 
 struct Drop {
 	const DropTypeInfo* info{};
 	int amount{};
 	Vector2 position{};
+	Vector2 startPosition{};
+	Vector2 endPosition{};
 	float enterAnimation{};
 };

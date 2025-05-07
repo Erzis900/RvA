@@ -18,8 +18,7 @@ struct DefenderTypeInfo {
 	float batteryDrain{};
 	float scrapsGain{};
 	float firstShootCooldown{};
-	// TODO: one of the cooldowns is not used, remove one of them
-	float shootCooldown{}; // this is not used anywhere, why is it here?
+	float shootCooldown{};
 	int maxHP{};
 	int cost{};
 	std::optional<std::string> bulletType;

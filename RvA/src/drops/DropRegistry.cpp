@@ -1,11 +1,11 @@
 #include "DropRegistry.h"
 
-void DropRegistry::addDrop(DropType type, DropTypeInfo info) {
-	m_dropTypes[type] = info;
+void DropRegistry::addDrop(std::string id, DropTypeInfo info) {
+	m_dropTypes[std::move(id)] = std::move(info);
 }
 
-const DropTypeInfo* DropRegistry::getDropType(DropType type) const {
-	auto it = m_dropTypes.find(type);
+const DropTypeInfo* DropRegistry::getDropType(const std::string& id) const {
+	auto it = m_dropTypes.find(id);
 	if (it != m_dropTypes.end()) {
 		return &it->second;
 	}

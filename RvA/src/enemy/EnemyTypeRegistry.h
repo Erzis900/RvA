@@ -4,6 +4,7 @@
 #include "enemy/EnemyTypes.h"
 #include "utilities/ConfigValue.h"
 
+#include <optional>
 #include <unordered_map>
 
 struct EnemyTypeInfo {
@@ -14,7 +15,8 @@ struct EnemyTypeInfo {
 	float attackTime{};
 	float defenderDamage{};
 	float baseWallDamage{};
-	int drop{};
+	std::optional<std::string> dropType{};
+	ConfigValue<int> dropAmount{};
 	AnimationData idleAnimation;
 	AnimationData moveAnimation;
 	AnimationData attackAnimation;

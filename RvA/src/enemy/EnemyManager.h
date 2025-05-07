@@ -12,7 +12,7 @@ class CollisionSystem;
 class GameRegistry;
 
 struct EnemyDestroyedInfo {
-	EnemyType type{};
+	const EnemyTypeInfo* info{};
 	Vector2 position{};
 	DamageSource damageSource{};
 };

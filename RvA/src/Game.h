@@ -64,6 +64,7 @@ private:
 	void registerDefenderTypes();
 	void registerBulletTypes();
 	void registerEnemyTypes();
+	void registerDropTypes();
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;

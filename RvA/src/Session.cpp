@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameRegistry.h"
 
+#include <ranges>
 #include <raymath.h>
 
 Session::Session(GUI& gui, const GameRegistry& gameRegistry)
@@ -10,11 +11,13 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_defenderManager(m_collisionSystem)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
+	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_hud(gui) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
 		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });
+	m_onCollectedDropHandle = m_dropManager.onDropCollected(std::bind_front(&Session::onDropCollected, this));
 
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
@@ -44,6 +47,7 @@ void Session::start() {
 	if (m_isPaused) {
 		setPause(false);
 	} else {
+		m_scraps = 100; // TODO(Gerark) - We'll have a configuration to define what's the starting amount of scraps
 		m_defenderPicker.reset();
 		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 		m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
@@ -56,6 +60,7 @@ void Session::end() {
 	m_isPaused = false;
 	m_defenderManager.clear();
 	m_enemyManager.clear();
+	m_dropManager.clear();
 	m_bulletManager.clear();
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 	m_collisionSystem.clearColliders();
@@ -70,8 +75,8 @@ void Session::end() {
 void Session::drawGrid() {
 	for (int row = 0; row < ROWS; row++) {
 		for (int col = 0; col < COLS; col++) {
-			int x = GRID_OFFSET.x + col * CELL_SIZE;
-			int y = GRID_OFFSET.y + row * CELL_SIZE;
+			int x = static_cast<int>(GRID_OFFSET.x) + col * CELL_SIZE;
+			int y = static_cast<int>(GRID_OFFSET.y) + row * CELL_SIZE;
 
 			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, BLACK);
 		}
@@ -88,7 +93,18 @@ void Session::update(float dt) {
 	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
 	m_bulletManager.update(dt);
+	m_dropManager.update(dt);
 	m_defenderPicker.update(dt);
+
+	// When pressing F3 deal 500 damage to a random enemy
+	if (DEV_MODE && IsKeyPressed(KEY_F3)) {
+		auto& enemies = m_enemyManager.getEnemies();
+		auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
+		if (!filtered.empty()) {
+			std::vector<Enemy*> result(filtered.begin(), filtered.end());
+			result[Random::range(0, static_cast<int>(result.size()) - 1)]->applyDamage({.value = 500, .source = DamageSource::Bullet});
+		}
+	}
 
 	updateHUD(dt);
 }
@@ -100,6 +116,7 @@ void Session::draw(Atlas& atlas) {
 		m_defenderManager.draw(atlas);
 		m_enemyManager.draw(atlas);
 		m_bulletManager.draw();
+		m_dropManager.draw(atlas);
 		m_collisionSystem.draw();
 	}
 }
@@ -127,8 +144,7 @@ void Session::performDefenderSpawnOnInput() {
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
 						m_scraps -= defenderInfo->cost;
 						m_defenderPicker.startCooldown(*m_selectedDefender);
-						m_selectedDefender = std::nullopt;
-						m_hud.data().selectedDefenderIndex.reset();
+						resetSelectedDefender();
 						m_hud.data().occupiedCells.emplace_back(row, column);
 					}
 				}
@@ -137,6 +153,10 @@ void Session::performDefenderSpawnOnInput() {
 					m_defenderManager.toggleDefender(row, column);
 				}
 			}
+		}
+
+		if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && m_selectedDefender) {
+			resetSelectedDefender();
 		}
 	}
 }
@@ -229,6 +249,11 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 	}
 }
 
+void Session::resetSelectedDefender() {
+	m_selectedDefender.reset();
+	m_hud.data().selectedDefenderIndex.reset();
+}
+
 void Session::updateHUD(float dt) {
 	auto& hudData = m_hud.data();
 	hudData.batteryCharge = getBatteryCharge();
@@ -261,11 +286,19 @@ void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies)
 
 	for (const auto& enemy : enemies) {
 		if (enemy.damageSource == DamageSource::Bullet) {
-			auto* enemyTypeInfo = m_gameRegistry.getEnemy(enemy.type);
-			if (enemyTypeInfo->drop) {
-				auto* drop = m_gameRegistry.getDrop(enemyTypeInfo->drop.value());
-				m_dropManager.spawnDrop(*drop);
+			if (enemy.info->dropType) {
+				auto* drop = m_gameRegistry.getDrop(*enemy.info->dropType);
+				auto amount = enemy.info->dropAmount.generate();
+				m_dropManager.spawnDrop(drop, enemy.position, amount);
 			}
+		}
+	}
+}
+
+void Session::onDropCollected(const std::vector<CollectedDrop>& collectedDrops) {
+	for (const auto& drop : collectedDrops) {
+		if (drop.info->type == DropType::Scraps) {
+			m_scraps += drop.amount;
 		}
 	}
 }

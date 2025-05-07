@@ -69,11 +69,14 @@ private:
 	void updateHUD(float dt);
 
 	void onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies);
+	void onDropCollected(const std::vector<CollectedDrop>& collectedDrops);
 
 	void manageCollision(const Collision& collision);
 	void manageBulletEnemyCollision(const Collision& collision);
 	void manageDefenderEnemyCollision(const Collision& collision);
 	void manageBaseWallEnemyCollision(const Collision& collision);
+
+	void resetSelectedDefender();
 
 	int m_numberOfDestroyedEnemies{0};
 	float m_batteryCharge{MAX_BATTERY_CHARGE};
@@ -85,6 +88,7 @@ private:
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
+	CallbackHandle m_onCollectedDropHandle;
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem m_collisionSystem;

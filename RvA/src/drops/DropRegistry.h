@@ -6,9 +6,9 @@
 
 class DropRegistry {
 public:
-	void addDrop(DropType type, DropTypeInfo info);
-	const DropTypeInfo* getDropType(DropType type) const;
+	void addDrop(std::string id, DropTypeInfo info);
+	const DropTypeInfo* getDropType(const std::string& id) const;
 
 private:
-	std::unordered_map<DropType, DropTypeInfo> m_dropTypes;
+	std::unordered_map<std::string, DropTypeInfo> m_dropTypes;
 };

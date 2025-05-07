@@ -12,6 +12,10 @@ void GameRegistry::addBullet(std::string id, BulletData info) {
 	m_bulletRegistry.registerBulletType(std::move(id), std::move(info));
 }
 
+void GameRegistry::addDrop(std::string id, DropTypeInfo info) {
+	m_dropRegistry.addDrop(std::move(id), std::move(info));
+}
+
 const EnemyTypeInfo* GameRegistry::getEnemy(EnemyType type) const {
 	return m_enemyRegistry.getEnemyTypeInfo(type);
 }
@@ -22,4 +26,8 @@ const DefenderTypeInfo* GameRegistry::getDefender(DefenderType type) const {
 
 const BulletData* GameRegistry::getBullet(const std::string& id) const {
 	return m_bulletRegistry.getBulletInfo(id);
+}
+
+const DropTypeInfo* GameRegistry::getDrop(const std::string& id) const {
+	return m_dropRegistry.getDropType(id);
 }
