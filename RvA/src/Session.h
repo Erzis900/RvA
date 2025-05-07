@@ -6,6 +6,7 @@
 #include "collisions/CollisionSystem.h"
 #include "defender/DefenderManager.h"
 #include "defender/DefenderPicker.h"
+#include "drops/DropManager.h"
 #include "enemy/EnemyManager.h"
 
 class Game;
@@ -67,6 +68,8 @@ private:
 	void setupHUD();
 	void updateHUD(float dt);
 
+	void onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies);
+
 	void manageCollision(const Collision& collision);
 	void manageBulletEnemyCollision(const Collision& collision);
 	void manageDefenderEnemyCollision(const Collision& collision);
@@ -81,12 +84,14 @@ private:
 	bool m_isStarted{false};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
+	CallbackHandle m_onEnemiesDestroyedHandle;
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
 	BulletManager m_bulletManager;
+	DropManager m_dropManager;
 	DefenderPicker m_defenderPicker;
 	HUD m_hud;
 };

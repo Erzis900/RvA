@@ -12,7 +12,7 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_hud(gui) {
-	m_enemyManager.onEnemiesDestroyed([this](int numberOfDestroyedEnemies) { m_numberOfDestroyedEnemies += numberOfDestroyedEnemies; });
+	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
 		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });
 
@@ -254,4 +254,18 @@ void Session::updateHUD(float dt) {
 	}
 
 	m_hud.update(dt);
+}
+
+void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies) {
+	m_numberOfDestroyedEnemies += static_cast<int>(enemies.size());
+
+	for (const auto& enemy : enemies) {
+		if (enemy.damageSource == DamageSource::Bullet) {
+			auto* enemyTypeInfo = m_gameRegistry.getEnemy(enemy.type);
+			if (enemyTypeInfo->drop) {
+				auto* drop = m_gameRegistry.getDrop(enemyTypeInfo->drop.value());
+				m_dropManager.spawnDrop(*drop);
+			}
+		}
+	}
 }

@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "enemy/EnemyTypes.h"
+#include "utilities/ConfigValue.h"
 
 #include <unordered_map>
 
@@ -13,6 +14,7 @@ struct EnemyTypeInfo {
 	float attackTime{};
 	float defenderDamage{};
 	float baseWallDamage{};
+	int drop{};
 	AnimationData idleAnimation;
 	AnimationData moveAnimation;
 	AnimationData attackAnimation;
