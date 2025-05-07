@@ -105,7 +105,7 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
 
 void DefenderManager::toggleDefender(int row, int column) {
 	auto defender = m_defenderGrid[row][column];
-	if (defender) {
+	if (defender && defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
 		setState(*defender, defender->state != DefenderState::Off ? DefenderState::Off : DefenderState::On);
 	}
 }
