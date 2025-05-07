@@ -19,7 +19,7 @@ const std::vector<CreditsItem> creditsItems{
 	{"Gerark", DARKGRAY},
 	{},
 	{"PIXEL ART", WHITE},
-	{"Marvin", DARKGRAY},
+	{"Marvin Gorner", DARKGRAY},
 	{},
 	{"CONCEPT ART", WHITE},
 	{"yeahno", DARKGRAY},
