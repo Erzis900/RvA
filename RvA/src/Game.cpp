@@ -267,7 +267,7 @@ void Game::registerBulletTypes() {
 								 .velocity = {150, 0},
 								 .radius = 5.f,
 								 .damage = {25, 16},
-								 .maxLifetime = 100,
+								 .maxLifetime = 3.f,
 							 });
 
 	m_gameRegistry.addBullet("ChasingShot",
@@ -275,7 +275,7 @@ void Game::registerBulletTypes() {
 								 .startOffset = {20, 20},
 								 .radius = 10.f,
 								 .damage = {50, 16},
-								 .maxLifetime = 100,
+								 .maxLifetime = 3.f,
 								 .speed = 150,
 								 .color = {255, 0, 0, 255},
 								 .direction = {1, 0},
