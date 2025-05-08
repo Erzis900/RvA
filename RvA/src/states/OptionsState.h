@@ -1,10 +1,11 @@
 #pragma once
 
 #include "GUI/Widgets.h"
-#include "IGameState.h"
 #include "fsm/FsmState.h"
 
-class OptionsState : public IGameState, public flow::FsmState {
+class Game;
+
+class OptionsState : public flow::FsmState {
 public:
 	OptionsState(Game& game, bool showBackground);
 

@@ -189,6 +189,7 @@
     <ClCompile Include="src\states\WinState.cpp" />
     <ClCompile Include="src\utilities\CallbackRegistry.cpp" />
     <ClCompile Include="src\utilities\ConfigValue.cpp" />
+    <ClCompile Include="src\utilities\DelayedAction.cpp" />
     <ClCompile Include="src\utilities\Interpolation.cpp" />
     <ClCompile Include="src\utilities\Random.cpp" />
     <ClCompile Include="src\utilities\TimedAction.cpp" />
@@ -339,7 +340,6 @@
     <ClInclude Include="src\enemy\EnemyTypes.h" />
     <ClInclude Include="src\GUI\GUI.h" />
     <ClInclude Include="src\Game.h" />
-    <ClInclude Include="src\IGameState.h" />
     <ClInclude Include="src\states\OptionsState.h" />
     <ClInclude Include="src\states\PauseState.h" />
     <ClInclude Include="src\states\PlayState.h" />
@@ -348,6 +348,7 @@
     <ClInclude Include="src\utilities\CallbackRegistry.h" />
     <ClInclude Include="src\utilities\ClassId.h" />
     <ClInclude Include="src\utilities\ConfigValue.h" />
+    <ClInclude Include="src\utilities\DelayedAction.h" />
     <ClInclude Include="src\utilities\Interpolation.h" />
     <ClInclude Include="src\utilities\Random.h" />
     <ClInclude Include="src\utilities\ServiceLocator.h" />

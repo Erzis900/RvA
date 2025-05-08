@@ -2,7 +2,6 @@
 
 #include "GUI/GUI.h"
 #include "GameRegistry.h"
-#include "IGameState.h"
 #include "MusicManager.h"
 #include "Session.h"
 #include "atlas/Atlas.h"
@@ -53,9 +52,6 @@ public:
 	}
 
 private:
-	std::unique_ptr<IGameState> m_currentState;
-	std::unique_ptr<IGameState> m_nextState;
-
 	void update();
 	void updateRenderRec();
 	void updateMouse();

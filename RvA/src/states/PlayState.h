@@ -1,13 +1,13 @@
 #pragma once
 
-#include "IGameState.h"
 #include "fsm/FsmState.h"
 #include "utilities/CallbackRegistry.h"
 
 class Session;
 class HUD;
+class Game;
 
-class PlayState : public IGameState, public flow::FsmState {
+class PlayState : public flow::FsmState {
 public:
 	PlayState(Game& game);
 

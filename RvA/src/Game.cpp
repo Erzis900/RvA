@@ -46,13 +46,8 @@ Game::Game()
 	setupFSM();
 
 	if (DEV_MODE) {
-		m_currentState = std::make_unique<MenuState>(*this);
 		setRenderTextureColor(GRAY);
-	} else {
-		m_currentState = std::make_unique<IntroState>(*this);
 	}
-
-	m_currentState->onEnter(*this);
 
 	SetExitKey(0);
 }
@@ -102,7 +97,6 @@ void Game::draw() {
 
 	ClearBackground(m_renderTextureColor);
 
-	m_currentState->draw(*this);
 	m_gameSession.draw(m_atlas);
 	m_drawCallbacks.executeCallbacks();
 
@@ -188,13 +182,13 @@ void Game::setupFSM() {
 			.on("menu").jumpTo("MainMenu");
 	// clang-format on
 
+	std::string startState = "Intro";
 	if (DEV_MODE) {
-		auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
-		m_fsm = std::move(fsm);
-	} else {
-		auto [fsm, fsmInfo] = fsmBuilder.build("Intro", nullptr);
-		m_fsm = std::move(fsm);
+		startState = "Intro";
 	}
+
+	auto [fsm, fsmInfo] = fsmBuilder.build(startState, nullptr);
+	m_fsm = std::move(fsm);
 }
 
 void Game::run() {
