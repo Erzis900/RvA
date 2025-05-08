@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
 #include "states/CreditsState.h"
+#include "states/IntroState.h"
 #include "states/LostState.h"
 #include "states/MenuState.h"
 #include "states/OptionsState.h"
@@ -44,7 +45,13 @@ Game::Game()
 
 	setupFSM();
 
-	m_currentState = std::make_unique<MenuState>(*this);
+	if (DEV_MODE) {
+		m_currentState = std::make_unique<MenuState>(*this);
+		setRenderTextureColor(GRAY);
+	} else {
+		m_currentState = std::make_unique<IntroState>(*this);
+	}
+
 	m_currentState->onEnter(*this);
 
 	SetExitKey(0);
@@ -93,7 +100,7 @@ void Game::updateMouse() {
 void Game::draw() {
 	BeginTextureMode(m_renderTexture);
 
-	ClearBackground(GRAY);
+	ClearBackground(m_renderTextureColor);
 
 	m_currentState->draw(*this);
 	m_gameSession.draw(m_atlas);
@@ -142,6 +149,9 @@ void Game::setupFSM() {
 
 	// clang-format off
 	fsmBuilder
+		.state<IntroState>("Intro", *this)
+			.on("menu").jumpTo("MainMenu")
+
 		// Menus
 		.state<MenuState>("MainMenu", *this)
 			.on("play").jumpTo("Play")
@@ -178,8 +188,13 @@ void Game::setupFSM() {
 			.on("menu").jumpTo("MainMenu");
 	// clang-format on
 
-	auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
-	m_fsm = std::move(fsm);
+	if (DEV_MODE) {
+		auto [fsm, fsmInfo] = fsmBuilder.build("MainMenu", nullptr);
+		m_fsm = std::move(fsm);
+	} else {
+		auto [fsm, fsmInfo] = fsmBuilder.build("Intro", nullptr);
+		m_fsm = std::move(fsm);
+	}
 }
 
 void Game::run() {

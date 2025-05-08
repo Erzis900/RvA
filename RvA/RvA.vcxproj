@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\states\IntroState.cpp" />
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\bullet\BulletTypeRegistry.cpp" />
     <ClCompile Include="src\collisions\CollisionSystem.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="deps\spdlog\stopwatch.h" />
     <ClInclude Include="deps\spdlog\tweakme.h" />
     <ClInclude Include="deps\spdlog\version.h" />
+    <ClInclude Include="src\states\IntroState.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypeRegistry.h" />
     <ClInclude Include="src\bullet\BulletTypes.h" />

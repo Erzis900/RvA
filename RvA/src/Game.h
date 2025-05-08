@@ -40,6 +40,10 @@ public:
 		return m_gameSession;
 	}
 
+	void setRenderTextureColor(Color color) {
+		m_renderTextureColor = color;
+	}
+
 	// When it comes to rendering we should move to a more retained approach
 	// Instead of propagating calls by calling Class::draw the idea is to move out from that pattern
 	// and as a temporary solution we can use a callback system instead.
@@ -68,6 +72,7 @@ private:
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;
+	Color m_renderTextureColor{BLACK};
 
 	float m_scale{};
 
