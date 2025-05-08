@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Animation.h"
-#include "IGameState.h"
 #include "fsm/FsmState.h"
 #include "utilities/CallbackRegistry.h"
 
 #include <memory>
 #include <vector>
 
-class WinState : public IGameState, public flow::FsmState {
+class Game;
+
+class WinState : public flow::FsmState {
 public:
 	WinState(Game& game);
 

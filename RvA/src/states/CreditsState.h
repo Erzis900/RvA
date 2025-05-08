@@ -1,9 +1,10 @@
 #pragma once
 
-#include "IGameState.h"
 #include "fsm/FsmState.h"
 
-class CreditsState : public IGameState, public flow::FsmState {
+class Game;
+
+class CreditsState : public flow::FsmState {
 public:
 	CreditsState(Game& game);
 

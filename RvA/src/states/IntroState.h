@@ -1,13 +1,13 @@
 #pragma once
 
-#include "IGameState.h"
 #include "fsm/FsmState.h"
+#include "utilities/DelayedAction.h"
 
 #include <raygui.h>
 
 class Game;
 
-class IntroState : public IGameState, public flow::FsmState {
+class IntroState : public flow::FsmState {
 public:
 	IntroState(Game& game);
 
@@ -19,5 +19,5 @@ private:
 	std::string m_nextTransition;
 	Game& m_game;
 
-	float m_displayTime{2.f};
+	DelayedAction m_exitTime;
 };

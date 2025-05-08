@@ -2,6 +2,8 @@
 
 #include "Game.h"
 
+static bool b = false;
+
 IntroState::IntroState(Game& game) : m_game(game) {}
 
 flow::FsmAction IntroState::enter() {
@@ -12,25 +14,24 @@ flow::FsmAction IntroState::enter() {
 	// clang-format off
 	gui.buildScreen("Intro")
 		.vertical_stack(2, 200.f)
-		.medium_text({.text = "Studio name presents:", .color = WHITE, .hAlign = HAlign::Center})
-		.small_text({.text = "Game name!", .color = WHITE, .hAlign = HAlign::Center})
+			.medium_text({.text = "Studio name presents:", .color = WHITE, .hAlign = HAlign::Center})
+			.small_text({.text = "Game name!", .color = WHITE, .hAlign = HAlign::Center})
 		.end();
 	// clang-format on
+
+	m_exitTime.start(2.f, [this] { m_game.getGUI().startFadingInOut([this] { m_nextTransition = "menu"; }, [this] {}, 0.5f); });
 
 	return flow::FsmAction::none();
 }
 
 flow::FsmAction IntroState::update(float dt) {
-	m_displayTime -= dt;
+	m_exitTime.update(dt);
 
-	if (m_displayTime <= 0.f) {
-		m_game.setRenderTextureColor(GRAY);
-
-		m_nextTransition = "menu";
-		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
+	if (m_nextTransition.empty()) {
+		return flow::FsmAction::none();
+	} else {
+		return flow::FsmAction::transition(m_nextTransition);
 	}
-
-	return flow::FsmAction::none();
 }
 
 void IntroState::exit() {

@@ -1,12 +1,10 @@
 #pragma once
 
-#include "IGameState.h"
-
 #include <fsm/FsmState.h>
 
 class Game;
 
-class PauseState : public IGameState, public flow::FsmState {
+class PauseState : public flow::FsmState {
 public:
 	PauseState(Game& game);
 

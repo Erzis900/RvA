@@ -1,13 +1,10 @@
 #pragma once
 
-#include "IGameState.h"
 #include "fsm/FsmState.h"
-
-#include <raygui.h>
 
 class Game;
 
-class LostState : public IGameState, public flow::FsmState {
+class LostState : public flow::FsmState {
 public:
 	LostState(Game& game);
 
