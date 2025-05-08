@@ -184,7 +184,7 @@ void Game::setupFSM() {
 
 	std::string startState = "Intro";
 	if (DEV_MODE) {
-		startState = "Intro";
+		startState = "MainMenu";
 	}
 
 	auto [fsm, fsmInfo] = fsmBuilder.build(startState, nullptr);
