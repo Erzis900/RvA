@@ -360,4 +360,44 @@ void Game::registerLevels() {
 											},
 									},
 							});
+
+	m_gameRegistry.addLevel("level2",
+							{
+								.name = "Level 2",
+								.rowCount = 8,
+								.columnCount = 18,
+								.gridOffset = {32, 64},
+								.winCondition = AllWavesGoneCondition{},
+								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.timeline =
+									{
+										.keyframes =
+											{
+												{2.f,
+												 SpawnEnemyBurst{
+													 .amount = FixedValue{5},
+													 .interval = FixedValue{1.f},
+													 .row = RandomRange{0, 7},
+													 .column = FixedValue{19},
+													 .type = FixedValue{"B1"s},
+												 }},
+												{10.f,
+												 SpawnEnemyBurst{
+													 .amount = FixedValue{5},
+													 .interval = FixedValue{1.f},
+													 .row = RandomRange{0, 7},
+													 .column = FixedValue{19},
+													 .type = FixedValue{"B2"s},
+												 }},
+												{20.f,
+												 SpawnEnemyBurst{
+													 .amount = FixedValue{5},
+													 .interval = FixedValue{1.f},
+													 .row = RandomRange{0, 7},
+													 .column = FixedValue{19},
+													 .type = FixedValue{"Portal"s},
+												 }},
+											},
+									},
+							});
 }

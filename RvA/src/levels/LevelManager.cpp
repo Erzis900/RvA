@@ -20,6 +20,7 @@ void LevelManager::startNextLevel() {
 	m_currentLevel.time = 0.f;
 	m_currentLevel.nextKeyframe = 0;
 	m_currentLevel.info = m_gameRegistry.getLevel(m_levelSequence[*m_currentLevelIndex]);
+	m_spawnBurstTrackers.clear();
 }
 
 void LevelManager::update(float dt) {
