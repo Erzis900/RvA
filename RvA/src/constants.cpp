@@ -12,3 +12,7 @@ Vector2 getSnappedPosition(const Vector2& position) {
 	auto [row, column] = getCoordinates(position);
 	return {GRID_OFFSET.x + column * CELL_SIZE, GRID_OFFSET.y + row * CELL_SIZE};
 }
+
+Vector2 getSnappedPosition(int row, int column) {
+	return {GRID_OFFSET.x + column * CELL_SIZE, GRID_OFFSET.y + row * CELL_SIZE};
+}

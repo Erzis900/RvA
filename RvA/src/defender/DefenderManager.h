@@ -1,17 +1,14 @@
 #pragma once
 
 #include "Animation.h"
+#include "GameAction.h"
 #include "collisions/Collider.h"
 #include "defender/DefenderTypeRegistry.h"
-#include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
 
 #include <array>
 #include <constants.h>
 #include <memory>
-#include <optional>
-#include <unordered_map>
-#include <variant>
 #include <vector>
 
 class CollisionSystem;
@@ -43,17 +40,10 @@ struct Defender {
 	Color tint{WHITE};
 };
 
-struct BulletSpawnAction {
-	std::string bulletType;
-	Vector2 position;
-};
-
-using Actions = std::vector<std::variant<BulletSpawnAction>>;
-
 struct DefenderUpdateResult {
 	float amountOfBatteryDrain{};
 	float amountOfScrapsGain{};
-	Actions actions;
+	GameActions actions;
 };
 
 class DefenderManager {

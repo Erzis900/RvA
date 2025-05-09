@@ -7,6 +7,7 @@ class Random {
 public:
 	Random();
 	static void setInstance(Random* instance);
+	static float range(float min, float max, float step);
 	static float range(float min, float max);
 	static int range(int min, int max, int step);
 	static int range(int min, int max);

@@ -11,6 +11,14 @@ void Random::setInstance(Random* instance) {
 	_instance = instance;
 }
 
+float Random::range(float min, float max, float step) {
+	float start = (min + step - 1) / step;
+	float end = max / step;
+	auto distribution = std::uniform_real_distribution<float>(start, end);
+	float value = distribution(_instance->generator);
+	return value * step;
+}
+
 float Random::range(float min, float max) {
 	return min + (max - min) * random();
 }

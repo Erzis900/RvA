@@ -20,6 +20,7 @@ void DefenderManager::clear() {
 
 void DefenderManager::draw(Atlas& atlas) {
 	for (auto& defender : m_defenders) {
+		DrawEllipse(defender->position.x + CELL_SIZE * 0.5f, defender->position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));
 		atlas.drawSprite(defender->animation.getSpriteInfo(), defender->position, defender->animation.getCurrentFrame(), Flip::None, defender->tint);
 	}
 }
@@ -29,7 +30,9 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 	for (auto it = m_defenders.begin(); it != m_defenders.end();) {
 		auto& defender = *it;
 
-		m_collisionSystem.updateCollider(defender->colliderHandle, {defender->position.x, defender->position.y, 32, 32});
+		if (defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
+			m_collisionSystem.updateCollider(defender->colliderHandle, {defender->position.x, defender->position.y, 32, 32});
+		}
 
 		defender->animation.update(dt);
 		if (defender->state != DefenderState::Off) {
@@ -74,7 +77,6 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 			break;
 		case DefenderState::Dead:
 			m_defenderGrid[defender->row][defender->column] = nullptr;
-			m_collisionSystem.destroyCollider((*it)->colliderHandle);
 			m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
 			it = m_defenders.erase(it);
 			break;
@@ -122,8 +124,12 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 		case DefenderState::On			  : defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
 		case DefenderState::Off			  : defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
 		case DefenderState::PrepareToShoot: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
-		case DefenderState::Dying		  : defender.animation = Animation::createAnimation(defender.info->spriteDying); break;
-		case DefenderState::Dead		  : break;
+		case DefenderState::Dying		  : {
+			m_collisionSystem.destroyCollider(defender.colliderHandle);
+			defender.animation = Animation::createAnimation(defender.info->spriteDying);
+			break;
+		}
+		case DefenderState::Dead: break;
 		}
 	}
 }

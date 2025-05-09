@@ -25,6 +25,8 @@ public:
 	void update(float dt);
 	void draw(Atlas& atlas);
 
+	void spawnEnemy(const EnemyTypeInfo* info, int row, int column);
+
 	const auto& getEnemies() const {
 		return m_enemies;
 	}
@@ -33,13 +35,9 @@ public:
 	CallbackHandle onEnemiesDestroyed(std::function<void(const std::vector<EnemyDestroyedInfo>&)> callback);
 
 private:
-	void spawnEnemy();
-
 	std::vector<std::unique_ptr<Enemy>> m_enemies;
 	CallbackRegistry<const std::vector<EnemyDestroyedInfo>&> m_onEnemiesDestroyedCallbacks;
 	std::vector<EnemyDestroyedInfo> m_enemyDestroyedInfos;
-	float m_spawnTimer{};
-	float m_spawnInterval{1.f};
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem& m_collisionSystem;

@@ -25,13 +25,13 @@ struct EnemyTypeInfo {
 
 class EnemyTypeRegistry {
 public:
-	void registerEnemyType(EnemyTypeInfo typeInfo);
-	const EnemyTypeInfo* getEnemyTypeInfo(EnemyType type) const;
+	void registerEnemyType(std::string id, EnemyTypeInfo typeInfo);
+	const EnemyTypeInfo* getEnemyTypeInfo(const std::string& id) const;
 
 	const auto& getEnemyTypeInfos() const {
 		return m_enemyTypes;
 	};
 
 private:
-	std::unordered_map<EnemyType, EnemyTypeInfo> m_enemyTypes;
+	std::unordered_map<std::string, EnemyTypeInfo> m_enemyTypes;
 };

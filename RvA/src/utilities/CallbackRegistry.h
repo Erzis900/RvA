@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 
-struct CallbackHandle {
+struct [[nodiscard]] CallbackHandle {
 	std::shared_ptr<int> token; // Owning pointer to track lifetime
 };
 
@@ -12,7 +12,7 @@ template<typename... Args> class CallbackRegistry {
 public:
 	using Callback = std::function<void(Args...)>;
 
-	[[nodiscard]] CallbackHandle registerCallback(Callback cb) {
+	CallbackHandle registerCallback(Callback cb) {
 		auto token = std::make_shared<int>(0);
 		callbacks[token] = std::move(cb);
 

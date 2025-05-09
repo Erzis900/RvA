@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\levels\LevelRegistry.cpp" />
     <ClCompile Include="src\states\IntroState.cpp" />
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\bullet\BulletTypeRegistry.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="src\GUI\HUD.cpp" />
     <ClCompile Include="src\GUI\LayoutHelper.cpp" />
     <ClCompile Include="src\GUI\Widgets.cpp" />
+    <ClCompile Include="src\levels\LevelManager.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
     <ClCompile Include="src\Session.cpp" />
     <ClCompile Include="src\states\CreditsState.cpp" />
@@ -188,6 +190,7 @@
     <ClCompile Include="src\states\MenuState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
     <ClCompile Include="src\utilities\CallbackRegistry.cpp" />
+    <ClCompile Include="src\utilities\ConfigCondition.cpp" />
     <ClCompile Include="src\utilities\ConfigValue.cpp" />
     <ClCompile Include="src\utilities\DelayedAction.cpp" />
     <ClCompile Include="src\utilities\Interpolation.cpp" />
@@ -300,6 +303,7 @@
     <ClInclude Include="deps\spdlog\stopwatch.h" />
     <ClInclude Include="deps\spdlog\tweakme.h" />
     <ClInclude Include="deps\spdlog\version.h" />
+    <ClInclude Include="src\GameAction.h" />
     <ClInclude Include="src\states\IntroState.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypeRegistry.h" />
@@ -325,6 +329,9 @@
     <ClInclude Include="src\GUI\HUD.h" />
     <ClInclude Include="src\GUI\LayoutHelper.h" />
     <ClInclude Include="src\GUI\Widgets.h" />
+    <ClInclude Include="src\levels\LevelData.h" />
+    <ClInclude Include="src\levels\LevelManager.h" />
+    <ClInclude Include="src\levels\LevelRegistry.h" />
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\Session.h" />
     <ClInclude Include="src\states\CreditsState.h" />
@@ -347,6 +354,7 @@
     <ClInclude Include="src\states\WinState.h" />
     <ClInclude Include="src\utilities\CallbackRegistry.h" />
     <ClInclude Include="src\utilities\ClassId.h" />
+    <ClInclude Include="src\utilities\ConfigCondition.h" />
     <ClInclude Include="src\utilities\ConfigValue.h" />
     <ClInclude Include="src\utilities\DelayedAction.h" />
     <ClInclude Include="src\utilities\Interpolation.h" />
