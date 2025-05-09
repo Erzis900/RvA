@@ -1,5 +1,7 @@
 #include "MusicManager.h"
 
+#include "constants.h"
+
 MusicManager::~MusicManager() {
 	UnloadMusicStream(m_menuMusic);
 	UnloadMusicStream(m_gameMusic);
@@ -21,21 +23,29 @@ void MusicManager::load() {
 }
 
 void MusicManager::play(Music& music) {
-	if (!IsMusicStreamPlaying(music)) {
-		StopMusicStream(m_currentMusic);
-		m_currentMusic = music;
-		PlayMusicStream(m_currentMusic);
+	if (MUSIC) {
+		if (!IsMusicStreamPlaying(music)) {
+			StopMusicStream(m_currentMusic);
+			m_currentMusic = music;
+			PlayMusicStream(m_currentMusic);
+		}
 	}
 }
 
 void MusicManager::play(Sound& sound) {
-	PlaySound(sound);
+	if (SOUND) {
+		PlaySound(sound);
+	}
 }
 
 void MusicManager::stop(Music& music) {
-	StopMusicStream(music);
+	if (MUSIC) {
+		StopMusicStream(music);
+	}
 }
 
 void MusicManager::updateStream() {
-	UpdateMusicStream(m_currentMusic);
+	if (MUSIC) {
+		UpdateMusicStream(m_currentMusic);
+	}
 }
