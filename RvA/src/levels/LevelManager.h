@@ -1,71 +1,60 @@
 #pragma once
 
-#include "utilities/ConfigValue.h"
+#include "GameAction.h"
+#include "LevelData.h"
+#include "utilities/CallbackRegistry.h"
 
-struct SpawnEnemy {
-	ConfigValue<int> amount{};
-	int row{};
-	int column{};
-	std::vector<std::string> types;
-};
+#include <optional>
+#include <string>
+#include <vector>
 
-struct SpawnEnemyOverTime {
-	ConfigValue<int> amount{};
-	std::vector<std::string> types;
-	ConfigValue<float> interval{};
-	ConfigValue<float> duration{};
-};
+class GameRegistry;
 
-struct Keyframe {
-	float time;
-	std::variant<SpawnEnemy, SpawnEnemyOverTime> action;
-};
-
-struct Timeline {
-	std::vector<Keyframe> keyframes;
-};
-
-/*
-void foo() {
-	Timeline timeline;
-	timeline.keyframes.push_back({10.f, SpawnEnemy{.amount = FixedValue{5}, .types = {"enemy1", "enemy2"}}});
-
-	// clang-format off
-	Timeline::build()
-		.at(10)
-			.spawn({"enemy1", "enemy2"})
-			.count(5)
-			.column(Random{});
-		.at(20)
-			.spawnOverTime({"enemy1", "enemy2"})
-			.count(2)
-			.interval(0.5f)
-			.duration(20.f)
-			.column(Random{});
-		.at(30)
-			.spawn({"enemy1", "enemy2"})
-			.count(5)
-			.row(0)
-	// clang-format on
-}
-*/
 /*
  * The LevelManager class is responsible for updating the state of the current level
  * It tells when to spawn new waves, when to spawn new enemies, and when the player win or lose
  */
 class LevelManager {
 public:
-	LevelManager() = default;
+	LevelManager(const GameRegistry& gameRegistry);
+
+	void resetCurrentLevelIndex();
+	void startNextLevel();
+
 	void update(float dt);
 
-	void startLevel();
+	void setLevelSequence(std::vector<std::string> levelSequence);
 
-	float getWaves() const;
-
-	void onSpawnWaveRequest();
-	void onSpawnEnemyRequest();
-	void onVictoryConditionFulfilled();
-	void onLosingConditionFulfilled();
+	CallbackHandle onSpawnWaveRequest(std::function<void()> callback);
+	CallbackHandle onGameActionRequest(std::function<void(const GameAction&)> callback);
+	CallbackHandle onVictoryConditionFulfilled(std::function<void()> callback);
+	CallbackHandle onLosingConditionFulfilled(std::function<void()> callback);
 
 private:
+	void performAction(const KeyframeAction& action);
+	void performAction(const SpawnEnemy& action);
+	void performAction(const SpawnEnemyBurst& action);
+
+	void triggerSpawnEnemy(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& type);
+
+	const Keyframe* getKeyframe(int index);
+
+	struct SpawnOvertimeTracker {
+		const SpawnEnemyBurst* info;
+		int count{};
+		float duration{};
+		float time{};
+	};
+
+	std::vector<std::string> m_levelSequence;
+	std::optional<int> m_currentLevelIndex{};
+	LevelData m_currentLevel{};
+	bool m_lastKeyframeReached{};
+	std::vector<SpawnOvertimeTracker> m_spawnBurstTrackers{};
+	CallbackRegistry<> m_onLosingConditionFullfilled;
+	CallbackRegistry<> m_onVictoryConditionFullfilled;
+	CallbackRegistry<> m_onSpawnWaveRequest;
+	CallbackRegistry<const GameAction&> m_onGameActionCallbacks;
+
+	const GameRegistry& m_gameRegistry;
 };

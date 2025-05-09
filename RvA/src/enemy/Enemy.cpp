@@ -7,6 +7,7 @@
 Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row) : m_position(position), m_row(row), m_typeInfo(typeInfo) {
 	m_hp = typeInfo->maxHp;
 	m_attackTime = typeInfo->attackTime;
+	setAnimation(m_typeInfo->idleAnimation);
 	setState(EnemyState::Idle);
 }
 
@@ -62,6 +63,7 @@ void Enemy::update(float dt) {
 }
 
 void Enemy::draw(Atlas& atlas) {
+	DrawEllipse(m_position.x + CELL_SIZE * 0.5f, m_position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));
 	atlas.drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
 }
 

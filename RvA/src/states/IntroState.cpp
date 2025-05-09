@@ -2,8 +2,6 @@
 
 #include "Game.h"
 
-static bool b = false;
-
 IntroState::IntroState(Game& game) : m_game(game) {}
 
 flow::FsmAction IntroState::enter() {

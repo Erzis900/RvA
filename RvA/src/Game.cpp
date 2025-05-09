@@ -11,6 +11,8 @@
 #include "states/PlayState.h"
 #include "states/WinState.h"
 
+using namespace std::string_literals;
+
 Game::Game()
 	: m_renderRec()
 	, m_scale(1.f)
@@ -38,6 +40,7 @@ Game::Game()
 	registerBulletTypes();
 	registerEnemyTypes();
 	registerDropTypes();
+	registerLevels();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -71,6 +74,13 @@ void Game::update() {
 
 	m_gui.update(dt);
 	m_musicManager.updateStream();
+}
+
+void Game::run() {
+	while (!shouldClose()) {
+		update();
+		draw();
+	}
 }
 
 void Game::updateRenderRec() {
@@ -110,29 +120,6 @@ void Game::draw() {
 	DrawTexturePro(m_renderTexture.texture, {0.f, 0.f, float(m_texWidth), -float(m_texHeight)}, m_renderRec, {0.f, 0.f}, 0.f, WHITE);
 	EndDrawing();
 }
-
-/* Keeping this commented as a reference for the fade/transition to be restored
-void Game::internalSetState(std::unique_ptr<IGameState> newState, bool useFade)
-{
-	m_currentState->onExit(*this);
-
-	if (useFade)
-	{
-		m_nextState = std::move(newState);
-
-		m_gui.startFadingInOut([this] {
-			m_currentState = std::move(m_nextState);
-			m_currentState->onEnter(*this);
-		}, [this] { m_isTransitionInProgress = false; }, 0.5f);
-		m_isTransitionInProgress = true;
-	}
-	else
-	{
-		m_currentState = std::move(newState);
-		m_currentState->onEnter(*this);
-	}
-}
-*/
 
 bool Game::shouldClose() const {
 	return WindowShouldClose() || m_fsm->hasReachedExitState();
@@ -189,13 +176,6 @@ void Game::setupFSM() {
 
 	auto [fsm, fsmInfo] = fsmBuilder.build(startState, nullptr);
 	m_fsm = std::move(fsm);
-}
-
-void Game::run() {
-	while (!shouldClose()) {
-		update();
-		draw();
-	}
 }
 
 void Game::registerDefenderTypes() {
@@ -292,7 +272,8 @@ void Game::registerBulletTypes() {
 void Game::registerEnemyTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
-	m_gameRegistry.addEnemy({.type = EnemyType::B1,
+	m_gameRegistry.addEnemy("B1",
+							{.type = EnemyType::B1,
 							 .spawnChance = 0.2f,
 							 .maxHp = 100,
 							 .speed = 40,
@@ -306,7 +287,8 @@ void Game::registerEnemyTypes() {
 							 .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 							 .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
 
-	m_gameRegistry.addEnemy({.type = EnemyType::B2,
+	m_gameRegistry.addEnemy("B2",
+							{.type = EnemyType::B2,
 							 .spawnChance = 0.3f,
 							 .maxHp = 150,
 							 .speed = 80,
@@ -320,7 +302,8 @@ void Game::registerEnemyTypes() {
 							 .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
 							 .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
 
-	m_gameRegistry.addEnemy({.type = EnemyType::Portal,
+	m_gameRegistry.addEnemy("Portal",
+							{.type = EnemyType::Portal,
 							 .spawnChance = 0.5f,
 							 .maxHp = 60,
 							 .speed = 30,
@@ -343,4 +326,38 @@ void Game::registerDropTypes() {
 							   .type = DropType::Scraps,
 							   .idleAnimation = {sprite("scraps"), 0.1f},
 						   });
+}
+
+void Game::registerLevels() {
+	std::string b1 = "B1";
+	std::string b2 = "B2";
+	std::string portal = "Portal";
+
+	auto selection = EnemySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
+	m_gameRegistry.addLevel("level1",
+							{
+								.name = "Level 1",
+								.rowCount = 8,
+								.columnCount = 18,
+								.gridOffset = {32, 64},
+								.winCondition = AllWavesGoneCondition{},
+								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.timeline =
+									{
+										.keyframes =
+											{
+												{3.f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{7.f, SpawnEnemy{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{15.f,
+												 SpawnEnemyBurst{
+													 .amount = FixedValue{40},
+													 .interval = FixedValue{1.f},
+													 .row = RandomRange{0, 7},
+													 .column = FixedValue{19},
+													 .type = selection,
+												 }},
+											},
+									},
+							});
 }

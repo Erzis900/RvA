@@ -8,6 +8,7 @@
 #include "defender/DefenderPicker.h"
 #include "drops/DropManager.h"
 #include "enemy/EnemyManager.h"
+#include "levels/LevelManager.h"
 
 class Game;
 class GUI;
@@ -16,6 +17,10 @@ struct Wall {
 	ColliderHandle colliderHandle;
 };
 
+/*
+ * A Session class represent a single run of a Level.
+ * Running a sequence of levels will require a reset of the session ( start/end ) for each level started.
+ */
 class Session {
 public:
 	Session(GUI& gui, const GameRegistry& gameRegistry);
@@ -60,8 +65,10 @@ private:
 	void drawGrid();
 	void updateBatteryAndScraps(float scrapGain, float batteryDrain);
 	void performDefenderSpawnOnInput();
-	void performActions(const Actions& actions);
+	void performActions(const GameActions& actions);
+	void performAction(const GameAction& action);
 	void performAction(const BulletSpawnAction& action);
+	void performAction(const EnemySpawnAction& action);
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
@@ -89,6 +96,7 @@ private:
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
 	CallbackHandle m_onCollectedDropHandle;
+	CallbackHandle m_onLevelManagerActionHandle;
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem m_collisionSystem;
@@ -97,5 +105,6 @@ private:
 	BulletManager m_bulletManager;
 	DropManager m_dropManager;
 	DefenderPicker m_defenderPicker;
+	LevelManager m_levelManager;
 	HUD m_hud;
 };

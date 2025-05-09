@@ -13,6 +13,7 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
+	, m_levelManager(m_gameRegistry)
 	, m_hud(gui) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
@@ -23,6 +24,9 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
+
+	m_levelManager.setLevelSequence({"level1", "level2", "level3"});
+	m_onLevelManagerActionHandle = m_levelManager.onGameActionRequest([this](const auto& action) { performAction(action); });
 }
 
 Session::~Session() {
@@ -48,6 +52,7 @@ void Session::start() {
 		setPause(false);
 	} else {
 		m_scraps = 100; // TODO(Gerark) - We'll have a configuration to define what's the starting amount of scraps
+		m_levelManager.startNextLevel();
 		m_defenderPicker.reset();
 		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 		m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
@@ -62,6 +67,7 @@ void Session::end() {
 	m_enemyManager.clear();
 	m_dropManager.clear();
 	m_bulletManager.clear();
+	m_levelManager.resetCurrentLevelIndex();
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 	m_collisionSystem.clearColliders();
 	m_numberOfDestroyedEnemies = 0;
@@ -95,6 +101,7 @@ void Session::update(float dt) {
 	m_bulletManager.update(dt);
 	m_dropManager.update(dt);
 	m_defenderPicker.update(dt);
+	m_levelManager.update(dt);
 
 	// When pressing F3 deal 500 damage to a random enemy
 	if (DEV_MODE && IsKeyPressed(KEY_F3)) {
@@ -161,10 +168,14 @@ void Session::performDefenderSpawnOnInput() {
 	}
 }
 
-void Session::performActions(const Actions& actions) {
+void Session::performActions(const GameActions& actions) {
 	for (auto& action : actions) {
-		std::visit([this](auto&& action) { performAction(action); }, action);
+		performAction(action);
 	}
+}
+
+void Session::performAction(const GameAction& action) {
+	std::visit([this](auto&& action) { performAction(action); }, action);
 }
 
 void Session::performAction(const BulletSpawnAction& action) {
@@ -172,6 +183,11 @@ void Session::performAction(const BulletSpawnAction& action) {
 	if (bulletInfo) {
 		m_bulletManager.spawnBullet(*bulletInfo, action.position);
 	}
+}
+
+void Session::performAction(const EnemySpawnAction& action) {
+	auto enemyInfo = m_gameRegistry.getEnemy(action.enemyType);
+	m_enemyManager.spawnEnemy(enemyInfo, action.row, action.column);
 }
 
 bool Session::canAffordCost(int cost) const {

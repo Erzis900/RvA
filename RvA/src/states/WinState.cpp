@@ -16,7 +16,7 @@ flow::FsmAction WinState::enter() {
 	m_chasers.clear();
 	auto x = TEX_WIDTH + 100.f;
 	for (auto i = 0; i < 3; ++i) {
-		const auto typeInfo = m_game.getGameRegistry().getEnemy(EnemyType::B1);
+		const auto typeInfo = m_game.getGameRegistry().getEnemy("B1");
 		m_chasers.push_back(createSpriteItem(typeInfo->moveAnimation.spriteInfo, {x, 100}, {-150, 0}));
 		x += 30.f;
 	}

@@ -24,3 +24,4 @@ constexpr int FONT_BIG = 64;
 
 std::tuple<int, int> getCoordinates(const Vector2& position);
 Vector2 getSnappedPosition(const Vector2& position);
+Vector2 getSnappedPosition(int row, int column);

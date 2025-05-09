@@ -13,17 +13,10 @@ void EnemyManager::clear() {
 		m_collisionSystem.destroyCollider(enemy->getColliderHandle());
 	}
 	m_enemies.clear();
-	m_spawnTimer = 0.f;
 	m_enemyDestroyedInfos.reserve(32);
 }
 
 void EnemyManager::update(float dt) {
-	m_spawnTimer += dt;
-	if (m_spawnTimer >= m_spawnInterval) {
-		spawnEnemy();
-		m_spawnTimer = 0.f;
-	}
-
 	m_enemyDestroyedInfos.clear();
 	for (auto it = m_enemies.begin(); it != m_enemies.end();) {
 		auto& enemy = *it;
@@ -74,25 +67,11 @@ Enemy* EnemyManager::findClosestEnemy(const Vector2& position, bool filterDead) 
 	return closestEnemy;
 }
 
-void EnemyManager::spawnEnemy() {
-	float randomValue = GetRandomValue(0, 100) / 100.0f;
+void EnemyManager::spawnEnemy(const EnemyTypeInfo* info, int row, int column) {
+	Vector2 position = getSnappedPosition(row, column);
+	position.y -= 5;
 
-	float cumulativeChance = 0.0f;
-	const auto& typeInfos = m_gameRegistry.getEnemies();
-	const EnemyTypeInfo* enemyTypeInfo = &(typeInfos.begin()->second);
-	for (const auto& [type, typeInfo] : typeInfos) {
-		cumulativeChance += typeInfo.spawnChance;
-		if (randomValue <= cumulativeChance) {
-			enemyTypeInfo = &typeInfo;
-			break;
-		}
-	}
-
-	int randomRow = GetRandomValue(0, ROWS - 1);
-	float x = TEX_WIDTH - CELL_SIZE * 2.f;
-	int y = randomRow * CELL_SIZE - 5 + GRID_OFFSET.y;
-
-	auto enemy = std::make_unique<Enemy>(Vector2{x, float(y)}, enemyTypeInfo, randomRow);
+	auto enemy = std::make_unique<Enemy>(position, info, row);
 	enemy->setColliderHandle(m_collisionSystem.createCollider(Collider::Flag::Enemy, enemy.get()));
 	m_enemies.push_back(std::move(enemy));
 }
