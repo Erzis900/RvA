@@ -1,6 +1,9 @@
 #include "MusicManager.h"
 
+#include "Config.h"
 #include "constants.h"
+
+MusicManager::MusicManager(Config& config) : m_config(config) {}
 
 MusicManager::~MusicManager() {
 	UnloadMusicStream(m_menuMusic);
@@ -23,7 +26,7 @@ void MusicManager::load() {
 }
 
 void MusicManager::play(Music& music) {
-	if (MUSIC) {
+	if (m_config.options.isMusic) {
 		if (!IsMusicStreamPlaying(music)) {
 			StopMusicStream(m_currentMusic);
 			m_currentMusic = music;
@@ -33,19 +36,19 @@ void MusicManager::play(Music& music) {
 }
 
 void MusicManager::play(Sound& sound) {
-	if (SOUND) {
+	if (m_config.options.isSound) {
 		PlaySound(sound);
 	}
 }
 
 void MusicManager::stop(Music& music) {
-	if (MUSIC) {
+	if (m_config.options.isMusic) {
 		StopMusicStream(music);
 	}
 }
 
 void MusicManager::updateStream() {
-	if (MUSIC) {
+	if (m_config.options.isMusic) {
 		UpdateMusicStream(m_currentMusic);
 	}
 }

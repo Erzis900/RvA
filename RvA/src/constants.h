@@ -17,8 +17,6 @@ constexpr float MAX_BATTERY_CHARGE = 100.f;
 constexpr Vector2 GRID_OFFSET = {CELL_SIZE, CELL_SIZE * 2.f};
 
 constexpr bool DEV_MODE = true;
-constexpr bool MUSIC = true;
-constexpr bool SOUND = true;
 
 constexpr int FONT_SMALL = 16;
 constexpr int FONT_MEDIUM = 32;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Config.h"
 #include "GUI/GUI.h"
 #include "GameRegistry.h"
 #include "MusicManager.h"
@@ -37,6 +38,10 @@ public:
 
 	auto& getGameSession() {
 		return m_gameSession;
+	}
+
+	auto& getConfig() {
+		return m_config;
 	}
 
 	void setRenderTextureColor(Color color) {
@@ -82,6 +87,7 @@ private:
 
 	GUI m_gui;
 	Atlas m_atlas;
+	Config m_config;
 	MusicManager m_musicManager;
 
 	GameRegistry m_gameRegistry;

@@ -26,7 +26,7 @@ const std::vector<CreditsItem> creditsItems{
 	{},
 	{"MUSIC", WHITE},
 	{"Trim", DARKGRAY},
-	{"POG LIZARD", DARKGRAY},
+	{"Frog Wizard", DARKGRAY},
 };
 
 CreditsState::CreditsState(Game& game) : m_game(game) {}

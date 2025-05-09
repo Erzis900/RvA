@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\states\IntroState.cpp" />
     <ClCompile Include="src\bullet\BulletManager.cpp" />
     <ClCompile Include="src\bullet\BulletTypeRegistry.cpp" />
@@ -195,6 +196,7 @@
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Config.h" />
     <ClInclude Include="deps\raylib\include\reasings.h" />
     <ClInclude Include="deps\spdlog\async.h" />
     <ClInclude Include="deps\spdlog\async_logger-inl.h" />
