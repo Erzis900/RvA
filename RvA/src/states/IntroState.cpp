@@ -30,6 +30,7 @@ flow::FsmAction IntroState::update(float dt) {
 	if (m_nextTransition.empty()) {
 		return flow::FsmAction::none();
 	} else {
+		m_game.setRenderTextureColor(GRAY);
 		return flow::FsmAction::transition(m_nextTransition);
 	}
 }
