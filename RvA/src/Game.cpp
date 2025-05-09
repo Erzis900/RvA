@@ -21,7 +21,8 @@ Game::Game()
 	, m_screenWidth(SCREEN_WIDTH)
 	, m_screenHeight(SCREEN_HEIGHT)
 	, m_gui(m_atlas, m_musicManager)
-	, m_gameSession(m_gui, m_gameRegistry) {
+	, m_gameSession(m_gui, m_gameRegistry)
+	, m_musicManager(m_config) {
 	Random::setInstance(&m_random);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");

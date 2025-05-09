@@ -1,12 +1,15 @@
 #pragma once
 #include <raylib.h>
 
+class Config;
+
 class MusicManager {
 public:
 	// https://github.com/raysan5/raylib/wiki/Using-raylib-with-Cpp#shared-gpu-resources-in-constructors-and-destructors
 	// the reason I'm not loading resources in the constructor is because I don't understand how to make it work with raylib
 	// more info in the link above
 
+	MusicManager(Config& config);
 	~MusicManager();
 
 	void load();
@@ -47,6 +50,8 @@ public:
 	}
 
 private:
+	Config& m_config;
+
 	Music m_menuMusic;
 	Music m_gameMusic;
 	Music m_lostMusic;
