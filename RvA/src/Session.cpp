@@ -84,7 +84,7 @@ void Session::drawGrid() {
 			int x = static_cast<int>(GRID_OFFSET.x) + col * CELL_SIZE;
 			int y = static_cast<int>(GRID_OFFSET.y) + row * CELL_SIZE;
 
-			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, BLACK);
+			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, Fade(BLACK, 0.1f));
 		}
 	}
 }
@@ -104,12 +104,19 @@ void Session::update(float dt) {
 	m_levelManager.update(dt);
 
 	// When pressing F3 deal 500 damage to a random enemy
-	if (DEV_MODE && IsKeyPressed(KEY_F3)) {
-		auto& enemies = m_enemyManager.getEnemies();
-		auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
-		if (!filtered.empty()) {
-			std::vector<Enemy*> result(filtered.begin(), filtered.end());
-			result[Random::range(0, static_cast<int>(result.size()) - 1)]->applyDamage({.value = 500, .source = DamageSource::Bullet});
+	if (DEV_MODE) {
+		if (IsKeyPressed(KEY_F3)) {
+			auto& enemies = m_enemyManager.getEnemies();
+			auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
+			if (!filtered.empty()) {
+				std::vector<Enemy*> result(filtered.begin(), filtered.end());
+				result[Random::range(0, static_cast<int>(result.size()) - 1)]->applyDamage({.value = 500, .source = DamageSource::Bullet});
+			}
+		}
+
+		if (IsKeyPressed(KEY_B)) {
+			m_batteryCharge += 50;
+			m_batteryCharge = Clamp(m_batteryCharge, 0, MAX_BATTERY_CHARGE);
 		}
 	}
 

@@ -60,19 +60,28 @@ void BulletManager::executeHit(Bullet& bullet, Enemy& enemy) {
  */
 void BulletManager::setupBullet(Bullet& bullet, BulletShotData& data) {
 	bullet.lifetime = data.maxLifetime;
-	bullet.position = Vector2Add(bullet.position, {20, 20});
+	bullet.position = Vector2Add(bullet.position, data.offsetPos);
 
 	auto side = data.radius * 2;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x - data.radius, bullet.position.y - data.radius, side, side});
 }
 
 void BulletManager::updateBullet(Bullet& bullet, BulletShotData& data, float dt) {
+	data.time += dt;
 	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.velocity, dt));
 	m_collisionSystem.updateColliderPosition(bullet.colliderHandle, {bullet.position.x - data.radius, bullet.position.y - data.radius});
 }
 
 void BulletManager::drawBullet(Bullet& bullet, BulletShotData& data) {
-	DrawCircleV(bullet.position, data.radius, BLUE);
+	DrawEllipse(bullet.position.x, bullet.position.y + 23, data.radius * 1.5f, data.radius * 1.5f, Fade(BLACK, 0.1f));
+
+	float max = data.radius * 1.5f;
+	float min = data.radius;
+	float amplitude = (max - min) / 2.0f;
+	float mid = (max + min) / 2.0f;
+	float finalRadius = mid + amplitude * std::sin(data.time * 10);
+
+	DrawCircleV(bullet.position, finalRadius, WHITE);
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, BulletShotData& data, float dt) {
@@ -102,15 +111,12 @@ void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt) 
 
 void BulletManager::drawBullet(Bullet& bullet, LaserBeamData& data) {
 	float width = data.beamWidth;
-	float height = data.beamHeight;
+	float height = data.beamHeight * (1 - ((data.shootAnimationTime - 1) / data.shootAnimationDuration));
 	float halfHeight = height / 2;
 
-	DrawRectangle(bullet.position.x + halfHeight, bullet.position.y - halfHeight - data.auraSize / 2, width, height + data.auraSize, data.auraColor);
-	DrawCircleV({bullet.position.x + width, bullet.position.y}, height, data.auraColor);
-	DrawRectangle(bullet.position.x, bullet.position.y - halfHeight, width, height, data.beamColor);
-
-	DrawCircleV(bullet.position, height, data.beamColor);
-	DrawCircleV({bullet.position.x + width, bullet.position.y}, height * 0.5f, data.beamColor);
+	DrawRectangleGradientEx({bullet.position.x, bullet.position.y - halfHeight, width, height}, data.beamStartColor, data.beamStartColor, data.beamEndColor, data.beamEndColor);
+	DrawRectangleGradientV(bullet.position.x, bullet.position.y - halfHeight - height + 2, width, height, Fade(data.beamEndColor, 0), data.beamStartColor);
+	DrawRectangleGradientV(bullet.position.x, bullet.position.y - halfHeight + height, width, height, data.beamStartColor, Fade(data.beamEndColor, 0));
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data, float dt) {
@@ -122,7 +128,7 @@ void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data
  */
 void BulletManager::setupBullet(Bullet& bullet, ChasingShotData& data) {
 	bullet.lifetime = data.maxLifetime;
-	bullet.position = Vector2Add(bullet.position, {20, 20});
+	bullet.position = Vector2Add(bullet.position, data.startOffset);
 	auto halfRadius = data.radius * 0.5f;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius});
 }
@@ -150,6 +156,7 @@ void BulletManager::drawBullet(Bullet& bullet, ChasingShotData& data) {
 	Vector2 baseRight = Vector2Subtract(bullet.position, Vector2Scale(right, data.radius * 0.5f));
 
 	DrawTriangle(baseRight, baseLeft, tip, data.color);
+	DrawTriangle(Vector2Add(baseRight, {0, 23}), Vector2Add(baseLeft, {0, 23}), Vector2Add(tip, {0, 23}), Fade(BLACK, 0.1f));
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, ChasingShotData& data, float dt) {

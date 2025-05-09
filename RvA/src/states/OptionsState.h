@@ -7,7 +7,7 @@ class Game;
 
 class OptionsState : public flow::FsmState {
 public:
-	OptionsState(Game& game, bool showBackground);
+	OptionsState(Game& game, bool showBackground, bool playMenuMusic);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
@@ -22,5 +22,6 @@ private:
 	Screen* m_screen{};
 	std::string m_nextTransition{};
 	bool m_showBackground{};
+	bool m_playMenuMusic{};
 	Game& m_game;
 };

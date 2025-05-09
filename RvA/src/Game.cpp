@@ -140,7 +140,7 @@ void Game::setupFSM() {
 			.on("credits").jumpTo("Credits")
 			.on("exit").exitFsm()
 
-		.state<OptionsState>("Options", *this, false)
+		.state<OptionsState>("Options", *this, false, true)
 			.on("back").jumpTo("MainMenu")
 
 		.state<CreditsState>("Credits", *this)
@@ -158,7 +158,7 @@ void Game::setupFSM() {
 			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("MainMenu")
 		
-		.state<OptionsState>("InGameOptions", *this, true)
+		.state<OptionsState>("InGameOptions", *this, true, false)
 			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
@@ -195,7 +195,7 @@ void Game::registerDefenderTypes() {
 	m_gameRegistry.addDefender({.type = DefenderType::Shooter,
 								.spriteEnabled = {sprite("shooter_idle"), 0.1f},
 								.spriteDisabled = {sprite("shooter_off"), 0.1f},
-								.spriteShoot = {sprite("shooter_shoot"), 0.1f},
+								.spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 								.batteryDrain = 5.f,
 								.firstShootCooldown = 1.5f,
@@ -203,13 +203,13 @@ void Game::registerDefenderTypes() {
 								.maxHP = 150,
 								.cost = 10,
 								.bulletType = "SimpleShot",
-								.shootingAnimationTime = 0.8f,
+								.shootingAnimationTime = 0.6f,
 								.buildCooldown = 3.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Catapult,
 								.spriteEnabled = {sprite("catapult_idle"), 0.1f},
 								.spriteDisabled = {sprite("catapult_off"), 0.1f},
-								.spriteShoot = {sprite("catapult_shoot"), 0.1f},
+								.spriteShoot = {sprite("catapult_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 								.batteryDrain = 10.f,
 								.firstShootCooldown = 3.f,
@@ -217,13 +217,13 @@ void Game::registerDefenderTypes() {
 								.maxHP = 200,
 								.cost = 20,
 								.bulletType = "ChasingShot",
-								.shootingAnimationTime = 0.7f,
+								.shootingAnimationTime = 0.6f,
 								.buildCooldown = 5.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Lasertron,
 								.spriteEnabled = {sprite("lasertron_idle"), 0.1f},
 								.spriteDisabled = {sprite("lasertron_off"), 0.1f},
-								.spriteShoot = {sprite("lasertron_shoot"), 0.1f},
+								.spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1},
 								.batteryDrain = 20.f,
 								.firstShootCooldown = 3.f,
@@ -231,7 +231,7 @@ void Game::registerDefenderTypes() {
 								.maxHP = 250,
 								.cost = 30,
 								.bulletType = "LaserBeam",
-								.shootingAnimationTime = 1.2f,
+								.shootingAnimationTime = 1.0f,
 								.buildCooldown = 5.f});
 }
 
@@ -239,31 +239,32 @@ void Game::registerBulletTypes() {
 	m_gameRegistry.addBullet("SimpleShot",
 							 BulletShotData{
 								 .velocity = {150, 0},
-								 .radius = 5.f,
+								 .offsetPos = {24, 7},
+								 .radius = 2.f,
 								 .damage = {25, 16},
 								 .maxLifetime = 3.f,
 							 });
 
 	m_gameRegistry.addBullet("ChasingShot",
 							 ChasingShotData{
-								 .startOffset = {20, 20},
+								 .startOffset = {20, 8},
 								 .radius = 10.f,
 								 .damage = {50, 16},
 								 .maxLifetime = 3.f,
 								 .speed = 150,
-								 .color = {255, 0, 0, 255},
+								 .color = {165, 48, 48, 255},
 								 .direction = {1, 0},
 							 });
 
 	m_gameRegistry.addBullet("LaserBeam",
 							 LaserBeamData{
-								 .startOffset = {35, 18},
-								 .beamHeight = 2,
+								 .startOffset = {30, 15},
+								 .beamHeight = 4,
 								 .damage = {100.f, 0, true},
 								 .auraSize = 2,
-								 .beamColor = BLUE,
-								 .auraColor = {255, 255, 255, 200},
-								 .maxLifetime = 0.5f,
+								 .beamStartColor = {245, 125, 74, 255},
+								 .beamEndColor = RED,
+								 .maxLifetime = 0.4f,
 								 .shootAnimationSpeed = 15,
 								 .shootAnimationDuration = 2.f,
 							 });
