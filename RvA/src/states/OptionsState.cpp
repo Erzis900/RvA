@@ -25,7 +25,7 @@ flow::FsmAction OptionsState::enter() {
 		.button({getMusicString(config.options.isMusic), {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
 		.button({getSoundString(config.options.isSound), {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
 		.button({getFullscreenString(config.options.isFullscreen), {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
-		.button({"Save", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
+		.button({"Back", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
 		.end();
 	// clang-format on
 
