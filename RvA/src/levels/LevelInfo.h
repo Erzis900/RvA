@@ -43,9 +43,6 @@ using LevelCondition = std::variant<BatteryLevelCondition, AllWavesGoneCondition
 
 struct LevelInfo {
 	std::string name;
-	int rowCount{};
-	int columnCount{};
-	Vector2 gridOffset{};
 	int startingScraps{};
 	float maxBatteryCharge{};
 	LevelCondition winCondition{};

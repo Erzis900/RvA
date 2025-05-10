@@ -340,9 +340,6 @@ void Game::registerLevels() {
 	m_gameRegistry.addLevel("level1",
 							{
 								.name = "Level 1",
-								.rowCount = 8,
-								.columnCount = 18,
-								.gridOffset = {32, 64},
 								.startingScraps = 100,
 								.maxBatteryCharge = MAX_BATTERY_CHARGE,
 								.winCondition = AllWavesGoneCondition{},
@@ -369,9 +366,6 @@ void Game::registerLevels() {
 	m_gameRegistry.addLevel("level2",
 							{
 								.name = "Level 2",
-								.rowCount = 8,
-								.columnCount = 18,
-								.gridOffset = {32, 64},
 								.startingScraps = 100,
 								.maxBatteryCharge = MAX_BATTERY_CHARGE,
 								.winCondition = AllWavesGoneCondition{},
