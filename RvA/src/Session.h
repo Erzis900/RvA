@@ -17,6 +17,14 @@ struct Wall {
 	ColliderHandle colliderHandle;
 };
 
+enum class GameState {
+	Idle,
+	Win,
+	Lost,
+	Paused,
+	Playing
+};
+
 /*
  * A Session class represent a single run of a Level.
  * Running a sequence of levels will require a reset of the session ( start/end ) for each level started.
@@ -35,19 +43,11 @@ public:
 	void update(float dt);
 	void draw(Atlas& atlas);
 
-	auto getNumberOfDestroyedEnemies() const {
-		return m_numberOfDestroyedEnemies;
-	}
-
-	auto getBatteryCharge() const {
-		return m_batteryCharge;
-	}
-
-	auto getScraps() const {
-		return m_scraps;
-	}
-
 	void setSelectedDefender(std::optional<DefenderType> type);
+
+	auto getGameState() const {
+		return m_gameState;
+	}
 
 	auto& getCollisionSystem() {
 		return m_collisionSystem;
@@ -61,14 +61,26 @@ public:
 		return m_enemyManager;
 	}
 
+	const auto& getCurrentLevel() const {
+		return *m_levelData;
+	}
+
 private:
 	void drawGrid();
 	void updateBatteryAndScraps(float scrapGain, float batteryDrain);
 	void performDefenderSpawnOnInput();
+
 	void performActions(const GameActions& actions);
 	void performAction(const GameAction& action);
 	void performAction(const BulletSpawnAction& action);
 	void performAction(const EnemySpawnAction& action);
+	void performAction(const WinAction& action);
+	void performAction(const LoseAction& action);
+
+	template<typename T> void performAction(const T&) {
+		static_assert(sizeof(T) == 0, "Missing performAction overload for this type");
+	}
+
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
@@ -85,13 +97,10 @@ private:
 
 	void resetSelectedDefender();
 
-	int m_numberOfDestroyedEnemies{0};
-	float m_batteryCharge{MAX_BATTERY_CHARGE};
-	float m_scraps{};
+	GameState m_gameState{GameState::Idle};
 	std::optional<DefenderType> m_selectedDefender;
 	Wall m_baseWall;
-	bool m_isPaused{false};
-	bool m_isStarted{false};
+	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;

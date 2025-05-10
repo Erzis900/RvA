@@ -29,7 +29,7 @@ bool DefenderPicker::canAfford(DefenderType type) const {
 	if (!defenderInfo) {
 		return false;
 	}
-	return m_gameSession.getScraps() >= defenderInfo->cost;
+	return m_gameSession.getCurrentLevel().scraps >= defenderInfo->cost;
 }
 
 void DefenderPicker::startCooldown(DefenderType type) {

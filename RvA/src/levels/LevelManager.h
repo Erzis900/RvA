@@ -19,28 +19,36 @@ public:
 	LevelManager(const GameRegistry& gameRegistry);
 
 	void resetCurrentLevelIndex();
-	void startNextLevel();
+	LevelData* startNextLevel();
 
 	void update(float dt);
 
+	const LevelData& getCurrentLevel() const {
+		return m_currentLevel;
+	}
+
 	void setLevelSequence(std::vector<std::string> levelSequence);
 
-	CallbackHandle onSpawnWaveRequest(std::function<void()> callback);
 	CallbackHandle onGameActionRequest(std::function<void(const GameAction&)> callback);
-	CallbackHandle onVictoryConditionFulfilled(std::function<void()> callback);
-	CallbackHandle onLosingConditionFulfilled(std::function<void()> callback);
 
 private:
-	void performAction(const KeyframeAction& action);
-	void performAction(const SpawnEnemy& action);
-	void performAction(const SpawnEnemyBurst& action);
+	void updateTimeline(float dt);
+	void updateSpawnBursts(float dt);
+	void updateWinLoseCondition(float dt);
+
+	void performKeyframeOperation(const KeyframeOperation& action);
+	void performKeyframeOperation(const SpawnEnemyOperation& action);
+	void performKeyframeOperation(const SpawnEnemyBurstOperation& action);
+
+	bool checkCondition(const BatteryLevelCondition& condition, float dt);
+	bool checkCondition(const AllWavesGoneCondition& condition, float dt);
 
 	void triggerSpawnEnemy(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& type);
 
 	const Keyframe* getKeyframe(int index);
 
 	struct SpawnOvertimeTracker {
-		const SpawnEnemyBurst* info;
+		const SpawnEnemyBurstOperation* info;
 		int count{};
 		float duration{};
 		float time{};
@@ -51,9 +59,6 @@ private:
 	LevelData m_currentLevel{};
 	bool m_lastKeyframeReached{};
 	std::vector<SpawnOvertimeTracker> m_spawnBurstTrackers{};
-	CallbackRegistry<> m_onLosingConditionFullfilled;
-	CallbackRegistry<> m_onVictoryConditionFullfilled;
-	CallbackRegistry<> m_onSpawnWaveRequest;
 	CallbackRegistry<const GameAction&> m_onGameActionCallbacks;
 
 	const GameRegistry& m_gameRegistry;

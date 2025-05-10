@@ -9,7 +9,7 @@ void LevelManager::resetCurrentLevelIndex() {
 	m_currentLevel = {};
 }
 
-void LevelManager::startNextLevel() {
+LevelData* LevelManager::startNextLevel() {
 	if (!m_currentLevelIndex) {
 		m_currentLevelIndex = 0;
 	} else {
@@ -20,10 +20,20 @@ void LevelManager::startNextLevel() {
 	m_currentLevel.time = 0.f;
 	m_currentLevel.nextKeyframe = 0;
 	m_currentLevel.info = m_gameRegistry.getLevel(m_levelSequence[*m_currentLevelIndex]);
+	m_currentLevel.scraps = m_currentLevel.info->startingScraps;
+	m_currentLevel.batteryCharge = m_currentLevel.info->maxBatteryCharge;
+	m_currentLevel.enemyCount = 0;
 	m_spawnBurstTrackers.clear();
+	return &m_currentLevel;
 }
 
 void LevelManager::update(float dt) {
+	updateTimeline(dt);
+	updateSpawnBursts(dt);
+	updateWinLoseCondition(dt);
+}
+
+void LevelManager::updateTimeline(float dt) {
 	if (!m_lastKeyframeReached) {
 		m_currentLevel.time += dt;
 
@@ -31,7 +41,7 @@ void LevelManager::update(float dt) {
 		while (m_currentLevel.time >= keyFrame->time) {
 			m_currentLevel.nextKeyframe++;
 
-			performAction(keyFrame->action);
+			performKeyframeOperation(keyFrame->action);
 
 			keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
 			if (!keyFrame) {
@@ -40,7 +50,9 @@ void LevelManager::update(float dt) {
 			}
 		}
 	}
+}
 
+void LevelManager::updateSpawnBursts(float dt) {
 	for (auto itr = m_spawnBurstTrackers.begin(); itr != m_spawnBurstTrackers.end();) {
 		itr->time += dt;
 
@@ -59,35 +71,15 @@ void LevelManager::update(float dt) {
 	}
 }
 
-void LevelManager::setLevelSequence(std::vector<std::string> levelSequence) {
-	m_levelSequence = std::move(levelSequence);
+void LevelManager::performKeyframeOperation(const KeyframeOperation& action) {
+	std::visit([this](auto&& arg) { performKeyframeOperation(arg); }, action);
 }
 
-CallbackHandle LevelManager::onSpawnWaveRequest(std::function<void()> callback) {
-	return m_onSpawnWaveRequest.registerCallback(std::move(callback));
-}
-
-CallbackHandle LevelManager::onGameActionRequest(std::function<void(const GameAction&)> callback) {
-	return m_onGameActionCallbacks.registerCallback(std::move(callback));
-}
-
-CallbackHandle LevelManager::onVictoryConditionFulfilled(std::function<void()> callback) {
-	return m_onVictoryConditionFullfilled.registerCallback(std::move(callback));
-}
-
-CallbackHandle LevelManager::onLosingConditionFulfilled(std::function<void()> callback) {
-	return m_onLosingConditionFullfilled.registerCallback(std::move(callback));
-}
-
-void LevelManager::performAction(const KeyframeAction& action) {
-	std::visit([this](auto&& arg) { performAction(arg); }, action);
-}
-
-void LevelManager::performAction(const SpawnEnemy& action) {
+void LevelManager::performKeyframeOperation(const SpawnEnemyOperation& action) {
 	triggerSpawnEnemy(action.row, action.column, action.type);
 }
 
-void LevelManager::performAction(const SpawnEnemyBurst& action) {
+void LevelManager::performKeyframeOperation(const SpawnEnemyBurstOperation& action) {
 	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &action, .count = action.amount.generate(), .duration = action.interval.generate(), .time = 0.f});
 }
 
@@ -103,4 +95,32 @@ const Keyframe* LevelManager::getKeyframe(int index) {
 		return nullptr;
 	}
 	return &m_currentLevel.info->timeline.keyframes[index];
+}
+
+void LevelManager::updateWinLoseCondition(float dt) {
+	auto win = std::visit([this, dt](auto&& condition) { return checkCondition(condition, dt); }, m_currentLevel.info->winCondition);
+	auto lost = std::visit([this, dt](auto&& condition) { return checkCondition(condition, dt); }, m_currentLevel.info->loseCondition);
+
+	if (win) {
+		m_onGameActionCallbacks.executeCallbacks(WinAction{});
+	} else if (lost) {
+		m_onGameActionCallbacks.executeCallbacks(LoseAction{});
+	}
+}
+
+bool LevelManager::checkCondition(const BatteryLevelCondition& condition, float dt) {
+	auto batteryLevel = m_currentLevel.batteryCharge;
+	return std::visit([batteryLevel](ConfigCondition<float>&& cond) { return cond.check(batteryLevel); }, condition.batteryLevel);
+}
+
+bool LevelManager::checkCondition(const AllWavesGoneCondition& condition, float dt) {
+	return m_lastKeyframeReached && m_spawnBurstTrackers.empty() && m_currentLevel.enemyCount == 0;
+}
+
+void LevelManager::setLevelSequence(std::vector<std::string> levelSequence) {
+	m_levelSequence = std::move(levelSequence);
+}
+
+CallbackHandle LevelManager::onGameActionRequest(std::function<void(const GameAction&)> callback) {
+	return m_onGameActionCallbacks.registerCallback(std::move(callback));
 }

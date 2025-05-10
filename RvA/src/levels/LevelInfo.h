@@ -8,13 +8,13 @@
 
 using EnemySelection = Selection<std::string>;
 
-struct SpawnEnemy {
+struct SpawnEnemyOperation {
 	ConfigValue<int> row{};
 	ConfigValue<int> column{};
 	ConfigValue<std::string> type{};
 };
 
-struct SpawnEnemyBurst {
+struct SpawnEnemyBurstOperation {
 	ConfigValue<int> amount{};
 	ConfigValue<float> interval{};
 	ConfigValue<int> row{};
@@ -22,11 +22,11 @@ struct SpawnEnemyBurst {
 	ConfigValue<std::string> type{};
 };
 
-using KeyframeAction = std::variant<SpawnEnemy, SpawnEnemyBurst>;
+using KeyframeOperation = std::variant<SpawnEnemyOperation, SpawnEnemyBurstOperation>;
 
 struct Keyframe {
 	float time;
-	KeyframeAction action;
+	KeyframeOperation action;
 };
 
 struct Timeline {
@@ -46,6 +46,8 @@ struct LevelInfo {
 	int rowCount{};
 	int columnCount{};
 	Vector2 gridOffset{};
+	int startingScraps{};
+	float maxBatteryCharge{};
 	LevelCondition winCondition{};
 	LevelCondition loseCondition{};
 	SpriteInfo* background{};

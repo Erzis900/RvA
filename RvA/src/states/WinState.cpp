@@ -51,8 +51,8 @@ void WinState::exit() {
 }
 
 flow::FsmAction WinState::update(float dt) {
-	if (GetKeyPressed() || IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON) || IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-		return flow::FsmAction::transition("menu");
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}
 
 	updateSprites(m_defenders, dt);
@@ -79,6 +79,10 @@ flow::FsmAction WinState::update(float dt) {
 
 	m_textAnimationTime += dt;
 	m_textPosition.y = sinf(m_textAnimationTime * m_textAnimationSpeed) * m_textAnimationAmplitude;
+
+	if (GetKeyPressed() || IsMouseButtonReleased(MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(MOUSE_RIGHT_BUTTON) || IsMouseButtonReleased(MOUSE_MIDDLE_BUTTON)) {
+		m_nextTransition = "menu";
+	}
 
 	return flow::FsmAction::none();
 }

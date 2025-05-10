@@ -9,4 +9,8 @@ struct LevelData {
 	const LevelInfo* info{};
 	float time{};
 	int nextKeyframe{};
+
+	int scraps{};
+	float batteryCharge{};
+	int enemyCount{};
 };

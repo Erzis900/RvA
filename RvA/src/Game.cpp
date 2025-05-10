@@ -331,6 +331,7 @@ void Game::registerDropTypes() {
 }
 
 void Game::registerLevels() {
+	constexpr int MAX_BATTERY_CHARGE = 100;
 	std::string b1 = "B1";
 	std::string b2 = "B2";
 	std::string portal = "Portal";
@@ -342,18 +343,20 @@ void Game::registerLevels() {
 								.rowCount = 8,
 								.columnCount = 18,
 								.gridOffset = {32, 64},
+								.startingScraps = 100,
+								.maxBatteryCharge = MAX_BATTERY_CHARGE,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 								.timeline =
 									{
 										.keyframes =
 											{
-												{3.f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{7.f, SpawnEnemy{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{3.f, SpawnEnemyOperation{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{5.f, SpawnEnemyOperation{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{7.f, SpawnEnemyOperation{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
 												{15.f,
-												 SpawnEnemyBurst{
-													 .amount = FixedValue{40},
+												 SpawnEnemyBurstOperation{
+													 .amount = FixedValue{10},
 													 .interval = FixedValue{1.f},
 													 .row = RandomRange{0, 7},
 													 .column = FixedValue{19},
@@ -369,6 +372,8 @@ void Game::registerLevels() {
 								.rowCount = 8,
 								.columnCount = 18,
 								.gridOffset = {32, 64},
+								.startingScraps = 100,
+								.maxBatteryCharge = MAX_BATTERY_CHARGE,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 								.timeline =
@@ -376,7 +381,7 @@ void Game::registerLevels() {
 										.keyframes =
 											{
 												{2.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
 													 .row = RandomRange{0, 7},
@@ -384,7 +389,7 @@ void Game::registerLevels() {
 													 .type = FixedValue{"B1"s},
 												 }},
 												{10.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
 													 .row = RandomRange{0, 7},
@@ -392,7 +397,7 @@ void Game::registerLevels() {
 													 .type = FixedValue{"B2"s},
 												 }},
 												{20.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
 													 .row = RandomRange{0, 7},

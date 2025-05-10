@@ -34,25 +34,28 @@ Session::~Session() {
 }
 
 void Session::setPause(bool paused) {
-	m_isPaused = paused;
-	m_hud.setEnable(!paused);
+	if (m_gameState == GameState::Playing) {
+		m_gameState = GameState::Paused;
+		m_hud.setEnable(false);
+	} else if (m_gameState == GameState::Paused) {
+		m_gameState = GameState::Playing;
+		m_hud.setEnable(true);
+	}
 }
 
 bool Session::isPaused() const {
-	return m_isPaused;
+	return m_gameState == GameState::Paused;
 }
 
 void Session::start() {
-	m_isStarted = true;
-
 	m_hud.setEnable(true);
 	m_hud.setVisible(true);
 
-	if (m_isPaused) {
+	if (m_gameState == GameState::Paused) {
 		setPause(false);
 	} else {
-		m_scraps = 100; // TODO(Gerark) - We'll have a configuration to define what's the starting amount of scraps
-		m_levelManager.startNextLevel();
+		m_gameState = GameState::Playing;
+		m_levelData = m_levelManager.startNextLevel();
 		m_defenderPicker.reset();
 		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 		m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
@@ -61,8 +64,7 @@ void Session::start() {
 }
 
 void Session::end() {
-	m_isStarted = false;
-	m_isPaused = false;
+	m_gameState = GameState::Idle;
 	m_defenderManager.clear();
 	m_enemyManager.clear();
 	m_dropManager.clear();
@@ -70,23 +72,26 @@ void Session::end() {
 	m_levelManager.resetCurrentLevelIndex();
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 	m_collisionSystem.clearColliders();
-	m_numberOfDestroyedEnemies = 0;
-	m_batteryCharge = MAX_BATTERY_CHARGE;
-	m_scraps = 0;
 	m_selectedDefender.reset();
 	m_hud.clear();
 	m_hud.setVisible(false);
 }
 
 void Session::drawGrid() {
-	for (int row = 0; row < ROWS; row++) {
-		for (int col = 0; col < COLS; col++) {
-			int x = static_cast<int>(GRID_OFFSET.x) + col * CELL_SIZE;
-			int y = static_cast<int>(GRID_OFFSET.y) + row * CELL_SIZE;
-
-			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, Fade(BLACK, 0.1f));
-		}
+	auto& levelData = m_levelManager.getCurrentLevel();
+	int columnCount = COLS;
+	int rowCount = ROWS;
+	for (int row = 0; row < rowCount; row++) {
+		DrawLineEx({GRID_OFFSET.x, GRID_OFFSET.y + row * CELL_SIZE}, {GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y + row * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
 	}
+
+	for (int col = 0; col < columnCount; col++) {
+		DrawLineEx({GRID_OFFSET.x + col * CELL_SIZE, GRID_OFFSET.y}, {GRID_OFFSET.x + col * CELL_SIZE, GRID_OFFSET.y + rowCount * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
+	}
+
+	DrawLineEx({GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y}, {GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y + rowCount * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
+
+	DrawLineEx({GRID_OFFSET.x, GRID_OFFSET.y + rowCount * CELL_SIZE}, {GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y + rowCount * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
 }
 
 void Session::update(float dt) {
@@ -103,8 +108,8 @@ void Session::update(float dt) {
 	m_defenderPicker.update(dt);
 	m_levelManager.update(dt);
 
-	// When pressing F3 deal 500 damage to a random enemy
 	if (DEV_MODE) {
+		// When pressing F3 deal 500 damage to a random enemy
 		if (IsKeyPressed(KEY_F3)) {
 			auto& enemies = m_enemyManager.getEnemies();
 			auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
@@ -114,9 +119,15 @@ void Session::update(float dt) {
 			}
 		}
 
+		// When pressing W win the game
+		if (IsKeyPressed(KEY_W)) {
+			performAction(WinAction{});
+		}
+
+		// When pressing B add 50 battery
 		if (IsKeyPressed(KEY_B)) {
-			m_batteryCharge += 50;
-			m_batteryCharge = Clamp(m_batteryCharge, 0, MAX_BATTERY_CHARGE);
+			m_levelData->batteryCharge += 50;
+			m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
 		}
 	}
 
@@ -124,7 +135,7 @@ void Session::update(float dt) {
 }
 
 void Session::draw(Atlas& atlas) {
-	if (m_isStarted) {
+	if (m_gameState == GameState::Playing || m_gameState == GameState::Paused) {
 		drawGrid();
 
 		m_defenderManager.draw(atlas);
@@ -140,9 +151,9 @@ void Session::setSelectedDefender(std::optional<DefenderType> type) {
 }
 
 void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain) {
-	m_scraps += scrapGain;
-	m_batteryCharge -= batteryDrain;
-	m_batteryCharge = Clamp(m_batteryCharge, 0, 100);
+	m_levelData->scraps += scrapGain;
+	m_levelData->batteryCharge -= batteryDrain;
+	m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
 }
 
 void Session::performDefenderSpawnOnInput() {
@@ -156,7 +167,7 @@ void Session::performDefenderSpawnOnInput() {
 					auto defenderInfo = m_gameRegistry.getDefender(*m_selectedDefender);
 					if (defenderInfo && canAffordCost(defenderInfo->cost)) {
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
-						m_scraps -= defenderInfo->cost;
+						m_levelData->scraps -= defenderInfo->cost;
 						m_defenderPicker.startCooldown(*m_selectedDefender);
 						resetSelectedDefender();
 						m_hud.data().occupiedCells.emplace_back(row, column);
@@ -195,10 +206,19 @@ void Session::performAction(const BulletSpawnAction& action) {
 void Session::performAction(const EnemySpawnAction& action) {
 	auto enemyInfo = m_gameRegistry.getEnemy(action.enemyType);
 	m_enemyManager.spawnEnemy(enemyInfo, action.row, action.column);
+	m_levelData->enemyCount++;
+}
+
+void Session::performAction(const WinAction& action) {
+	m_gameState = GameState::Win;
+}
+
+void Session::performAction(const LoseAction& action) {
+	m_gameState = GameState::Lost;
 }
 
 bool Session::canAffordCost(int cost) const {
-	return cost <= m_scraps;
+	return cost <= m_levelData->scraps;
 }
 
 bool Session::canPlaceDefender(int x, int y) const {
@@ -262,7 +282,7 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 	case CollisionEvent::Exit : break;
 	case CollisionEvent::Ongoing:
 		if (enemy->getState() == EnemyState::ReadyToAttack) {
-			m_batteryCharge -= static_cast<int>(enemy->getInfo()->baseWallDamage);
+			m_levelData->batteryCharge -= static_cast<int>(enemy->getInfo()->baseWallDamage);
 			enemy->applyDamage({50, false, DamageSource::BaseWall});
 			enemy->setState(EnemyState::PrepareToAttack);
 		} else if (enemy->getState() != EnemyState::PrepareToAttack) {
@@ -279,8 +299,8 @@ void Session::resetSelectedDefender() {
 
 void Session::updateHUD(float dt) {
 	auto& hudData = m_hud.data();
-	hudData.batteryCharge = getBatteryCharge();
-	hudData.scrapsAmount = static_cast<int>(getScraps());
+	hudData.batteryCharge = m_levelManager.getCurrentLevel().batteryCharge;
+	hudData.scrapsAmount = static_cast<int>(m_levelManager.getCurrentLevel().scraps);
 
 	// TODO(Gerark) - Not very optimal but we'll see if it's going to ever be a bottleneck.
 	hudData.progressBars.clear();
@@ -305,7 +325,8 @@ void Session::updateHUD(float dt) {
 }
 
 void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies) {
-	m_numberOfDestroyedEnemies += static_cast<int>(enemies.size());
+	m_levelData->enemyCount -= static_cast<int>(enemies.size());
+	assert(m_levelData->enemyCount >= 0);
 
 	for (const auto& enemy : enemies) {
 		if (enemy.damageSource == DamageSource::Bullet) {
@@ -321,7 +342,7 @@ void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies)
 void Session::onDropCollected(const std::vector<CollectedDrop>& collectedDrops) {
 	for (const auto& drop : collectedDrops) {
 		if (drop.info->type == DropType::Scraps) {
-			m_scraps += drop.amount;
+			m_levelData->scraps += drop.amount;
 		}
 	}
 }

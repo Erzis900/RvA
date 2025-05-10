@@ -41,4 +41,5 @@ private:
 	Vector2 m_textPosition;
 	Game& m_game;
 	CallbackHandle m_drawingCallbackHandle;
+	std::string m_nextTransition;
 };

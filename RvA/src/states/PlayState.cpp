@@ -16,18 +16,13 @@ flow::FsmAction PlayState::update(float dt) {
 	Session& session = m_game.getGameSession();
 	session.update(dt);
 
-	if (session.getNumberOfDestroyedEnemies() >= m_numberOfEnemiesToKill) {
-		return flow::FsmAction::transition("win");
-	}
-
-	if (session.getBatteryCharge() <= 0) {
-		return flow::FsmAction::transition("lost");
+	switch (session.getGameState()) {
+	case GameState::Win : return flow::FsmAction::transition("win");
+	case GameState::Lost: return flow::FsmAction::transition("lost");
 	}
 
 	if constexpr (DEV_MODE) {
-		if (IsKeyPressed(KEY_W)) {
-			return flow::FsmAction::transition("win");
-		} else if (IsKeyPressed(KEY_F1)) {
+		if (IsKeyPressed(KEY_F1)) {
 			session.getCollisionSystem().toggleDebugView();
 		}
 	}

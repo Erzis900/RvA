@@ -16,5 +16,9 @@ struct EnemySpawnAction {
 	int column;
 };
 
-using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction>;
+struct WinAction {};
+
+struct LoseAction {};
+
+using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, WinAction, LoseAction>;
 using GameActions = std::vector<GameAction>;
