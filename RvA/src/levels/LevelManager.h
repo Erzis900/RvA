@@ -20,6 +20,7 @@ public:
 
 	void resetCurrentLevelIndex();
 	LevelData* startNextLevel();
+	bool isLastLevel() const;
 
 	void update(float dt);
 

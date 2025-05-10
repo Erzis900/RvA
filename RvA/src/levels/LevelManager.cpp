@@ -27,6 +27,13 @@ LevelData* LevelManager::startNextLevel() {
 	return &m_currentLevel;
 }
 
+bool LevelManager::isLastLevel() const {
+	if (!m_currentLevelIndex) {
+		return false;
+	}
+	return *m_currentLevelIndex >= static_cast<int>(m_levelSequence.size()) - 1;
+}
+
 void LevelManager::update(float dt) {
 	updateTimeline(dt);
 	updateSpawnBursts(dt);

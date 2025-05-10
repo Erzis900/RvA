@@ -33,11 +33,13 @@ struct ProgressBarData {
 
 struct HUDData {
 	float batteryCharge{};
+	float maxBatteryCharge{};
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
 	int numberOfEnemiesToDefeat{};
 	std::vector<HUDDefenderData> defenders;
 	std::vector<ProgressBarData> progressBars;
+	std::string levelName;
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -83,4 +85,5 @@ private:
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
+	WidgetHandle m_levelNameHandle{};
 };

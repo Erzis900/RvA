@@ -6,7 +6,7 @@
 PlayState::PlayState(Game& game) : m_game(game) {}
 
 flow::FsmAction PlayState::enter() {
-	m_game.getGameSession().start();
+	m_game.getGameSession().setState(SessionState::Playing);
 	m_game.getMusicManager().play(m_game.getMusicManager().getGameMusic());
 
 	return flow::FsmAction::none();
@@ -17,8 +17,9 @@ flow::FsmAction PlayState::update(float dt) {
 	session.update(dt);
 
 	switch (session.getGameState()) {
-	case GameState::Win : return flow::FsmAction::transition("win");
-	case GameState::Lost: return flow::FsmAction::transition("lost");
+	case SessionState::Win : return flow::FsmAction::transition("win");
+	case SessionState::End : return flow::FsmAction::transition("end");
+	case SessionState::Lost: return flow::FsmAction::transition("lost");
 	}
 
 	if constexpr (DEV_MODE) {

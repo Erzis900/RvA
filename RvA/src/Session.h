@@ -17,9 +17,10 @@ struct Wall {
 	ColliderHandle colliderHandle;
 };
 
-enum class GameState {
+enum class SessionState {
 	Idle,
 	Win,
+	End,
 	Lost,
 	Paused,
 	Playing
@@ -34,10 +35,7 @@ public:
 	Session(GUI& gui, const GameRegistry& gameRegistry);
 	~Session();
 
-	void start();
-	void end();
-
-	void setPause(bool paused);
+	void setState(SessionState state);
 	bool isPaused() const;
 
 	void update(float dt);
@@ -96,8 +94,9 @@ private:
 	void manageBaseWallEnemyCollision(const Collision& collision);
 
 	void resetSelectedDefender();
+	void clearAllEntities();
 
-	GameState m_gameState{GameState::Idle};
+	SessionState m_gameState{SessionState::Idle};
 	std::optional<DefenderType> m_selectedDefender;
 	Wall m_baseWall;
 	LevelData* m_levelData{};

@@ -32,14 +32,13 @@ flow::FsmAction WinState::enter() {
 		drawBullets(m_bullets);
 	});
 
-	m_game.getGameSession().end();
-
+	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
 		.vertical_stack(5, 200.f)
-		.medium_text({.text = "You Won!!!", .color = WHITE, .hAlign = HAlign::Center})
+		.medium_text({.text = "Level Completed!!!", .color = WHITE, .hAlign = HAlign::Center})
 		.space({0, 35.f})
-		.small_text({.text = "Press any key to continue", .color = WHITE, .hAlign = HAlign::Center})
+		.button({"Next Level", {}, btnSize, [this]() { m_nextTransition = "next"; }})
 		.end();
 
 	return flow::FsmAction::none();

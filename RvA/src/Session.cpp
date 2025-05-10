@@ -33,48 +33,8 @@ Session::~Session() {
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 }
 
-void Session::setPause(bool paused) {
-	if (m_gameState == GameState::Playing) {
-		m_gameState = GameState::Paused;
-		m_hud.setEnable(false);
-	} else if (m_gameState == GameState::Paused) {
-		m_gameState = GameState::Playing;
-		m_hud.setEnable(true);
-	}
-}
-
 bool Session::isPaused() const {
-	return m_gameState == GameState::Paused;
-}
-
-void Session::start() {
-	m_hud.setEnable(true);
-	m_hud.setVisible(true);
-
-	if (m_gameState == GameState::Paused) {
-		setPause(false);
-	} else {
-		m_gameState = GameState::Playing;
-		m_levelData = m_levelManager.startNextLevel();
-		m_defenderPicker.reset();
-		m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
-		m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
-		setupHUD();
-	}
-}
-
-void Session::end() {
-	m_gameState = GameState::Idle;
-	m_defenderManager.clear();
-	m_enemyManager.clear();
-	m_dropManager.clear();
-	m_bulletManager.clear();
-	m_levelManager.resetCurrentLevelIndex();
-	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
-	m_collisionSystem.clearColliders();
-	m_selectedDefender.reset();
-	m_hud.clear();
-	m_hud.setVisible(false);
+	return m_gameState == SessionState::Paused;
 }
 
 void Session::drawGrid() {
@@ -135,7 +95,7 @@ void Session::update(float dt) {
 }
 
 void Session::draw(Atlas& atlas) {
-	if (m_gameState == GameState::Playing || m_gameState == GameState::Paused) {
+	if (m_gameState == SessionState::Playing || m_gameState == SessionState::Paused) {
 		drawGrid();
 
 		m_defenderManager.draw(atlas);
@@ -210,11 +170,15 @@ void Session::performAction(const EnemySpawnAction& action) {
 }
 
 void Session::performAction(const WinAction& action) {
-	m_gameState = GameState::Win;
+	if (m_levelManager.isLastLevel()) {
+		setState(SessionState::End);
+	} else {
+		setState(SessionState::Win);
+	}
 }
 
 void Session::performAction(const LoseAction& action) {
-	m_gameState = GameState::Lost;
+	setState(SessionState::Lost);
 }
 
 bool Session::canAffordCost(int cost) const {
@@ -233,6 +197,8 @@ void Session::setupHUD() {
 		hudData.defenders.emplace_back(type, defenderInfo->spriteEnabled.spriteInfo, defenderInfo->cost);
 	}
 
+	hudData.levelName = m_levelData->info->name;
+	hudData.maxBatteryCharge = m_levelData->info->maxBatteryCharge;
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].type); });
 }
 
@@ -295,6 +261,72 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 void Session::resetSelectedDefender() {
 	m_selectedDefender.reset();
 	m_hud.data().selectedDefenderIndex.reset();
+}
+
+void Session::clearAllEntities() {
+	m_defenderManager.clear();
+	m_enemyManager.clear();
+	m_dropManager.clear();
+	m_bulletManager.clear();
+}
+
+void Session::setState(SessionState state) {
+	// We should use the FSM to define each state here to simplify the code.
+	switch (state) {
+	case SessionState::Idle: {
+		clearAllEntities();
+		m_levelManager.resetCurrentLevelIndex();
+
+		m_selectedDefender.reset();
+		m_hud.clear();
+		m_hud.setEnable(false);
+		m_hud.setVisible(false);
+		break;
+	}
+	case SessionState::Playing: {
+		if (m_gameState != SessionState::Paused) {
+			m_hud.clear();
+			m_hud.setEnable(true);
+			m_hud.setVisible(true);
+			clearAllEntities();
+			m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
+			m_collisionSystem.clearColliders();
+
+			m_levelData = m_levelManager.startNextLevel();
+			m_defenderPicker.reset();
+			m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
+			m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
+			setupHUD();
+		} else {
+			m_hud.setEnable(true);
+		}
+		break;
+	}
+	case SessionState::Paused: {
+		m_hud.setEnable(false);
+		break;
+	}
+	case SessionState::Win: {
+		m_hud.clear();
+		m_hud.setEnable(false);
+		m_hud.setVisible(false);
+		break;
+	}
+	case SessionState::Lost: {
+		m_hud.clear();
+		m_hud.setEnable(false);
+		m_hud.setVisible(false);
+		break;
+	}
+	case SessionState::End: {
+		m_hud.clear();
+		m_hud.setEnable(false);
+		m_hud.setVisible(false);
+		break;
+	}
+	default: break;
+	}
+	m_gameState = state;
 }
 
 void Session::updateHUD(float dt) {

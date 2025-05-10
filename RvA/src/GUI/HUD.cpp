@@ -18,6 +18,7 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 
 	// clang-format off
 	m_screen = m_gui.buildScreen("HUD")
+		.small_text({ .text = "", .color = BLACK, .hAlign = HAlign::Right, .vAlign = VAlign::Top, .pos = { 5, 5 } }, &m_levelNameHandle)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = 5, .size = { 100.f, autoSize } })
             .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f }, .pos = { 5, 0 } })
 				.small_text({ .text = "SCRAPS:", .color = WHITE, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
@@ -71,8 +72,10 @@ void HUD::update(float dt) {
 	auto scrapsText = std::to_string(m_data.scrapsAmount);
 	m_screen->getText(m_scrapTextHandle).text = scrapsText.c_str();
 	auto& batteryText = m_screen->getText(m_batteryTextHandle);
-	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge));
+	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge / m_data.maxBatteryCharge * 100));
 	batteryText.color = calculateBatteryColor(m_data.batteryCharge);
+	auto& levelName = m_screen->getText(m_levelNameHandle);
+	levelName.text = m_data.levelName;
 }
 
 void HUD::setVisible(bool visible) {
@@ -101,15 +104,17 @@ void HUD::clear() {
 	m_data.progressBars.clear();
 	m_data.scrapsAmount = 0;
 	m_data.batteryCharge = 0.f;
+	m_data.maxBatteryCharge = 0.f;
 	m_data.selectedDefenderIndex.reset();
 	m_data.numberOfEnemiesDefeated = 0;
 	m_data.occupiedCells.clear();
+	m_data.levelName = "";
 }
 
 void HUD::drawBatteryCharge(Atlas& atlas, const Rectangle& bounds) {
 	Rectangle rect = bounds;
 
-	rect.height = m_data.batteryCharge / 100.f * bounds.height;
+	rect.height = m_data.batteryCharge / m_data.maxBatteryCharge * bounds.height;
 	rect.y += bounds.height - rect.height;
 
 	DrawRectangleRec(rect, calculateBatteryColor(m_data.batteryCharge));

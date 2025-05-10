@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
 #include "states/CreditsState.h"
+#include "states/EndScreenState.h"
 #include "states/IntroState.h"
 #include "states/LostState.h"
 #include "states/MenuState.h"
@@ -151,6 +152,7 @@ void Game::setupFSM() {
 		.state<PlayState>("Play", *this)
 			.on("pause").jumpTo("PauseMenu")
 			.on("win").jumpTo("WinScreen")
+			.on("end").jumpTo("EndScreen")
 			.on("lost").jumpTo("LoseScreen")
 
 		.state<PauseState>("PauseMenu", *this)
@@ -163,6 +165,9 @@ void Game::setupFSM() {
 			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
+			.on("next").jumpTo("Play")
+
+		.state<EndScreenState>("EndScreen", *this)
 			.on("menu").jumpTo("MainMenu")
 
 		.state<LostState>("LoseScreen", *this)
@@ -400,5 +405,79 @@ void Game::registerLevels() {
 												 }},
 											},
 									},
+							});
+
+	auto enemyAt = [](int row) { return SpawnEnemyOperation{.row = FixedValue{row}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}; };
+
+	auto space = 2.5f;
+
+	m_gameRegistry.addLevel("level3",
+							{
+								.name = "Hello",
+								.startingScraps = 100,
+								.maxBatteryCharge = 10000,
+								.winCondition = AllWavesGoneCondition{},
+								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.timeline = {.keyframes =
+												 {
+													 // H
+													 {space + 0.f, enemyAt(1)},
+													 {space + 0.f, enemyAt(2)},
+													 {space + 0.f, enemyAt(3)},
+													 {space + 0.f, enemyAt(4)},
+													 {space + 0.f, enemyAt(5)},
+													 {space + 0.5f, enemyAt(3)},
+													 {space + 1.f, enemyAt(3)},
+													 {space + 1.5f, enemyAt(1)},
+													 {space + 1.5f, enemyAt(2)},
+													 {space + 1.5f, enemyAt(3)},
+													 {space + 1.5f, enemyAt(4)},
+													 {space + 1.5f, enemyAt(5)},
+
+													 // E
+													 {space * 2 + 0.5f, enemyAt(1)},
+													 {space * 2 + 0.5f, enemyAt(2)},
+													 {space * 2 + 0.5f, enemyAt(3)},
+													 {space * 2 + 0.5f, enemyAt(4)},
+													 {space * 2 + 0.5f, enemyAt(5)},
+													 {space * 2 + 1.f, enemyAt(1)},
+													 {space * 2 + 1.f, enemyAt(3)},
+													 {space * 2 + 1.f, enemyAt(5)},
+													 {space * 2 + 1.5f, enemyAt(1)},
+													 {space * 2 + 1.5f, enemyAt(3)},
+													 {space * 2 + 1.5f, enemyAt(5)},
+
+													 // L
+													 {space * 3 + 0.5f, enemyAt(1)},
+													 {space * 3 + 0.5f, enemyAt(2)},
+													 {space * 3 + 0.5f, enemyAt(3)},
+													 {space * 3 + 0.5f, enemyAt(4)},
+													 {space * 3 + 0.5f, enemyAt(5)},
+													 {space * 3 + 1.f, enemyAt(5)},
+													 {space * 3 + 1.5f, enemyAt(5)},
+
+													 // L
+													 {space * 4 + 0.5f, enemyAt(1)},
+													 {space * 4 + 0.5f, enemyAt(2)},
+													 {space * 4 + 0.5f, enemyAt(3)},
+													 {space * 4 + 0.5f, enemyAt(4)},
+													 {space * 4 + 0.5f, enemyAt(5)},
+													 {space * 4 + 1.f, enemyAt(5)},
+													 {space * 4 + 1.5f, enemyAt(5)},
+
+													 // O
+													 {space * 5 + 0.5f, enemyAt(1)},
+													 {space * 5 + 0.5f, enemyAt(2)},
+													 {space * 5 + 0.5f, enemyAt(3)},
+													 {space * 5 + 0.5f, enemyAt(4)},
+													 {space * 5 + 0.5f, enemyAt(5)},
+													 {space * 5 + 1.f, enemyAt(1)},
+													 {space * 5 + 1.f, enemyAt(5)},
+													 {space * 5 + 1.5f, enemyAt(1)},
+													 {space * 5 + 1.5f, enemyAt(2)},
+													 {space * 5 + 1.5f, enemyAt(3)},
+													 {space * 5 + 1.5f, enemyAt(4)},
+													 {space * 5 + 1.5f, enemyAt(5)},
+												 }},
 							});
 }
