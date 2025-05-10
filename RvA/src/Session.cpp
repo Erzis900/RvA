@@ -14,7 +14,8 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_levelManager(m_gameRegistry)
-	, m_hud(gui) {
+	, m_hud(gui)
+	, m_portalManager(m_collisionSystem) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
 		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });

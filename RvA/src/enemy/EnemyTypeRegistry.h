@@ -21,6 +21,8 @@ struct EnemyTypeInfo {
 	AnimationData moveAnimation;
 	AnimationData attackAnimation;
 	AnimationData dyingAnimation;
+
+	AnimationData summonAnimation;
 };
 
 class EnemyTypeRegistry {

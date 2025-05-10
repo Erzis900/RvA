@@ -316,7 +316,8 @@ void Game::registerEnemyTypes() {
 							 .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
 							 .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
 							 .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
-							 .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
+							 .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
+							 .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1}});
 }
 
 void Game::registerDropTypes() {
@@ -347,7 +348,7 @@ void Game::registerLevels() {
 									{
 										.keyframes =
 											{
-												{3.f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{0.01f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"Portal"s}}},
 												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
 												{7.f, SpawnEnemy{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
 												{15.f,
@@ -401,4 +402,23 @@ void Game::registerLevels() {
 											},
 									},
 							});
+}
+
+void Game::registerPortals() {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
+	m_gameRegistry.addPortal({
+		.type = PortalType::Entrance,
+		.spriteIdle = {sprite("portal_idle"), 0.1f},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1},
+		.maxHP = 100,
+	});
+
+	// Entrance and close the same for now
+	m_gameRegistry.addPortal({
+		.type = PortalType::Exit,
+		.spriteIdle = {sprite("portal_idle"), 0.1f},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1},
+		.maxHP = 100,
+	});
 }

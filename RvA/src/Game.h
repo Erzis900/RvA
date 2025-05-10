@@ -71,6 +71,7 @@ private:
 	void registerEnemyTypes();
 	void registerDropTypes();
 	void registerLevels();
+	void registerPortals();
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;

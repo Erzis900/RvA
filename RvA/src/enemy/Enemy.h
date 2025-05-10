@@ -18,6 +18,7 @@ enum class EnemyState {
 	Moving,
 	PrepareToAttack,
 	ReadyToAttack,
+	Summoning,
 	Dying,
 	Dead
 };
@@ -64,7 +65,8 @@ private:
 	void performIdle(float dt);
 	void performMove(float dt);
 	void performPrepareAttack(float dt);
-	void performDying(float dt);
+	void performDying();
+	void performSummoning();
 
 	void setAnimation(const AnimationData& animationData);
 
@@ -76,6 +78,7 @@ private:
 	Interpolation<> m_damageTakenAnimation;
 	Color m_tint{WHITE};
 	Damage m_latestDamageApplied;
+	bool m_spawnedPortal{false};
 
 	Animation m_animation;
 	EnemyState m_state;

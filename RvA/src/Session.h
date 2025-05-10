@@ -9,6 +9,7 @@
 #include "drops/DropManager.h"
 #include "enemy/EnemyManager.h"
 #include "levels/LevelManager.h"
+#include "portal/PortalManager.h"
 
 class Game;
 class GUI;
@@ -107,4 +108,5 @@ private:
 	DefenderPicker m_defenderPicker;
 	LevelManager m_levelManager;
 	HUD m_hud;
+	PortalManager m_portalManager;
 };

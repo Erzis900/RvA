@@ -1,7 +1,9 @@
 #include "Enemy.h"
 
 #include "Game.h"
+#include "portal/PortalManager.h"
 
+#include <iostream>
 #include <raymath.h>
 
 Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row) : m_position(position), m_row(row), m_typeInfo(typeInfo) {
@@ -23,7 +25,9 @@ void Enemy::setState(EnemyState state) {
 			setAnimation(m_typeInfo->attackAnimation);
 			m_attackTime = 0.5f;
 			break;
-		case EnemyState::Dying: setAnimation(m_typeInfo->dyingAnimation); break;
+		case EnemyState::Summoning: setAnimation(m_typeInfo->summonAnimation); break;
+
+		case EnemyState::Dying	  : setAnimation(m_typeInfo->dyingAnimation); break;
 		}
 	}
 }
@@ -54,7 +58,8 @@ void Enemy::update(float dt) {
 	case EnemyState::Idle			: performIdle(dt); break;
 	case EnemyState::Moving			: performMove(dt); break;
 	case EnemyState::PrepareToAttack: performPrepareAttack(dt); break;
-	case EnemyState::Dying			: performDying(dt); break;
+	case EnemyState::Dying			: performDying(); break;
+	case EnemyState::Summoning		: performSummoning(); break;
 	case EnemyState::Dead			: break;
 	}
 
@@ -99,6 +104,12 @@ void Enemy::performIdle(float dt) {
 
 void Enemy::performMove(float dt) {
 	m_position.x -= m_typeInfo->speed * dt;
+
+	if (m_typeInfo->type == EnemyType::Portal && !m_spawnedPortal) {
+		if (m_position.x <= TEX_WIDTH - CELL_SIZE) {
+			setState(EnemyState::Summoning);
+		}
+	}
 }
 
 void Enemy::performPrepareAttack(float dt) {
@@ -108,7 +119,14 @@ void Enemy::performPrepareAttack(float dt) {
 	}
 }
 
-void Enemy::performDying(float dt) {
+void Enemy::performSummoning() {
+	if (m_animation.isOver()) {
+		m_spawnedPortal = true;
+		setState(EnemyState::Moving);
+	}
+}
+
+void Enemy::performDying() {
 	if (m_animation.isOver()) {
 		setState(EnemyState::Dead);
 	}

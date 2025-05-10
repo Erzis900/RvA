@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\portal\PortalTypeRegistry.cpp" />
+    <ClCompile Include="src\portal\PortalManager.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\levels\LevelRegistry.cpp" />
     <ClCompile Include="src\states\IntroState.cpp" />
@@ -199,6 +201,8 @@
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\portal\PortalTypeRegistry.h" />
+    <ClInclude Include="src\portal\PortalManager.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="deps\raylib\include\reasings.h" />
     <ClInclude Include="deps\spdlog\async.h" />
@@ -306,6 +310,7 @@
     <ClInclude Include="deps\spdlog\tweakme.h" />
     <ClInclude Include="deps\spdlog\version.h" />
     <ClInclude Include="src\GameAction.h" />
+    <ClInclude Include="src\portal\PortalTypes.h" />
     <ClInclude Include="src\states\IntroState.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
     <ClInclude Include="src\bullet\BulletTypeRegistry.h" />
