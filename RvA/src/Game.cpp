@@ -329,11 +329,7 @@ void Game::registerEnemyTypes() {
 void Game::registerDropTypes() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
-	m_gameRegistry.addDrop("simpleScraps",
-						   {
-							   .type = DropType::Scraps,
-							   .idleAnimation = {sprite("scraps"), 0.1f},
-						   });
+	m_gameRegistry.addDrop("simpleScraps", {.type = DropType::Scraps, .idleAnimation = {sprite("scraps_icon"), 0.1f}, .animationDuration = 0.5f, .size = Vector2{24, 24}});
 }
 
 void Game::registerLevels() {

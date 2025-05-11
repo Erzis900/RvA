@@ -59,6 +59,12 @@ enum class GUIOrientation {
 	Vertical
 };
 
+enum class Fit {
+	Fill,
+	Contain,
+	Ignore
+};
+
 struct UINode {
 	WidgetHandle handle{};
 	WidgetType type{};
@@ -131,6 +137,7 @@ struct UIImg {
 	const SpriteInfo* sprite{};
 	HAlign hAlign{};
 	VAlign vAlign{};
+	Fit fit{};
 	Flip flip{};
 	WidgetHandle handle{};
 };

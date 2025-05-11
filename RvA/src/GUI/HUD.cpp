@@ -28,20 +28,22 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 			.image({ .sprite = bottomBarSpriteInfo, .flip = Flip::Horizontal })
 		.end()
 		.small_text({ .text = "", .color = WHITE, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom, .pos = { 5, 5 } }, &m_levelNameHandle)
-		.stack({ .orientation = GUIOrientation::Vertical, .padding = 5, .vAlign = VAlign::Bottom, .size = { 100.f, autoSize }, .pos = { 10, 4 } })
-            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f } })
-				.small_text({ .text = "SCRAPS:", .color = WHITE, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
-				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Left, .vAlign = VAlign::Center }, &m_scrapTextHandle)
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .contentAlignment = ContentAlign::Center })
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .contentAlignment = ContentAlign::Center })
+				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scraps_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
+				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
+				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
-            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f } })
-				.small_text({ .text = "BATTERY:", .color = WHITE, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
-				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Left, .vAlign = VAlign::Center }, &m_batteryTextHandle)
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .contentAlignment = ContentAlign::Center })
+				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
+				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_batteryTextHandle)
+				.small_text({ .text = "BATTERY", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
 		.end()
 		.custom({
-            .pos = { 5, 13 },
+            .pos = { GRID_OFFSET.x - 32, GRID_OFFSET.y - 68 },
 			.draw = std::bind_front(&HUD::drawBatteryCharge, this),
-			.measure = [](const Vector2& size) { return Vector2{ float(CELL_SIZE / 2), float(CELL_SIZE * ROWS) }; },
+			.measure = [](const Vector2& size) { return Vector2{ 16, float(CELL_SIZE * ROWS) }; },
 			.vAlign = VAlign::Center,
 		})
 		.custom({

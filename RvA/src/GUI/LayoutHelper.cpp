@@ -2,8 +2,26 @@
 
 #include <raygui.h>
 
-Vector2 LayoutHelper::adjustSize(const Vector2& preferredSize, const Vector2& availableSize) {
-	return {std::min(preferredSize.x, availableSize.x), std::min(preferredSize.y, availableSize.y)};
+Vector2 LayoutHelper::adjustSize(const Vector2& preferredSize, const Vector2& availableSize, Fit fit) {
+	if (fit == Fit::Fill) {
+		return {std::min(preferredSize.x, availableSize.x), std::min(preferredSize.y, availableSize.y)};
+	} else if (fit == Fit::Contain) {
+		// keep the aspect ratio of the icon by trying to fit the availableSize
+		float aspectRatio = preferredSize.x / preferredSize.y;
+		float newWidth = availableSize.x;
+		float newHeight = availableSize.y;
+		if (availableSize.x > availableSize.y) {
+			newWidth = availableSize.y * aspectRatio;
+		} else {
+			newHeight = availableSize.x / aspectRatio;
+		}
+		return {newWidth, newHeight};
+	} else if (fit == Fit::Ignore) {
+		return preferredSize;
+	} else {
+		assert(false && "Unknown fit type");
+		return {0, 0};
+	}
 }
 
 Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& availableSize) {
@@ -31,7 +49,7 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
 		texture_atlas_frame_t* frameInfo = image.sprite->frames; // take the first frame
-		node.preferredSize = adjustSize({static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)}, availableSize);
+		node.preferredSize = adjustSize({static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)}, availableSize, image.fit);
 		break;
 	}
 	case WidgetType::Stack: {
