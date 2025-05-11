@@ -43,6 +43,7 @@ Game::Game()
 	registerEnemyTypes();
 	registerDropTypes();
 	registerLevels();
+	verifyLevelData();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -336,10 +337,14 @@ void Game::registerDropTypes() {
 }
 
 void Game::registerLevels() {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
 	constexpr int MAX_BATTERY_CHARGE = 100;
 	std::string b1 = "B1";
 	std::string b2 = "B2";
 	std::string portal = "Portal";
+
+	auto lastColumn = FixedValue{18};
 
 	auto selection = EnemySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
 	m_gameRegistry.addLevel("level1",
@@ -347,21 +352,24 @@ void Game::registerLevels() {
 								.name = "Level 1",
 								.startingScraps = 100,
 								.maxBatteryCharge = MAX_BATTERY_CHARGE,
+								.winCountdownDuration = 2.f,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
 								.timeline =
 									{
 										.keyframes =
 											{
-												{3.f, SpawnEnemyOperation{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{5.f, SpawnEnemyOperation{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{7.f, SpawnEnemyOperation{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{3.f, SpawnEnemyOperation{.row = FixedValue{3}, .column = lastColumn, .type = FixedValue{"B1"s}}},
+												{5.f, SpawnEnemyOperation{.row = FixedValue{1}, .column = lastColumn, .type = FixedValue{"B1"s}}},
+												{7.f, SpawnEnemyOperation{.row = FixedValue{6}, .column = lastColumn, .type = FixedValue{"B1"s}}},
 												{15.f,
 												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{10},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = selection,
 												 }},
 											},
@@ -373,8 +381,11 @@ void Game::registerLevels() {
 								.name = "Level 2",
 								.startingScraps = 100,
 								.maxBatteryCharge = MAX_BATTERY_CHARGE,
+								.winCountdownDuration = 2.f,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
 								.timeline =
 									{
 										.keyframes =
@@ -383,31 +394,31 @@ void Game::registerLevels() {
 												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"B1"s},
 												 }},
 												{10.f,
 												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"B2"s},
 												 }},
 												{20.f,
 												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"Portal"s},
 												 }},
 											},
 									},
 							});
 
-	auto enemyAt = [](int row) { return SpawnEnemyOperation{.row = FixedValue{row}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}; };
+	auto enemyAt = [&](int row) { return SpawnEnemyOperation{.row = FixedValue{row}, .column = lastColumn, .type = FixedValue{"B1"s}}; };
 
 	auto space = 2.5f;
 
@@ -416,8 +427,11 @@ void Game::registerLevels() {
 								.name = "Hello",
 								.startingScraps = 100,
 								.maxBatteryCharge = 10000,
+								.winCountdownDuration = 2.f,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
 								.timeline = {.keyframes =
 												 {
 													 // H
@@ -480,4 +494,48 @@ void Game::registerLevels() {
 													 {space * 5 + 1.5f, enemyAt(5)},
 												 }},
 							});
+}
+
+void Game::verifyLevelData() {
+	auto levels = m_gameRegistry.getLevels();
+	for (const auto& [levelName, level] : levels) {
+		// verify that the keyframes are defined in the right order
+		for (size_t i = 0; i < level.timeline.keyframes.size(); ++i) {
+			if (i != 0 && level.timeline.keyframes[i].time < level.timeline.keyframes[i - 1].time) {
+				assert(0 && "Keyframes are not in the right order");
+			}
+
+			// verify that the SpawnEnemyOperation and SpawnEnemyOperationBurst are indicating valid rows and columns
+			if (std::holds_alternative<SpawnEnemyOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnEnemyOp = std::get<SpawnEnemyOperation>(level.timeline.keyframes[i].action);
+				verifyLevelCoordinate(0, ROWS, spawnEnemyOp.row);
+				verifyLevelCoordinate(0, COLS + 1, spawnEnemyOp.column);
+			} else if (std::holds_alternative<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnBurstOp = std::get<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action);
+				verifyLevelCoordinate(0, ROWS, spawnBurstOp.row);
+				verifyLevelCoordinate(0, COLS + 1, spawnBurstOp.column);
+			}
+		}
+	}
+}
+
+void Game::verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value) {
+	std::visit(
+		[&](auto&& arg) {
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, FixedValue<int>>) {
+				assert(arg.value >= min && arg.value < max);
+			} else if constexpr (std::is_same_v<T, RandomRange<int>>) {
+				assert(arg.min >= min && arg.min < arg.max && arg.max >= min && arg.max < max);
+			} else if constexpr (std::is_same_v<T, RandomRangeStep<int>>) {
+				assert(arg.min >= min && arg.min < arg.max && arg.max >= min && arg.max < max);
+			} else if constexpr (std::is_same_v<T, Selection<int>>) {
+				for (const auto& weightedValue : arg) {
+					assert(weightedValue.value >= min && weightedValue.value < max);
+				}
+			} else {
+				static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
+			}
+		},
+		value);
 }

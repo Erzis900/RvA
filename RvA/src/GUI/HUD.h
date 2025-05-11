@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Animation.h"
 #include "GUI/Widgets.h"
-#include "atlas/Atlas.h"
 #include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
 
@@ -16,11 +16,12 @@ struct UIText;
 
 struct HUDDefenderData {
 	DefenderType type;
-	const SpriteInfo* spriteInfo;
+	Animation animation;
 	int cost;
 	float cooldown{};
 	float maxCooldown{};
 	bool canAfford{true};
+	bool isHover{false};
 };
 
 struct ProgressBarData {
@@ -76,7 +77,6 @@ private:
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 
-	bool m_defenderHover{};
 	bool m_isEnabled{true};
 	HUDData m_data;
 	GUI& m_gui;

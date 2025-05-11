@@ -45,8 +45,10 @@ struct LevelInfo {
 	std::string name;
 	int startingScraps{};
 	float maxBatteryCharge{};
+	float winCountdownDuration{};
 	LevelCondition winCondition{};
 	LevelCondition loseCondition{};
-	SpriteInfo* background{};
+	const SpriteInfo* groundBackground{};
+	const SpriteInfo* topBackground{};
 	Timeline timeline{};
 };

@@ -23,6 +23,8 @@ LevelData* LevelManager::startNextLevel() {
 	m_currentLevel.scraps = m_currentLevel.info->startingScraps;
 	m_currentLevel.batteryCharge = m_currentLevel.info->maxBatteryCharge;
 	m_currentLevel.enemyCount = 0;
+	m_currentLevel.isWinningCountdownActive = false;
+	m_currentLevel.countdownToWin = 0.f;
 	m_spawnBurstTrackers.clear();
 	return &m_currentLevel;
 }
@@ -108,9 +110,26 @@ void LevelManager::updateWinLoseCondition(float dt) {
 	auto win = std::visit([this, dt](auto&& condition) { return checkCondition(condition, dt); }, m_currentLevel.info->winCondition);
 	auto lost = std::visit([this, dt](auto&& condition) { return checkCondition(condition, dt); }, m_currentLevel.info->loseCondition);
 
+	// Check if the win condition is satisfied
 	if (win) {
-		m_onGameActionCallbacks.executeCallbacks(WinAction{});
-	} else if (lost) {
+		if (!m_currentLevel.isWinningCountdownActive) {
+			// If the countdown to win is not active, we start it
+			m_currentLevel.isWinningCountdownActive = true;
+			m_currentLevel.countdownToWin = m_currentLevel.info->winCountdownDuration;
+		} else {
+			// If the countdown to win is active, we decrease it
+			m_currentLevel.countdownToWin -= dt;
+			if (m_currentLevel.countdownToWin <= 0.f) {
+				m_onGameActionCallbacks.executeCallbacks(WinAction{});
+			}
+		}
+	} else if (m_currentLevel.isWinningCountdownActive) {
+		// If the countdown to win was active and the Winning condition is nomore satisfied, we reset the countdown
+		m_currentLevel.isWinningCountdownActive = false;
+		m_currentLevel.countdownToWin = 0.f;
+	}
+
+	if (lost) {
 		m_onGameActionCallbacks.executeCallbacks(LoseAction{});
 	}
 }

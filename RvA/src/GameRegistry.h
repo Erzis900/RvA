@@ -32,6 +32,10 @@ public:
 		return m_defenderRegistry.getDefenderInfos();
 	}
 
+	const auto& getLevels() const {
+		return m_levelRegistry.getLevels();
+	}
+
 private:
 	EnemyTypeRegistry m_enemyRegistry;
 	DefenderTypeRegistry m_defenderRegistry;

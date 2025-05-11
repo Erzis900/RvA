@@ -27,7 +27,7 @@ void DropManager::clear() {
 void DropManager::update(float dt) {
 	m_collectedDrops.clear();
 
-	static const float animationDuration = 1;
+	static const float animationDuration = 0.5f;
 	for (auto it = m_drops.begin(); it != m_drops.end();) {
 		auto& drop = *it;
 
@@ -38,8 +38,8 @@ void DropManager::update(float dt) {
 			drop->enterAnimation += dt;
 			drop->enterAnimation = Clamp(drop->enterAnimation, 0, animationDuration);
 			float t = drop->enterAnimation / animationDuration;
-			t = getEasingFunction(Ease::InOutSine)(t);
-			drop->position = GetSplinePointBezierCubic(drop->startPosition, Vector2Add(drop->startPosition, {0, 50}), Vector2Add(drop->endPosition, {0, 50}), drop->endPosition, t);
+			t = getEasingFunction(Ease::InSine)(t);
+			drop->position = GetSplinePointLinear(drop->startPosition, Vector2Add(drop->startPosition, {0, -20}), t);
 
 			++it;
 		}
@@ -53,6 +53,6 @@ void DropManager::update(float dt) {
 void DropManager::draw(Atlas& atlas) {
 	for (auto& drop : m_drops) {
 		auto sprite = drop->info->idleAnimation.getSpriteInfo();
-		atlas.drawSprite(sprite, drop->position, drop->info->idleAnimation.getCurrentFrame(), Flip::None, WHITE);
+		atlas.drawSprite(sprite, drop->position, drop->info->idleAnimation.getCurrentFrame(), Flip::None, Fade(WHITE, 0.5f));
 	}
 }

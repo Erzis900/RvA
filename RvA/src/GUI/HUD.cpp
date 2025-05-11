@@ -11,20 +11,29 @@
 
 const float defenderSize = CELL_SIZE;
 const float defenderHSize = CELL_SIZE * 0.5f;
+const float defenderSlotSize = 52;
+const float defenderSlotHSize = defenderSlotSize * 0.5f;
 const float defenderPadding = 5.f;
 
 HUD::HUD(GUI& gui) : m_gui(gui) {
 	m_data.progressBars.reserve(128);
 
+	auto* bottomBarSpriteInfo = m_gui.getAtlas().getSpriteInfo("ui_bottom_bar");
+
 	// clang-format off
 	m_screen = m_gui.buildScreen("HUD")
-		.small_text({ .text = "", .color = BLACK, .hAlign = HAlign::Right, .vAlign = VAlign::Top, .pos = { 5, 5 } }, &m_levelNameHandle)
-		.stack({ .orientation = GUIOrientation::Vertical, .padding = 5, .size = { 100.f, autoSize } })
-            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f }, .pos = { 5, 0 } })
+		// TODO(Gerark) - Due to Texture Bleeding we're forced to set this strange padding and offset. Remove them as soon as the issue is solved.
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = { -2, 0 }, .hAlign = HAlign::Stretch, .vAlign = VAlign::Bottom, .size = { autoSize, 69.f }, .pos = { -1, -1 } })
+			.image({ .sprite = bottomBarSpriteInfo })
+			.image({ .sprite = bottomBarSpriteInfo, .flip = Flip::Horizontal })
+		.end()
+		.small_text({ .text = "", .color = WHITE, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom, .pos = { 5, 5 } }, &m_levelNameHandle)
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = 5, .vAlign = VAlign::Bottom, .size = { 100.f, autoSize }, .pos = { 10, 4 } })
+            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f } })
 				.small_text({ .text = "SCRAPS:", .color = WHITE, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Left, .vAlign = VAlign::Center }, &m_scrapTextHandle)
 			.end()
-            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f }, .pos = { 5, 0 } })
+            .stack({ .orientation = GUIOrientation::Horizontal, .padding = 5, .hAlign = HAlign::Stretch, .size = { autoSize, 20.f } })
 				.small_text({ .text = "BATTERY:", .color = WHITE, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Left, .vAlign = VAlign::Center }, &m_batteryTextHandle)
 			.end()
@@ -35,14 +44,13 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 			.measure = [](const Vector2& size) { return Vector2{ float(CELL_SIZE / 2), float(CELL_SIZE * ROWS) }; },
 			.vAlign = VAlign::Center,
 		})
-		.border({ .color = BLACK, .thickness = 2, .pos = { 0, defenderPadding }, .padding = { 5, 5 }, .hAlign = HAlign::Center})
-			.custom({
-				.draw = std::bind_front(&HUD::drawDefenders, this),
-				.measure = std::bind_front(&HUD::measureDefenders, this),
-				.hAlign = HAlign::Center,
-                .vAlign = VAlign::Center
-				})
-		.end()
+		.custom({
+			.pos = { 0, 10 },
+			.draw = std::bind_front(&HUD::drawDefenders, this),
+			.measure = std::bind_front(&HUD::measureDefenders, this),
+			.hAlign = HAlign::Center,
+            .vAlign = VAlign::Bottom
+			})
 		.custom({
 			.draw = std::bind_front(&HUD::drawProgressBars, this),
 			.vAlign = VAlign::Center
@@ -76,6 +84,12 @@ void HUD::update(float dt) {
 	batteryText.color = calculateBatteryColor(m_data.batteryCharge);
 	auto& levelName = m_screen->getText(m_levelNameHandle);
 	levelName.text = m_data.levelName;
+
+	for (auto& defender : m_data.defenders) {
+		if (defender.isHover) {
+			defender.animation.update(dt);
+		}
+	}
 }
 
 void HUD::setVisible(bool visible) {
@@ -125,13 +139,13 @@ void HUD::drawBatteryCharge(Atlas& atlas, const Rectangle& bounds) {
 }
 
 Vector2 HUD::measureDefenders(const Vector2& availableSize) {
-	auto size = Vector2{0, defenderSize};
+	auto size = Vector2{0, defenderSlotSize};
 	if (m_data.defenders.empty()) {
 		return size;
 	}
 
 	for (auto& defender : m_data.defenders) {
-		size.x += defenderSize + defenderPadding;
+		size.x += defenderSlotSize + defenderPadding;
 	}
 	size.x -= defenderPadding;
 
@@ -139,25 +153,25 @@ Vector2 HUD::measureDefenders(const Vector2& availableSize) {
 }
 
 void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
-	m_defenderHover = false;
+	bool isAnyDefenderHovered = false;
 
 	auto i = 0;
 	for (auto& defender : m_data.defenders) {
-		Vector2 position = {bounds.x + defenderSize * i + defenderPadding * i, bounds.y};
+		Vector2 position = {bounds.x + defenderSlotSize * i + defenderPadding * i, bounds.y};
 
 		float halfPadding = defenderPadding / 2;
-		Rectangle frameRect = {position.x - halfPadding, position.y - halfPadding, defenderSize + defenderPadding, defenderSize + defenderPadding};
+		Rectangle frameRect = {position.x - halfPadding, position.y - halfPadding, defenderSlotSize + defenderPadding, defenderSlotSize + defenderPadding};
 
 		const bool canBuild = defender.canAfford && defender.cooldown <= 0;
 
+		defender.isHover = false;
+		bool isSelected = false;
 		if (m_isEnabled) {
-			if (m_data.selectedDefenderIndex == i) {
-				DrawRectangleLinesEx(frameRect, 2, SKYBLUE);
-			}
+			isSelected = (m_data.selectedDefenderIndex == i);
 
 			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
-				m_defenderHover = true;
-				DrawRectangleRec(frameRect, canBuild ? Fade(SKYBLUE, 0.5f) : Fade(RED, 0.5f));
+				isAnyDefenderHovered = true;
+				defender.isHover = true;
 				if (canBuild && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 					m_data.selectedDefenderIndex = i;
 					m_onDefenderSelectedCallbacks.executeCallbacks(*m_data.selectedDefenderIndex);
@@ -165,30 +179,45 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 			}
 		}
 
-		atlas.drawSprite(defender.spriteInfo, position);
+		const SpriteInfo* spriteInfo = nullptr;
+		if (isSelected) {
+			spriteInfo = atlas.getSpriteInfo("ui_defender_slot_sel");
+		} else if (!canBuild) {
+			spriteInfo = atlas.getSpriteInfo("ui_defender_slot_no");
+		} else if (defender.isHover) {
+			spriteInfo = atlas.getSpriteInfo("ui_defender_slot_yes");
+		} else {
+			spriteInfo = atlas.getSpriteInfo("ui_defender_slot");
+		}
+		atlas.drawSprite(spriteInfo, position);
+
+		auto rect = LayoutHelper::arrangePositionAndSize({0, -2}, {14, 6}, frameRect, HAlign::Center, VAlign::Center);
+		DrawEllipse(rect.x + 7, rect.y + 3, 14, 6, Fade(BLACK, 0.1f));
+
+		rect = LayoutHelper::arrangePositionAndSize({0, -5}, {defenderSize, defenderSize}, frameRect, HAlign::Center, VAlign::Top);
+		atlas.drawSprite(defender.animation.getSpriteInfo(), {rect.x, rect.y}, canBuild ? defender.animation.getCurrentFrame() : 0, Flip::None, canBuild ? WHITE : Fade(GRAY, 0.5));
 
 		if (defender.cooldown > 0) {
-			DrawRectangleRec(frameRect, Fade(BLACK, 0.1f));
 			auto progress = defender.cooldown / defender.maxCooldown;
 
-			DrawCircleSector({position.x + defenderHSize, position.y + defenderHSize}, 20, -90, -90 - 360 * progress, 100, Fade(BLACK, 0.5f));
+			DrawCircleSector({position.x + defenderSlotHSize, position.y + defenderSlotHSize}, 20, -90, -90 - 360 * progress, 100, Fade(BLACK, 0.5f));
 
 			auto cooldownText = TextFormat("%.1fs", defender.cooldown);
-			auto rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, {position.x, position.y, defenderSize, defenderSize}, HAlign::Center, VAlign::Center);
+			rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, frameRect, HAlign::Center, VAlign::Center);
 			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
 			DrawText(cooldownText, rect.x, rect.y, rect.height, WHITE);
 		}
 
 		std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
 		auto cooldownText = TextFormat("%.1f", defender.cooldown);
-		auto rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, {position.x, position.y + 18, defenderSize, defenderSize}, HAlign::Center, VAlign::Bottom);
+		rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, frameRect, HAlign::Center, VAlign::Bottom);
 		DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
 		DrawText(costText.c_str(), rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
 
 		++i;
 	}
 
-	if (m_defenderHover) {
+	if (isAnyDefenderHovered) {
 		m_gui.setCursor(CursorType::Hover);
 	} else {
 		m_gui.setCursor(CursorType::Point);
@@ -206,7 +235,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 
 		position = Vector2Add(mousePos, {-defenderSize * 0.7f, -defenderSize * 0.7f});
 		auto& defender = m_data.defenders[*m_data.selectedDefenderIndex];
-		atlas.drawSprite(defender.spriteInfo, position, 0, None, Fade(WHITE, 0.7f));
+		atlas.drawSprite(defender.animation.getSpriteInfo(), position, 0, None, Fade(WHITE, 0.7f));
 	}
 }
 

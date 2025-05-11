@@ -64,6 +64,15 @@ WidgetHandle Screen::create(UIBorder border, WidgetHandle* handleResult) {
 	return handle;
 }
 
+WidgetHandle Screen::create(UIImg image, WidgetHandle* handleResult) {
+	auto handle = m_imagePool.createItem(std::move(image));
+	m_imagePool.getItem(handle)->handle = handle;
+	if (handleResult) {
+		*handleResult = handle;
+	}
+	return handle;
+}
+
 ScreenBuilder::ScreenBuilder(Screen& screen) : m_screen(screen) {
 	m_nodeStack.push(&m_screen.getRootNode());
 }
@@ -183,5 +192,16 @@ ScreenBuilder& ScreenBuilder::border(UIBorder border, WidgetHandle* handleResult
 	auto nodePtr = node.get();
 	m_nodeStack.top()->children.push_back(std::move(node));
 	m_nodeStack.push(nodePtr);
+	return *this;
+}
+
+ScreenBuilder& ScreenBuilder::image(UIImg image, WidgetHandle* handleResult) {
+	auto handle = m_screen.create(std::move(image), handleResult);
+
+	auto node = std::make_unique<UINode>();
+	node->handle = handle;
+	node->type = WidgetType::Image;
+	node->parent = m_nodeStack.top();
+	m_nodeStack.top()->children.push_back(std::move(node));
 	return *this;
 }

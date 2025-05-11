@@ -71,6 +71,8 @@ private:
 	void registerEnemyTypes();
 	void registerDropTypes();
 	void registerLevels();
+	void verifyLevelData();
+	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
 
 	RenderTexture2D m_renderTexture;
 	Rectangle m_renderRec;
