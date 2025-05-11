@@ -2,12 +2,12 @@
 
 #include "Game.h"
 
-#include <iostream>
-
-OptionsState::OptionsState(Game& game, bool showBackground) : m_game(game), m_showBackground(showBackground) {}
+OptionsState::OptionsState(Game& game, bool showBackground, bool playMenuMusic) : m_game(game), m_showBackground(showBackground), m_playMenuMusic(playMenuMusic) {}
 
 flow::FsmAction OptionsState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	if (m_playMenuMusic) {
+		m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	}
 
 	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();

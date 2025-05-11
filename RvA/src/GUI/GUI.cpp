@@ -94,6 +94,11 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 		}
 		break;
 	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		m_atlas.drawSprite(image.sprite, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, 0, image.flip);
+		break;
+	}
 	case WidgetType::Border: {
 		auto& border = screen.getBorder(node.handle);
 		::DrawRectangleLinesEx(node.finalRect, border.thickness, border.color);
@@ -126,72 +131,12 @@ void GUI::setCursor(CursorType type) {
 	}
 }
 
-bool GUI::drawButton(DrawButtonInfo drawButtonInfo) {
-	auto position = calculateCoordinates(drawButtonInfo);
-	return ::GuiButton({.x = position.x, .y = position.y, .width = drawButtonInfo.size.x, .height = drawButtonInfo.size.y}, drawButtonInfo.text);
-}
-
-void GUI::drawText(DrawTextInfo drawTextInfo) {
-	auto position = calculateCoordinates(drawTextInfo);
-	::DrawText(drawTextInfo.text, static_cast<int>(position.x), static_cast<int>(position.y), drawTextInfo.fontSize, drawTextInfo.color);
-}
-
 void GUI::startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds) {
 	seconds *= 0.5f;
 	m_fading.start(Fade(BLACK, 0.f), Fade(BLACK, 1.f), seconds).onComplete([this, fadingInDone = std::move(onFadingInDone), fadingOutDone = std::move(onFadingOutDone), seconds] {
 		fadingInDone();
 		m_fading.start(Fade(BLACK, 1.f), Fade(BLACK, 0.f), seconds).onComplete([this, fadingOutDone = std::move(fadingOutDone)] { fadingOutDone(); });
 	});
-}
-
-Vector2 GUI::calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const {
-	return calculateCoordinates(drawButtonInfo.size, drawButtonInfo.guiPosition);
-}
-
-Vector2 GUI::calculateCoordinates(const DrawTextInfo& drawTextInfo) const {
-	auto width = MeasureText(drawTextInfo.text, drawTextInfo.fontSize);
-	auto height = drawTextInfo.fontSize;
-	return calculateCoordinates({(float)width, (float)height}, drawTextInfo.guiPosition);
-}
-
-Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const {
-	auto result = guiPosition.position;
-
-	if (guiPosition.hAlign.has_value()) {
-		switch (*guiPosition.hAlign) {
-		case HAlign::Left: {
-			result.x = guiPosition.position.x;
-			break;
-		}
-		case HAlign::Right: {
-			result.x = TEX_WIDTH - (size.x + guiPosition.position.x);
-			break;
-		}
-		case HAlign::Center: {
-			result.x = TEX_WIDTH / 2 - (size.x / 2) + guiPosition.position.x;
-			break;
-		}
-		}
-	}
-
-	if (guiPosition.vAlign.has_value()) {
-		switch (*guiPosition.vAlign) {
-		case VAlign::Top: {
-			result.y = guiPosition.position.y;
-			break;
-		}
-		case VAlign::Bottom: {
-			result.y = TEX_HEIGHT - (size.y + guiPosition.position.y);
-			break;
-		}
-		case VAlign::Center: {
-			result.y = TEX_HEIGHT / 2 - (size.y / 2) + guiPosition.position.y;
-			break;
-		}
-		}
-	}
-
-	return result;
 }
 
 void GUI::destroyScreen(const char* name) {

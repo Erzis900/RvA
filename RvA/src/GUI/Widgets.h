@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FixedItemPool.h"
+#include "atlas/Atlas.h"
 
 #include <functional>
 #include <limits>
@@ -56,13 +57,6 @@ enum class ContentAlign {
 enum class GUIOrientation {
 	Horizontal,
 	Vertical
-};
-
-struct GUIPosition {
-	// position can be treated as margins when horizontal or vertical alignments are defined
-	Vector2 position;
-	std::optional<HAlign> hAlign;
-	std::optional<VAlign> vAlign;
 };
 
 struct UINode {
@@ -131,6 +125,16 @@ struct UIShape {
 	WidgetHandle handle{};
 };
 
+struct UIImg {
+	Vector2 pos{};
+	Vector2 size{MaxValue, MaxValue};
+	const SpriteInfo* sprite{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	Flip flip{};
+	WidgetHandle handle{};
+};
+
 struct UICustom {
 	Vector2 pos{};
 	std::function<void(Atlas&, const Rectangle& bounds)> draw{};
@@ -156,6 +160,7 @@ public:
 	WidgetHandle create(UIText text, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIShape shape, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIBorder border, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIImg image, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIStack stack);
 	WidgetHandle create(UISpace space);
 	WidgetHandle create(UICustom custom);
@@ -188,6 +193,10 @@ public:
 		return *m_borderPool.getItem(handle);
 	}
 
+	UIImg& getImage(WidgetHandle handle) {
+		return *m_imagePool.getItem(handle);
+	}
+
 	void setVisible(bool visible) {
 		m_isVisible = visible;
 	}
@@ -199,6 +208,7 @@ public:
 private:
 	UINode m_rootNode;
 
+	// Not that good to have fixed item pool this way but it works fine for now.
 	FixedItemPool<UIStack, 32> m_stackPool;
 	FixedItemPool<UIButton, 32> m_buttonPool;
 	FixedItemPool<UIText, 32> m_textPool;
@@ -206,6 +216,7 @@ private:
 	FixedItemPool<UIShape, 32> m_shapePool;
 	FixedItemPool<UICustom, 32> m_customPool;
 	FixedItemPool<UIBorder, 32> m_borderPool;
+	FixedItemPool<UIImg, 32> m_imagePool;
 	std::string m_name;
 	bool m_isVisible{true};
 };
@@ -226,9 +237,10 @@ public:
 	ScreenBuilder& small_text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& medium_text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& big_text(UIText text, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& image(UIImg image, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& space(UISpace space);
 	ScreenBuilder& custom(UICustom custom);
-	ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
 
 	Screen* screen() {
 		return &m_screen;

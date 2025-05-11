@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
 #include "states/CreditsState.h"
+#include "states/EndScreenState.h"
 #include "states/IntroState.h"
 #include "states/LostState.h"
 #include "states/MenuState.h"
@@ -42,6 +43,7 @@ Game::Game()
 	registerEnemyTypes();
 	registerDropTypes();
 	registerLevels();
+	verifyLevelData();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -141,7 +143,7 @@ void Game::setupFSM() {
 			.on("credits").jumpTo("Credits")
 			.on("exit").exitFsm()
 
-		.state<OptionsState>("Options", *this, false)
+		.state<OptionsState>("Options", *this, false, true)
 			.on("back").jumpTo("MainMenu")
 
 		.state<CreditsState>("Credits", *this)
@@ -151,6 +153,7 @@ void Game::setupFSM() {
 		.state<PlayState>("Play", *this)
 			.on("pause").jumpTo("PauseMenu")
 			.on("win").jumpTo("WinScreen")
+			.on("end").jumpTo("EndScreen")
 			.on("lost").jumpTo("LoseScreen")
 
 		.state<PauseState>("PauseMenu", *this)
@@ -159,10 +162,13 @@ void Game::setupFSM() {
 			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("MainMenu")
 		
-		.state<OptionsState>("InGameOptions", *this, true)
+		.state<OptionsState>("InGameOptions", *this, true, false)
 			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
+			.on("next").jumpTo("Play")
+
+		.state<EndScreenState>("EndScreen", *this)
 			.on("menu").jumpTo("MainMenu")
 
 		.state<LostState>("LoseScreen", *this)
@@ -196,7 +202,7 @@ void Game::registerDefenderTypes() {
 	m_gameRegistry.addDefender({.type = DefenderType::Shooter,
 								.spriteEnabled = {sprite("shooter_idle"), 0.1f},
 								.spriteDisabled = {sprite("shooter_off"), 0.1f},
-								.spriteShoot = {sprite("shooter_shoot"), 0.1f},
+								.spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 								.batteryDrain = 5.f,
 								.firstShootCooldown = 1.5f,
@@ -204,13 +210,13 @@ void Game::registerDefenderTypes() {
 								.maxHP = 150,
 								.cost = 10,
 								.bulletType = "SimpleShot",
-								.shootingAnimationTime = 0.8f,
+								.shootingAnimationTime = 0.6f,
 								.buildCooldown = 3.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Catapult,
 								.spriteEnabled = {sprite("catapult_idle"), 0.1f},
 								.spriteDisabled = {sprite("catapult_off"), 0.1f},
-								.spriteShoot = {sprite("catapult_shoot"), 0.1f},
+								.spriteShoot = {sprite("catapult_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
 								.batteryDrain = 10.f,
 								.firstShootCooldown = 3.f,
@@ -218,13 +224,13 @@ void Game::registerDefenderTypes() {
 								.maxHP = 200,
 								.cost = 20,
 								.bulletType = "ChasingShot",
-								.shootingAnimationTime = 0.7f,
+								.shootingAnimationTime = 0.6f,
 								.buildCooldown = 5.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Lasertron,
 								.spriteEnabled = {sprite("lasertron_idle"), 0.1f},
 								.spriteDisabled = {sprite("lasertron_off"), 0.1f},
-								.spriteShoot = {sprite("lasertron_shoot"), 0.1f},
+								.spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},
 								.spriteDying = {sprite("b1_alien_death"), 0.1f, 1},
 								.batteryDrain = 20.f,
 								.firstShootCooldown = 3.f,
@@ -232,7 +238,7 @@ void Game::registerDefenderTypes() {
 								.maxHP = 250,
 								.cost = 30,
 								.bulletType = "LaserBeam",
-								.shootingAnimationTime = 1.2f,
+								.shootingAnimationTime = 1.0f,
 								.buildCooldown = 5.f});
 }
 
@@ -240,31 +246,32 @@ void Game::registerBulletTypes() {
 	m_gameRegistry.addBullet("SimpleShot",
 							 BulletShotData{
 								 .velocity = {150, 0},
-								 .radius = 5.f,
+								 .offsetPos = {24, 7},
+								 .radius = 2.f,
 								 .damage = {25, 16},
 								 .maxLifetime = 3.f,
 							 });
 
 	m_gameRegistry.addBullet("ChasingShot",
 							 ChasingShotData{
-								 .startOffset = {20, 20},
+								 .startOffset = {20, 8},
 								 .radius = 10.f,
 								 .damage = {50, 16},
 								 .maxLifetime = 3.f,
 								 .speed = 150,
-								 .color = {255, 0, 0, 255},
+								 .color = {165, 48, 48, 255},
 								 .direction = {1, 0},
 							 });
 
 	m_gameRegistry.addBullet("LaserBeam",
 							 LaserBeamData{
-								 .startOffset = {35, 18},
-								 .beamHeight = 2,
+								 .startOffset = {30, 15},
+								 .beamHeight = 4,
 								 .damage = {100.f, 0, true},
 								 .auraSize = 2,
-								 .beamColor = BLUE,
-								 .auraColor = {255, 255, 255, 200},
-								 .maxLifetime = 0.5f,
+								 .beamStartColor = {245, 125, 74, 255},
+								 .beamEndColor = RED,
+								 .maxLifetime = 0.4f,
 								 .shootAnimationSpeed = 15,
 								 .shootAnimationDuration = 2.f,
 							 });
@@ -330,32 +337,39 @@ void Game::registerDropTypes() {
 }
 
 void Game::registerLevels() {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
+	constexpr int MAX_BATTERY_CHARGE = 100;
 	std::string b1 = "B1";
 	std::string b2 = "B2";
 	std::string portal = "Portal";
+
+	auto lastColumn = FixedValue{18};
 
 	auto selection = EnemySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
 	m_gameRegistry.addLevel("level1",
 							{
 								.name = "Level 1",
-								.rowCount = 8,
-								.columnCount = 18,
-								.gridOffset = {32, 64},
+								.startingScraps = 100,
+								.maxBatteryCharge = MAX_BATTERY_CHARGE,
+								.winCountdownDuration = 2.f,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
 								.timeline =
 									{
 										.keyframes =
 											{
-												{3.f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
-												{7.f, SpawnEnemy{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{3.f, SpawnEnemyOperation{.row = FixedValue{3}, .column = lastColumn, .type = FixedValue{"B1"s}}},
+												{5.f, SpawnEnemyOperation{.row = FixedValue{1}, .column = lastColumn, .type = FixedValue{"B1"s}}},
+												{7.f, SpawnEnemyOperation{.row = FixedValue{6}, .column = lastColumn, .type = FixedValue{"B1"s}}},
 												{15.f,
-												 SpawnEnemyBurst{
-													 .amount = FixedValue{40},
+												 SpawnEnemyBurstOperation{
+													 .amount = FixedValue{10},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = selection,
 												 }},
 											},
@@ -365,40 +379,163 @@ void Game::registerLevels() {
 	m_gameRegistry.addLevel("level2",
 							{
 								.name = "Level 2",
-								.rowCount = 8,
-								.columnCount = 18,
-								.gridOffset = {32, 64},
+								.startingScraps = 100,
+								.maxBatteryCharge = MAX_BATTERY_CHARGE,
+								.winCountdownDuration = 2.f,
 								.winCondition = AllWavesGoneCondition{},
 								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
 								.timeline =
 									{
 										.keyframes =
 											{
 												{2.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"B1"s},
 												 }},
 												{10.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"B2"s},
 												 }},
 												{20.f,
-												 SpawnEnemyBurst{
+												 SpawnEnemyBurstOperation{
 													 .amount = FixedValue{5},
 													 .interval = FixedValue{1.f},
-													 .row = RandomRange{0, 7},
-													 .column = FixedValue{19},
+													 .row = RandomRange{0, 6},
+													 .column = lastColumn,
 													 .type = FixedValue{"Portal"s},
 												 }},
 											},
 									},
 							});
+
+	auto enemyAt = [&](int row) { return SpawnEnemyOperation{.row = FixedValue{row}, .column = lastColumn, .type = FixedValue{"B1"s}}; };
+
+	auto space = 2.5f;
+
+	m_gameRegistry.addLevel("level3",
+							{
+								.name = "Hello",
+								.startingScraps = 100,
+								.maxBatteryCharge = 10000,
+								.winCountdownDuration = 2.f,
+								.winCondition = AllWavesGoneCondition{},
+								.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+								.groundBackground = sprite("ground_bkg"),
+								.topBackground = sprite("top_bkg"),
+								.timeline = {.keyframes =
+												 {
+													 // H
+													 {space + 0.f, enemyAt(1)},
+													 {space + 0.f, enemyAt(2)},
+													 {space + 0.f, enemyAt(3)},
+													 {space + 0.f, enemyAt(4)},
+													 {space + 0.f, enemyAt(5)},
+													 {space + 0.5f, enemyAt(3)},
+													 {space + 1.f, enemyAt(3)},
+													 {space + 1.5f, enemyAt(1)},
+													 {space + 1.5f, enemyAt(2)},
+													 {space + 1.5f, enemyAt(3)},
+													 {space + 1.5f, enemyAt(4)},
+													 {space + 1.5f, enemyAt(5)},
+
+													 // E
+													 {space * 2 + 0.5f, enemyAt(1)},
+													 {space * 2 + 0.5f, enemyAt(2)},
+													 {space * 2 + 0.5f, enemyAt(3)},
+													 {space * 2 + 0.5f, enemyAt(4)},
+													 {space * 2 + 0.5f, enemyAt(5)},
+													 {space * 2 + 1.f, enemyAt(1)},
+													 {space * 2 + 1.f, enemyAt(3)},
+													 {space * 2 + 1.f, enemyAt(5)},
+													 {space * 2 + 1.5f, enemyAt(1)},
+													 {space * 2 + 1.5f, enemyAt(3)},
+													 {space * 2 + 1.5f, enemyAt(5)},
+
+													 // L
+													 {space * 3 + 0.5f, enemyAt(1)},
+													 {space * 3 + 0.5f, enemyAt(2)},
+													 {space * 3 + 0.5f, enemyAt(3)},
+													 {space * 3 + 0.5f, enemyAt(4)},
+													 {space * 3 + 0.5f, enemyAt(5)},
+													 {space * 3 + 1.f, enemyAt(5)},
+													 {space * 3 + 1.5f, enemyAt(5)},
+
+													 // L
+													 {space * 4 + 0.5f, enemyAt(1)},
+													 {space * 4 + 0.5f, enemyAt(2)},
+													 {space * 4 + 0.5f, enemyAt(3)},
+													 {space * 4 + 0.5f, enemyAt(4)},
+													 {space * 4 + 0.5f, enemyAt(5)},
+													 {space * 4 + 1.f, enemyAt(5)},
+													 {space * 4 + 1.5f, enemyAt(5)},
+
+													 // O
+													 {space * 5 + 0.5f, enemyAt(1)},
+													 {space * 5 + 0.5f, enemyAt(2)},
+													 {space * 5 + 0.5f, enemyAt(3)},
+													 {space * 5 + 0.5f, enemyAt(4)},
+													 {space * 5 + 0.5f, enemyAt(5)},
+													 {space * 5 + 1.f, enemyAt(1)},
+													 {space * 5 + 1.f, enemyAt(5)},
+													 {space * 5 + 1.5f, enemyAt(1)},
+													 {space * 5 + 1.5f, enemyAt(2)},
+													 {space * 5 + 1.5f, enemyAt(3)},
+													 {space * 5 + 1.5f, enemyAt(4)},
+													 {space * 5 + 1.5f, enemyAt(5)},
+												 }},
+							});
+}
+
+void Game::verifyLevelData() {
+	auto levels = m_gameRegistry.getLevels();
+	for (const auto& [levelName, level] : levels) {
+		// verify that the keyframes are defined in the right order
+		for (size_t i = 0; i < level.timeline.keyframes.size(); ++i) {
+			if (i != 0 && level.timeline.keyframes[i].time < level.timeline.keyframes[i - 1].time) {
+				assert(0 && "Keyframes are not in the right order");
+			}
+
+			// verify that the SpawnEnemyOperation and SpawnEnemyOperationBurst are indicating valid rows and columns
+			if (std::holds_alternative<SpawnEnemyOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnEnemyOp = std::get<SpawnEnemyOperation>(level.timeline.keyframes[i].action);
+				verifyLevelCoordinate(0, ROWS, spawnEnemyOp.row);
+				verifyLevelCoordinate(0, COLS + 1, spawnEnemyOp.column);
+			} else if (std::holds_alternative<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnBurstOp = std::get<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action);
+				verifyLevelCoordinate(0, ROWS, spawnBurstOp.row);
+				verifyLevelCoordinate(0, COLS + 1, spawnBurstOp.column);
+			}
+		}
+	}
+}
+
+void Game::verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value) {
+	std::visit(
+		[&](auto&& arg) {
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, FixedValue<int>>) {
+				assert(arg.value >= min && arg.value < max);
+			} else if constexpr (std::is_same_v<T, RandomRange<int>>) {
+				assert(arg.min >= min && arg.min < arg.max && arg.max >= min && arg.max < max);
+			} else if constexpr (std::is_same_v<T, RandomRangeStep<int>>) {
+				assert(arg.min >= min && arg.min < arg.max && arg.max >= min && arg.max < max);
+			} else if constexpr (std::is_same_v<T, Selection<int>>) {
+				for (const auto& weightedValue : arg) {
+					assert(weightedValue.value >= min && weightedValue.value < max);
+				}
+			} else {
+				static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
+			}
+		},
+		value);
 }

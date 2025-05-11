@@ -16,8 +16,7 @@ class CollisionSystem;
 enum class DefenderState {
 	On,
 	Off,
-	PrepareToShoot,
-	ReadyToShoot,
+	Shooting,
 	Dying,
 	Dead
 };
@@ -64,7 +63,6 @@ public:
 	CallbackHandle onDefenderDestroyed(std::function<void(int, int)> callback);
 
 private:
-	void performPrepareShoot(Defender& defender, float dt);
 	void performDying(Defender& defender);
 
 	std::vector<std::unique_ptr<Defender>> m_defenders;

@@ -11,9 +11,11 @@
  */
 struct BulletShotData {
 	Vector2 velocity{};
+	Vector2 offsetPos{};
 	float radius{};
 	DamageInfo damage{};
 	float maxLifetime{};
+	float time{};
 };
 
 /*
@@ -24,8 +26,8 @@ struct LaserBeamData {
 	float beamHeight{};
 	DamageInfo damage{};
 	float auraSize{4};
-	Color beamColor{255, 0, 0, 255};
-	Color auraColor{255, 255, 255, 128};
+	Color beamStartColor{255, 0, 0, 255};
+	Color beamEndColor{255, 255, 255, 128};
 	float maxLifetime{};
 	float shootAnimationSpeed{};
 	float shootAnimationDuration{};

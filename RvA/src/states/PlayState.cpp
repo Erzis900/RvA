@@ -6,7 +6,7 @@
 PlayState::PlayState(Game& game) : m_game(game) {}
 
 flow::FsmAction PlayState::enter() {
-	m_game.getGameSession().start();
+	m_game.getGameSession().setState(SessionState::Playing);
 	m_game.getMusicManager().play(m_game.getMusicManager().getGameMusic());
 
 	return flow::FsmAction::none();
@@ -16,18 +16,14 @@ flow::FsmAction PlayState::update(float dt) {
 	Session& session = m_game.getGameSession();
 	session.update(dt);
 
-	if (session.getNumberOfDestroyedEnemies() >= m_numberOfEnemiesToKill) {
-		return flow::FsmAction::transition("win");
-	}
-
-	if (session.getBatteryCharge() <= 0) {
-		return flow::FsmAction::transition("lost");
+	switch (session.getGameState()) {
+	case SessionState::Win : return flow::FsmAction::transition("win");
+	case SessionState::End : return flow::FsmAction::transition("end");
+	case SessionState::Lost: return flow::FsmAction::transition("lost");
 	}
 
 	if constexpr (DEV_MODE) {
-		if (IsKeyPressed(KEY_W)) {
-			return flow::FsmAction::transition("win");
-		} else if (IsKeyPressed(KEY_F1)) {
+		if (IsKeyPressed(KEY_F1)) {
 			session.getCollisionSystem().toggleDebugView();
 		}
 	}

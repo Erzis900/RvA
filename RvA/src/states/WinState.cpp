@@ -32,14 +32,13 @@ flow::FsmAction WinState::enter() {
 		drawBullets(m_bullets);
 	});
 
-	m_game.getGameSession().end();
-
+	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
 		.vertical_stack(5, 200.f)
-		.medium_text({.text = "You Won!!!", .color = WHITE, .hAlign = HAlign::Center})
+		.medium_text({.text = "Level Completed!!!", .color = WHITE, .hAlign = HAlign::Center})
 		.space({0, 35.f})
-		.small_text({.text = "Press any key to continue", .color = WHITE, .hAlign = HAlign::Center})
+		.button({"Next Level", {}, btnSize, [this]() { m_nextTransition = "next"; }})
 		.end();
 
 	return flow::FsmAction::none();
@@ -51,8 +50,8 @@ void WinState::exit() {
 }
 
 flow::FsmAction WinState::update(float dt) {
-	if (GetKeyPressed() || IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON) || IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-		return flow::FsmAction::transition("menu");
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}
 
 	updateSprites(m_defenders, dt);
@@ -79,6 +78,10 @@ flow::FsmAction WinState::update(float dt) {
 
 	m_textAnimationTime += dt;
 	m_textPosition.y = sinf(m_textAnimationTime * m_textAnimationSpeed) * m_textAnimationAmplitude;
+
+	if (GetKeyPressed() || IsMouseButtonReleased(MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(MOUSE_RIGHT_BUTTON) || IsMouseButtonReleased(MOUSE_MIDDLE_BUTTON)) {
+		m_nextTransition = "menu";
+	}
 
 	return flow::FsmAction::none();
 }

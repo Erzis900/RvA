@@ -28,6 +28,12 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 		node.preferredSize = adjustSize(shape.size, availableSize);
 		break;
 	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		texture_atlas_frame_t* frameInfo = image.sprite->frames; // take the first frame
+		node.preferredSize = adjustSize({static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)}, availableSize);
+		break;
+	}
 	case WidgetType::Stack: {
 		auto& stack = screen.getStack(node.handle);
 		auto stackAvailableSize = adjustSize(stack.size, availableSize);
@@ -99,6 +105,11 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 		auto& shape = screen.getShape(node.handle);
 		auto size = adjustSize(shape.size, node.preferredSize);
 		node.finalRect = arrangePositionAndSize(shape.pos, size, finalRect, shape.hAlign, shape.vAlign);
+		break;
+	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		node.finalRect = arrangePositionAndSize(image.pos, node.preferredSize, finalRect, image.hAlign, image.vAlign);
 		break;
 	}
 	case WidgetType::Space: {

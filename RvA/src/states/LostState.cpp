@@ -5,7 +5,6 @@
 LostState::LostState(Game& game) : m_game(game) {}
 
 flow::FsmAction LostState::enter() {
-	m_game.getGameSession().end();
 	m_game.getMusicManager().play(m_game.getMusicManager().getLostMusic());
 
 	auto btnSize = Vector2{autoSize, 40.f};
@@ -34,6 +33,6 @@ void LostState::exit() {
 }
 
 void LostState::restart() {
-	m_game.getGameSession().end();
+	m_game.getGameSession().setState(SessionState::Idle);
 	m_nextTransition = "restart";
 }

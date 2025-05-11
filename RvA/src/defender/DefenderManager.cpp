@@ -52,15 +52,29 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 					defender->shootTime -= dt;
 					if (defender->shootTime <= 0) {
 						defender->shootTime = defender->info->shootCooldown;
-						setState(*defender, DefenderState::PrepareToShoot);
+						defender->prepareShootTime = defender->info->shootingAnimationTime;
+						setState(*defender, DefenderState::Shooting);
 					}
 					break;
-				case DefenderState::PrepareToShoot: performPrepareShoot(*defender, dt); break;
-				case DefenderState::ReadyToShoot:
-					defender->prepareShootTime = defender->info->shootingAnimationTime;
-					result.actions.push_back(BulletSpawnAction{.bulletType = *defender->info->bulletType, .position = defender->position});
+				case DefenderState::Shooting:
+					/*
+					 * We always wait for the entire shooting animation to finish before going back to the On state
+					 */
+					if (defender->animation.isOver()) {
+						setState(*defender, DefenderState::On);
+					}
 
-					setState(*defender, DefenderState::On);
+					/*
+					 * The animation can be longer then the time we need to wait for the bullet to spawn
+					 * This prevent the bullet from spawning multiple times. Once we reach 0 we spawn the bullet
+					 * and we can't enter inside this loop anymore.
+					 */
+					if (defender->prepareShootTime > 0) {
+						defender->prepareShootTime -= dt;
+						if (defender->prepareShootTime <= 0) {
+							result.actions.push_back(BulletSpawnAction{.bulletType = *defender->info->bulletType, .position = defender->position});
+						}
+					}
 					break;
 				}
 			}
@@ -121,10 +135,10 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 	if (defender.state != state) {
 		defender.state = state;
 		switch (state) {
-		case DefenderState::On			  : defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
-		case DefenderState::Off			  : defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
-		case DefenderState::PrepareToShoot: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
-		case DefenderState::Dying		  : {
+		case DefenderState::On		: defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
+		case DefenderState::Off		: defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
+		case DefenderState::Shooting: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
+		case DefenderState::Dying	: {
 			m_collisionSystem.destroyCollider(defender.colliderHandle);
 			defender.animation = Animation::createAnimation(defender.info->spriteDying);
 			break;
@@ -136,13 +150,6 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 
 CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(int, int)> callback) {
 	return m_onDefenderDestroyedCallbacks.registerCallback(std::move(callback));
-}
-
-void DefenderManager::performPrepareShoot(Defender& defender, float dt) {
-	defender.prepareShootTime -= dt;
-	if (defender.prepareShootTime <= 0.f) {
-		setState(defender, DefenderState::ReadyToShoot);
-	}
 }
 
 void DefenderManager::performDying(Defender& defender) {

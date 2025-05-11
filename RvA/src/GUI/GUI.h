@@ -15,19 +15,6 @@ enum CursorType {
 	Hover
 };
 
-struct DrawTextInfo {
-	const char* text{};
-	unsigned int fontSize{};
-	Color color;
-	GUIPosition guiPosition;
-};
-
-struct DrawButtonInfo {
-	const char* text{};
-	Vector2 size;
-	GUIPosition guiPosition;
-};
-
 class MusicManager;
 
 class GUI {
@@ -42,9 +29,6 @@ public:
 
 	void setCursor(CursorType type);
 
-	bool drawButton(DrawButtonInfo drawButtonInfo);
-	void drawText(DrawTextInfo drawTextInfo);
-
 	void startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds);
 
 	void destroyScreen(const char* name);
@@ -54,11 +38,11 @@ public:
 
 	void toggleDebugView();
 
-private:
-	Vector2 calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const;
-	Vector2 calculateCoordinates(const DrawTextInfo& drawTextInfo) const;
-	Vector2 calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const;
+	auto& getAtlas() {
+		return m_atlas;
+	}
 
+private:
 	void drawCursor();
 	void drawFPS();
 	void drawScreens();
