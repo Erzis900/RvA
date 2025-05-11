@@ -53,18 +53,29 @@ void Enemy::applyDamage(const Damage& damage) {
 		.onComplete([this]() { m_tint = WHITE; });
 }
 
-void Enemy::update(float dt) {
+std::optional<PortalSpawnAction> Enemy::update(float dt) {
 	switch (m_state) {
 	case EnemyState::Idle			: performIdle(dt); break;
 	case EnemyState::Moving			: performMove(dt); break;
 	case EnemyState::PrepareToAttack: performPrepareAttack(dt); break;
 	case EnemyState::Dying			: performDying(); break;
-	case EnemyState::Summoning		: performSummoning(); break;
-	case EnemyState::Dead			: break;
+	case EnemyState::Summoning:
+		performSummoning();
+
+		if (m_spawnedPortal) {										  // we spawn portal after animation is done (debatable but easier to do for me)
+			std::tuple<int, int> coords = getCoordinates(m_position); // TODO: I believe it returns wrong col (+1)
+			int col = std::get<1>(coords);
+
+			return PortalSpawnAction{m_row, col - 2, m_row, col - 4};
+		}
+		break;
+	case EnemyState::Dead: break;
 	}
 
 	m_animation.update(dt);
 	m_damageTakenAnimation.update(dt);
+
+	return std::nullopt;
 }
 
 void Enemy::draw(Atlas& atlas) {

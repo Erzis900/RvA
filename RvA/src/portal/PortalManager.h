@@ -40,11 +40,12 @@ public:
 
 	void draw(Atlas& atlas);
 	void update(float dt);
+	void clear();
 
-	void spawnPortals(const PortalTypeInfo* defenderTypeInfo, int inRow, int inCol, int outRow, int outCol);
+	void spawnPortals(const PortalTypeInfo* entranceTypeInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol);
 
 private:
-	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, PortalType type, int row, int col, AnimationData animationData);
+	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col, AnimationData animationData);
 
 	std::vector<PortalPair> m_portalPairs;
 	CollisionSystem& m_collisionSystem;

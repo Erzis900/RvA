@@ -16,11 +16,17 @@ void EnemyManager::clear() {
 	m_enemyDestroyedInfos.reserve(32);
 }
 
-void EnemyManager::update(float dt) {
+GameActions EnemyManager::update(float dt) {
+	GameActions actions;
+
 	m_enemyDestroyedInfos.clear();
 	for (auto it = m_enemies.begin(); it != m_enemies.end();) {
 		auto& enemy = *it;
-		enemy->update(dt);
+
+		auto portalSpawnAction = enemy->update(dt);
+		if (portalSpawnAction.has_value()) {
+			actions.push_back(portalSpawnAction.value());
+		}
 
 		if (!enemy->isDying()) {
 			if (enemy->getHp() <= 0) {
@@ -42,6 +48,8 @@ void EnemyManager::update(float dt) {
 	if (!m_enemyDestroyedInfos.empty()) {
 		m_onEnemiesDestroyedCallbacks.executeCallbacks(m_enemyDestroyedInfos);
 	}
+
+	return actions;
 }
 
 void EnemyManager::draw(Atlas& atlas) {

@@ -42,6 +42,7 @@ Game::Game()
 	registerEnemyTypes();
 	registerDropTypes();
 	registerLevels();
+	registerPortals();
 
 	InitAudioDevice();
 	m_musicManager.load();
@@ -349,7 +350,7 @@ void Game::registerLevels() {
 										.keyframes =
 											{
 												{0.01f, SpawnEnemy{.row = FixedValue{3}, .column = FixedValue{19}, .type = FixedValue{"Portal"s}}},
-												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
+												{5.f, SpawnEnemy{.row = FixedValue{1}, .column = FixedValue{19}, .type = FixedValue{"Portal"s}}},
 												{7.f, SpawnEnemy{.row = FixedValue{6}, .column = FixedValue{19}, .type = FixedValue{"B1"s}}},
 												{15.f,
 												 SpawnEnemyBurst{

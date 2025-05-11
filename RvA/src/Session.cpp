@@ -68,6 +68,7 @@ void Session::end() {
 	m_enemyManager.clear();
 	m_dropManager.clear();
 	m_bulletManager.clear();
+	m_portalManager.clear();
 	m_levelManager.resetCurrentLevelIndex();
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 	m_collisionSystem.clearColliders();
@@ -91,18 +92,21 @@ void Session::drawGrid() {
 }
 
 void Session::update(float dt) {
-	m_enemyManager.update(dt);
+	auto enemyResult = m_enemyManager.update(dt);
+	performActions(enemyResult);
 	m_collisionSystem.update(dt);
 
 	performDefenderSpawnOnInput();
 	auto result = m_defenderManager.update(dt);
 	performActions(result.actions);
+
 	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
 	m_bulletManager.update(dt);
 	m_dropManager.update(dt);
 	m_defenderPicker.update(dt);
 	m_levelManager.update(dt);
+	m_portalManager.update(dt);
 
 	// When pressing F3 deal 500 damage to a random enemy
 	if (DEV_MODE && IsKeyPressed(KEY_F3)) {
@@ -121,6 +125,7 @@ void Session::draw(Atlas& atlas) {
 	if (m_isStarted) {
 		drawGrid();
 
+		m_portalManager.draw(atlas);
 		m_defenderManager.draw(atlas);
 		m_enemyManager.draw(atlas);
 		m_bulletManager.draw();
@@ -189,6 +194,12 @@ void Session::performAction(const BulletSpawnAction& action) {
 void Session::performAction(const EnemySpawnAction& action) {
 	auto enemyInfo = m_gameRegistry.getEnemy(action.enemyType);
 	m_enemyManager.spawnEnemy(enemyInfo, action.row, action.column);
+}
+
+void Session::performAction(const PortalSpawnAction& action) {
+	auto entrance = m_gameRegistry.getPortal(PortalType::Entrance);
+	auto exit = m_gameRegistry.getPortal(PortalType::Exit);
+	m_portalManager.spawnPortals(entrance, exit, action.inRow, action.inCol, action.outRow, action.outCol);
 }
 
 bool Session::canAffordCost(int cost) const {

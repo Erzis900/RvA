@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "Damage.h"
+#include "GameAction.h"
 #include "collisions/CollisionSystem.h"
 #include "enemy/EnemyTypeRegistry.h"
 #include "utilities/Interpolation.h"
@@ -27,7 +28,7 @@ class Enemy {
 public:
 	Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
 
-	void update(float dt);
+	std::optional<PortalSpawnAction> update(float dt);
 	void draw(Atlas& atlas);
 
 	void applyDamage(const Damage& damage);

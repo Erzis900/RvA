@@ -22,7 +22,7 @@ public:
 	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem);
 
 	void clear();
-	void update(float dt);
+	GameActions update(float dt);
 	void draw(Atlas& atlas);
 
 	void spawnEnemy(const EnemyTypeInfo* info, int row, int column);

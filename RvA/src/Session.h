@@ -70,6 +70,7 @@ private:
 	void performAction(const GameAction& action);
 	void performAction(const BulletSpawnAction& action);
 	void performAction(const EnemySpawnAction& action);
+	void performAction(const PortalSpawnAction& action);
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
