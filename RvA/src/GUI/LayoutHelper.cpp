@@ -49,7 +49,8 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
 		texture_atlas_frame_t* frameInfo = image.sprite->frames; // take the first frame
-		node.preferredSize = adjustSize({static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)}, availableSize, image.fit);
+		auto size = image.size ? *image.size : Vector2{static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)};
+		node.preferredSize = adjustSize(size, availableSize, image.fit);
 		break;
 	}
 	case WidgetType::Stack: {

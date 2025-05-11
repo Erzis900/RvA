@@ -65,6 +65,11 @@ enum class Fit {
 	Ignore
 };
 
+enum class TextureFillMode {
+	Stretch,
+	Repeat
+};
+
 struct UINode {
 	WidgetHandle handle{};
 	WidgetType type{};
@@ -126,6 +131,7 @@ struct UIShape {
 	Vector2 size{MaxValue, MaxValue};
 	Color color{};
 	ShapeType type{};
+	float roundness{};
 	HAlign hAlign{};
 	VAlign vAlign{};
 	WidgetHandle handle{};
@@ -133,12 +139,13 @@ struct UIShape {
 
 struct UIImg {
 	Vector2 pos{};
-	Vector2 size{MaxValue, MaxValue};
+	std::optional<Vector2> size{};
 	const SpriteInfo* sprite{};
 	HAlign hAlign{};
 	VAlign vAlign{};
 	Fit fit{};
 	Flip flip{};
+	TextureFillMode textureFillMode;
 	WidgetHandle handle{};
 };
 

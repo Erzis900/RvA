@@ -15,7 +15,7 @@ flow::FsmAction OptionsState::enter() {
 
 	auto builder = gui.buildScreen("Options");
 	if (m_showBackground) {
-		builder.rect({0, 0, TEX_WIDTH, TEX_HEIGHT}, Fade(BLACK, 0.5f));
+		builder.rect({0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, Fade(BLACK, 0.5f));
 	}
 
 	// clang-format off

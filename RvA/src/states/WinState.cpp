@@ -11,10 +11,10 @@ WinState::WinState(Game& game) : m_game(game) {}
 flow::FsmAction WinState::enter() {
 	m_defenders.clear();
 	auto solarPanelInfo = m_game.getGameRegistry().getDefender(DefenderType::Solar);
-	m_defenders.push_back(createSpriteItem(solarPanelInfo->spriteEnabled.spriteInfo, {TEX_WIDTH, 100}, {-150, 0}));
+	m_defenders.push_back(createSpriteItem(solarPanelInfo->spriteEnabled.spriteInfo, {GAME_RENDERTEXTURE_SIZE.x, 100}, {-150, 0}));
 
 	m_chasers.clear();
-	auto x = TEX_WIDTH + 100.f;
+	auto x = GAME_RENDERTEXTURE_SIZE.x + 100.f;
 	for (auto i = 0; i < 3; ++i) {
 		const auto typeInfo = m_game.getGameRegistry().getEnemy("B1");
 		m_chasers.push_back(createSpriteItem(typeInfo->moveAnimation.spriteInfo, {x, 100}, {-150, 0}));

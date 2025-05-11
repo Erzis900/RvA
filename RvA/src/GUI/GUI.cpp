@@ -40,7 +40,7 @@ void GUI::drawCursor() {
 
 void GUI::drawFPS() {
 	auto fpsText = std::to_string(GetFPS());
-	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, {10, 10}, 1, {0, 0, TEX_WIDTH, TEX_HEIGHT}, HAlign::Right, VAlign::Bottom);
+	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, {10, 10}, 1, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
 	::DrawText(fpsText.c_str(), static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
 }
 
@@ -60,8 +60,8 @@ void GUI::drawScreens() {
 		}
 		auto& root = screen->getRootNode();
 
-		LayoutHelper::measure(root, *screen, {TEX_WIDTH, TEX_HEIGHT});
-		LayoutHelper::arrange(root, *screen, {0, 0, TEX_WIDTH, TEX_HEIGHT});
+		LayoutHelper::measure(root, *screen, {UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y});
+		LayoutHelper::arrange(root, *screen, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y});
 		drawWidget(root, *screen);
 	}
 	m_drawingScreens = false;
@@ -90,13 +90,34 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	case WidgetType::Shape: {
 		auto& shape = screen.getShape(node.handle);
 		switch (shape.type) {
-		case ShapeType::Rectangle: ::DrawRectangleRec(node.finalRect, shape.color); break;
+		case ShapeType::Rectangle: {
+			if (shape.roundness > 0) {
+				::DrawRectangleRounded(node.finalRect, shape.roundness, 0, shape.color);
+			} else {
+				::DrawRectangleRec(node.finalRect, shape.color);
+			}
+			break;
+		}
 		}
 		break;
 	}
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
-		m_atlas.drawSprite(image.sprite, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, 0, image.flip);
+		switch (image.textureFillMode) {
+		case TextureFillMode::Repeat: {
+			// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
+			for (int y = 0; y < node.finalRect.height; y += image.sprite->frames[0].height) {
+				for (int x = 0; x < node.finalRect.width; x += image.sprite->frames[0].width) {
+					m_atlas.drawSprite(image.sprite, {node.finalRect.x + x, node.finalRect.y + y}, {(float)image.sprite->frames[0].width, (float)image.sprite->frames[0].height}, 0, image.flip);
+				}
+			}
+			break;
+		}
+		case TextureFillMode::Stretch: {
+			m_atlas.drawSprite(image.sprite, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, 0, image.flip);
+			break;
+		}
+		}
 		break;
 	}
 	case WidgetType::Border: {
@@ -121,7 +142,7 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 }
 
 void GUI::drawFading() {
-	DrawRectangle(0, 0, TEX_WIDTH, TEX_HEIGHT, m_fading.getValue());
+	DrawRectangle(0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y, m_fading.getValue());
 }
 
 void GUI::setCursor(CursorType type) {

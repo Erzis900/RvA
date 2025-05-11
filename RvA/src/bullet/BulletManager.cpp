@@ -104,7 +104,7 @@ void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt) 
 
 	float currentValue = Clamp(data.shootAnimationTime, 0, data.shootAnimationDuration);
 	float value = EaseSineIn(currentValue, 0, 1, data.shootAnimationDuration);
-	data.beamWidth = (TEX_WIDTH - CELL_SIZE - bullet.position.x) * value;
+	data.beamWidth = (GAME_RENDERTEXTURE_SIZE.x - CELL_SIZE - bullet.position.x) * value;
 
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight});
 }

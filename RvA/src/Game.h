@@ -58,7 +58,7 @@ public:
 
 private:
 	void update();
-	void updateRenderRec();
+	Rectangle updateRenderRec(Texture& texture);
 	void updateMouse();
 	bool shouldClose() const;
 
@@ -74,14 +74,11 @@ private:
 	void verifyLevelData();
 	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
 
-	RenderTexture2D m_renderTexture;
-	Rectangle m_renderRec;
+	RenderTexture2D m_gameRenderTexture;
+	RenderTexture2D m_uiRenderTexture;
 	Color m_renderTextureColor{BLACK};
 
 	float m_scale{};
-
-	int m_texWidth{};
-	int m_texHeight{};
 
 	int m_screenWidth{};
 	int m_screenHeight{};

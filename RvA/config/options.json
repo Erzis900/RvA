@@ -1,5 +1,5 @@
 {
     "fullscreen": false,
-    "music": false,
-    "sound": false
+    "music": true,
+    "sound": true
 }

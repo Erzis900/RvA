@@ -10,7 +10,7 @@ flow::FsmAction PauseState::enter() {
 	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Pause")
-		.rect({0, 0, TEX_WIDTH, TEX_HEIGHT}, Fade(BLACK, 0.5f))
+		.rect({0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, Fade(BLACK, 0.9f))
 		.vertical_stack(5, 200.f)
 		.medium_text({.text = "Pause", .color = WHITE, .hAlign = HAlign::Center})
 		.space({0, 40.f})

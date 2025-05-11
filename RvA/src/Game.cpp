@@ -14,23 +14,16 @@
 
 using namespace std::string_literals;
 
-Game::Game()
-	: m_renderRec()
-	, m_scale(1.f)
-	, m_texWidth(TEX_WIDTH)
-	, m_texHeight(TEX_HEIGHT)
-	, m_screenWidth(SCREEN_WIDTH)
-	, m_screenHeight(SCREEN_HEIGHT)
-	, m_gui(m_atlas, m_musicManager)
-	, m_gameSession(m_gui, m_gameRegistry)
-	, m_musicManager(m_config) {
+Game::Game() : m_scale(1.f), m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager), m_gameSession(m_gui, m_gameRegistry), m_musicManager(m_config) {
 	Random::setInstance(&m_random);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_screenWidth, m_screenHeight, "RvA");
 	SetTargetFPS(60);
 
-	m_renderTexture = LoadRenderTexture(m_texWidth, m_texHeight);
-	SetTextureFilter(m_renderTexture.texture, TEXTURE_FILTER_POINT);
+	m_gameRenderTexture = LoadRenderTexture(static_cast<int>(GAME_RENDERTEXTURE_SIZE.x), static_cast<int>(GAME_RENDERTEXTURE_SIZE.y));
+	m_uiRenderTexture = LoadRenderTexture(static_cast<int>(UI_RENDERTEXTURE_SIZE.x), static_cast<int>(UI_RENDERTEXTURE_SIZE.y));
+	SetTextureFilter(m_gameRenderTexture.texture, TEXTURE_FILTER_POINT);
+	SetTextureFilter(m_uiRenderTexture.texture, TEXTURE_FILTER_POINT);
 
 	m_atlas.load("assets/atlas.png");
 	m_gui.loadResources();
@@ -59,14 +52,14 @@ Game::Game()
 }
 
 Game::~Game() {
-	UnloadRenderTexture(m_renderTexture);
+	UnloadRenderTexture(m_gameRenderTexture);
+	UnloadRenderTexture(m_uiRenderTexture);
 	CloseAudioDevice();
 	CloseWindow();
 }
 
 void Game::update() {
 	float dt = GetFrameTime();
-	updateRenderRec();
 	updateMouse();
 
 	m_fsm->update(dt);
@@ -86,41 +79,48 @@ void Game::run() {
 	}
 }
 
-void Game::updateRenderRec() {
+Rectangle Game::updateRenderRec(Texture& texture) {
 	m_screenWidth = GetScreenWidth();
 	m_screenHeight = GetScreenHeight();
 
-	m_scale = std::min(float(m_screenWidth) / float(m_texWidth), float(m_screenHeight) / float(m_texHeight));
-	m_renderRec.width = m_texWidth * m_scale;
-	m_renderRec.height = m_texHeight * m_scale;
-	m_renderRec.x = (m_screenWidth - m_renderRec.width) / 2.f;
-	m_renderRec.y = (m_screenHeight - m_renderRec.height) / 2.f;
+	m_scale = std::min(float(m_screenWidth) / float(texture.width), float(m_screenHeight) / float(texture.height));
+	float width = texture.width * m_scale;
+	float height = texture.height * m_scale;
+	return {(m_screenWidth - width) / 2.f, (m_screenHeight - height) / 2.f, width, height};
 }
 
 void Game::updateMouse() {
-	int offsetX = int(-(m_screenWidth - (m_texWidth * m_scale)) / 2.f);
-	int offsetY = int(-(m_screenHeight - (m_texHeight * m_scale)) / 2.f);
+	int offsetX = int(-(m_screenWidth - (m_gameRenderTexture.texture.width * m_scale)) / 2.f);
+	int offsetY = int(-(m_screenHeight - (m_gameRenderTexture.texture.height * m_scale)) / 2.f);
 
 	SetMouseOffset(offsetX, offsetY);
 	SetMouseScale(1 / m_scale, 1 / m_scale);
 }
 
 void Game::draw() {
-	BeginTextureMode(m_renderTexture);
+	auto gameRenderRectangle = updateRenderRec(m_gameRenderTexture.texture);
+	auto uiRenderRectangle = updateRenderRec(m_uiRenderTexture.texture);
+
+	BeginTextureMode(m_gameRenderTexture);
 
 	ClearBackground(m_renderTextureColor);
 
 	m_gameSession.draw(m_atlas);
 	m_drawCallbacks.executeCallbacks();
 
-	m_gui.draw();
+	EndTextureMode();
 
+	BeginTextureMode(m_uiRenderTexture);
+	ClearBackground(Fade(WHITE, 0));
+	m_gui.draw();
 	EndTextureMode();
 
 	BeginDrawing();
 	ClearBackground(BLACK);
 
-	DrawTexturePro(m_renderTexture.texture, {0.f, 0.f, float(m_texWidth), -float(m_texHeight)}, m_renderRec, {0.f, 0.f}, 0.f, WHITE);
+	DrawTexturePro(m_gameRenderTexture.texture, {0.f, 0.f, float(m_gameRenderTexture.texture.width), -float(m_gameRenderTexture.texture.height)}, gameRenderRectangle, {0.f, 0.f}, 0.f, WHITE);
+	DrawTexturePro(m_uiRenderTexture.texture, {0.f, 0.f, float(m_uiRenderTexture.texture.width), -float(m_uiRenderTexture.texture.height)}, uiRenderRectangle, {0.f, 0.f}, 0.f, WHITE);
+
 	EndDrawing();
 }
 

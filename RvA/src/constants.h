@@ -6,8 +6,8 @@
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
 
-constexpr int TEX_WIDTH = 640;
-constexpr int TEX_HEIGHT = 360;
+constexpr Vector2 GAME_RENDERTEXTURE_SIZE = {640, 360};
+constexpr Vector2 UI_RENDERTEXTURE_SIZE = {640, 360};
 
 constexpr int ROWS = 7;
 constexpr int COLS = 18;
