@@ -15,6 +15,7 @@ class Atlas;
 struct UIText;
 
 struct HUDDefenderData {
+	std::string name;
 	DefenderType type;
 	Animation animation;
 	int cost;
@@ -71,7 +72,6 @@ public:
 	void clear();
 
 private:
-	void drawBatteryCharge(Atlas& atlas, const Rectangle& bounds);
 	Vector2 measureDefenders(const Vector2& availableSize);
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
@@ -85,5 +85,11 @@ private:
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
+	WidgetHandle m_batteryFillHandle{};
+	WidgetHandle m_batteryIndicatorHandle{};
 	WidgetHandle m_levelNameHandle{};
+	WidgetHandle m_plateContainerHandle{};
+	WidgetHandle m_plateTextHandle{};
+	bool m_isAnyDefenderHovered{};
+	int m_hoveredDefenderIndex{};
 };

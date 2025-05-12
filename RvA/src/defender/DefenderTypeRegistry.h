@@ -12,6 +12,7 @@
  */
 struct DefenderTypeInfo {
 	DefenderType type{};
+	std::string name;
 	AnimationData spriteEnabled;
 	AnimationData spriteDisabled;
 	AnimationData spriteShoot;

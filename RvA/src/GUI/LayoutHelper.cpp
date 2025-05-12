@@ -160,35 +160,41 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 		switch (stack.orientation) {
 		case GUIOrientation::Horizontal: {
 			auto width = 0.f;
+			auto height = 0.f;
 			if (!node.children.empty()) {
 				for (auto& child : node.children) {
 					width += child->preferredSize.x + stack.padding.x;
+					height = std::max(height, child->preferredSize.y);
 				}
 				width -= stack.padding.x;
 			}
-			auto hAlignment = toHorizontaAlignment(stack.contentAlignment);
-			auto contentRect = arrangePositionAndSize({0, 0}, {width, stackRect.height}, stackRect, hAlignment, VAlign::Top);
+			auto hAlignment = toHorizontaAlignment(stack.alignContent);
+			auto vAlignment = toVerticalAlignment(stack.sideAlignContent);
+			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
 
 			auto x = contentRect.x;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {x, stackRect.y, std::min(stackRect.width, child->preferredSize.x), stackRect.height});
+				arrange(*child, screen, {x, contentRect.y, std::min(stackRect.width, child->preferredSize.x), stackRect.height});
 				x += child->finalRect.width + stack.padding.x;
 			}
 			break;
 		}
 		case GUIOrientation::Vertical: {
 			auto height = 0.f;
+			auto width = 0.f;
 			if (!node.children.empty()) {
 				for (auto& child : node.children) {
 					height += child->preferredSize.y + stack.padding.y;
+					width = std::max(width, child->preferredSize.x);
 				}
 				height -= stack.padding.y;
 			}
-			auto vAlignment = toVerticalAlignment(stack.contentAlignment);
-			auto contentRect = arrangePositionAndSize({0, 0}, {stackRect.width, height}, stackRect, HAlign::Left, vAlignment);
+			auto vAlignment = toVerticalAlignment(stack.alignContent);
+			auto hAlignment = toHorizontaAlignment(stack.sideAlignContent);
+			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
 			float y = contentRect.y;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {stackRect.x, y, stackRect.width, std::min(stackRect.height, child->preferredSize.y)});
+				arrange(*child, screen, {contentRect.x, y, stackRect.width, std::min(stackRect.height, child->preferredSize.y)});
 				y += child->finalRect.height + stack.padding.y;
 			}
 			break;
@@ -224,6 +230,10 @@ Rectangle LayoutHelper::arrangePositionAndSize(const Vector2& position, const Ve
 	case VAlign::Top   : rec.y = availableArea.y + position.y; break;
 	case VAlign::Bottom: rec.y = availableArea.y + availableArea.height - size.y - position.y; break;
 	case VAlign::Center: rec.y = availableArea.y + (availableArea.height - size.y) / 2 + position.y; break;
+	case VAlign::Stretch:
+		rec.y = availableArea.y + position.y;
+		rec.height = availableArea.height - position.y * 2;
+		break;
 	}
 
 	return rec;

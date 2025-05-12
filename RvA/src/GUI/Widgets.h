@@ -77,6 +77,7 @@ struct UINode {
 	UINode* parent{};
 	Vector2 preferredSize{};
 	Rectangle finalRect{};
+	bool visible{true};
 };
 
 struct UIStack {
@@ -86,8 +87,10 @@ struct UIStack {
 	VAlign vAlign{};
 	Vector2 size{MaxValue, MaxValue};
 	Vector2 pos{};
-	ContentAlign contentAlignment{};
+	ContentAlign alignContent{};
+	ContentAlign sideAlignContent{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UIText {
@@ -99,21 +102,25 @@ struct UIText {
 	Vector2 pos{};
 	float fontSpacing{1};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UISpace {
 	Vector2 size{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UIBorder {
 	Color color{};
+	Color bkgColor{0, 0, 0, 0};
 	float thickness{1};
 	Vector2 pos{};
 	Vector2 padding{};
 	HAlign hAlign{};
 	VAlign vAlign{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UIButton {
@@ -124,6 +131,7 @@ struct UIButton {
 	HAlign hAlign{};
 	VAlign vAlign{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UIShape {
@@ -135,6 +143,7 @@ struct UIShape {
 	HAlign hAlign{};
 	VAlign vAlign{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UIImg {
@@ -147,6 +156,7 @@ struct UIImg {
 	Flip flip{};
 	TextureFillMode textureFillMode;
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 struct UICustom {
@@ -156,6 +166,7 @@ struct UICustom {
 	HAlign hAlign{};
 	VAlign vAlign{};
 	WidgetHandle handle{};
+	UINode* owner{};
 };
 
 /*

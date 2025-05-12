@@ -39,9 +39,9 @@ void GUI::drawCursor() {
 }
 
 void GUI::drawFPS() {
-	auto fpsText = std::to_string(GetFPS());
-	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, {10, 10}, 1, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
-	::DrawText(fpsText.c_str(), static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
+	auto fpsText = TextFormat("%d", GetFPS());
+	auto rect = LayoutHelper::arrangePositionAndSize(fpsText, 10, {10, 10}, 1, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
+	::DrawText(fpsText, static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
 }
 
 void GUI::drawScreens() {
@@ -68,6 +68,10 @@ void GUI::drawScreens() {
 }
 
 void GUI::drawWidget(UINode& node, Screen& screen) {
+	if (!node.visible) {
+		return;
+	}
+
 	switch (node.type) {
 	case WidgetType::Button: {
 		auto& button = screen.getButton(node.handle);
@@ -122,6 +126,10 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 	case WidgetType::Border: {
 		auto& border = screen.getBorder(node.handle);
+		if (border.bkgColor.a > 0) {
+			::DrawRectangleRec(node.finalRect, border.bkgColor);
+		}
+
 		::DrawRectangleLinesEx(node.finalRect, border.thickness, border.color);
 		break;
 	}

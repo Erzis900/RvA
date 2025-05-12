@@ -78,9 +78,11 @@ ScreenBuilder::ScreenBuilder(Screen& screen) : m_screen(screen) {
 }
 
 ScreenBuilder& ScreenBuilder::stack(UIStack stack) {
+	auto node = std::make_unique<UINode>();
+	stack.owner = node.get();
+
 	auto handle = m_screen.create(stack);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Stack;
 	node->parent = m_nodeStack.top();
@@ -92,11 +94,11 @@ ScreenBuilder& ScreenBuilder::stack(UIStack stack) {
 }
 
 ScreenBuilder& ScreenBuilder::vertical_stack(float padding, float size, VAlign vAlignment, HAlign hAlignment, ContentAlign cAlignment) {
-	return stack({.orientation = GUIOrientation::Vertical, .padding = {0, padding}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {size, autoSize}, .contentAlignment = cAlignment});
+	return stack({.orientation = GUIOrientation::Vertical, .padding = {0, padding}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {size, autoSize}, .alignContent = cAlignment});
 }
 
 ScreenBuilder& ScreenBuilder::horizontal_stack(float padding, float size, HAlign hAlignment, VAlign vAlignment, ContentAlign cAlignment) {
-	return stack({.orientation = GUIOrientation::Horizontal, .padding = {padding, 0}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {autoSize, size}, .contentAlignment = cAlignment});
+	return stack({.orientation = GUIOrientation::Horizontal, .padding = {padding, 0}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {autoSize, size}, .alignContent = cAlignment});
 }
 
 ScreenBuilder& ScreenBuilder::end() {
@@ -106,9 +108,11 @@ ScreenBuilder& ScreenBuilder::end() {
 }
 
 ScreenBuilder& ScreenBuilder::button(UIButton button, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	button.owner = node.get();
+
 	auto handle = m_screen.create(std::move(button), handleResult);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Button;
 	node->parent = m_nodeStack.top();
@@ -118,9 +122,11 @@ ScreenBuilder& ScreenBuilder::button(UIButton button, WidgetHandle* handleResult
 }
 
 ScreenBuilder& ScreenBuilder::text(UIText text, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	text.owner = node.get();
+
 	auto handle = m_screen.create(std::move(text), handleResult);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Text;
 	node->parent = m_nodeStack.top();
@@ -145,9 +151,11 @@ ScreenBuilder& ScreenBuilder::big_text(UIText text, WidgetHandle* handleResult) 
 }
 
 ScreenBuilder& ScreenBuilder::shape(UIShape shape, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	shape.owner = node.get();
+
 	auto handle = m_screen.create(std::move(shape), handleResult);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Shape;
 	node->parent = m_nodeStack.top();
@@ -161,9 +169,11 @@ ScreenBuilder& ScreenBuilder::rect(const Rectangle& rect, Color color, WidgetHan
 }
 
 ScreenBuilder& ScreenBuilder::space(UISpace space) {
+	auto node = std::make_unique<UINode>();
+	space.owner = node.get();
+
 	auto handle = m_screen.create(std::move(space));
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Space;
 	node->parent = m_nodeStack.top();
@@ -172,9 +182,11 @@ ScreenBuilder& ScreenBuilder::space(UISpace space) {
 }
 
 ScreenBuilder& ScreenBuilder::custom(UICustom custom) {
+	auto node = std::make_unique<UINode>();
+	custom.owner = node.get();
+
 	auto handle = m_screen.create(std::move(custom));
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Custom;
 	node->parent = m_nodeStack.top();
@@ -183,9 +195,11 @@ ScreenBuilder& ScreenBuilder::custom(UICustom custom) {
 }
 
 ScreenBuilder& ScreenBuilder::border(UIBorder border, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	border.owner = node.get();
+
 	auto handle = m_screen.create(std::move(border), handleResult);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Border;
 	node->parent = m_nodeStack.top();
@@ -196,9 +210,11 @@ ScreenBuilder& ScreenBuilder::border(UIBorder border, WidgetHandle* handleResult
 }
 
 ScreenBuilder& ScreenBuilder::image(UIImg image, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	image.owner = node.get();
+
 	auto handle = m_screen.create(std::move(image), handleResult);
 
-	auto node = std::make_unique<UINode>();
 	node->handle = handle;
 	node->type = WidgetType::Image;
 	node->parent = m_nodeStack.top();

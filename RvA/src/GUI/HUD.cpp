@@ -5,7 +5,6 @@
 #include "constants.h"
 
 #include <algorithm>
-#include <raygui.h>
 #include <raymath.h>
 #include <rlgl.h>
 
@@ -14,38 +13,62 @@ const float defenderHSize = CELL_SIZE * 0.5f;
 const float defenderSlotSize = 52;
 const float defenderSlotHSize = defenderSlotSize * 0.5f;
 const float defenderPadding = 5.f;
+const float maxBatteryFill = (defenderSize * ROWS) - CELL_SIZE * 0.5f;
 
 HUD::HUD(GUI& gui) : m_gui(gui) {
 	m_data.progressBars.reserve(128);
 
 	auto* bottomBarSpriteInfo = m_gui.getAtlas().getSpriteInfo("ui_bottom_bar");
+	auto* batteryTop = m_gui.getAtlas().getSpriteInfo("ui_battery_top");
+	auto* batteryBottom = m_gui.getAtlas().getSpriteInfo("ui_battery_bottom");
+	auto* batteryMiddle = m_gui.getAtlas().getSpriteInfo("ui_battery_middle");
 
 	// clang-format off
 	m_screen = m_gui.buildScreen("HUD")
+		// Bottom Bar
 		// TODO(Gerark) - Due to Texture Bleeding we're forced to set this strange padding and offset. Remove them as soon as the issue is solved.
 		.stack({ .orientation = GUIOrientation::Horizontal, .padding = { -2, 0 }, .hAlign = HAlign::Stretch, .vAlign = VAlign::Bottom, .size = { autoSize, 69.f }, .pos = { -1, -1 } })
 			.image({ .sprite = bottomBarSpriteInfo })
 			.image({ .sprite = bottomBarSpriteInfo, .flip = Flip::Horizontal })
 		.end()
+		// Level Name
 		.small_text({ .text = "", .color = WHITE, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom, .pos = { 5, 5 } }, &m_levelNameHandle)
-		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .contentAlignment = ContentAlign::Center })
-            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .contentAlignment = ContentAlign::Center })
+		// Battery & Scraps
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .alignContent = ContentAlign::Center })
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .alignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scraps_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
 				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
-            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .contentAlignment = ContentAlign::Center })
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .alignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_batteryTextHandle)
 				.small_text({ .text = "BATTERY", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
 		.end()
-		.custom({
-            .pos = { GRID_OFFSET.x - 32, GRID_OFFSET.y - 68 },
-			.draw = std::bind_front(&HUD::drawBatteryCharge, this),
-			.measure = [](const Vector2& size) { return Vector2{ 16, float(CELL_SIZE * ROWS) }; },
-			.vAlign = VAlign::Center,
-		})
+		// Big Battery
+		.stack({
+			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
+			.size = { 64, autoSize }, .pos = { 0, 50 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.image({ .sprite = batteryTop })
+			.image({ .size = Vector2{32, maxBatteryFill}, .sprite = batteryMiddle, .textureFillMode = TextureFillMode::Repeat }, &m_batteryFillHandle)
+			.image({ .sprite = batteryBottom })
+		.end()
+		.stack({
+			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
+			.size = { 64, autoSize }, .pos = { 5, 75 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.shape({ .size = { 4, maxBatteryFill }, .color = Fade(BLACK, 0.25f), .type = ShapeType::Rectangle, .roundness = 5 })
+		.end()
+		.stack({
+			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
+			.size = { 64, autoSize }, .pos = { 5, 75 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.shape({ .size = { 4, maxBatteryFill }, .color = Fade(GREEN, 0.75f), .type = ShapeType::Rectangle, .roundness = 5 }, &m_batteryIndicatorHandle)
+		.end()
+		// Plate
+		.border({ .color = Fade(BLACK, 0.5), .bkgColor = Fade(BLACK, 0.5), .pos = {0, 70}, .padding = {20, 5}, .hAlign = HAlign::Center, .vAlign = VAlign::Bottom }, &m_plateContainerHandle)
+			.small_text({ .text = "DEFENDER NAME", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_plateTextHandle)
+		.end()
+		// Defender Picker
 		.custom({
 			.pos = { 0, 10 },
 			.draw = std::bind_front(&HUD::drawDefenders, this),
@@ -53,6 +76,7 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 			.hAlign = HAlign::Center,
             .vAlign = VAlign::Bottom
 			})
+		// Progress Bars ( HP bar )
 		.custom({
 			.draw = std::bind_front(&HUD::drawProgressBars, this),
 			.vAlign = VAlign::Center
@@ -79,13 +103,24 @@ Color calculateBatteryColor(float batteryCharge) {
 }
 
 void HUD::update(float dt) {
-	auto scrapsText = std::to_string(m_data.scrapsAmount);
-	m_screen->getText(m_scrapTextHandle).text = scrapsText.c_str();
+	auto scrapsText = TextFormat("%d", m_data.scrapsAmount);
+	m_screen->getText(m_scrapTextHandle).text = scrapsText;
 	auto& batteryText = m_screen->getText(m_batteryTextHandle);
 	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge / m_data.maxBatteryCharge * 100));
 	batteryText.color = calculateBatteryColor(m_data.batteryCharge);
 	auto& levelName = m_screen->getText(m_levelNameHandle);
 	levelName.text = m_data.levelName;
+
+	auto& batteryIndicator = m_screen->getShape(m_batteryIndicatorHandle);
+	batteryIndicator.size.y = std::round(m_data.batteryCharge / m_data.maxBatteryCharge * maxBatteryFill);
+	batteryIndicator.color = Fade(calculateBatteryColor(m_data.batteryCharge), 0.75f);
+
+	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
+	plateContainer.owner->visible = m_isAnyDefenderHovered;
+	if (m_isAnyDefenderHovered) {
+		auto& plateText = m_screen->getText(m_plateTextHandle);
+		plateText.text = m_data.defenders[m_hoveredDefenderIndex].name;
+	}
 
 	for (auto& defender : m_data.defenders) {
 		if (defender.isHover) {
@@ -125,19 +160,8 @@ void HUD::clear() {
 	m_data.numberOfEnemiesDefeated = 0;
 	m_data.occupiedCells.clear();
 	m_data.levelName = "";
-}
-
-void HUD::drawBatteryCharge(Atlas& atlas, const Rectangle& bounds) {
-	Rectangle rect = bounds;
-
-	rect.height = m_data.batteryCharge / m_data.maxBatteryCharge * bounds.height;
-	rect.y += bounds.height - rect.height;
-
-	DrawRectangleRec(rect, calculateBatteryColor(m_data.batteryCharge));
-	auto padding = 2;
-	DrawRectangleLinesEx({bounds.x - padding, bounds.y - padding, bounds.width + padding * 2, bounds.height + padding * 2}, 1, SKYBLUE);
-
-	rlPopMatrix();
+	m_isAnyDefenderHovered = false;
+	m_hoveredDefenderIndex = 0;
 }
 
 Vector2 HUD::measureDefenders(const Vector2& availableSize) {
@@ -155,7 +179,7 @@ Vector2 HUD::measureDefenders(const Vector2& availableSize) {
 }
 
 void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
-	bool isAnyDefenderHovered = false;
+	m_isAnyDefenderHovered = false;
 
 	auto i = 0;
 	for (auto& defender : m_data.defenders) {
@@ -172,8 +196,9 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 			isSelected = (m_data.selectedDefenderIndex == i);
 
 			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
-				isAnyDefenderHovered = true;
+				m_isAnyDefenderHovered = true;
 				defender.isHover = true;
+				m_hoveredDefenderIndex = i;
 				if (canBuild && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 					m_data.selectedDefenderIndex = i;
 					m_onDefenderSelectedCallbacks.executeCallbacks(*m_data.selectedDefenderIndex);
@@ -194,10 +219,14 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		atlas.drawSprite(spriteInfo, position);
 
 		auto rect = LayoutHelper::arrangePositionAndSize({0, -2}, {14, 6}, frameRect, HAlign::Center, VAlign::Center);
-		DrawEllipse(rect.x + 7, rect.y + 3, 14, 6, Fade(BLACK, 0.1f));
+		DrawEllipse(rect.x + 7, rect.y + 3, 14, 6, defender.isHover ? Fade(WHITE, 0.25f) : Fade(BLACK, 0.5f));
 
 		rect = LayoutHelper::arrangePositionAndSize({0, -5}, {defenderSize, defenderSize}, frameRect, HAlign::Center, VAlign::Top);
-		atlas.drawSprite(defender.animation.getSpriteInfo(), {rect.x, rect.y}, canBuild ? defender.animation.getCurrentFrame() : 0, Flip::None, canBuild ? WHITE : Fade(GRAY, 0.5));
+		if (defender.isHover) {
+			atlas.drawSprite(defender.animation.getSpriteInfo(), {rect.x - 2, rect.y - 2}, canBuild ? defender.animation.getCurrentFrame() : 0, Flip::None, Fade(BLACK, 0.25f));
+		}
+
+		atlas.drawSprite(defender.animation.getSpriteInfo(), {rect.x, rect.y}, canBuild ? defender.animation.getCurrentFrame() : 0, Flip::None, canBuild ? WHITE : Fade({40, 40, 40, 255}, 1));
 
 		if (defender.cooldown > 0) {
 			auto progress = defender.cooldown / defender.maxCooldown;
@@ -205,21 +234,20 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 			DrawCircleSector({position.x + defenderSlotHSize, position.y + defenderSlotHSize}, 20, -90, -90 - 360 * progress, 100, Fade(BLACK, 0.5f));
 
 			auto cooldownText = TextFormat("%.1fs", defender.cooldown);
-			rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 0}, 1, frameRect, HAlign::Center, VAlign::Center);
+			rect = LayoutHelper::arrangePositionAndSize(cooldownText, 10, {0, 5}, 1, frameRect, HAlign::Center, VAlign::Top);
 			DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
 			DrawText(cooldownText, rect.x, rect.y, rect.height, WHITE);
 		}
 
-		std::string costText = defender.cost > 0 ? std::to_string(defender.cost) : "--";
-		auto cooldownText = TextFormat("%.1f", defender.cooldown);
-		rect = LayoutHelper::arrangePositionAndSize(costText.c_str(), 10, {0, 0}, 1, frameRect, HAlign::Center, VAlign::Bottom);
+		const char* costText = defender.cost > 0 ? TextFormat("%d", defender.cost) : "--";
+		rect = LayoutHelper::arrangePositionAndSize(costText, 10, {0, 10}, 1, frameRect, HAlign::Center, VAlign::Bottom);
 		DrawRectangleRec({rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 2}, Fade(BLACK, 0.5f));
-		DrawText(costText.c_str(), rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
+		DrawText(costText, rect.x, rect.y, rect.height, defender.canAfford ? WHITE : RED);
 
 		++i;
 	}
 
-	if (isAnyDefenderHovered) {
+	if (m_isAnyDefenderHovered) {
 		m_gui.setCursor(CursorType::Hover);
 	} else {
 		m_gui.setCursor(CursorType::Point);

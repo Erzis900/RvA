@@ -12,6 +12,8 @@
 #include "states/PlayState.h"
 #include "states/WinState.h"
 
+#include <rlgl.h>
+
 using namespace std::string_literals;
 
 Game::Game() : m_scale(1.f), m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager), m_gameSession(m_gui, m_gameRegistry), m_musicManager(m_config) {
@@ -99,27 +101,31 @@ void Game::updateMouse() {
 
 void Game::draw() {
 	auto gameRenderRectangle = updateRenderRec(m_gameRenderTexture.texture);
-	auto uiRenderRectangle = updateRenderRec(m_uiRenderTexture.texture);
+	// auto uiRenderRectangle = updateRenderRec(m_uiRenderTexture.texture);
 
+	// --- Render Game ---
 	BeginTextureMode(m_gameRenderTexture);
-
 	ClearBackground(m_renderTextureColor);
-
 	m_gameSession.draw(m_atlas);
 	m_drawCallbacks.executeCallbacks();
-
-	EndTextureMode();
-
-	BeginTextureMode(m_uiRenderTexture);
-	ClearBackground(Fade(WHITE, 0));
 	m_gui.draw();
 	EndTextureMode();
 
+	// --- Render UI ---
+	/*
+	BeginTextureMode(m_uiRenderTexture);
+	ClearBackground({0, 0, 0, 0});
+	m_gui.draw();
+	EndTextureMode();
+	*/
+
+	// --- Final Composition ---
 	BeginDrawing();
+
 	ClearBackground(BLACK);
 
 	DrawTexturePro(m_gameRenderTexture.texture, {0.f, 0.f, float(m_gameRenderTexture.texture.width), -float(m_gameRenderTexture.texture.height)}, gameRenderRectangle, {0.f, 0.f}, 0.f, WHITE);
-	DrawTexturePro(m_uiRenderTexture.texture, {0.f, 0.f, float(m_uiRenderTexture.texture.width), -float(m_uiRenderTexture.texture.height)}, uiRenderRectangle, {0.f, 0.f}, 0.f, WHITE);
+	// DrawTexturePro(m_uiRenderTexture.texture, {0.f, 0.f, float(m_uiRenderTexture.texture.width), -float(m_uiRenderTexture.texture.height)}, uiRenderRectangle, {0.f, 0.f}, 0.f, WHITE);
 
 	EndDrawing();
 }
@@ -190,6 +196,7 @@ void Game::registerDefenderTypes() {
 
 	m_gameRegistry.addDefender({
 		.type = DefenderType::Solar,
+		.name = "Solar Panel",
 		.spriteEnabled = {sprite("solar_idle"), 0.1f},
 		.spriteDisabled = {sprite("solar_off"), 0.1f},
 		.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
@@ -200,6 +207,7 @@ void Game::registerDefenderTypes() {
 	});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Shooter,
+								.name = "Shooter",
 								.spriteEnabled = {sprite("shooter_idle"), 0.1f},
 								.spriteDisabled = {sprite("shooter_off"), 0.1f},
 								.spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
@@ -214,6 +222,7 @@ void Game::registerDefenderTypes() {
 								.buildCooldown = 3.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Catapult,
+								.name = "Catapult",
 								.spriteEnabled = {sprite("catapult_idle"), 0.1f},
 								.spriteDisabled = {sprite("catapult_off"), 0.1f},
 								.spriteShoot = {sprite("catapult_shoot"), 0.1f, 1},
@@ -228,6 +237,7 @@ void Game::registerDefenderTypes() {
 								.buildCooldown = 5.f});
 
 	m_gameRegistry.addDefender({.type = DefenderType::Lasertron,
+								.name = "Lasertron",
 								.spriteEnabled = {sprite("lasertron_idle"), 0.1f},
 								.spriteDisabled = {sprite("lasertron_off"), 0.1f},
 								.spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},

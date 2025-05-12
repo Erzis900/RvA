@@ -197,7 +197,7 @@ void Session::setupHUD() {
 	hudData.defenders.clear();
 	for (const auto& [type, pickableDefender] : m_defenderPicker.getAvailableDefenders()) {
 		auto defenderInfo = m_gameRegistry.getDefender(type);
-		hudData.defenders.emplace_back(type, Animation::createAnimation(defenderInfo->spriteEnabled), defenderInfo->cost);
+		hudData.defenders.emplace_back(defenderInfo->name, type, Animation::createAnimation(defenderInfo->spriteEnabled), defenderInfo->cost);
 	}
 
 	hudData.levelName = m_levelData->info->name;
