@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameRegistry.h"
 
+#include <iostream>
 #include <ranges>
 #include <raymath.h>
 
@@ -24,6 +25,7 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
+	m_collisionSystem.addColliderMatch(Collider::Flag::Enemy, Collider::Flag::Portal);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
 
 	m_levelManager.setLevelSequence({"level1", "level2", "level3"});
@@ -226,6 +228,7 @@ void Session::manageCollision(const Collision& collision) {
 	case cMask(Collider::Flag::Bullet, Collider::Flag::Enemy)  : manageBulletEnemyCollision(collision); break;
 	case cMask(Collider::Flag::Defender, Collider::Flag::Enemy): manageDefenderEnemyCollision(collision); break;
 	case cMask(Collider::Flag::BaseWall, Collider::Flag::Enemy): manageBaseWallEnemyCollision(collision); break;
+	case cMask(Collider::Flag::Enemy, Collider::Flag::Portal)  : manageEnemyPortalCollision(collision); break;
 	}
 }
 
@@ -274,6 +277,19 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 			enemy->setState(EnemyState::PrepareToAttack);
 		}
 		break;
+	}
+}
+
+void Session::manageEnemyPortalCollision(const Collision& collision) {
+	const auto& [portal, enemy] = collision.extractOwners<Portal, Enemy>();
+	if (enemy->isDying()) {
+		return;
+	}
+
+	switch (collision.event) {
+	case CollisionEvent::Enter	: std::cout << "Enter\n"; break;
+	case CollisionEvent::Exit	: std::cout << "Exit\n"; break;
+	case CollisionEvent::Ongoing: std::cout << "Ongoing\n"; break;
 	}
 }
 

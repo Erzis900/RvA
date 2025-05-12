@@ -84,6 +84,7 @@ private:
 	void manageBulletEnemyCollision(const Collision& collision);
 	void manageDefenderEnemyCollision(const Collision& collision);
 	void manageBaseWallEnemyCollision(const Collision& collision);
+	void manageEnemyPortalCollision(const Collision& collision);
 
 	void resetSelectedDefender();
 
