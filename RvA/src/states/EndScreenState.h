@@ -4,15 +4,17 @@
 
 class Game;
 
-class CreditsState : public flow::FsmState {
+class EndScreenState : public flow::FsmState {
 public:
-	CreditsState(Game& game);
+	EndScreenState(Game& game);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
 	void exit() override;
 
 private:
+	void goToMenu();
+
 	Game& m_game;
 	std::string m_nextTransition;
 };

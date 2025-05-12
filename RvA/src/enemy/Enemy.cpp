@@ -1,7 +1,7 @@
 #include "Enemy.h"
 
-#include "Game.h"
 #include "portal/PortalManager.h"
+#include "constants.h"
 
 #include <iostream>
 #include <raymath.h>

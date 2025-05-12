@@ -14,6 +14,7 @@ public:
 
 private:
 	void restart();
+	void goToMenu();
 
 	std::string m_nextTransition;
 	Game& m_game;

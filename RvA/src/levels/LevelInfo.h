@@ -6,27 +6,34 @@
 
 #include <string>
 
-using EnemySelection = Selection<std::string>;
-
-struct SpawnEnemy {
-	ConfigValue<int> row{};
-	ConfigValue<int> column{};
-	ConfigValue<std::string> type{};
+enum class EntityType {
+	Defender,
+	Enemy,
 };
 
-struct SpawnEnemyBurst {
+using EntitySelection = Selection<std::string>;
+
+struct SpawnEntityOperation {
+	ConfigValue<int> row{};
+	ConfigValue<int> column{};
+	ConfigValue<std::string> id{};
+	EntityType type{EntityType::Enemy};
+};
+
+struct SpawnEntityBurstOperation {
 	ConfigValue<int> amount{};
 	ConfigValue<float> interval{};
 	ConfigValue<int> row{};
 	ConfigValue<int> column{};
-	ConfigValue<std::string> type{};
+	ConfigValue<std::string> id{};
+	EntityType type{EntityType::Enemy};
 };
 
-using KeyframeAction = std::variant<SpawnEnemy, SpawnEnemyBurst>;
+using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation>;
 
 struct Keyframe {
 	float time;
-	KeyframeAction action;
+	KeyframeOperation action;
 };
 
 struct Timeline {
@@ -43,11 +50,12 @@ using LevelCondition = std::variant<BatteryLevelCondition, AllWavesGoneCondition
 
 struct LevelInfo {
 	std::string name;
-	int rowCount{};
-	int columnCount{};
-	Vector2 gridOffset{};
+	int startingScraps{};
+	float maxBatteryCharge{};
+	float winCountdownDuration{};
 	LevelCondition winCondition{};
 	LevelCondition loseCondition{};
-	SpriteInfo* background{};
+	const SpriteInfo* groundBackground{};
+	const SpriteInfo* topBackground{};
 	Timeline timeline{};
 };

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Animation.h"
+#include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
-#include "atlas/Atlas.h"
 #include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
 
@@ -15,12 +16,14 @@ class Atlas;
 struct UIText;
 
 struct HUDDefenderData {
-	DefenderType type;
-	const SpriteInfo* spriteInfo;
+	std::string name;
+	std::string id;
+	Animation animation;
 	int cost;
 	float cooldown{};
 	float maxCooldown{};
 	bool canAfford{true};
+	bool isHover{false};
 };
 
 struct ProgressBarData {
@@ -33,11 +36,13 @@ struct ProgressBarData {
 
 struct HUDData {
 	float batteryCharge{};
+	float maxBatteryCharge{};
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
 	int numberOfEnemiesToDefeat{};
 	std::vector<HUDDefenderData> defenders;
 	std::vector<ProgressBarData> progressBars;
+	std::string levelName;
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -67,14 +72,14 @@ public:
 
 	void clear();
 
+	void startFadeInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds);
+
 private:
-	void drawBatteryCharge(Atlas& atlas, const Rectangle& bounds);
 	Vector2 measureDefenders(const Vector2& availableSize);
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 
-	bool m_defenderHover{};
 	bool m_isEnabled{true};
 	HUDData m_data;
 	GUI& m_gui;
@@ -83,4 +88,15 @@ private:
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
+	WidgetHandle m_batteryFillHandle{};
+	WidgetHandle m_batteryIndicatorHandle{};
+	WidgetHandle m_levelNameHandle{};
+	WidgetHandle m_plateContainerHandle{};
+	WidgetHandle m_plateTextHandle{};
+	WidgetHandle m_batteryAndScrapsHandle{};
+	WidgetHandle m_defenderPickerHandle{};
+	FadeScreen m_fadeScreen;
+	bool m_isAnyDefenderHovered{};
+	int m_hoveredDefenderIndex{};
+	bool m_showBottomBar{};
 };

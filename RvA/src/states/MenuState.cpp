@@ -1,23 +1,46 @@
 #include "MenuState.h"
 
+#include "CreditsHelper.h"
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
 
 MenuState::MenuState(Game& game) : m_game(game) {}
 
 flow::FsmAction MenuState::enter() {
 	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
 
-	auto btnSize = Vector2{autoSize, 40.f};
+	// clang-format off
+	auto btnSize = Vector2{100.f, 30.f};
 	auto& gui = m_game.getGUI();
-	gui.buildScreen("MainMenu")
-		.vertical_stack(5, 200.f)
-		.medium_text({.text = "TEMP NAME", .color = WHITE, .hAlign = HAlign::Center})
-		.space({0, 35.f})
-		.button({"Play", {}, btnSize, [this]() { m_nextTransition = "play"; }})
-		.button({"Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})
-		.button({"Credits", {}, btnSize, [this]() { m_nextTransition = "credits"; }})
-		.button({"Exit", {}, btnSize, [this]() { m_nextTransition = "exit"; }})
+	auto screenBuilder = gui.buildScreen("MainMenu");
+		
+	screenBuilder
+		.default_bkg(0.25f)
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = { 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
+				.big_text({ .text = "GAME NAME", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
+			.end()
+
+			.space({0, 35.f})
+		
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({ .text = "Play", .size = btnSize, .onClick = [this]() { startGame(); }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({ .text = "Options", .size = btnSize, .onClick = [this]() { m_nextTransition = "options"; }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({ .text = "Exit", .size = btnSize, .onClick = [this]() { m_nextTransition = "exit"; }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
+			.end()
 		.end();
+
+	CreditsHelper::fillCredits(screenBuilder, gui);
+	// clang-format on
+
+	m_game.getGameSession().setDemoMode(true);
+	m_game.getGameSession().setState(SessionState::Playing);
 
 	return flow::FsmAction::none();
 }
@@ -27,9 +50,22 @@ flow::FsmAction MenuState::update(float dt) {
 		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}
 
+	m_game.getGameSession().update(dt);
+
 	return flow::FsmAction::none();
 }
 
 void MenuState::exit() {
 	m_game.getGUI().destroyScreen("MainMenu");
+}
+
+void MenuState::startGame() {
+	m_game.getGUI().startFadingInOut(
+		[this] {
+			m_game.getGameSession().setDemoMode(false);
+			m_game.getGameSession().setState(SessionState::Idle);
+			m_nextTransition = "play";
+		},
+		[this] {},
+		0.5f);
 }

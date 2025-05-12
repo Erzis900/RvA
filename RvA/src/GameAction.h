@@ -25,5 +25,16 @@ struct PortalSpawnAction {
 	int outCol;
 };
 
-using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, PortalSpawnAction>;
+struct DefenderSpawnAction {
+	std::string id;
+	int row;
+	int column;
+};
+
+struct WinAction {};
+
+struct LoseAction {};
+
+using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction>;
+
 using GameActions = std::vector<GameAction>;

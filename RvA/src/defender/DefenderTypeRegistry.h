@@ -12,6 +12,7 @@
  */
 struct DefenderTypeInfo {
 	DefenderType type{};
+	std::string name;
 	AnimationData spriteEnabled;
 	AnimationData spriteDisabled;
 	AnimationData spriteShoot;
@@ -29,13 +30,13 @@ struct DefenderTypeInfo {
 
 class DefenderTypeRegistry {
 public:
-	void registerDefender(DefenderTypeInfo defenderTypeInfo);
-	const DefenderTypeInfo* getDefenderInfo(DefenderType type) const;
+	void registerDefender(std::string id, DefenderTypeInfo defenderTypeInfo);
+	const DefenderTypeInfo* getDefenderInfo(const std::string& id) const;
 
 	auto& getDefenderInfos() const {
 		return m_defenderTypes;
 	}
 
 private:
-	std::unordered_map<DefenderType, DefenderTypeInfo> m_defenderTypes;
+	std::unordered_map<std::string, DefenderTypeInfo> m_defenderTypes;
 };

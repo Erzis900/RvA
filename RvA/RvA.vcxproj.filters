@@ -51,9 +51,6 @@
     <ClCompile Include="src\states\LostState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\states\CreditsState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bullet\BulletManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -156,6 +153,15 @@
     <ClCompile Include="src\portal\PortalTypeRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\states\EndScreenState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CreditsHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\FadeScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -198,9 +204,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\states\LostState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\states\CreditsState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deps\spdlog\cfg\argv.h">
@@ -657,6 +660,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\portal\PortalTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\EndScreenState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\GUIStyle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CreditsHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\FadeScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

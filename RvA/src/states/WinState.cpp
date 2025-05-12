@@ -1,6 +1,8 @@
 #include "WinState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "GameRegistry.h"
 #include "constants.h"
 
 #include <raylib.h>
@@ -10,37 +12,44 @@ WinState::WinState(Game& game) : m_game(game) {}
 
 flow::FsmAction WinState::enter() {
 	m_defenders.clear();
-	auto solarPanelInfo = m_game.getGameRegistry().getDefender(DefenderType::Solar);
-	m_defenders.push_back(createSpriteItem(solarPanelInfo->spriteEnabled.spriteInfo, {TEX_WIDTH, 100}, {-150, 0}));
+	auto solarPanelInfo = m_game.getGameRegistry().getDefender("Solarpanel");
+	m_defenders.push_back(createSpriteItem(solarPanelInfo->spriteEnabled.spriteInfo, {GAME_RENDERTEXTURE_SIZE.x, 80}, {-150, 0}));
 
 	m_chasers.clear();
-	auto x = TEX_WIDTH + 100.f;
+	auto x = GAME_RENDERTEXTURE_SIZE.x + 100.f;
 	for (auto i = 0; i < 3; ++i) {
 		const auto typeInfo = m_game.getGameRegistry().getEnemy("B1");
-		m_chasers.push_back(createSpriteItem(typeInfo->moveAnimation.spriteInfo, {x, 100}, {-150, 0}));
+		m_chasers.push_back(createSpriteItem(typeInfo->moveAnimation.spriteInfo, {x, 80}, {-150, 0}));
 		x += 30.f;
 	}
 
 	m_bullets.clear();
 	for (auto i = 0; i < 4; ++i) {
-		m_bullets.push_back(createSpriteItem(nullptr, {-100, 116}, {}));
+		m_bullets.push_back(createSpriteItem(nullptr, {-100, 96}, {}));
 	}
 
-	m_drawingCallbackHandle = m_game.registerDrawingCallback([this]() {
-		drawSprites(m_defenders);
-		drawSprites(m_chasers);
-		drawBullets(m_bullets);
-	});
-
-	m_game.getGameSession().end();
-
+	// clang-format off
+	auto btnSize = Vector2{autoSize, 40.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
+		.default_bkg(0.5f)
+		.shape({ .pos = { 0, 100 }, .size = { autoSize, 20 }, .color = Fade(WHITE, 0.5f), .type = ShapeType::Rectangle })
 		.vertical_stack(5, 200.f)
-		.medium_text({.text = "You Won!!!", .color = WHITE, .hAlign = HAlign::Center})
-		.space({0, 35.f})
-		.small_text({.text = "Press any key to continue", .color = WHITE, .hAlign = HAlign::Center})
-		.end();
+			.medium_text({.text = "Level Completed!!!", .color = WHITE, .hAlign = HAlign::Center})
+			.space({0, 35.f})
+			.button({"Next Level", {}, btnSize, [this]() { goToNextLevel(); }})
+		.end()
+		.custom({
+			.pos = { 0, 10 },
+			.draw = [this](Atlas& atlas, const auto& rect) {		
+				drawSprites(atlas, m_defenders);
+				drawSprites(atlas, m_chasers);
+				drawBullets(atlas, m_bullets);
+			},
+			.hAlign = HAlign::Center,
+            .vAlign = VAlign::Bottom
+		});
+	// clang-format on
 
 	return flow::FsmAction::none();
 }
@@ -51,8 +60,8 @@ void WinState::exit() {
 }
 
 flow::FsmAction WinState::update(float dt) {
-	if (GetKeyPressed() || IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON) || IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-		return flow::FsmAction::transition("menu");
+	if (!m_nextTransition.empty()) {
+		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}
 
 	updateSprites(m_defenders, dt);
@@ -98,7 +107,7 @@ void WinState::updateSprites(std::vector<SpriteItem>& sprites, float dt) {
 	}
 }
 
-void WinState::drawSprites(std::vector<SpriteItem>& sprites) {
+void WinState::drawSprites(Atlas& atlas, std::vector<SpriteItem>& sprites) {
 	for (auto& sprite : sprites) {
 		if (sprite.animation) {
 			m_game.getAtlas().drawSprite(sprite.spriteInfo, sprite.position, sprite.animation->getCurrentFrame(), sprite.flip);
@@ -106,8 +115,14 @@ void WinState::drawSprites(std::vector<SpriteItem>& sprites) {
 	}
 }
 
-void WinState::drawBullets(std::vector<SpriteItem>& sprites) {
+void WinState::drawBullets(Atlas& atlas, std::vector<SpriteItem>& sprites) {
 	for (auto& sprite : sprites) {
-		DrawCircleV(sprite.position, 5.f, BLUE);
+		DrawCircleV(Vector2Add(sprite.position, {-2, -2}), 2.5f, Fade(BLACK, 0.5f));
+		DrawCircleV(sprite.position, 2.5f, WHITE);
 	}
 }
+
+void WinState::goToNextLevel() {
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "next"; }, [this] {}, 0.5f);
+}
+

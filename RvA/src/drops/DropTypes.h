@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Animation.h>
+#include <optional>
 
 enum class DropType {
 	Scraps,
@@ -10,13 +11,15 @@ enum class DropType {
 struct DropTypeInfo {
 	DropType type{};
 	Animation idleAnimation{};
+	float animationDuration{};
+	std::optional<Vector2> size{};
 };
 
 struct Drop {
 	const DropTypeInfo* info{};
 	int amount{};
 	Vector2 position{};
+	Vector2 size{};
 	Vector2 startPosition{};
-	Vector2 endPosition{};
 	float enterAnimation{};
 };

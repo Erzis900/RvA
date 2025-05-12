@@ -2,6 +2,7 @@
 
 #include "DefenderTypes.h"
 
+#include <string>
 #include <unordered_map>
 
 class Session;
@@ -18,23 +19,23 @@ public:
 		return m_pickableItems;
 	}
 
-	const auto& getDefender(DefenderType type) const {
-		return m_pickableItems.at(type);
+	const auto& getDefender(const std::string& id) const {
+		return m_pickableItems.at(id);
 	}
 
-	bool canAfford(DefenderType type) const;
-	void startCooldown(DefenderType type);
+	bool canAfford(const std::string& id) const;
+	void startCooldown(const std::string& id);
 
 private:
 	Session& m_gameSession;
 	const GameRegistry& m_gameRegistry;
 
 	struct Item {
-		DefenderType type{};
+		std::string id{};
 		int cost{};
 		float maxCooldown{};
 		float currentCooldown{};
 	};
 
-	std::unordered_map<DefenderType, Item> m_pickableItems;
+	std::unordered_map<std::string, Item> m_pickableItems;
 };

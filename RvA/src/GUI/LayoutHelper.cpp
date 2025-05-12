@@ -2,8 +2,26 @@
 
 #include <raygui.h>
 
-Vector2 LayoutHelper::adjustSize(const Vector2& preferredSize, const Vector2& availableSize) {
-	return {std::min(preferredSize.x, availableSize.x), std::min(preferredSize.y, availableSize.y)};
+Vector2 LayoutHelper::adjustSize(const Vector2& preferredSize, const Vector2& availableSize, Fit fit) {
+	if (fit == Fit::Fill) {
+		return {std::min(preferredSize.x, availableSize.x), std::min(preferredSize.y, availableSize.y)};
+	} else if (fit == Fit::Contain) {
+		// keep the aspect ratio of the icon by trying to fit the availableSize
+		float aspectRatio = preferredSize.x / preferredSize.y;
+		float newWidth = availableSize.x;
+		float newHeight = availableSize.y;
+		if (availableSize.x > availableSize.y) {
+			newWidth = availableSize.y * aspectRatio;
+		} else {
+			newHeight = availableSize.x / aspectRatio;
+		}
+		return {newWidth, newHeight};
+	} else if (fit == Fit::Ignore) {
+		return preferredSize;
+	} else {
+		assert(false && "Unknown fit type");
+		return {0, 0};
+	}
 }
 
 Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& availableSize) {
@@ -15,7 +33,7 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Text: {
 		auto& text = screen.getText(node.handle);
-		node.preferredSize = MeasureTextEx(GuiGetFont(), text.text.c_str(), text.fontSize, text.fontSpacing);
+		node.preferredSize = MeasureTextEx(GuiGetFont(), text.text.c_str(), static_cast<float>(text.fontSize), text.fontSpacing);
 		break;
 	}
 	case WidgetType::Space: {
@@ -26,6 +44,13 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	case WidgetType::Shape: {
 		auto& shape = screen.getShape(node.handle);
 		node.preferredSize = adjustSize(shape.size, availableSize);
+		break;
+	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		texture_atlas_frame_t* frameInfo = image.sprite->frames; // take the first frame
+		auto size = image.size ? *image.size : Vector2{static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)};
+		node.preferredSize = adjustSize(size, availableSize, image.fit);
 		break;
 	}
 	case WidgetType::Stack: {
@@ -54,11 +79,13 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Border: {
 		assert(node.children.size() == 1 && "Border must have one and only one child");
-		auto childSize = measure(*(*node.children.begin()), screen, availableSize);
+		auto finalSize = measure(*(*node.children.begin()), screen, availableSize);
 		auto& border = screen.getBorder(node.handle);
-		childSize.x += 2 * border.thickness + border.padding.x;
-		childSize.y += 2 * border.thickness + border.padding.y;
-		node.preferredSize = adjustSize(childSize, availableSize);
+		finalSize.x += 2 * (border.thickness + border.padding.x);
+		finalSize.y += 2 * (border.thickness + border.padding.y);
+		finalSize.x = std::max(finalSize.x, border.size.x);
+		finalSize.y = std::max(finalSize.y, border.size.y);
+		node.preferredSize = adjustSize(finalSize, availableSize);
 		break;
 	}
 	case WidgetType::Custom: {
@@ -101,6 +128,11 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 		node.finalRect = arrangePositionAndSize(shape.pos, size, finalRect, shape.hAlign, shape.vAlign);
 		break;
 	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		node.finalRect = arrangePositionAndSize(image.pos, node.preferredSize, finalRect, image.hAlign, image.vAlign);
+		break;
+	}
 	case WidgetType::Space: {
 		auto& space = screen.getSpace(node.handle);
 		node.finalRect = arrangePositionAndSize({0, 0}, node.preferredSize, finalRect, HAlign::Center, VAlign::Center);
@@ -130,35 +162,41 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 		switch (stack.orientation) {
 		case GUIOrientation::Horizontal: {
 			auto width = 0.f;
+			auto height = 0.f;
 			if (!node.children.empty()) {
 				for (auto& child : node.children) {
 					width += child->preferredSize.x + stack.padding.x;
+					height = std::max(height, child->preferredSize.y);
 				}
 				width -= stack.padding.x;
 			}
-			auto hAlignment = toHorizontaAlignment(stack.contentAlignment);
-			auto contentRect = arrangePositionAndSize({0, 0}, {width, stackRect.height}, stackRect, hAlignment, VAlign::Top);
+			auto hAlignment = toHorizontaAlignment(stack.alignContent);
+			auto vAlignment = toVerticalAlignment(stack.sideAlignContent);
+			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
 
 			auto x = contentRect.x;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {x, stackRect.y, std::min(stackRect.width, child->preferredSize.x), stackRect.height});
+				arrange(*child, screen, {x, contentRect.y, std::min(stackRect.width, child->preferredSize.x), stackRect.height});
 				x += child->finalRect.width + stack.padding.x;
 			}
 			break;
 		}
 		case GUIOrientation::Vertical: {
 			auto height = 0.f;
+			auto width = 0.f;
 			if (!node.children.empty()) {
 				for (auto& child : node.children) {
 					height += child->preferredSize.y + stack.padding.y;
+					width = std::max(width, child->preferredSize.x);
 				}
 				height -= stack.padding.y;
 			}
-			auto vAlignment = toVerticalAlignment(stack.contentAlignment);
-			auto contentRect = arrangePositionAndSize({0, 0}, {stackRect.width, height}, stackRect, HAlign::Left, vAlignment);
+			auto vAlignment = toVerticalAlignment(stack.alignContent);
+			auto hAlignment = toHorizontaAlignment(stack.sideAlignContent);
+			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
 			float y = contentRect.y;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {stackRect.x, y, stackRect.width, std::min(stackRect.height, child->preferredSize.y)});
+				arrange(*child, screen, {contentRect.x, y, stackRect.width, std::min(stackRect.height, child->preferredSize.y)});
 				y += child->finalRect.height + stack.padding.y;
 			}
 			break;
@@ -194,6 +232,10 @@ Rectangle LayoutHelper::arrangePositionAndSize(const Vector2& position, const Ve
 	case VAlign::Top   : rec.y = availableArea.y + position.y; break;
 	case VAlign::Bottom: rec.y = availableArea.y + availableArea.height - size.y - position.y; break;
 	case VAlign::Center: rec.y = availableArea.y + (availableArea.height - size.y) / 2 + position.y; break;
+	case VAlign::Stretch:
+		rec.y = availableArea.y + position.y;
+		rec.height = availableArea.height - position.y * 2;
+		break;
 	}
 
 	return rec;

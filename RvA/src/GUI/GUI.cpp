@@ -4,7 +4,7 @@
 #include "MusicManager.h"
 #include "constants.h"
 
-#include <raygui.h>
+#include <gui/GUIStyle.h>
 #include <raymath.h>
 
 GUI::GUI(Atlas& atlas, MusicManager& musicManager) : m_atlas(atlas), m_musicManager(musicManager) {}
@@ -14,6 +14,7 @@ GUI::~GUI() {
 }
 
 void GUI::loadResources() {
+	GuiLoadStyleRva();
 	m_font = LoadFont("assets/fonts/mecha.png");
 	GuiSetFont(m_font);
 	GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SMALL);
@@ -24,14 +25,14 @@ void GUI::loadResources() {
 }
 
 void GUI::update(float dt) {
-	m_fading.update(dt);
+	m_fadeScreen.update(dt);
 }
 
 void GUI::draw() {
 	drawScreens();
 	drawFPS();
 	drawCursor();
-	drawFading();
+	m_fadeScreen.draw();
 }
 
 void GUI::drawCursor() {
@@ -39,14 +40,14 @@ void GUI::drawCursor() {
 }
 
 void GUI::drawFPS() {
-	auto fpsText = std::to_string(GetFPS());
-	auto rect = LayoutHelper::arrangePositionAndSize(fpsText.c_str(), 10, {10, 10}, 1, {0, 0, TEX_WIDTH, TEX_HEIGHT}, HAlign::Right, VAlign::Bottom);
-	::DrawText(fpsText.c_str(), static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
+	auto fpsText = TextFormat("%d", GetFPS());
+	auto rect = LayoutHelper::arrangePositionAndSize(fpsText, 10, {10, 10}, 1, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
+	::DrawText(fpsText, static_cast<int>(rect.x), static_cast<int>(rect.y), rect.height, GREEN);
 }
 
 void GUI::drawScreens() {
 	for (const auto& name : m_screensToDestroy) {
-		auto it = m_screens.find(name);
+		auto it = std::ranges::find_if(m_screens, [&name](const auto& pair) { return pair.first == name; });
 		if (it != m_screens.end()) {
 			m_screens.erase(it);
 		}
@@ -60,18 +61,28 @@ void GUI::drawScreens() {
 		}
 		auto& root = screen->getRootNode();
 
-		LayoutHelper::measure(root, *screen, {TEX_WIDTH, TEX_HEIGHT});
-		LayoutHelper::arrange(root, *screen, {0, 0, TEX_WIDTH, TEX_HEIGHT});
+		LayoutHelper::measure(root, *screen, {UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y});
+		LayoutHelper::arrange(root, *screen, {0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y});
 		drawWidget(root, *screen);
 	}
 	m_drawingScreens = false;
 }
 
 void GUI::drawWidget(UINode& node, Screen& screen) {
+	if (!node.visible) {
+		return;
+	}
+
 	switch (node.type) {
 	case WidgetType::Button: {
 		auto& button = screen.getButton(node.handle);
-		if (::GuiButton(node.finalRect, button.text.c_str())) {
+		bool isPressed = false;
+		if (button.useLabelStyle) {
+			isPressed = ::GuiLabelButton(node.finalRect, button.text.c_str());
+		} else {
+			isPressed = ::GuiButton(node.finalRect, button.text.c_str());
+		}
+		if (isPressed) {
 			m_musicManager.play(*m_defaultButtonSound);
 			button.onClick();
 		}
@@ -90,12 +101,52 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	case WidgetType::Shape: {
 		auto& shape = screen.getShape(node.handle);
 		switch (shape.type) {
-		case ShapeType::Rectangle: ::DrawRectangleRec(node.finalRect, shape.color); break;
+		case ShapeType::Rectangle: {
+			if (shape.roundness > 0) {
+				::DrawRectangleRounded(node.finalRect, shape.roundness, 0, shape.color);
+			} else {
+				::DrawRectangleRec(node.finalRect, shape.color);
+			}
+			break;
+		}
+		}
+		break;
+	}
+	case WidgetType::Image: {
+		auto& image = screen.getImage(node.handle);
+		switch (image.textureFillMode) {
+		case TextureFillMode::Repeat: {
+			// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
+			for (int y = 0; y < node.finalRect.height; y += image.sprite->frames[0].height) {
+				for (int x = 0; x < node.finalRect.width; x += image.sprite->frames[0].width) {
+					m_atlas.drawSprite(image.sprite, {node.finalRect.x + x, node.finalRect.y + y}, {(float)image.sprite->frames[0].width, (float)image.sprite->frames[0].height}, 0, image.flip);
+				}
+			}
+			break;
+		}
+		case TextureFillMode::Stretch: {
+			m_atlas.drawSprite(image.sprite, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, 0, image.flip);
+			break;
+		}
 		}
 		break;
 	}
 	case WidgetType::Border: {
 		auto& border = screen.getBorder(node.handle);
+
+		std::visit(
+			[&](auto&& arg) {
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, std::pair<Color, Color>>) {
+					::DrawRectangleGradientEx(node.finalRect, arg.first, arg.first, arg.second, arg.second);
+				} else if constexpr (std::is_same_v<T, Color>) {
+					::DrawRectangleRec(node.finalRect, arg);
+				} else {
+					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
+				}
+			},
+			border.bkgColor);
+
 		::DrawRectangleLinesEx(node.finalRect, border.thickness, border.color);
 		break;
 	}
@@ -115,87 +166,19 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 }
 
-void GUI::drawFading() {
-	DrawRectangle(0, 0, TEX_WIDTH, TEX_HEIGHT, m_fading.getValue());
-}
-
 void GUI::setCursor(CursorType type) {
 	switch (type) {
-	case CursorType::Point: m_mouseCurrentSprite = m_mousePointSprite; break;
-	case CursorType::Hover: m_mouseCurrentSprite = m_mouseHoverSprite; break;
+	case CursorType::Default: m_mouseCurrentSprite = m_mousePointSprite; break;
+	case CursorType::Hover	: m_mouseCurrentSprite = m_mouseHoverSprite; break;
 	}
-}
-
-bool GUI::drawButton(DrawButtonInfo drawButtonInfo) {
-	auto position = calculateCoordinates(drawButtonInfo);
-	return ::GuiButton({.x = position.x, .y = position.y, .width = drawButtonInfo.size.x, .height = drawButtonInfo.size.y}, drawButtonInfo.text);
-}
-
-void GUI::drawText(DrawTextInfo drawTextInfo) {
-	auto position = calculateCoordinates(drawTextInfo);
-	::DrawText(drawTextInfo.text, static_cast<int>(position.x), static_cast<int>(position.y), drawTextInfo.fontSize, drawTextInfo.color);
 }
 
 void GUI::startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds) {
-	seconds *= 0.5f;
-	m_fading.start(Fade(BLACK, 0.f), Fade(BLACK, 1.f), seconds).onComplete([this, fadingInDone = std::move(onFadingInDone), fadingOutDone = std::move(onFadingOutDone), seconds] {
-		fadingInDone();
-		m_fading.start(Fade(BLACK, 1.f), Fade(BLACK, 0.f), seconds).onComplete([this, fadingOutDone = std::move(fadingOutDone)] { fadingOutDone(); });
-	});
-}
-
-Vector2 GUI::calculateCoordinates(const DrawButtonInfo& drawButtonInfo) const {
-	return calculateCoordinates(drawButtonInfo.size, drawButtonInfo.guiPosition);
-}
-
-Vector2 GUI::calculateCoordinates(const DrawTextInfo& drawTextInfo) const {
-	auto width = MeasureText(drawTextInfo.text, drawTextInfo.fontSize);
-	auto height = drawTextInfo.fontSize;
-	return calculateCoordinates({(float)width, (float)height}, drawTextInfo.guiPosition);
-}
-
-Vector2 GUI::calculateCoordinates(const Vector2& size, const GUIPosition& guiPosition) const {
-	auto result = guiPosition.position;
-
-	if (guiPosition.hAlign.has_value()) {
-		switch (*guiPosition.hAlign) {
-		case HAlign::Left: {
-			result.x = guiPosition.position.x;
-			break;
-		}
-		case HAlign::Right: {
-			result.x = TEX_WIDTH - (size.x + guiPosition.position.x);
-			break;
-		}
-		case HAlign::Center: {
-			result.x = TEX_WIDTH / 2 - (size.x / 2) + guiPosition.position.x;
-			break;
-		}
-		}
-	}
-
-	if (guiPosition.vAlign.has_value()) {
-		switch (*guiPosition.vAlign) {
-		case VAlign::Top: {
-			result.y = guiPosition.position.y;
-			break;
-		}
-		case VAlign::Bottom: {
-			result.y = TEX_HEIGHT - (size.y + guiPosition.position.y);
-			break;
-		}
-		case VAlign::Center: {
-			result.y = TEX_HEIGHT / 2 - (size.y / 2) + guiPosition.position.y;
-			break;
-		}
-		}
-	}
-
-	return result;
+	m_fadeScreen.startFadingInOut(std::move(onFadingInDone), std::move(onFadingOutDone), seconds);
 }
 
 void GUI::destroyScreen(const char* name) {
-	auto it = m_screens.find(name);
+	auto it = std::ranges::find_if(m_screens, [&name](const auto& pair) { return pair.first == name; });
 	if (it != m_screens.end()) {
 		if (m_drawingScreens) {
 			m_screensToDestroy.push_back(name);
@@ -208,7 +191,7 @@ void GUI::destroyScreen(const char* name) {
 ScreenBuilder GUI::buildScreen(const char* name) {
 	auto screen = std::make_unique<Screen>(name);
 	auto screenPtr = screen.get();
-	m_screens.insert({name, std::move(screen)});
+	m_screens.emplace_back(name, std::move(screen));
 	return ScreenBuilder(*screenPtr);
 }
 

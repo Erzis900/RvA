@@ -36,19 +36,14 @@ template<typename T> struct CheckRangeOut {
 	T max{};
 };
 
-template<typename T> struct CheckValueCondition {
-	T value{};
-};
-
-template<typename T>
-using ConfigConditionBase = std::variant<LessThan<T>, GreaterThan<T>, LessThanOrEqual<T>, GreaterThanOrEqual<T>, EqualTo<T>, NotEqualTo<T>, CheckRangeIn<T>, CheckRangeOut<T>, CheckValueCondition<T>>;
+template<typename T> using ConfigConditionBase = std::variant<LessThan<T>, GreaterThan<T>, LessThanOrEqual<T>, GreaterThanOrEqual<T>, EqualTo<T>, NotEqualTo<T>, CheckRangeIn<T>, CheckRangeOut<T>>;
 
 template<typename T> class ConfigCondition : public ConfigConditionBase<T> {
 public:
 	using ConfigConditionBase<T>::ConfigConditionBase;
 
-	bool check(T value) const {
-		return std::visit([&](auto&& arg) { return checkCondition(arg, value); }, *this);
+	bool check(const T& value) const {
+		return std::visit([&](auto&& arg) { return checkCondition<T>(arg, value); }, *this);
 	}
 };
 

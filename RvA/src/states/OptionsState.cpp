@@ -1,39 +1,69 @@
 #include "OptionsState.h"
 
+#include "Config.h"
+#include "CreditsHelper.h"
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
+#include "constants.h"
 
-#include <iostream>
-
-OptionsState::OptionsState(Game& game, bool showBackground) : m_game(game), m_showBackground(showBackground) {}
+OptionsState::OptionsState(Game& game, float alphaBackground, bool playMenuMusic, bool showCredits, bool playSession)
+	: m_game(game)
+	, m_alphaBackground(alphaBackground)
+	, m_playMenuMusic(playMenuMusic)
+	, m_showCredits(showCredits)
+	, m_playSession(playSession) {}
 
 flow::FsmAction OptionsState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	if (m_playMenuMusic) {
+		m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	}
 
-	auto btnSize = Vector2{autoSize, 40.f};
+	auto btnSize = Vector2{autoSize, 30.f};
 	auto& gui = m_game.getGUI();
 	auto& config = m_game.getConfig();
 
 	auto builder = gui.buildScreen("Options");
-	if (m_showBackground) {
-		builder.rect({0, 0, TEX_WIDTH, TEX_HEIGHT}, Fade(BLACK, 0.5f));
-	}
 
 	// clang-format off
-	builder.vertical_stack(5, 200.f)
-		.medium_text({.text = "Options", .color = WHITE, .hAlign = HAlign::Center})
-		.space({0, 40.f})
-		.button({getMusicString(config.options.isMusic), {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
-		.button({getSoundString(config.options.isSound), {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
-		.button({getFullscreenString(config.options.isFullscreen), {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
-		.button({"Back", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
+	builder
+		.default_bkg(m_alphaBackground)
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = { 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
+				.big_text({ .text = "OPTIONS", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
+			.end()
+
+			.space({0, 35.f})
+		
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({getMusicString(config.options.isMusic), {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({getSoundString(config.options.isSound), {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({getFullscreenString(config.options.isFullscreen), {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({"Back", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
+			.end()
 		.end();
 	// clang-format on
+
+	if (m_showCredits) {
+		CreditsHelper::fillCredits(builder, gui);
+	}
 
 	m_screen = builder.screen();
 	return flow::FsmAction::none();
 }
 
 flow::FsmAction OptionsState::update(float dt) {
+	if (m_playSession) {
+		m_game.getGameSession().update(dt);
+	}
+
 	if (!m_nextTransition.empty()) {
 		return flow::FsmAction::transition(std::exchange(m_nextTransition, ""));
 	}

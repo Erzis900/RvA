@@ -15,6 +15,8 @@ public:
 	void exit() override;
 
 private:
+	void startGame();
+
 	Game& m_game;
 	std::string m_nextTransition;
 };
