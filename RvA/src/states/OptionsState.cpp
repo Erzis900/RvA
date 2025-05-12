@@ -1,6 +1,10 @@
 #include "OptionsState.h"
 
+#include "Config.h"
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "constants.h"
 
 OptionsState::OptionsState(Game& game, bool showBackground, bool playMenuMusic) : m_game(game), m_showBackground(showBackground), m_playMenuMusic(playMenuMusic) {}
 

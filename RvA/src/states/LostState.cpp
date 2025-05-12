@@ -1,6 +1,9 @@
 #include "LostState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
 
 LostState::LostState(Game& game) : m_game(game) {}
 

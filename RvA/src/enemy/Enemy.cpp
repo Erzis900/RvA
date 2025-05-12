@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-#include "Game.h"
+#include "constants.h"
 
 #include <raymath.h>
 

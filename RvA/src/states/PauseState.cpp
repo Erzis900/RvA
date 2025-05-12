@@ -1,6 +1,9 @@
 #include "states/PauseState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
 
 PauseState::PauseState(Game& game) : m_game(game) {}
 

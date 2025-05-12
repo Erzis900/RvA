@@ -1,17 +1,21 @@
 #pragma once
 
-#include "Config.h"
-#include "GUI/GUI.h"
-#include "GameRegistry.h"
-#include "MusicManager.h"
-#include "Session.h"
-#include "atlas/Atlas.h"
-#include "fsm/Fsm.h"
 #include "utilities/CallbackRegistry.h"
-#include "utilities/Random.h"
 
 #include <memory>
 #include <raylib.h>
+
+namespace flow {
+class Fsm;
+}
+
+template<typename T> class ConfigValue;
+class Atlas;
+class Config;
+class GameRegistry;
+class GUI;
+class MusicManager;
+class Session;
 
 class Game {
 public:
@@ -20,51 +24,22 @@ public:
 
 	void run();
 
-	auto& getGUI() {
-		return m_gui;
-	}
-
-	auto& getAtlas() {
-		return m_atlas;
-	}
-
-	const auto& getGameRegistry() const {
-		return m_gameRegistry;
-	}
-
-	auto& getMusicManager() {
-		return m_musicManager;
-	}
-
-	auto& getGameSession() {
-		return m_gameSession;
-	}
-
-	auto& getConfig() {
-		return m_config;
-	}
-
-	void setRenderTextureColor(Color color) {
-		m_renderTextureColor = color;
-	}
+	GUI& getGUI();
+	Atlas& getAtlas();
+	const GameRegistry& getGameRegistry() const;
+	MusicManager& getMusicManager();
+	Session& getGameSession();
+	Config& getConfig();
+	void setRenderTextureColor(Color color);
 
 	// When it comes to rendering we should move to a more retained approach
 	// Instead of propagating calls by calling Class::draw the idea is to move out from that pattern
 	// and as a temporary solution we can use a callback system instead.
 	// If someone is interested in rendering something custom they can register a callback
-	[[nodiscard]] CallbackHandle registerDrawingCallback(std::function<void()> callback) {
-		return m_drawCallbacks.registerCallback(std::move(callback));
-	}
+	[[nodiscard]] CallbackHandle registerDrawingCallback(std::function<void()> callback);
 
 private:
-	void update();
-	Rectangle updateRenderRec(Texture& texture);
-	void updateMouse();
-	bool shouldClose() const;
-
 	void setupFSM();
-
-	void draw();
 
 	void registerDefenderTypes();
 	void registerBulletTypes();
@@ -74,26 +49,9 @@ private:
 	void verifyLevelData();
 	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
 
-	RenderTexture2D m_gameRenderTexture;
-	RenderTexture2D m_uiRenderTexture;
-	Color m_renderTextureColor{BLACK};
-
-	float m_scale{};
-
-	int m_screenWidth{};
-	int m_screenHeight{};
-
-	bool m_isTransitionInProgress{};
-
-	GUI m_gui;
-	Atlas m_atlas;
-	Config m_config;
-	MusicManager m_musicManager;
-
-	GameRegistry m_gameRegistry;
-
-	Session m_gameSession;
-	std::unique_ptr<flow::Fsm> m_fsm;
-	CallbackRegistry<> m_drawCallbacks;
-	Random m_random;
+	/*
+	 * Pimpl idiom to avoid recompilation of every class depending on Game.h
+	 */
+	struct pimpl;
+	std::unique_ptr<pimpl> m_pimpl;
 };

@@ -1,6 +1,9 @@
 #include "PlayState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
 #include "constants.h"
 
 PlayState::PlayState(Game& game) : m_game(game) {}
@@ -35,4 +38,6 @@ flow::FsmAction PlayState::update(float dt) {
 	return flow::FsmAction::none();
 }
 
-void PlayState::exit() {}
+void PlayState::exit() {
+	m_game.getGUI().setCursor(CursorType::Default);
+}

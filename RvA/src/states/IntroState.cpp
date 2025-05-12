@@ -1,5 +1,6 @@
 #include "IntroState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
 
 IntroState::IntroState(Game& game) : m_game(game) {}

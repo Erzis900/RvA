@@ -155,7 +155,7 @@ void GUI::drawFading() {
 
 void GUI::setCursor(CursorType type) {
 	switch (type) {
-	case CursorType::Point: m_mouseCurrentSprite = m_mousePointSprite; break;
+	case CursorType::Default: m_mouseCurrentSprite = m_mousePointSprite; break;
 	case CursorType::Hover: m_mouseCurrentSprite = m_mouseHoverSprite; break;
 	}
 }

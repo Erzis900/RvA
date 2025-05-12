@@ -1,6 +1,8 @@
 #include "WinState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "GameRegistry.h"
 #include "constants.h"
 
 #include <raylib.h>

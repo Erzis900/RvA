@@ -2,17 +2,17 @@
 
 #include "fsm/FsmState.h"
 
-class Game;
+class GUI;
 
 class CreditsState : public flow::FsmState {
 public:
-	CreditsState(Game& game);
+	CreditsState(GUI& gui);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
 	void exit() override;
 
 private:
-	Game& m_game;
+	GUI& m_gui;
 	std::string m_nextTransition;
 };

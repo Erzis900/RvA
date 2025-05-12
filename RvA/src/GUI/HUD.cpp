@@ -250,7 +250,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 	if (m_isAnyDefenderHovered) {
 		m_gui.setCursor(CursorType::Hover);
 	} else {
-		m_gui.setCursor(CursorType::Point);
+		m_gui.setCursor(CursorType::Default);
 	}
 
 	if (m_data.selectedDefenderIndex) {

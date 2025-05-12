@@ -1,6 +1,8 @@
 #include "MenuState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
 
 MenuState::MenuState(Game& game) : m_game(game) {}
 

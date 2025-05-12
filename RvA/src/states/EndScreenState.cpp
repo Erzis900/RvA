@@ -1,6 +1,9 @@
 #include "EndScreenState.h"
 
+#include "GUI/GUI.h"
 #include "Game.h"
+#include "MusicManager.h"
+#include "Session.h"
 
 EndScreenState::EndScreenState(Game& game) : m_game(game) {}
 

@@ -1,6 +1,6 @@
 #include "CreditsState.h"
 
-#include "Game.h"
+#include "gui/GUI.h"
 
 #include <raylib.h>
 #include <string>
@@ -29,10 +29,10 @@ const std::vector<CreditsItem> creditsItems{
 	{"Frog Wizard", DARKGRAY},
 };
 
-CreditsState::CreditsState(Game& game) : m_game(game) {}
+CreditsState::CreditsState(GUI& gui) : m_gui(gui) {}
 
 flow::FsmAction CreditsState::enter() {
-	auto builder = m_game.getGUI().buildScreen("Credits");
+	auto builder = m_gui.buildScreen("Credits");
 	builder.vertical_stack(2, 100.f);
 
 	builder.medium_text({.text = "CREDITS", .color = WHITE, .hAlign = HAlign::Center});
@@ -61,5 +61,5 @@ flow::FsmAction CreditsState::update(float dt) {
 }
 
 void CreditsState::exit() {
-	m_game.getGUI().destroyScreen("Credits");
+	m_gui.destroyScreen("Credits");
 }
