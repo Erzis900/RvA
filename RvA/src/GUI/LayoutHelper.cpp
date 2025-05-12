@@ -33,7 +33,7 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Text: {
 		auto& text = screen.getText(node.handle);
-		node.preferredSize = MeasureTextEx(GuiGetFont(), text.text.c_str(), text.fontSize, text.fontSpacing);
+		node.preferredSize = MeasureTextEx(GuiGetFont(), text.text.c_str(), static_cast<float>(text.fontSize), text.fontSpacing);
 		break;
 	}
 	case WidgetType::Space: {
@@ -79,11 +79,13 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Border: {
 		assert(node.children.size() == 1 && "Border must have one and only one child");
-		auto childSize = measure(*(*node.children.begin()), screen, availableSize);
+		auto finalSize = measure(*(*node.children.begin()), screen, availableSize);
 		auto& border = screen.getBorder(node.handle);
-		childSize.x += 2 * border.thickness + border.padding.x;
-		childSize.y += 2 * border.thickness + border.padding.y;
-		node.preferredSize = adjustSize(childSize, availableSize);
+		finalSize.x += 2 * (border.thickness + border.padding.x);
+		finalSize.y += 2 * (border.thickness + border.padding.y);
+		finalSize.x = std::max(finalSize.x, border.size.x);
+		finalSize.y = std::max(finalSize.y, border.size.y);
+		node.preferredSize = adjustSize(finalSize, availableSize);
 		break;
 	}
 	case WidgetType::Custom: {

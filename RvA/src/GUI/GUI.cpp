@@ -4,7 +4,7 @@
 #include "MusicManager.h"
 #include "constants.h"
 
-#include <raygui.h>
+#include <gui/GUIStyle.h>
 #include <raymath.h>
 
 GUI::GUI(Atlas& atlas, MusicManager& musicManager) : m_atlas(atlas), m_musicManager(musicManager) {}
@@ -14,6 +14,7 @@ GUI::~GUI() {
 }
 
 void GUI::loadResources() {
+	GuiLoadStyleRva();
 	m_font = LoadFont("assets/fonts/mecha.png");
 	GuiSetFont(m_font);
 	GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SMALL);
@@ -24,14 +25,14 @@ void GUI::loadResources() {
 }
 
 void GUI::update(float dt) {
-	m_fading.update(dt);
+	m_fadeScreen.update(dt);
 }
 
 void GUI::draw() {
 	drawScreens();
 	drawFPS();
 	drawCursor();
-	drawFading();
+	m_fadeScreen.draw();
 }
 
 void GUI::drawCursor() {
@@ -46,7 +47,7 @@ void GUI::drawFPS() {
 
 void GUI::drawScreens() {
 	for (const auto& name : m_screensToDestroy) {
-		auto it = m_screens.find(name);
+		auto it = std::ranges::find_if(m_screens, [&name](const auto& pair) { return pair.first == name; });
 		if (it != m_screens.end()) {
 			m_screens.erase(it);
 		}
@@ -75,7 +76,13 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	switch (node.type) {
 	case WidgetType::Button: {
 		auto& button = screen.getButton(node.handle);
-		if (::GuiButton(node.finalRect, button.text.c_str())) {
+		bool isPressed = false;
+		if (button.useLabelStyle) {
+			isPressed = ::GuiLabelButton(node.finalRect, button.text.c_str());
+		} else {
+			isPressed = ::GuiButton(node.finalRect, button.text.c_str());
+		}
+		if (isPressed) {
 			m_musicManager.play(*m_defaultButtonSound);
 			button.onClick();
 		}
@@ -126,9 +133,19 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 	case WidgetType::Border: {
 		auto& border = screen.getBorder(node.handle);
-		if (border.bkgColor.a > 0) {
-			::DrawRectangleRec(node.finalRect, border.bkgColor);
-		}
+
+		std::visit(
+			[&](auto&& arg) {
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, std::pair<Color, Color>>) {
+					::DrawRectangleGradientEx(node.finalRect, arg.first, arg.first, arg.second, arg.second);
+				} else if constexpr (std::is_same_v<T, Color>) {
+					::DrawRectangleRec(node.finalRect, arg);
+				} else {
+					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
+				}
+			},
+			border.bkgColor);
 
 		::DrawRectangleLinesEx(node.finalRect, border.thickness, border.color);
 		break;
@@ -149,27 +166,19 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 }
 
-void GUI::drawFading() {
-	DrawRectangle(0, 0, UI_RENDERTEXTURE_SIZE.x, UI_RENDERTEXTURE_SIZE.y, m_fading.getValue());
-}
-
 void GUI::setCursor(CursorType type) {
 	switch (type) {
 	case CursorType::Default: m_mouseCurrentSprite = m_mousePointSprite; break;
-	case CursorType::Hover: m_mouseCurrentSprite = m_mouseHoverSprite; break;
+	case CursorType::Hover	: m_mouseCurrentSprite = m_mouseHoverSprite; break;
 	}
 }
 
 void GUI::startFadingInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds) {
-	seconds *= 0.5f;
-	m_fading.start(Fade(BLACK, 0.f), Fade(BLACK, 1.f), seconds).onComplete([this, fadingInDone = std::move(onFadingInDone), fadingOutDone = std::move(onFadingOutDone), seconds] {
-		fadingInDone();
-		m_fading.start(Fade(BLACK, 1.f), Fade(BLACK, 0.f), seconds).onComplete([this, fadingOutDone = std::move(fadingOutDone)] { fadingOutDone(); });
-	});
+	m_fadeScreen.startFadingInOut(std::move(onFadingInDone), std::move(onFadingOutDone), seconds);
 }
 
 void GUI::destroyScreen(const char* name) {
-	auto it = m_screens.find(name);
+	auto it = std::ranges::find_if(m_screens, [&name](const auto& pair) { return pair.first == name; });
 	if (it != m_screens.end()) {
 		if (m_drawingScreens) {
 			m_screensToDestroy.push_back(name);
@@ -182,7 +191,7 @@ void GUI::destroyScreen(const char* name) {
 ScreenBuilder GUI::buildScreen(const char* name) {
 	auto screen = std::make_unique<Screen>(name);
 	auto screenPtr = screen.get();
-	m_screens.insert({name, std::move(screen)});
+	m_screens.emplace_back(name, std::move(screen));
 	return ScreenBuilder(*screenPtr);
 }
 

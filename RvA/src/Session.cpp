@@ -25,7 +25,6 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
 
-	m_levelManager.setLevelSequence({"level1", "level2", "level3"});
 	m_onLevelManagerActionHandle = m_levelManager.onGameActionRequest([this](const auto& action) { performAction(action); });
 }
 
@@ -83,6 +82,10 @@ void Session::update(float dt) {
 		if (IsKeyPressed(KEY_W)) {
 			performAction(WinAction{});
 		}
+		// When pressing L lose the game
+		if (IsKeyPressed(KEY_L)) {
+			performAction(LoseAction{});
+		}
 
 		// When pressing B add 50 battery
 		if (IsKeyPressed(KEY_B)) {
@@ -95,7 +98,7 @@ void Session::update(float dt) {
 }
 
 void Session::draw(Atlas& atlas) {
-	if (m_gameState == SessionState::Playing || m_gameState == SessionState::Paused) {
+	if (m_gameState != SessionState::Idle) {
 		// TODO(Gerark) due to texture bleeding we have to offset the texture. Remove the -1 offset as soon as we solve the issue.
 		atlas.drawSprite(m_levelData->info->topBackground, {-1, -1}, 0, Flip::None, WHITE);
 		atlas.drawSprite(m_levelData->info->groundBackground, {-1, 63}, 0, Flip::None, WHITE);
@@ -109,8 +112,17 @@ void Session::draw(Atlas& atlas) {
 	}
 }
 
-void Session::setSelectedDefender(std::optional<DefenderType> type) {
-	m_selectedDefender = type;
+void Session::setDemoMode(bool demoMode) {
+	m_demoMode = demoMode;
+	if (m_demoMode) {
+		m_levelManager.setLevelSequence({"demoLevel"});
+	} else {
+		m_levelManager.setLevelSequence({"level1", "level2", "level3"});
+	}
+}
+
+void Session::setSelectedDefender(const std::optional<std::string>& id) {
+	m_selectedDefender = id;
 }
 
 void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain) {
@@ -172,7 +184,25 @@ void Session::performAction(const EnemySpawnAction& action) {
 	m_levelData->enemyCount++;
 }
 
+void Session::performAction(const DefenderSpawnAction& action) {
+	auto defenderInfo = m_gameRegistry.getDefender(action.id);
+	if (defenderInfo) {
+		m_defenderManager.spawnDefender(defenderInfo, action.row, action.column);
+	}
+}
+
 void Session::performAction(const WinAction& action) {
+	if (m_demoMode) {
+		m_hud.startFadeInOut(
+			[this]() {
+				setState(SessionState::Idle);
+				setState(SessionState::Playing);
+			},
+			[]() {},
+			0.5f);
+		return;
+	}
+
 	if (m_levelManager.isLastLevel()) {
 		setState(SessionState::End);
 	} else {
@@ -181,6 +211,17 @@ void Session::performAction(const WinAction& action) {
 }
 
 void Session::performAction(const LoseAction& action) {
+	if (m_demoMode) {
+		m_hud.startFadeInOut(
+			[this]() {
+				setState(SessionState::Idle);
+				setState(SessionState::Playing);
+			},
+			[]() {},
+			0.5f);
+		return;
+	}
+
 	setState(SessionState::Lost);
 }
 
@@ -202,7 +243,7 @@ void Session::setupHUD() {
 
 	hudData.levelName = m_levelData->info->name;
 	hudData.maxBatteryCharge = m_levelData->info->maxBatteryCharge;
-	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].type); });
+	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].id); });
 }
 
 void Session::manageCollision(const Collision& collision) {
@@ -287,7 +328,7 @@ void Session::setState(SessionState state) {
 		break;
 	}
 	case SessionState::Playing: {
-		if (m_gameState != SessionState::Paused) {
+		if (m_gameState != SessionState::Paused && m_gameState != SessionState::Playing) {
 			m_hud.clear();
 			m_hud.setEnable(true);
 			m_hud.setVisible(true);
@@ -299,9 +340,11 @@ void Session::setState(SessionState state) {
 			m_defenderPicker.reset();
 			m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 			m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
+
 			setupHUD();
+			m_hud.setEnable(!m_demoMode);
 		} else {
-			m_hud.setEnable(true);
+			m_hud.setEnable(!m_demoMode);
 		}
 		break;
 	}
@@ -310,21 +353,15 @@ void Session::setState(SessionState state) {
 		break;
 	}
 	case SessionState::Win: {
-		m_hud.clear();
 		m_hud.setEnable(false);
-		m_hud.setVisible(false);
 		break;
 	}
 	case SessionState::Lost: {
-		m_hud.clear();
 		m_hud.setEnable(false);
-		m_hud.setVisible(false);
 		break;
 	}
 	case SessionState::End: {
-		m_hud.clear();
 		m_hud.setEnable(false);
-		m_hud.setVisible(false);
 		break;
 	}
 	default: break;
@@ -349,11 +386,11 @@ void Session::updateHUD(float dt) {
 	}
 
 	for (auto& hudDefender : hudData.defenders) {
-		auto& pickableDefender = m_defenderPicker.getDefender(hudDefender.type);
+		auto& pickableDefender = m_defenderPicker.getDefender(hudDefender.id);
 		hudDefender.cost = pickableDefender.cost;
 		hudDefender.cooldown = pickableDefender.currentCooldown;
 		hudDefender.maxCooldown = pickableDefender.maxCooldown;
-		hudDefender.canAfford = m_defenderPicker.canAfford(hudDefender.type);
+		hudDefender.canAfford = m_defenderPicker.canAfford(hudDefender.id);
 	}
 
 	m_hud.update(dt);

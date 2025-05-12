@@ -148,6 +148,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp" />
+    <ClCompile Include="src\CreditsHelper.cpp" />
+    <ClCompile Include="src\GUI\FadeScreen.cpp" />
     <ClCompile Include="src\levels\LevelRegistry.cpp" />
     <ClCompile Include="src\states\EndScreenState.cpp" />
     <ClCompile Include="src\states\IntroState.cpp" />
@@ -170,7 +172,6 @@
     <ClCompile Include="src\levels\LevelManager.cpp" />
     <ClCompile Include="src\MusicManager.cpp" />
     <ClCompile Include="src\Session.cpp" />
-    <ClCompile Include="src\states\CreditsState.cpp" />
     <ClCompile Include="src\states\LostState.cpp" />
     <ClCompile Include="src\defender\DefenderManager.cpp" />
     <ClCompile Include="src\Animation.cpp" />
@@ -306,7 +307,10 @@
     <ClInclude Include="deps\spdlog\stopwatch.h" />
     <ClInclude Include="deps\spdlog\tweakme.h" />
     <ClInclude Include="deps\spdlog\version.h" />
+    <ClInclude Include="src\CreditsHelper.h" />
     <ClInclude Include="src\GameAction.h" />
+    <ClInclude Include="src\GUI\FadeScreen.h" />
+    <ClInclude Include="src\GUI\GUIStyle.h" />
     <ClInclude Include="src\states\EndScreenState.h" />
     <ClInclude Include="src\states\IntroState.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
@@ -338,7 +342,6 @@
     <ClInclude Include="src\levels\LevelRegistry.h" />
     <ClInclude Include="src\MusicManager.h" />
     <ClInclude Include="src\Session.h" />
-    <ClInclude Include="src\states\CreditsState.h" />
     <ClInclude Include="src\states\LostState.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\defender\DefenderManager.h" />

@@ -4,8 +4,8 @@ void GameRegistry::addEnemy(std::string id, EnemyTypeInfo info) {
 	m_enemyRegistry.registerEnemyType(std::move(id), std::move(info));
 }
 
-void GameRegistry::addDefender(DefenderTypeInfo info) {
-	m_defenderRegistry.registerDefender(std::move(info));
+void GameRegistry::addDefender(std::string id, DefenderTypeInfo info) {
+	m_defenderRegistry.registerDefender(std::move(id), std::move(info));
 }
 
 void GameRegistry::addBullet(std::string id, BulletData info) {
@@ -24,8 +24,8 @@ const EnemyTypeInfo* GameRegistry::getEnemy(const std::string& id) const {
 	return m_enemyRegistry.getEnemyTypeInfo(id);
 }
 
-const DefenderTypeInfo* GameRegistry::getDefender(DefenderType type) const {
-	return m_defenderRegistry.getDefenderInfo(type);
+const DefenderTypeInfo* GameRegistry::getDefender(const std::string& id) const {
+	return m_defenderRegistry.getDefenderInfo(id);
 }
 
 const BulletData* GameRegistry::getBullet(const std::string& id) const {

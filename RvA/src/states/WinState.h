@@ -28,8 +28,9 @@ private:
 
 	SpriteItem createSpriteItem(const SpriteInfo* spriteInfo, const Vector2& position, const Vector2& velocity);
 	void updateSprites(std::vector<SpriteItem>& sprites, float dt);
-	void drawSprites(std::vector<SpriteItem>& sprites);
-	void drawBullets(std::vector<SpriteItem>& sprites);
+	void drawSprites(Atlas& atlas, std::vector<SpriteItem>& sprites);
+	void drawBullets(Atlas& atlas, std::vector<SpriteItem>& sprites);
+	void goToNextLevel();
 
 	std::vector<SpriteItem> m_defenders;
 	std::vector<SpriteItem> m_chasers;

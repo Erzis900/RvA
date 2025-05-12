@@ -38,18 +38,18 @@ private:
 	void updateWinLoseCondition(float dt);
 
 	void performKeyframeOperation(const KeyframeOperation& action);
-	void performKeyframeOperation(const SpawnEnemyOperation& action);
-	void performKeyframeOperation(const SpawnEnemyBurstOperation& action);
+	void performKeyframeOperation(const SpawnEntityOperation& action);
+	void performKeyframeOperation(const SpawnEntityBurstOperation& action);
 
 	bool checkCondition(const BatteryLevelCondition& condition, float dt);
 	bool checkCondition(const AllWavesGoneCondition& condition, float dt);
 
-	void triggerSpawnEnemy(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& type);
+	void triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type);
 
 	const Keyframe* getKeyframe(int index);
 
 	struct SpawnOvertimeTracker {
-		const SpawnEnemyBurstOperation* info;
+		const SpawnEntityBurstOperation* info;
 		int count{};
 		float duration{};
 		float time{};

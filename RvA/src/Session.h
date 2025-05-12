@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GUI/FadeScreen.h"
 #include "GUI/HUD.h"
 #include "bullet/BulletManager.h"
 #include "collisions/Collider.h"
@@ -41,7 +42,11 @@ public:
 	void update(float dt);
 	void draw(Atlas& atlas);
 
-	void setSelectedDefender(std::optional<DefenderType> type);
+	// Demo Mode is used to let the game run without player intervention.
+	// There's no win/lose, bots spawn automatically and the game runs until the player start a real game.
+	void setDemoMode(bool demoMode);
+
+	void setSelectedDefender(const std::optional<std::string>& type);
 
 	auto getGameState() const {
 		return m_gameState;
@@ -72,6 +77,7 @@ private:
 	void performAction(const GameAction& action);
 	void performAction(const BulletSpawnAction& action);
 	void performAction(const EnemySpawnAction& action);
+	void performAction(const DefenderSpawnAction& action);
 	void performAction(const WinAction& action);
 	void performAction(const LoseAction& action);
 
@@ -97,7 +103,7 @@ private:
 	void clearAllEntities();
 
 	SessionState m_gameState{SessionState::Idle};
-	std::optional<DefenderType> m_selectedDefender;
+	std::optional<std::string> m_selectedDefender;
 	Wall m_baseWall;
 	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
@@ -115,4 +121,5 @@ private:
 	DefenderPicker m_defenderPicker;
 	LevelManager m_levelManager;
 	HUD m_hud;
+	bool m_demoMode{false};
 };

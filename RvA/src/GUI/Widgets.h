@@ -9,6 +9,7 @@
 #include <optional>
 #include <raylib.h>
 #include <string>
+#include <variant>
 #include <vector>
 
 constexpr float MaxValue = std::numeric_limits<float>::max();
@@ -21,7 +22,6 @@ enum class WidgetType {
 	Button,
 	Text,
 	Image,
-	ProgressBar,
 	Stack,
 	Space,
 	Custom,
@@ -111,11 +111,14 @@ struct UISpace {
 	UINode* owner{};
 };
 
+using UIColorEx = std::variant<Color, std::pair<Color, Color>>;
+
 struct UIBorder {
 	Color color{};
-	Color bkgColor{0, 0, 0, 0};
+	UIColorEx bkgColor{Fade(BLACK, 0)};
 	float thickness{1};
 	Vector2 pos{};
+	Vector2 size{};
 	Vector2 padding{};
 	HAlign hAlign{};
 	VAlign vAlign{};
@@ -130,6 +133,7 @@ struct UIButton {
 	std::function<void()> onClick{};
 	HAlign hAlign{};
 	VAlign vAlign{};
+	bool useLabelStyle{};
 	WidgetHandle handle{};
 	UINode* owner{};
 };
@@ -186,9 +190,9 @@ public:
 	WidgetHandle create(UIShape shape, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIBorder border, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIImg image, WidgetHandle* handleResult = nullptr);
-	WidgetHandle create(UIStack stack);
+	WidgetHandle create(UICustom custom, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UIStack stack, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UISpace space);
-	WidgetHandle create(UICustom custom);
 
 	UIButton& getButton(WidgetHandle handle) {
 		return *m_buttonPool.getItem(handle);
@@ -250,7 +254,7 @@ class ScreenBuilder {
 public:
 	ScreenBuilder(Screen& screen);
 
-	ScreenBuilder& stack(UIStack stack);
+	ScreenBuilder& stack(UIStack stack, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& vertical_stack(float padding, float size, VAlign vAlignment = VAlign::Center, HAlign hAlignment = HAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
 	ScreenBuilder& horizontal_stack(float padding, float size, HAlign hAlignment = HAlign::Center, VAlign vAlignment = VAlign::Center, ContentAlign cAlignment = ContentAlign::Center);
 	ScreenBuilder& end();
@@ -258,14 +262,16 @@ public:
 	ScreenBuilder& shape(UIShape shape, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& rect(const Rectangle& rect, Color color, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& button(UIButton button, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& label_button(UIButton button, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& small_text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& medium_text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& big_text(UIText text, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& image(UIImg image, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& custom(UICustom custom, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& space(UISpace space);
-	ScreenBuilder& custom(UICustom custom);
+	ScreenBuilder& default_bkg(float alpha = 1.f);
 
 	Screen* screen() {
 		return &m_screen;

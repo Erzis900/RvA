@@ -30,7 +30,6 @@ public:
 	MusicManager& getMusicManager();
 	Session& getGameSession();
 	Config& getConfig();
-	void setRenderTextureColor(Color color);
 
 	// When it comes to rendering we should move to a more retained approach
 	// Instead of propagating calls by calling Class::draw the idea is to move out from that pattern

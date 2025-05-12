@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Animation.h"
+#include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
 #include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
@@ -16,7 +17,7 @@ struct UIText;
 
 struct HUDDefenderData {
 	std::string name;
-	DefenderType type;
+	std::string id;
 	Animation animation;
 	int cost;
 	float cooldown{};
@@ -71,6 +72,8 @@ public:
 
 	void clear();
 
+	void startFadeInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds);
+
 private:
 	Vector2 measureDefenders(const Vector2& availableSize);
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
@@ -90,6 +93,10 @@ private:
 	WidgetHandle m_levelNameHandle{};
 	WidgetHandle m_plateContainerHandle{};
 	WidgetHandle m_plateTextHandle{};
+	WidgetHandle m_batteryAndScrapsHandle{};
+	WidgetHandle m_defenderPickerHandle{};
+	FadeScreen m_fadeScreen;
 	bool m_isAnyDefenderHovered{};
 	int m_hoveredDefenderIndex{};
+	bool m_showBottomBar{};
 };

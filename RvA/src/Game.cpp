@@ -8,7 +8,6 @@
 #include "atlas/Atlas.h"
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
-#include "states/CreditsState.h"
 #include "states/EndScreenState.h"
 #include "states/IntroState.h"
 #include "states/LostState.h"
@@ -92,7 +91,7 @@ struct Game::pimpl {
 
 		// --- Render Game ---
 		BeginTextureMode(m_gameRenderTexture);
-		ClearBackground(m_renderTextureColor);
+		ClearBackground(BLACK);
 		m_gameSession.draw(m_atlas);
 		m_drawCallbacks.executeCallbacks();
 		m_gui.draw();
@@ -123,7 +122,6 @@ struct Game::pimpl {
 
 	RenderTexture2D m_gameRenderTexture;
 	RenderTexture2D m_uiRenderTexture;
-	Color m_renderTextureColor{BLACK};
 
 	float m_scale{};
 
@@ -156,10 +154,6 @@ Game::Game() {
 	verifyLevelData();
 
 	setupFSM();
-
-	if (DEV_MODE) {
-		setRenderTextureColor(GRAY);
-	}
 }
 
 Game::~Game() = default;
@@ -183,13 +177,9 @@ void Game::setupFSM() {
 		.state<MenuState>("MainMenu", *this)
 			.on("play").jumpTo("Play")
 			.on("options").jumpTo("Options")
-			.on("credits").jumpTo("Credits")
 			.on("exit").exitFsm()
 
-		.state<OptionsState>("Options", *this, false, true)
-			.on("back").jumpTo("MainMenu")
-
-		.state<CreditsState>("Credits", m_pimpl->m_gui)
+		.state<OptionsState>("Options", *this, 0.25f, true, true, true)
 			.on("back").jumpTo("MainMenu")
 
 		// In Game States
@@ -205,7 +195,7 @@ void Game::setupFSM() {
 			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("MainMenu")
 		
-		.state<OptionsState>("InGameOptions", *this, true, false)
+		.state<OptionsState>("InGameOptions", *this, 0.7f, false, false, false)
 			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
@@ -221,7 +211,7 @@ void Game::setupFSM() {
 
 	std::string startState = "Intro";
 	if (DEV_MODE) {
-		startState = "MainMenu";
+		startState = "Intro";
 	}
 
 	auto [fsm, fsmInfo] = fsmBuilder.build(startState, nullptr);
@@ -231,19 +221,21 @@ void Game::setupFSM() {
 void Game::registerDefenderTypes() {
 	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
 
-	m_pimpl->m_gameRegistry.addDefender({
-		.type = DefenderType::Solar,
-		.name = "Solar Panel",
-		.spriteEnabled = {sprite("solar_idle"), 0.1f},
-		.spriteDisabled = {sprite("solar_off"), 0.1f},
-		.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
-		.batteryDrain = -5,
-		//.scrapsGain = 5,
-		.maxHP = 100,
-		.buildCooldown = 2.f,
-	});
+	m_pimpl->m_gameRegistry.addDefender("Solarpanel",
+										{
+											.type = DefenderType::Solar,
+											.name = "Solar Panel",
+											.spriteEnabled = {sprite("solar_idle"), 0.1f},
+											.spriteDisabled = {sprite("solar_off"), 0.1f},
+											.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+											.batteryDrain = -5,
+											//.scrapsGain = 5,
+											.maxHP = 100,
+											.buildCooldown = 2.f,
+										});
 
-	m_pimpl->m_gameRegistry.addDefender({.type = DefenderType::Shooter,
+	m_pimpl->m_gameRegistry.addDefender("Shooter",
+										{.type = DefenderType::Shooter,
 										 .name = "Shooter",
 										 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
 										 .spriteDisabled = {sprite("shooter_off"), 0.1f},
@@ -258,7 +250,8 @@ void Game::registerDefenderTypes() {
 										 .shootingAnimationTime = 0.6f,
 										 .buildCooldown = 3.f});
 
-	m_pimpl->m_gameRegistry.addDefender({.type = DefenderType::Catapult,
+	m_pimpl->m_gameRegistry.addDefender("Catapult",
+										{.type = DefenderType::Catapult,
 										 .name = "Catapult",
 										 .spriteEnabled = {sprite("catapult_idle"), 0.1f},
 										 .spriteDisabled = {sprite("catapult_off"), 0.1f},
@@ -273,7 +266,8 @@ void Game::registerDefenderTypes() {
 										 .shootingAnimationTime = 0.6f,
 										 .buildCooldown = 5.f});
 
-	m_pimpl->m_gameRegistry.addDefender({.type = DefenderType::Lasertron,
+	m_pimpl->m_gameRegistry.addDefender("Lasertron",
+										{.type = DefenderType::Lasertron,
 										 .name = "Lasertron",
 										 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
 										 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
@@ -389,7 +383,7 @@ void Game::registerLevels() {
 
 	auto lastColumn = FixedValue{18};
 
-	auto selection = EnemySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
+	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
 	m_pimpl->m_gameRegistry.addLevel("level1",
 									 {
 										 .name = "Level 1",
@@ -404,16 +398,16 @@ void Game::registerLevels() {
 											 {
 												 .keyframes =
 													 {
-														 {3.f, SpawnEnemyOperation{.row = FixedValue{3}, .column = lastColumn, .type = FixedValue{"B1"s}}},
-														 {5.f, SpawnEnemyOperation{.row = FixedValue{1}, .column = lastColumn, .type = FixedValue{"B1"s}}},
-														 {7.f, SpawnEnemyOperation{.row = FixedValue{6}, .column = lastColumn, .type = FixedValue{"B1"s}}},
+														 {3.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}}},
+														 {5.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}}},
+														 {7.f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"B1"s}}},
 														 {15.f,
-														  SpawnEnemyBurstOperation{
+														  SpawnEntityBurstOperation{
 															  .amount = FixedValue{10},
 															  .interval = FixedValue{1.f},
 															  .row = RandomRange{0, 6},
 															  .column = lastColumn,
-															  .type = selection,
+															  .id = selection,
 														  }},
 													 },
 											 },
@@ -434,34 +428,34 @@ void Game::registerLevels() {
 												 .keyframes =
 													 {
 														 {2.f,
-														  SpawnEnemyBurstOperation{
+														  SpawnEntityBurstOperation{
 															  .amount = FixedValue{5},
 															  .interval = FixedValue{1.f},
 															  .row = RandomRange{0, 6},
 															  .column = lastColumn,
-															  .type = FixedValue{"B1"s},
+															  .id = FixedValue{"B1"s},
 														  }},
 														 {10.f,
-														  SpawnEnemyBurstOperation{
+														  SpawnEntityBurstOperation{
 															  .amount = FixedValue{5},
 															  .interval = FixedValue{1.f},
 															  .row = RandomRange{0, 6},
 															  .column = lastColumn,
-															  .type = FixedValue{"B2"s},
+															  .id = FixedValue{"B2"s},
 														  }},
 														 {20.f,
-														  SpawnEnemyBurstOperation{
+														  SpawnEntityBurstOperation{
 															  .amount = FixedValue{5},
 															  .interval = FixedValue{1.f},
 															  .row = RandomRange{0, 6},
 															  .column = lastColumn,
-															  .type = FixedValue{"Portal"s},
+															  .id = FixedValue{"Portal"s},
 														  }},
 													 },
 											 },
 									 });
 
-	auto enemyAt = [&](int row) { return SpawnEnemyOperation{.row = FixedValue{row}, .column = lastColumn, .type = FixedValue{"B1"s}}; };
+	auto enemyAt = [&](int row) { return SpawnEntityOperation{.row = FixedValue{row}, .column = lastColumn, .id = FixedValue{"B1"s}}; };
 
 	auto space = 2.5f;
 
@@ -537,6 +531,31 @@ void Game::registerLevels() {
 															  {space * 5 + 1.5f, enemyAt(5)},
 														  }},
 									 });
+
+	auto defenderSelection = EntitySelection{{"Solarpanel", 0.25f}, {"Lasertron", 0.25f}, {"Catapult", 0.25f}, {"Shooter", 0.25f}};
+	m_pimpl->m_gameRegistry.addLevel("demoLevel",
+									 {.name = "",
+									  .startingScraps = 900,
+									  .maxBatteryCharge = 1000,
+									  .winCountdownDuration = 2.f,
+									  .winCondition = AllWavesGoneCondition{},
+									  .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+									  .groundBackground = sprite("ground_bkg"),
+									  .topBackground = sprite("top_bkg"),
+									  .timeline = {.keyframes = {
+													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{0}, .id = defenderSelection, .type = EntityType::Defender}},
+													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{1}, .id = defenderSelection, .type = EntityType::Defender}},
+													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{2}, .id = defenderSelection, .type = EntityType::Defender}},
+													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{3}, .id = defenderSelection, .type = EntityType::Defender}},
+													   {0,
+														SpawnEntityBurstOperation{
+															.amount = FixedValue{2000},
+															.interval = RandomRange{1.f, 4.f},
+															.row = RandomRange{0, 6},
+															.column = lastColumn,
+															.id = selection,
+														}},
+												   }}});
 }
 
 void Game::verifyLevelData() {
@@ -549,12 +568,12 @@ void Game::verifyLevelData() {
 			}
 
 			// verify that the SpawnEnemyOperation and SpawnEnemyOperationBurst are indicating valid rows and columns
-			if (std::holds_alternative<SpawnEnemyOperation>(level.timeline.keyframes[i].action)) {
-				auto& spawnEnemyOp = std::get<SpawnEnemyOperation>(level.timeline.keyframes[i].action);
+			if (std::holds_alternative<SpawnEntityOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnEnemyOp = std::get<SpawnEntityOperation>(level.timeline.keyframes[i].action);
 				verifyLevelCoordinate(0, ROWS, spawnEnemyOp.row);
 				verifyLevelCoordinate(0, COLS + 1, spawnEnemyOp.column);
-			} else if (std::holds_alternative<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action)) {
-				auto& spawnBurstOp = std::get<SpawnEnemyBurstOperation>(level.timeline.keyframes[i].action);
+			} else if (std::holds_alternative<SpawnEntityBurstOperation>(level.timeline.keyframes[i].action)) {
+				auto& spawnBurstOp = std::get<SpawnEntityBurstOperation>(level.timeline.keyframes[i].action);
 				verifyLevelCoordinate(0, ROWS, spawnBurstOp.row);
 				verifyLevelCoordinate(0, COLS + 1, spawnBurstOp.column);
 			}
@@ -605,10 +624,6 @@ Session& Game::getGameSession() {
 
 Config& Game::getConfig() {
 	return m_pimpl->m_config;
-}
-
-void Game::setRenderTextureColor(Color color) {
-	m_pimpl->m_renderTextureColor = color;
 }
 
 // When it comes to rendering we should move to a more retained approach

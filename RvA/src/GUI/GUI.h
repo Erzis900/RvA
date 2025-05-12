@@ -1,10 +1,12 @@
 #pragma once
 
+#include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
 #include "atlas/Atlas.h"
 #include "utilities/Interpolation.h"
 
 #include <optional>
+#include <raygui.h>
 #include <raylib.h>
 #include <unordered_map>
 
@@ -47,7 +49,6 @@ private:
 	void drawFPS();
 	void drawScreens();
 	void drawWidget(UINode& node, Screen& screen);
-	void drawFading();
 
 	Atlas& m_atlas;
 	MusicManager& m_musicManager;
@@ -56,10 +57,10 @@ private:
 	const SpriteInfo* m_mouseHoverSprite{};
 	const SpriteInfo* m_mouseCurrentSprite{};
 
-	Interpolation<Color> m_fading;
+	FadeScreen m_fadeScreen;
 
 	bool m_drawingScreens{};
-	std::unordered_map<std::string, std::unique_ptr<Screen>> m_screens;
+	std::vector<std::pair<std::string, std::unique_ptr<Screen>>> m_screens;
 	std::vector<std::string> m_screensToDestroy;
 	Sound* m_defaultButtonSound{};
 	bool m_isDebugViewEnabled{false};

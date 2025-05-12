@@ -21,6 +21,8 @@ constexpr int FONT_SMALL = 16;
 constexpr int FONT_MEDIUM = 32;
 constexpr int FONT_BIG = 64;
 
+constexpr Color DEFAULT_BKG_COLOR = {30, 46, 73, 255};
+
 std::tuple<int, int> getCoordinates(const Vector2& position);
 Vector2 getSnappedPosition(const Vector2& position);
 Vector2 getSnappedPosition(int row, int column);

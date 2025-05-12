@@ -34,7 +34,7 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 		// Level Name
 		.small_text({ .text = "", .color = WHITE, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom, .pos = { 5, 5 } }, &m_levelNameHandle)
 		// Battery & Scraps
-		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .alignContent = ContentAlign::Center })
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .alignContent = ContentAlign::Center }, &m_batteryAndScrapsHandle)
             .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .alignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scraps_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
@@ -75,11 +75,15 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 			.measure = std::bind_front(&HUD::measureDefenders, this),
 			.hAlign = HAlign::Center,
             .vAlign = VAlign::Bottom
-			})
+			}, &m_defenderPickerHandle)
 		// Progress Bars ( HP bar )
 		.custom({
 			.draw = std::bind_front(&HUD::drawProgressBars, this),
 			.vAlign = VAlign::Center
+		})
+		// Fade Screen
+		.custom({
+			.draw = [this](const auto& atlas, const auto& size){ m_fadeScreen.draw(); }
 		})
 	.screen();
 	// clang-format on
@@ -122,11 +126,18 @@ void HUD::update(float dt) {
 		plateText.text = m_data.defenders[m_hoveredDefenderIndex].name;
 	}
 
+	auto& batteryAndScrapsContainer = m_screen->getStack(m_batteryAndScrapsHandle);
+	auto& defenderContainer = m_screen->getCustom(m_defenderPickerHandle);
+	batteryAndScrapsContainer.owner->visible = m_isEnabled;
+	defenderContainer.owner->visible = m_isEnabled;
+
 	for (auto& defender : m_data.defenders) {
 		if (defender.isHover) {
 			defender.animation.update(dt);
 		}
 	}
+
+	m_fadeScreen.update(dt);
 }
 
 void HUD::setVisible(bool visible) {
@@ -162,6 +173,12 @@ void HUD::clear() {
 	m_data.levelName = "";
 	m_isAnyDefenderHovered = false;
 	m_hoveredDefenderIndex = 0;
+}
+
+void HUD::startFadeInOut(std::function<void()> onFadingInDone, std::function<void()> onFadingOutDone, float seconds) {
+	if (!m_fadeScreen.isFading()) {
+		m_fadeScreen.startFadingInOut(std::move(onFadingInDone), std::move(onFadingOutDone), seconds);
+	}
 }
 
 Vector2 HUD::measureDefenders(const Vector2& availableSize) {
@@ -219,7 +236,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		atlas.drawSprite(spriteInfo, position);
 
 		auto rect = LayoutHelper::arrangePositionAndSize({0, -2}, {14, 6}, frameRect, HAlign::Center, VAlign::Center);
-		DrawEllipse(rect.x + 7, rect.y + 3, 14, 6, defender.isHover ? Fade(WHITE, 0.25f) : Fade(BLACK, 0.5f));
+		DrawEllipse(rect.x + 7, rect.y + 3, 14, 6, defender.isHover ? Fade(WHITE, 0.25f) : Fade(BLACK, 0.25f));
 
 		rect = LayoutHelper::arrangePositionAndSize({0, -5}, {defenderSize, defenderSize}, frameRect, HAlign::Center, VAlign::Top);
 		if (defender.isHover) {

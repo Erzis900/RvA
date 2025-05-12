@@ -13,6 +13,8 @@ public:
 	void exit() override;
 
 private:
+	void goToMenu();
+
 	Game& m_game;
 	std::string m_nextTransition;
 };

@@ -12,6 +12,7 @@ flow::FsmAction IntroState::enter() {
 
 	// clang-format off
 	gui.buildScreen("Intro")
+		.default_bkg()
 		.vertical_stack(2, 200.f)
 			.medium_text({.text = "Studio name presents:", .color = WHITE, .hAlign = HAlign::Center})
 			.small_text({.text = "Game name!", .color = WHITE, .hAlign = HAlign::Center})
@@ -29,7 +30,6 @@ flow::FsmAction IntroState::update(float dt) {
 	if (m_nextTransition.empty()) {
 		return flow::FsmAction::none();
 	} else {
-		m_game.setRenderTextureColor(GRAY);
 		return flow::FsmAction::transition(m_nextTransition);
 	}
 }

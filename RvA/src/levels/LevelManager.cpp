@@ -68,7 +68,7 @@ void LevelManager::updateSpawnBursts(float dt) {
 		if (itr->time >= itr->duration) {
 			itr->time = 0.f;
 			itr->count--;
-			triggerSpawnEnemy(itr->info->row, itr->info->column, itr->info->type);
+			triggerSpawnEntity(itr->info->row, itr->info->column, itr->info->id, itr->info->type);
 			if (itr->count <= 0) {
 				itr = m_spawnBurstTrackers.erase(itr);
 			} else {
@@ -84,19 +84,23 @@ void LevelManager::performKeyframeOperation(const KeyframeOperation& action) {
 	std::visit([this](auto&& arg) { performKeyframeOperation(arg); }, action);
 }
 
-void LevelManager::performKeyframeOperation(const SpawnEnemyOperation& action) {
-	triggerSpawnEnemy(action.row, action.column, action.type);
+void LevelManager::performKeyframeOperation(const SpawnEntityOperation& action) {
+	triggerSpawnEntity(action.row, action.column, action.id, action.type);
 }
 
-void LevelManager::performKeyframeOperation(const SpawnEnemyBurstOperation& action) {
+void LevelManager::performKeyframeOperation(const SpawnEntityBurstOperation& action) {
 	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &action, .count = action.amount.generate(), .duration = action.interval.generate(), .time = 0.f});
 }
 
-void LevelManager::triggerSpawnEnemy(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& type) {
-	auto enemyType = type.generate();
+void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type) {
+	auto entityId = id.generate();
 	auto rowVal = row.generate();
 	auto columnVal = column.generate();
-	m_onGameActionCallbacks.executeCallbacks(EnemySpawnAction{enemyType, rowVal, columnVal});
+	if (type == EntityType::Defender) {
+		m_onGameActionCallbacks.executeCallbacks(DefenderSpawnAction{entityId, rowVal, columnVal});
+	} else if (type == EntityType::Enemy) {
+		m_onGameActionCallbacks.executeCallbacks(EnemySpawnAction{entityId, rowVal, columnVal});
+	}
 }
 
 const Keyframe* LevelManager::getKeyframe(int index) {
