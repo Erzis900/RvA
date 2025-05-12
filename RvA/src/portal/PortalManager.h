@@ -45,7 +45,7 @@ public:
 	void spawnPortals(const PortalTypeInfo* entranceTypeInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol);
 
 private:
-	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col, AnimationData animationData);
+	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col);
 
 	std::vector<PortalPair> m_portalPairs;
 	CollisionSystem& m_collisionSystem;

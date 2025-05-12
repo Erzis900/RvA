@@ -7,19 +7,20 @@
 PortalManager::PortalManager(CollisionSystem& collisionSystem) : m_collisionSystem(collisionSystem) {}
 
 void PortalManager::spawnPortals(const PortalTypeInfo* entranceInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol) {
-	auto entrance = createPortal(entranceInfo, inRow, inCol, entranceInfo->spriteIdle);
-	auto exit = createPortal(exitInfo, outRow, outCol, exitInfo->spriteIdle);
+	auto entrance = createPortal(entranceInfo, inRow, inCol);
+	auto exit = createPortal(exitInfo, outRow, outCol);
 
 	m_portalPairs.push_back({std::move(entrance), std::move(exit)});
 }
 
-std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, int row, int col, AnimationData animationData) {
+std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, int row, int col) {
 	auto portal = std::make_unique<Portal>();
 
 	portal->info = info;
 	portal->type = info->type;
 	portal->position = Vector2{GRID_OFFSET.x + (float(col) * CELL_SIZE), GRID_OFFSET.y + (float(row) * CELL_SIZE) - 5};
-	portal->animation = Animation::createAnimation(animationData);
+	portal->animation = Animation::createAnimation(info->spriteClose);
+
 	portal->hp = info->maxHP;
 	portal->row = row;
 	portal->column = col;

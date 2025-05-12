@@ -411,7 +411,7 @@ void Game::registerPortals() {
 	m_gameRegistry.addPortal({
 		.type = PortalType::Entrance,
 		.spriteIdle = {sprite("portal_idle"), 0.1f},
-		.spriteClose = {sprite("portal_close"), 0.1f, 1},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
 		.maxHP = 100,
 	});
 
@@ -419,7 +419,7 @@ void Game::registerPortals() {
 	m_gameRegistry.addPortal({
 		.type = PortalType::Exit,
 		.spriteIdle = {sprite("portal_idle"), 0.1f},
-		.spriteClose = {sprite("portal_close"), 0.1f, 1},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
 		.maxHP = 100,
 	});
 }
