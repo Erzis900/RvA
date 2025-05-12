@@ -9,7 +9,7 @@ struct PortalTypeInfo {
 	PortalType type{};
 	AnimationData spriteIdle;
 	AnimationData spriteClose;
-	int maxHP{};
+	float lifespan;
 };
 
 class PortalTypeRegistry {

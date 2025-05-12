@@ -408,11 +408,12 @@ void Game::registerLevels() {
 void Game::registerPortals() {
 	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
 
+	// clang-format off
 	m_gameRegistry.addPortal({
 		.type = PortalType::Entrance,
 		.spriteIdle = {sprite("portal_idle"), 0.1f},
 		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
-		.maxHP = 100,
+		.lifespan = 4.f
 	});
 
 	// Entrance and close the same for now
@@ -420,6 +421,7 @@ void Game::registerPortals() {
 		.type = PortalType::Exit,
 		.spriteIdle = {sprite("portal_idle"), 0.1f},
 		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
-		.maxHP = 100,
+		.lifespan = 4.f
 	});
+	// clang-format on
 }

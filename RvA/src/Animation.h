@@ -15,6 +15,10 @@ public:
 
 	void update(float dt);
 
+	void reverse() {
+		m_reverse = !m_reverse;
+	}
+
 	int getCurrentFrame() const {
 		return m_currentFrame;
 	}

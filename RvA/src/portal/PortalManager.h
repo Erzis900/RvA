@@ -13,7 +13,9 @@ class CollisionSystem;
 
 enum class PortalState {
 	Summoning,
-	Idle
+	Idle,
+	Closing,
+	Destroy
 };
 
 struct Portal {
@@ -21,13 +23,15 @@ struct Portal {
 	PortalType type{};
 	Vector2 position{};
 	Animation animation;
-	int hp{};
+	// TODO think whether portals should have hp instead of lifespan (game design)
+	// int hp{};
+	float lifespan{};
 	int row{};
 	int column{};
 	ColliderHandle colliderHandle{};
 	PortalState state{PortalState::Summoning};
 	Color tint{WHITE};
-	int id;
+	int id{};
 };
 
 struct PortalPair {
@@ -44,12 +48,14 @@ public:
 	void clear();
 
 	void spawnPortals(const PortalTypeInfo* entranceTypeInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol);
-	std::unique_ptr<Portal>& getExit(int entranceId);
+	Portal* getExit(int entranceId);
 
 private:
 	void setState(std::unique_ptr<Portal>& portal, PortalState state);
 
 	void performSummoning(std::unique_ptr<Portal>& portal);
+	void performIdle(std::unique_ptr<Portal>& portal, float dt);
+	void performClosing(std::unique_ptr<Portal>& portal, float dt);
 
 	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col);
 
