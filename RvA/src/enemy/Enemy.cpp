@@ -53,6 +53,10 @@ void Enemy::applyDamage(const Damage& damage) {
 		.onComplete([this]() { m_tint = WHITE; });
 }
 
+void Enemy::setPosition(Vector2 position) {
+	m_position = position;
+}
+
 std::optional<PortalSpawnAction> Enemy::update(float dt) {
 	switch (m_state) {
 	case EnemyState::Idle			: performIdle(dt); break;
@@ -66,7 +70,7 @@ std::optional<PortalSpawnAction> Enemy::update(float dt) {
 			std::tuple<int, int> coords = getCoordinates(m_position); // TODO: I believe it returns wrong col (+1)
 			int col = std::get<1>(coords);
 
-			return PortalSpawnAction{m_row, col - 2, m_row, col - 4};
+			return PortalSpawnAction{m_row, col - 2, m_row + 2, col - 4};
 		}
 		break;
 	case EnemyState::Dead: break;

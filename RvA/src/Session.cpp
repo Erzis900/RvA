@@ -286,10 +286,15 @@ void Session::manageEnemyPortalCollision(const Collision& collision) {
 		return;
 	}
 
-	switch (collision.event) {
-	case CollisionEvent::Enter	: std::cout << "Enter\n"; break;
-	case CollisionEvent::Exit	: std::cout << "Exit\n"; break;
-	case CollisionEvent::Ongoing: std::cout << "Ongoing\n"; break;
+	if (portal->type == PortalType::Entrance) {
+		switch (collision.event) {
+		case CollisionEvent::Enter:
+			Vector2 exitPosition = m_portalManager.getExit(portal->id)->position;
+			enemy->setPosition(exitPosition);
+			break;
+		case CollisionEvent::Exit	: break;
+		case CollisionEvent::Ongoing: break;
+		}
 	}
 }
 

@@ -27,6 +27,7 @@ struct Portal {
 	ColliderHandle colliderHandle{};
 	PortalState state{PortalState::Summoning};
 	Color tint{WHITE};
+	int id;
 };
 
 struct PortalPair {
@@ -43,6 +44,7 @@ public:
 	void clear();
 
 	void spawnPortals(const PortalTypeInfo* entranceTypeInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol);
+	std::unique_ptr<Portal>& getExit(int entranceId);
 
 private:
 	void setState(std::unique_ptr<Portal>& portal, PortalState state);
@@ -53,4 +55,6 @@ private:
 
 	std::vector<PortalPair> m_portalPairs;
 	CollisionSystem& m_collisionSystem;
+
+	int m_portalId{0};
 };

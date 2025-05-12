@@ -33,6 +33,8 @@ public:
 
 	void applyDamage(const Damage& damage);
 
+	void setPosition(Vector2 position);
+
 	auto getHp() const {
 		return m_hp;
 	}

@@ -14,6 +14,16 @@ void PortalManager::spawnPortals(const PortalTypeInfo* entranceInfo, const Porta
 	m_portalPairs.push_back({std::move(entrance), std::move(exit)});
 }
 
+std::unique_ptr<Portal>& PortalManager::getExit(int entranceId) {
+	for (auto& pair : m_portalPairs) {
+		if (pair.entrance->id == entranceId) {
+			return pair.exit;
+		}
+	}
+
+	throw std::runtime_error("Entrance ID not found");
+}
+
 std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, int row, int col) {
 	auto portal = std::make_unique<Portal>();
 
@@ -27,6 +37,7 @@ std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, 
 	portal->column = col;
 	portal->state = PortalState::Summoning;
 	portal->tint = WHITE;
+	portal->id = m_portalId++;
 
 	// TODO collisions
 	portal->colliderHandle = m_collisionSystem.createCollider(Collider::Flag::Portal, portal.get());
