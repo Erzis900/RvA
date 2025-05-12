@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameRegistry.h"
 
+#include <iostream>
 #include <ranges>
 #include <raymath.h>
 
@@ -14,7 +15,8 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_levelManager(m_gameRegistry)
-	, m_hud(gui) {
+	, m_hud(gui)
+	, m_portalManager(m_collisionSystem) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
 		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });
@@ -23,6 +25,7 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::Defender, Collider::Flag::Enemy);
 	m_collisionSystem.addColliderMatch(Collider::Flag::BaseWall, Collider::Flag::Enemy);
+	m_collisionSystem.addColliderMatch(Collider::Flag::Enemy, Collider::Flag::Portal);
 	m_collisionSystem.onCollision([this](const Collision& collision) { manageCollision(collision); });
 
 	m_onLevelManagerActionHandle = m_levelManager.onGameActionRequest([this](const auto& action) { performAction(action); });
@@ -54,18 +57,21 @@ void Session::drawGrid() {
 }
 
 void Session::update(float dt) {
-	m_enemyManager.update(dt);
+	auto enemyResult = m_enemyManager.update(dt);
+	performActions(enemyResult);
 	m_collisionSystem.update(dt);
 
 	performDefenderSpawnOnInput();
 	auto result = m_defenderManager.update(dt);
 	performActions(result.actions);
+
 	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
 	m_bulletManager.update(dt);
 	m_dropManager.update(dt);
 	m_defenderPicker.update(dt);
 	m_levelManager.update(dt);
+	m_portalManager.update(dt);
 
 	if (DEV_MODE) {
 		// When pressing F3 deal 500 damage to a random enemy
@@ -104,6 +110,8 @@ void Session::draw(Atlas& atlas) {
 		atlas.drawSprite(m_levelData->info->groundBackground, {-1, 63}, 0, Flip::None, WHITE);
 
 		drawGrid();
+
+		m_portalManager.draw(atlas);
 		m_defenderManager.draw(atlas);
 		m_enemyManager.draw(atlas);
 		m_bulletManager.draw();
@@ -225,6 +233,12 @@ void Session::performAction(const LoseAction& action) {
 	setState(SessionState::Lost);
 }
 
+void Session::performAction(const PortalSpawnAction& action) {
+	auto entrance = m_gameRegistry.getPortal(PortalType::Entrance);
+	auto exit = m_gameRegistry.getPortal(PortalType::Exit);
+	m_portalManager.spawnPortals(entrance, exit, action.inRow, action.inCol, action.outRow, action.outCol);
+}
+
 bool Session::canAffordCost(int cost) const {
 	return cost <= m_levelData->scraps;
 }
@@ -251,6 +265,7 @@ void Session::manageCollision(const Collision& collision) {
 	case cMask(Collider::Flag::Bullet, Collider::Flag::Enemy)  : manageBulletEnemyCollision(collision); break;
 	case cMask(Collider::Flag::Defender, Collider::Flag::Enemy): manageDefenderEnemyCollision(collision); break;
 	case cMask(Collider::Flag::BaseWall, Collider::Flag::Enemy): manageBaseWallEnemyCollision(collision); break;
+	case cMask(Collider::Flag::Enemy, Collider::Flag::Portal)  : manageEnemyPortalCollision(collision); break;
 	}
 }
 
@@ -302,12 +317,31 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 	}
 }
 
+void Session::manageEnemyPortalCollision(const Collision& collision) {
+	const auto& [portal, enemy] = collision.extractOwners<Portal, Enemy>();
+	if (enemy->isDying()) {
+		return;
+	}
+
+	if (portal->type == PortalType::Entrance) {
+		switch (collision.event) {
+		case CollisionEvent::Enter:
+			Vector2 exitPosition = m_portalManager.getExit(portal->id)->position;
+			enemy->setPosition(exitPosition);
+			break;
+		case CollisionEvent::Exit	: break;
+		case CollisionEvent::Ongoing: break;
+		}
+	}
+}
+
 void Session::resetSelectedDefender() {
 	m_selectedDefender.reset();
 	m_hud.data().selectedDefenderIndex.reset();
 }
 
-void Session::clearAllEntities() {
+void Session::clearAllEntities() {	
+	m_portalManager.clear();
 	m_defenderManager.clear();
 	m_enemyManager.clear();
 	m_dropManager.clear();

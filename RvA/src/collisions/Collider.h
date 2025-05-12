@@ -11,16 +11,18 @@ using ColliderHandle = int;
 struct Bullet;
 struct Defender;
 struct Wall;
+struct Portal;
 class Enemy;
 
-using ColliderOwner = std::variant<::Bullet*, ::Enemy*, ::Defender*, ::Wall*>;
+using ColliderOwner = std::variant<::Bullet*, ::Enemy*, ::Defender*, ::Wall*, ::Portal*>;
 
 struct Collider {
 	enum Flag {
 		Defender = 1 << 0,
 		Bullet = 1 << 1,
 		Enemy = 1 << 2,
-		BaseWall = 1 << 3
+		BaseWall = 1 << 3,
+		Portal = 1 << 4
 	};
 
 	ColliderHandle handle;

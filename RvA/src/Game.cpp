@@ -151,6 +151,8 @@ Game::Game() {
 	registerEnemyTypes();
 	registerDropTypes();
 	registerLevels();
+	registerPortals();
+	registerPortals();
 	verifyLevelData();
 
 	setupFSM();
@@ -351,20 +353,21 @@ void Game::registerEnemyTypes() {
 									  .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
 
-	m_pimpl->m_gameRegistry.addEnemy("Portal",
-									 {.type = EnemyType::Portal,
-									  .spawnChance = 0.5f,
-									  .maxHp = 60,
-									  .speed = 30,
-									  .attackTime = 0.5f,
-									  .defenderDamage = 50,
-									  .baseWallDamage = 10,
-									  .dropType = "simpleScraps",
-									  .dropAmount = RandomRangeStep{100, 200, 10},
-									  .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
-									  .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
-									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1}});
+	m_gameRegistry.addEnemy("Portal",
+							{.type = EnemyType::Portal,
+							 .spawnChance = 0.5f,
+							 .maxHp = 60,
+							 .speed = 30,
+							 .attackTime = 0.5f,
+							 .defenderDamage = 50,
+							 .baseWallDamage = 10,
+							 .dropType = "simpleScraps",
+							 .dropAmount = RandomRangeStep{100, 200, 10},
+							 .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
+							 .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
+							 .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
+							 .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
+							 .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1}});
 }
 
 void Game::registerDropTypes() {
@@ -380,8 +383,6 @@ void Game::registerLevels() {
 	std::string b1 = "B1";
 	std::string b2 = "B2";
 	std::string portal = "Portal";
-
-	auto lastColumn = FixedValue{18};
 
 	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
 	m_pimpl->m_gameRegistry.addLevel("level1",
@@ -632,4 +633,25 @@ Config& Game::getConfig() {
 // If someone is interested in rendering something custom they can register a callback
 [[nodiscard]] CallbackHandle Game::registerDrawingCallback(std::function<void()> callback) {
 	return m_pimpl->m_drawCallbacks.registerCallback(std::move(callback));
+}
+
+void Game::registerPortals() {
+	auto sprite = [this](const char* spriteName) { return m_atlas.getSpriteInfo(spriteName); };
+
+	// clang-format off
+	m_gameRegistry.addPortal({
+		.type = PortalType::Entrance,
+		.spriteIdle = {sprite("portal_idle"), 0.1f},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
+		.lifespan = 4.f
+	});
+
+	// Entrance and close the same for now
+	m_gameRegistry.addPortal({
+		.type = PortalType::Exit,
+		.spriteIdle = {sprite("portal_idle"), 0.1f},
+		.spriteClose = {sprite("portal_close"), 0.1f, 1, true},
+		.lifespan = 4.f
+	});
+	// clang-format on
 }

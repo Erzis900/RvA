@@ -10,6 +10,7 @@
 #include "drops/DropManager.h"
 #include "enemy/EnemyManager.h"
 #include "levels/LevelManager.h"
+#include "portal/PortalManager.h"
 
 class Game;
 class GUI;
@@ -77,6 +78,7 @@ private:
 	void performAction(const GameAction& action);
 	void performAction(const BulletSpawnAction& action);
 	void performAction(const EnemySpawnAction& action);
+	void performAction(const PortalSpawnAction& action);
 	void performAction(const DefenderSpawnAction& action);
 	void performAction(const WinAction& action);
 	void performAction(const LoseAction& action);
@@ -98,6 +100,7 @@ private:
 	void manageBulletEnemyCollision(const Collision& collision);
 	void manageDefenderEnemyCollision(const Collision& collision);
 	void manageBaseWallEnemyCollision(const Collision& collision);
+	void manageEnemyPortalCollision(const Collision& collision);
 
 	void resetSelectedDefender();
 	void clearAllEntities();
@@ -120,6 +123,7 @@ private:
 	DropManager m_dropManager;
 	DefenderPicker m_defenderPicker;
 	LevelManager m_levelManager;
+	PortalManager m_portalManager;
 	HUD m_hud;
 	bool m_demoMode{false};
 };

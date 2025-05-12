@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "Damage.h"
+#include "GameAction.h"
 #include "collisions/CollisionSystem.h"
 #include "enemy/EnemyTypeRegistry.h"
 #include "utilities/Interpolation.h"
@@ -18,6 +19,7 @@ enum class EnemyState {
 	Moving,
 	PrepareToAttack,
 	ReadyToAttack,
+	Summoning,
 	Dying,
 	Dead
 };
@@ -26,10 +28,12 @@ class Enemy {
 public:
 	Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
 
-	void update(float dt);
+	std::optional<PortalSpawnAction> update(float dt);
 	void draw(Atlas& atlas);
 
 	void applyDamage(const Damage& damage);
+
+	void setPosition(Vector2 position);
 
 	auto getHp() const {
 		return m_hp;
@@ -64,7 +68,8 @@ private:
 	void performIdle(float dt);
 	void performMove(float dt);
 	void performPrepareAttack(float dt);
-	void performDying(float dt);
+	void performDying();
+	void performSummoning();
 
 	void setAnimation(const AnimationData& animationData);
 
@@ -76,6 +81,7 @@ private:
 	Interpolation<> m_damageTakenAnimation;
 	Color m_tint{WHITE};
 	Damage m_latestDamageApplied;
+	bool m_spawnedPortal{false};
 
 	Animation m_animation;
 	EnemyState m_state;

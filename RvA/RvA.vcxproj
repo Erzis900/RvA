@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\portal\PortalTypeRegistry.cpp" />
+    <ClCompile Include="src\portal\PortalManager.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\CreditsHelper.cpp" />
     <ClCompile Include="src\GUI\FadeScreen.cpp" />
@@ -201,6 +203,8 @@
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\portal\PortalTypeRegistry.h" />
+    <ClInclude Include="src\portal\PortalManager.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="deps\raylib\include\reasings.h" />
     <ClInclude Include="deps\spdlog\async.h" />
@@ -309,6 +313,7 @@
     <ClInclude Include="deps\spdlog\version.h" />
     <ClInclude Include="src\CreditsHelper.h" />
     <ClInclude Include="src\GameAction.h" />
+    <ClInclude Include="src\portal\PortalTypes.h" />
     <ClInclude Include="src\GUI\FadeScreen.h" />
     <ClInclude Include="src\GUI\GUIStyle.h" />
     <ClInclude Include="src\states\EndScreenState.h" />

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <portal/PortalTypes.h>
 #include <raylib.h>
 #include <string>
 #include <variant>
@@ -16,6 +17,14 @@ struct EnemySpawnAction {
 	int column;
 };
 
+struct PortalSpawnAction {
+	int inRow;
+	int inCol;
+
+	int outRow;
+	int outCol;
+};
+
 struct DefenderSpawnAction {
 	std::string id;
 	int row;
@@ -26,5 +35,6 @@ struct WinAction {};
 
 struct LoseAction {};
 
-using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, WinAction, LoseAction>;
+using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction>;
+
 using GameActions = std::vector<GameAction>;

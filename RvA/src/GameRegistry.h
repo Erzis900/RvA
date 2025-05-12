@@ -5,6 +5,7 @@
 #include "drops/DropRegistry.h"
 #include "enemy/EnemyTypeRegistry.h"
 #include "levels/LevelRegistry.h"
+#include "portal/PortalTypeRegistry.h"
 
 /*
  * A class that keeps track of all the static data used as configuration for game.
@@ -17,12 +18,14 @@ public:
 	void addBullet(std::string id, BulletData info);
 	void addDrop(std::string id, DropTypeInfo info);
 	void addLevel(std::string id, LevelInfo info);
+	void addPortal(PortalTypeInfo info);
 
 	const EnemyTypeInfo* getEnemy(const std::string& id) const;
 	const DefenderTypeInfo* getDefender(const std::string& id) const;
 	const BulletData* getBullet(const std::string& id) const;
 	const DropTypeInfo* getDrop(const std::string& id) const;
 	const LevelInfo* getLevel(const std::string& id) const;
+	const PortalTypeInfo* getPortal(PortalType type) const;
 
 	const auto& getEnemies() const {
 		return m_enemyRegistry.getEnemyTypeInfos();
@@ -42,4 +45,5 @@ private:
 	BulletTypeRegistry m_bulletRegistry;
 	DropRegistry m_dropRegistry;
 	LevelRegistry m_levelRegistry;
+	PortalTypeRegistry m_portalRegistry;
 };

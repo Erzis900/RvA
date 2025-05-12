@@ -45,6 +45,8 @@ private:
 	void registerEnemyTypes();
 	void registerDropTypes();
 	void registerLevels();
+	void registerPortals();
+	
 	void verifyLevelData();
 	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
 
