@@ -1,10 +1,10 @@
 #include "PortalTypeRegistry.h"
 
-void PortalTypeRegistry::registerPortal(PortalTypeInfo PortalTypeInfo) {
-	m_portalTypes.insert({PortalTypeInfo.type, std::move(PortalTypeInfo)});
+void PortalTypeRegistry::registerPortal(std::string id, PortalTypeInfo PortalTypeInfo) {
+	m_portalTypes.insert({std::move(id), std::move(PortalTypeInfo)});
 }
 
-const PortalTypeInfo* PortalTypeRegistry::getPortalInfo(PortalType type) const {
-	auto itr = m_portalTypes.find(type);
+const PortalTypeInfo* PortalTypeRegistry::getPortalInfo(const std::string& id) const {
+	auto itr = m_portalTypes.find(id);
 	return (itr != m_portalTypes.end()) ? &itr->second : nullptr;
 }
