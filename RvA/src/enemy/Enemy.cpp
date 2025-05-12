@@ -1,7 +1,7 @@
 #include "Enemy.h"
 
-#include "portal/PortalManager.h"
 #include "constants.h"
+#include "portal/PortalManager.h"
 
 #include <iostream>
 #include <raymath.h>
@@ -18,15 +18,15 @@ void Enemy::setState(EnemyState state) {
 		m_state = state;
 
 		switch (state) {
-		case EnemyState::Idle  : setAnimation(m_typeInfo->idleAnimation); break;
-		case EnemyState::Moving: setAnimation(m_typeInfo->moveAnimation); break;
+		case EnemyState::Idle			: setAnimation(m_typeInfo->idleAnimation); break;
+		case EnemyState::Moving			: setAnimation(m_typeInfo->moveAnimation); break;
 		case EnemyState::PrepareToAttack:
-		case EnemyState::ReadyToAttack:
+		case EnemyState::ReadyToAttack	: {
 			setAnimation(m_typeInfo->attackAnimation);
 			m_attackTime = 0.5f;
 			break;
+		}
 		case EnemyState::Summoning: setAnimation(m_typeInfo->summonAnimation); break;
-
 		case EnemyState::Dying	  : setAnimation(m_typeInfo->dyingAnimation); break;
 		}
 	}
@@ -66,9 +66,8 @@ std::optional<PortalSpawnAction> Enemy::update(float dt) {
 	case EnemyState::Summoning:
 		performSummoning();
 
-		if (m_spawnedPortal) {										  // we spawn portal after animation is done (debatable but easier to do for me)
-			std::tuple<int, int> coords = getCoordinates(m_position); // TODO: I believe it returns wrong col (+1)
-			int col = std::get<1>(coords);
+		if (m_spawnedPortal) { // we spawn portal after animation is done (debatable but easier to do for me)
+			auto [row, col] = getCoordinates(getCenteredPosition());
 
 			return PortalSpawnAction{m_row, col - 2, m_row + 2, col - 4};
 		}
@@ -121,7 +120,7 @@ void Enemy::performMove(float dt) {
 	m_position.x -= m_typeInfo->speed * dt;
 
 	if (m_typeInfo->type == EnemyType::Portal && !m_spawnedPortal) {
-		if (m_position.x <= TEX_WIDTH - CELL_SIZE) {
+		if (m_position.x <= GAME_RENDERTEXTURE_SIZE.x - CELL_SIZE) {
 			setState(EnemyState::Summoning);
 		}
 	}

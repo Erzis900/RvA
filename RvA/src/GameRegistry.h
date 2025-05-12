@@ -18,14 +18,14 @@ public:
 	void addBullet(std::string id, BulletData info);
 	void addDrop(std::string id, DropTypeInfo info);
 	void addLevel(std::string id, LevelInfo info);
-	void addPortal(PortalTypeInfo info);
+	void addPortal(std::string id, PortalTypeInfo info);
 
 	const EnemyTypeInfo* getEnemy(const std::string& id) const;
 	const DefenderTypeInfo* getDefender(const std::string& id) const;
 	const BulletData* getBullet(const std::string& id) const;
 	const DropTypeInfo* getDrop(const std::string& id) const;
 	const LevelInfo* getLevel(const std::string& id) const;
-	const PortalTypeInfo* getPortal(PortalType type) const;
+	const PortalTypeInfo* getPortal(const std::string& id) const;
 
 	const auto& getEnemies() const {
 		return m_enemyRegistry.getEnemyTypeInfos();

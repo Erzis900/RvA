@@ -234,8 +234,8 @@ void Session::performAction(const LoseAction& action) {
 }
 
 void Session::performAction(const PortalSpawnAction& action) {
-	auto entrance = m_gameRegistry.getPortal(PortalType::Entrance);
-	auto exit = m_gameRegistry.getPortal(PortalType::Exit);
+	auto entrance = m_gameRegistry.getPortal("entrance");
+	auto exit = m_gameRegistry.getPortal("exit");
 	m_portalManager.spawnPortals(entrance, exit, action.inRow, action.inCol, action.outRow, action.outCol);
 }
 
@@ -340,7 +340,7 @@ void Session::resetSelectedDefender() {
 	m_hud.data().selectedDefenderIndex.reset();
 }
 
-void Session::clearAllEntities() {	
+void Session::clearAllEntities() {
 	m_portalManager.clear();
 	m_defenderManager.clear();
 	m_enemyManager.clear();

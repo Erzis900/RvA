@@ -20,8 +20,8 @@ void GameRegistry::addLevel(std::string id, LevelInfo info) {
 	m_levelRegistry.registerLevel(std::move(id), std::move(info));
 }
 
-void GameRegistry::addPortal(PortalTypeInfo info) {
-	m_portalRegistry.registerPortal(std::move(info));
+void GameRegistry::addPortal(std::string id, PortalTypeInfo info) {
+	m_portalRegistry.registerPortal(std::move(id), std::move(info));
 }
 
 const EnemyTypeInfo* GameRegistry::getEnemy(const std::string& id) const {
@@ -44,6 +44,6 @@ const LevelInfo* GameRegistry::getLevel(const std::string& id) const {
 	return m_levelRegistry.getLevel(id);
 }
 
-const PortalTypeInfo* GameRegistry::getPortal(PortalType type) const {
-	return m_portalRegistry.getPortalInfo(type);
+const PortalTypeInfo* GameRegistry::getPortal(const std::string& id) const {
+	return m_portalRegistry.getPortalInfo(id);
 }
