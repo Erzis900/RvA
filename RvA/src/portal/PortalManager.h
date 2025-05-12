@@ -45,6 +45,10 @@ public:
 	void spawnPortals(const PortalTypeInfo* entranceTypeInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol);
 
 private:
+	void setState(std::unique_ptr<Portal>& portal, PortalState state);
+
+	void performSummoning(std::unique_ptr<Portal>& portal);
+
 	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col);
 
 	std::vector<PortalPair> m_portalPairs;

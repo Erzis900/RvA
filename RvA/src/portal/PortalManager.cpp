@@ -44,12 +44,28 @@ void PortalManager::draw(Atlas& atlas) {
 }
 
 void PortalManager::update(float dt) {
-	for (auto& pair : m_portalPairs) {
-		auto& entrance = pair.entrance;
-		auto& exit = pair.exit;
+	auto updatePortal = [dt, this](std::unique_ptr<Portal>& portal) {
+		portal->animation.update(dt);
 
-		entrance->animation.update(dt);
-		exit->animation.update(dt);
+		switch (portal->state) {
+		case PortalState::Summoning: performSummoning(portal); break;
+		}
+	};
+
+	for (auto& pair : m_portalPairs) {
+		updatePortal(pair.entrance);
+		updatePortal(pair.exit);
+	}
+}
+
+void PortalManager::setState(std::unique_ptr<Portal>& portal, PortalState state) {
+	portal->state = state;
+}
+
+void PortalManager::performSummoning(std::unique_ptr<Portal>& portal) {
+	if (portal->animation.isOver()) {
+		setState(portal, PortalState::Idle);
+		portal->animation = Animation::createAnimation(portal->info->spriteIdle);
 	}
 }
 
