@@ -4,9 +4,8 @@
 
 #include "MusicManager.h"
 
-DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem) {
+DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem), m_musicManager(musicManager) {
 	m_defenders.reserve(128);
-	m_musicManager = musicManager;
 }
 
 void DefenderManager::clear() {

@@ -49,8 +49,6 @@ class DefenderManager {
 public:
 	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager);
 
-	MusicManager& m_musicManager;
-
 	void clear();
 	void draw(Atlas& atlas);
 	DefenderUpdateResult update(float dt);
@@ -71,4 +69,5 @@ private:
 	std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = {nullptr};
 	CallbackRegistry<int, int> m_onDefenderDestroyedCallbacks;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 };

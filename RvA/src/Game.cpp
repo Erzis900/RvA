@@ -22,7 +22,7 @@ using namespace std::string_literals;
 
 // We do this to avoid recompilation of every class depending on Game.h
 struct Game::pimpl {
-	pimpl() : m_scale(1.f), m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager), m_gameSession(m_gui, m_gameRegistry, m_musicManager, m_config), m_musicManager(m_config) {
+	pimpl() : m_scale(1.f), m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager), m_gameSession(m_gui, m_gameRegistry, m_musicManager), m_musicManager(m_config) {
 		Random::setInstance(&m_random);
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 		InitWindow(m_screenWidth, m_screenHeight, "RvA");
