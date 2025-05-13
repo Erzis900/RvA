@@ -28,9 +28,11 @@ void MusicManager::load() {
 void MusicManager::play(Music& music) {
 	if (m_config.options.isMusic) {
 		if (!IsMusicStreamPlaying(music)) {
-			StopMusicStream(m_currentMusic);
+			if (m_currentMusic) {
+				StopMusicStream(*m_currentMusic);
+			}
 			m_currentMusic = music;
-			PlayMusicStream(m_currentMusic);
+			PlayMusicStream(*m_currentMusic);
 		}
 	}
 }
@@ -48,7 +50,7 @@ void MusicManager::stop(Music& music) {
 }
 
 void MusicManager::updateStream() {
-	if (m_config.options.isMusic) {
-		UpdateMusicStream(m_currentMusic);
+	if (m_config.options.isMusic && m_currentMusic) {
+		UpdateMusicStream(*m_currentMusic);
 	}
 }

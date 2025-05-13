@@ -8,6 +8,7 @@
 struct PortalTypeInfo {
 	PortalType type{};
 	AnimationData spriteIdle;
+	AnimationData spriteOpen;
 	AnimationData spriteClose;
 	float lifespan{};
 };

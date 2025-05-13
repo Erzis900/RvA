@@ -385,6 +385,24 @@ void Game::registerDropTypes() {
 	m_pimpl->m_gameRegistry.addDrop("simpleScraps", {.type = DropType::Scraps, .idleAnimation = {sprite("scraps_icon"), 0.1f}, .animationDuration = 0.5f, .size = Vector2{24, 24}});
 }
 
+void Game::registerPortals() {
+	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
+
+	m_pimpl->m_gameRegistry.addPortal("entrance",
+									  {.type = PortalType::Entrance,
+									   .spriteIdle = {sprite("portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .lifespan = 4.f});
+
+	m_pimpl->m_gameRegistry.addPortal("exit",
+									  {.type = PortalType::Exit,
+									   .spriteIdle = {sprite("portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .lifespan = 4.f});
+}
+
 void Game::registerLevels() {
 	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
 
@@ -652,13 +670,4 @@ Config& Game::getConfig() {
 // If someone is interested in rendering something custom they can register a callback
 [[nodiscard]] CallbackHandle Game::registerDrawingCallback(std::function<void()> callback) {
 	return m_pimpl->m_drawCallbacks.registerCallback(std::move(callback));
-}
-
-void Game::registerPortals() {
-	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
-
-	m_pimpl->m_gameRegistry.addPortal("entrance", {.type = PortalType::Entrance, .spriteIdle = {sprite("portal_idle"), 0.1f}, .spriteClose = {sprite("portal_close"), 0.1f, 1, true}, .lifespan = 4.f});
-
-	// Entrance and close the same for now
-	m_pimpl->m_gameRegistry.addPortal("exit", {.type = PortalType::Exit, .spriteIdle = {sprite("portal_idle"), 0.1f}, .spriteClose = {sprite("portal_close"), 0.1f, 1, true}, .lifespan = 4.f});
 }

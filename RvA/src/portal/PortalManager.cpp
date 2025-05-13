@@ -30,7 +30,7 @@ std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, 
 	portal->info = info;
 	portal->type = info->type;
 	portal->position = Vector2{GRID_OFFSET.x + (float(col) * CELL_SIZE), GRID_OFFSET.y + (float(row) * CELL_SIZE) - 5};
-	portal->animation = Animation::createAnimation(info->spriteClose);
+	portal->animation = Animation::createAnimation(info->spriteOpen);
 
 	portal->lifespan = info->lifespan;
 	portal->row = row;
@@ -99,7 +99,6 @@ void PortalManager::performIdle(std::unique_ptr<Portal>& portal, float dt) {
 
 		m_collisionSystem.destroyCollider(portal->colliderHandle);
 		portal->animation = Animation::createAnimation(portal->info->spriteClose);
-		portal->animation.reverse();
 	}
 }
 

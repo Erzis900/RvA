@@ -1,4 +1,6 @@
 #pragma once
+
+#include <optional>
 #include <raylib.h>
 
 class Config;
@@ -56,7 +58,7 @@ private:
 	Music m_gameMusic;
 	Music m_lostMusic;
 
-	Music m_currentMusic;
+	std::optional<Music> m_currentMusic;
 
 	Sound s_buttonClick;
 	Sound s_laserShoot;

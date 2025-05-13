@@ -15,10 +15,6 @@ public:
 
 	void update(float dt);
 
-	void reverse() {
-		m_reverse = !m_reverse;
-	}
-
 	int getCurrentFrame() const {
 		return m_currentFrame;
 	}
@@ -35,5 +31,6 @@ private:
 	int m_currentFrame{};
 	float m_elapsedTime{};
 	int m_loop{-1}; // -1 = infinite loop, N = execute the animation N times
-	bool m_reverse{false};
+	int m_step{1};	// 1 = forward, -1 = backward
+	int m_lastFrame{};
 };
