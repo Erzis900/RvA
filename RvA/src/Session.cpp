@@ -7,9 +7,9 @@
 #include <ranges>
 #include <raymath.h>
 
-Session::Session(GUI& gui, const GameRegistry& gameRegistry)
+Session::Session(GUI& gui, const GameRegistry& gameRegistry, MusicManager& musicManager)
 	: m_gameRegistry(gameRegistry)
-	, m_defenderManager(m_collisionSystem)
+	, m_defenderManager(m_collisionSystem, musicManager)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)

@@ -34,7 +34,7 @@ enum class SessionState {
  */
 class Session {
 public:
-	Session(GUI& gui, const GameRegistry& gameRegistry);
+	Session(GUI& gui, const GameRegistry& gameRegistry, MusicManager& musicManager);
 	~Session();
 
 	void setState(SessionState state);
@@ -67,6 +67,10 @@ public:
 
 	const auto& getCurrentLevel() const {
 		return *m_levelData;
+	}
+
+	const auto& getMusicManager() const {
+		return m_musicManager;
 	}
 
 private:
@@ -125,6 +129,7 @@ private:
 	DefenderPicker m_defenderPicker;
 	LevelManager m_levelManager;
 	PortalManager m_portalManager;
+	MusicManager m_musicManager;
 	HUD m_hud;
 	bool m_demoMode{false};
 };

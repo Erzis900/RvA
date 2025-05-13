@@ -47,7 +47,9 @@ struct DefenderUpdateResult {
 
 class DefenderManager {
 public:
-	DefenderManager(CollisionSystem& collisionSystem);
+	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager);
+
+	MusicManager& m_musicManager;
 
 	void clear();
 	void draw(Atlas& atlas);
