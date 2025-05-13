@@ -5,6 +5,7 @@
 
 #include <raylib.h>
 #include <variant>
+#include "MusicManager.h"
 
 /*
  * Bullet Shot
@@ -29,6 +30,8 @@ struct LaserBeamData {
 	Color beamStartColor{255, 0, 0, 255};
 	Color beamEndColor{255, 255, 255, 128};
 	float maxLifetime{};
+	MusicManager* musicManager; // Is there a better way to call MusicManager from BulletManager.cpp?
+	Sound* shootSound;
 	float shootAnimationSpeed{};
 	float shootAnimationDuration{};
 	float shootAnimationTime{};

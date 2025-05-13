@@ -27,6 +27,8 @@ Config::Config() {
 	options.isFullscreen = m_data["fullscreen"];
 	options.isMusic = m_data["music"];
 	options.isSound = m_data["sound"];
+	//options.musicVolume = m_data["musicVolume"];
+	//options.soundVolume = m_data["soundVolume"];
 }
 
 void Config::save() {
@@ -38,6 +40,8 @@ void Config::save() {
 	m_data["fullscreen"] = options.isFullscreen;
 	m_data["music"] = options.isMusic;
 	m_data["sound"] = options.isSound;
+	//m_data["musicVolume"] = options.musicVolume;
+	//m_data["soundVolume"] = options.soundVolume;
 
 	configFile << m_data.dump(4);
 	configFile.close();

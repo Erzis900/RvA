@@ -11,6 +11,9 @@ public:
 		bool isFullscreen{false};
 		bool isMusic{true};
 		bool isSound{true};
+		//TODO How do I add float?
+		//float musicVolume{0.2f};
+		//float soundVolume{0.2f};
 	} options;
 
 	json getData() const {

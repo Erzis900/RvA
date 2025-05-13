@@ -2,6 +2,7 @@
 
 #include "Animation.h"
 #include "enemy/EnemyTypes.h"
+#include "MusicManager.h"
 #include "utilities/ConfigValue.h"
 
 #include <optional>
@@ -49,6 +50,8 @@ struct EnemyTypeInfo {
 	AnimationData moveAnimation;
 	AnimationData attackAnimation;
 	AnimationData dyingAnimation;
+	MusicManager* musicManager;
+	Sound dyingSoundEffect;
 	AnimationData summonAnimation;
 	EnemyBehaviorInfo behavior{}; // right now we consider only one potential behaviour per enemy
 };

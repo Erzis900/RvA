@@ -30,6 +30,8 @@ GameActions EnemyManager::update(float dt) {
 
 		if (!enemy->isDying()) {
 			if (enemy->getHp() <= 0) {
+				// TODO I don't know whats causing the error, please fix this:
+				//enemy->getInfo()->musicManager->play(enemy->getInfo()->dyingSoundEffect); 
 				enemy->setState(EnemyState::Dying);
 				m_collisionSystem.destroyCollider(enemy->getColliderHandle());
 			} else {

@@ -97,6 +97,8 @@ void BulletManager::setupBullet(Bullet& bullet, LaserBeamData& data) {
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
 	data.beamWidth = 0;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight});
+	// But I want this: data.musicManager->play(data.shootSound);
+	data.musicManager->play(data.musicManager->getLaserShoot());
 }
 
 void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt) {

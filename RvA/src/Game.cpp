@@ -314,8 +314,11 @@ void Game::registerBulletTypes() {
 										  .beamStartColor = {245, 125, 74, 255},
 										  .beamEndColor = RED,
 										  .maxLifetime = 0.4f,
+										  .musicManager = &getMusicManager(),
+										  .shootSound = &getMusicManager().getLongLaser(),
 										  .shootAnimationSpeed = 15,
 										  .shootAnimationDuration = 2.f,
+										  
 									  });
 }
 
@@ -335,7 +338,9 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .musicManager = &getMusicManager(),
+									  .dyingSoundEffect = getMusicManager().getAlienDeath()});
 
 	m_pimpl->m_gameRegistry.addEnemy("B2",
 									 {.type = EnemyType::B2,
