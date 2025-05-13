@@ -19,7 +19,7 @@ enum class EnemyState {
 	Moving,
 	PrepareToAttack,
 	ReadyToAttack,
-	Summoning,
+	Action,
 	Dying,
 	Dead
 };
@@ -28,7 +28,7 @@ class Enemy {
 public:
 	Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row);
 
-	std::optional<PortalSpawnAction> update(float dt);
+	GameAction update(float dt);
 	void draw(Atlas& atlas);
 
 	void applyDamage(const Damage& damage);
@@ -66,12 +66,19 @@ public:
 
 private:
 	void performIdle(float dt);
-	void performMove(float dt);
+	GameAction performMove(float dt);
 	void performPrepareAttack(float dt);
 	void performDying();
-	void performSummoning();
 
 	void setAnimation(const AnimationData& animationData);
+
+	void setupBehavior(const EnemyBehaviorInfo& behaviorInfo);
+	void setupBehavior(const PortalSpawnBehaviorInfo& behaviorInfo);
+	void setupBehavior(const std::monostate& behaviorInfo);
+
+	GameAction updateBehavior(EnemyBehavior& behaviorInfo, float dt);
+	GameAction updateBehavior(PortalSpawnBehavior& behaviorInfo, float dt);
+	GameAction updateBehavior(std::monostate& behaviorInfo, float dt);
 
 	std::string m_spriteName;
 	Vector2 m_position{};
@@ -81,10 +88,10 @@ private:
 	Interpolation<> m_damageTakenAnimation;
 	Color m_tint{WHITE};
 	Damage m_latestDamageApplied;
-	bool m_spawnedPortal{false};
 
 	Animation m_animation;
 	EnemyState m_state;
 	const EnemyTypeInfo* m_typeInfo{};
 	ColliderHandle m_colliderHandle{};
+	EnemyBehavior m_behavior{};
 };

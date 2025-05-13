@@ -35,6 +35,8 @@ struct WinAction {};
 
 struct LoseAction {};
 
-using GameAction = std::variant<BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction>;
+struct [[nodiscard]] GameAction : public std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction> {
+	using std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction>::variant;
+};
 
 using GameActions = std::vector<GameAction>;

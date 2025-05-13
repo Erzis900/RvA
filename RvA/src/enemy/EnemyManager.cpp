@@ -23,9 +23,9 @@ GameActions EnemyManager::update(float dt) {
 	for (auto it = m_enemies.begin(); it != m_enemies.end();) {
 		auto& enemy = *it;
 
-		auto portalSpawnAction = enemy->update(dt);
-		if (portalSpawnAction.has_value()) {
-			actions.push_back(portalSpawnAction.value());
+		auto gameAction = enemy->update(dt);
+		if (!std::holds_alternative<std::monostate>(gameAction)) {
+			actions.push_back(gameAction);
 		}
 
 		if (!enemy->isDying()) {

@@ -366,7 +366,17 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
-									  .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1}});
+									  .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1},
+									  .behavior = PortalSpawnBehaviorInfo{
+										  .timeBeforeActing = 2.5f,
+										  .timeBeforeActingAgain = 1.f,
+										  .chanceIncreaseOverTime = 1.f,
+										  .baseChanceToSpawn = 30.f,
+										  .columnDistance = RandomRange{4, 8},
+										  .rowDistance = RandomRange{-2, 2},
+										  .portalCastRange = FixedValue{3},
+										  .animation = {sprite("portal_alien_summon"), 0.1f, 1},
+									  }});
 }
 
 void Game::registerDropTypes() {
@@ -385,7 +395,7 @@ void Game::registerLevels() {
 
 	auto lastColumn = FixedValue{18};
 
-	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
+	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 200.1f}};
 	m_pimpl->m_gameRegistry.addLevel("level1",
 									 {
 										 .name = "Level 1",
@@ -400,6 +410,14 @@ void Game::registerLevels() {
 											 {
 												 .keyframes =
 													 {
+														 {0.f,
+														  SpawnEntityBurstOperation{
+															  .amount = FixedValue{1},
+															  .interval = FixedValue{1.f},
+															  .row = RandomRange{0, 6},
+															  .column = lastColumn,
+															  .id = selection,
+														  }},
 														 {3.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}}},
 														 {5.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}}},
 														 {7.f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"B1"s}}},

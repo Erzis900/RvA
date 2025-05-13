@@ -82,6 +82,7 @@ private:
 	void performAction(const DefenderSpawnAction& action);
 	void performAction(const WinAction& action);
 	void performAction(const LoseAction& action);
+	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
 		static_assert(sizeof(T) == 0, "Missing performAction overload for this type");

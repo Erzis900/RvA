@@ -20,7 +20,7 @@ flow::FsmAction OptionsState::enter() {
 		m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
 	}
 
-	auto btnSize = Vector2{autoSize, 30.f};
+	auto btnSize = Vector2{100.f, 30.f};
 	auto& gui = m_game.getGUI();
 	auto& config = m_game.getConfig();
 

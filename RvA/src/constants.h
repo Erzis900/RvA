@@ -26,3 +26,5 @@ constexpr Color DEFAULT_BKG_COLOR = {30, 46, 73, 255};
 std::tuple<int, int> getCoordinates(const Vector2& position);
 Vector2 getSnappedPosition(const Vector2& position);
 Vector2 getSnappedPosition(int row, int column);
+int clampColumn(int column);
+int clampRow(int row);

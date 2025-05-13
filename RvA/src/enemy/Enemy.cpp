@@ -10,6 +10,7 @@ Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row) : m_posit
 	m_hp = typeInfo->maxHp;
 	m_attackTime = typeInfo->attackTime;
 	setAnimation(m_typeInfo->idleAnimation);
+	setupBehavior(m_typeInfo->behavior);
 	setState(EnemyState::Idle);
 }
 
@@ -26,8 +27,7 @@ void Enemy::setState(EnemyState state) {
 			m_attackTime = 0.5f;
 			break;
 		}
-		case EnemyState::Summoning: setAnimation(m_typeInfo->summonAnimation); break;
-		case EnemyState::Dying	  : setAnimation(m_typeInfo->dyingAnimation); break;
+		case EnemyState::Dying: setAnimation(m_typeInfo->dyingAnimation); break;
 		}
 	}
 }
@@ -57,28 +57,22 @@ void Enemy::setPosition(Vector2 position) {
 	m_position = position;
 }
 
-std::optional<PortalSpawnAction> Enemy::update(float dt) {
+GameAction Enemy::update(float dt) {
+	GameAction action{};
+
 	switch (m_state) {
 	case EnemyState::Idle			: performIdle(dt); break;
-	case EnemyState::Moving			: performMove(dt); break;
+	case EnemyState::Moving			: action = performMove(dt); break;
 	case EnemyState::PrepareToAttack: performPrepareAttack(dt); break;
 	case EnemyState::Dying			: performDying(); break;
-	case EnemyState::Summoning:
-		performSummoning();
-
-		if (m_spawnedPortal) { // we spawn portal after animation is done (debatable but easier to do for me)
-			auto [row, col] = getCoordinates(getCenteredPosition());
-
-			return PortalSpawnAction{m_row, col - 2, m_row + 2, col - 4};
-		}
-		break;
-	case EnemyState::Dead: break;
+	case EnemyState::Action			: action = updateBehavior(m_behavior, dt); break;
+	case EnemyState::Dead			: break;
 	}
 
 	m_animation.update(dt);
 	m_damageTakenAnimation.update(dt);
 
-	return std::nullopt;
+	return action;
 }
 
 void Enemy::draw(Atlas& atlas) {
@@ -116,27 +110,16 @@ void Enemy::performIdle(float dt) {
 	setState(EnemyState::Moving);
 }
 
-void Enemy::performMove(float dt) {
+GameAction Enemy::performMove(float dt) {
 	m_position.x -= m_typeInfo->speed * dt;
 
-	if (m_typeInfo->type == EnemyType::Portal && !m_spawnedPortal) {
-		if (m_position.x <= GAME_RENDERTEXTURE_SIZE.x - CELL_SIZE) {
-			setState(EnemyState::Summoning);
-		}
-	}
+	return updateBehavior(m_behavior, dt);
 }
 
 void Enemy::performPrepareAttack(float dt) {
 	m_attackTime -= dt;
 	if (m_attackTime <= 0.f) {
 		setState(EnemyState::ReadyToAttack);
-	}
-}
-
-void Enemy::performSummoning() {
-	if (m_animation.isOver()) {
-		m_spawnedPortal = true;
-		setState(EnemyState::Moving);
 	}
 }
 
@@ -148,4 +131,63 @@ void Enemy::performDying() {
 
 void Enemy::setAnimation(const AnimationData& animationData) {
 	m_animation = Animation::createAnimation(animationData);
+}
+
+void Enemy::setupBehavior(const EnemyBehaviorInfo& behaviorInfo) {
+	std::visit([&](auto&& behavior) { setupBehavior(behavior); }, behaviorInfo);
+}
+
+void Enemy::setupBehavior(const PortalSpawnBehaviorInfo& behaviorInfo) {
+	m_behavior = PortalSpawnBehavior{
+		.currentChance = behaviorInfo.baseChanceToSpawn,
+		.timeChance = behaviorInfo.timeBeforeActing,
+		.numberOfSpawnedPortals = 0,
+	};
+}
+
+void Enemy::setupBehavior(const std::monostate& behaviorInfo) {}
+
+GameAction Enemy::updateBehavior(EnemyBehavior& behavior, float dt) {
+	return std::visit([&](auto&& arg) { return updateBehavior(arg, dt); }, behavior);
+}
+
+GameAction Enemy::updateBehavior(PortalSpawnBehavior& behavior, float dt) {
+	auto& info = std::get<PortalSpawnBehaviorInfo>(m_typeInfo->behavior);
+
+	if (m_state == EnemyState::Action) {
+		if (m_animation.isOver()) {
+			behavior.numberOfSpawnedPortals++;
+
+			auto castRange = info.portalCastRange.generate();
+			auto row = info.rowDistance.generate();
+			auto col = info.columnDistance.generate();
+
+			auto [currentRow, entranceCol] = getCoordinates(getCenteredPosition());
+			entranceCol -= castRange;
+
+			setState(EnemyState::Moving);
+
+			return PortalSpawnAction{currentRow, clampColumn(entranceCol), clampRow(currentRow + row), clampColumn(entranceCol - col)};
+		}
+	} else if (behavior.numberOfSpawnedPortals <= 0) {
+		behavior.timeChance -= dt;
+		behavior.currentChance += info.chanceIncreaseOverTime * dt;
+
+		if (behavior.timeChance <= 0) {
+			if (Random::range(0.f, 100.f) < behavior.currentChance) {
+				behavior.currentChance = 0.f;
+				behavior.timeChance = info.timeBeforeActingAgain;
+				setAnimation(info.animation);
+				setState(EnemyState::Action);
+			} else {
+				behavior.timeChance = info.timeBeforeActingAgain;
+			}
+		}
+	}
+
+	return {};
+}
+
+GameAction Enemy::updateBehavior(std::monostate& behaviorInfo, float dt) {
+	return {};
 }

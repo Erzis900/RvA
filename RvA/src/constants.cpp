@@ -1,5 +1,6 @@
 #include "constants.h"
 
+#include <algorithm>
 #include <cmath>
 
 std::tuple<int, int> getCoordinates(const Vector2& position) {
@@ -15,4 +16,12 @@ Vector2 getSnappedPosition(const Vector2& position) {
 
 Vector2 getSnappedPosition(int row, int column) {
 	return {GRID_OFFSET.x + column * CELL_SIZE, GRID_OFFSET.y + row * CELL_SIZE};
+}
+
+int clampColumn(int column) {
+	return std::clamp(column, 0, COLS - 1);
+}
+
+int clampRow(int row) {
+	return std::clamp(row, 0, ROWS - 1);
 }

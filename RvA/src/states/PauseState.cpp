@@ -11,7 +11,7 @@ flow::FsmAction PauseState::enter() {
 	m_game.getGameSession().setState(SessionState::Paused);
 
 	// clang-format off
-	auto btnSize = Vector2{autoSize, 30.f};
+	auto btnSize = Vector2{100.f, 30.f};
 	auto& gui = m_game.getGUI();	
 	gui.buildScreen("Pause")
 		.default_bkg(0.7f)

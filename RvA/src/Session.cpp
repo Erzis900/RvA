@@ -233,6 +233,10 @@ void Session::performAction(const LoseAction& action) {
 	setState(SessionState::Lost);
 }
 
+void Session::performAction(const std::monostate& action) {
+	// No action to perform
+}
+
 void Session::performAction(const PortalSpawnAction& action) {
 	auto entrance = m_gameRegistry.getPortal("entrance");
 	auto exit = m_gameRegistry.getPortal("exit");
