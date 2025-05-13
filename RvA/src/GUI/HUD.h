@@ -12,6 +12,7 @@
 
 class GUI;
 class Screen;
+class ResourceSystem;
 class Atlas;
 struct UIText;
 
@@ -43,6 +44,10 @@ struct HUDData {
 	std::vector<HUDDefenderData> defenders;
 	std::vector<ProgressBarData> progressBars;
 	std::string levelName;
+	bool tutorialEnabled{};
+	std::string tutorialText;
+	Vector2 tutorialHighlightSize{};
+	Vector2 tutorialHighlightPos{};
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -56,7 +61,7 @@ struct HUDData {
 
 class HUD {
 public:
-	HUD(GUI& gui);
+	HUD(GUI& gui, ResourceSystem& resourceSystem);
 
 	void update(float dt);
 	void setVisible(bool visible);
@@ -64,6 +69,7 @@ public:
 
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void(int)> callback);
+	CallbackHandle onTutorialNext(std::function<void()> callback);
 
 	// Data
 	auto& data() {
@@ -79,12 +85,15 @@ private:
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
+	void drawTutorial(Atlas& atlas);
 
 	bool m_isEnabled{true};
 	HUDData m_data;
 	GUI& m_gui;
+	ResourceSystem& m_resourceSystem;
 
 	CallbackRegistry<const int&> m_onDefenderSelectedCallbacks;
+	CallbackRegistry<> m_onTutorialNextCallbacks;
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};

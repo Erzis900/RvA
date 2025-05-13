@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GUI/FadeScreen.h"
 #include "GUI/HUD.h"
 #include "bullet/BulletManager.h"
 #include "collisions/Collider.h"
@@ -12,7 +11,6 @@
 #include "levels/LevelManager.h"
 #include "portal/PortalManager.h"
 
-class Game;
 class GUI;
 
 struct Wall {
@@ -34,7 +32,7 @@ enum class SessionState {
  */
 class Session {
 public:
-	Session(GUI& gui, const GameRegistry& gameRegistry);
+	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry);
 	~Session();
 
 	void setState(SessionState state);
@@ -82,6 +80,8 @@ private:
 	void performAction(const DefenderSpawnAction& action);
 	void performAction(const WinAction& action);
 	void performAction(const LoseAction& action);
+	void performAction(const TutorialAction& action);
+	void performAction(const HUDAction& action);
 	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
@@ -111,6 +111,7 @@ private:
 	Wall m_baseWall;
 	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
+	CallbackHandle m_onTutorialNextCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
 	CallbackHandle m_onCollectedDropHandle;
@@ -126,5 +127,6 @@ private:
 	LevelManager m_levelManager;
 	PortalManager m_portalManager;
 	HUD m_hud;
-	bool m_demoMode{false};
+	bool m_demoMode{};
+	bool m_tutorialMode{};
 };

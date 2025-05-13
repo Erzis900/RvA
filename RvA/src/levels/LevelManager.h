@@ -40,6 +40,8 @@ private:
 	void performKeyframeOperation(const KeyframeOperation& action);
 	void performKeyframeOperation(const SpawnEntityOperation& action);
 	void performKeyframeOperation(const SpawnEntityBurstOperation& action);
+	void performKeyframeOperation(const TutorialOperation& action);
+	void performKeyframeOperation(const HUDOperation& action);
 
 	bool checkCondition(const BatteryLevelCondition& condition, float dt);
 	bool checkCondition(const AllWavesGoneCondition& condition, float dt);

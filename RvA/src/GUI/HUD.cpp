@@ -2,11 +2,11 @@
 
 #include "GUI/GUI.h"
 #include "GUI/LayoutHelper.h"
+#include "ResourceSystem.h"
 #include "constants.h"
 
 #include <algorithm>
 #include <raymath.h>
-#include <rlgl.h>
 
 const float defenderSize = CELL_SIZE;
 const float defenderHSize = CELL_SIZE * 0.5f;
@@ -15,7 +15,7 @@ const float defenderSlotHSize = defenderSlotSize * 0.5f;
 const float defenderPadding = 5.f;
 const float maxBatteryFill = (defenderSize * ROWS) - CELL_SIZE * 0.5f;
 
-HUD::HUD(GUI& gui) : m_gui(gui) {
+HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSystem(resourceSystem) {
 	m_data.progressBars.reserve(128);
 
 	auto* bottomBarSpriteInfo = m_gui.getAtlas().getSpriteInfo("ui_bottom_bar");
@@ -80,6 +80,10 @@ HUD::HUD(GUI& gui) : m_gui(gui) {
 		.custom({
 			.draw = std::bind_front(&HUD::drawProgressBars, this),
 			.vAlign = VAlign::Center
+		})
+		// Tutorial Screen
+		.custom({
+			.draw = [this](auto& atlas, const auto& size){ drawTutorial(atlas); }
 		})
 		// Fade Screen
 		.custom({
@@ -157,8 +161,43 @@ void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgC
 	DrawRectangleRec(fg, fillColor);
 }
 
+void HUD::drawTutorial(Atlas& atlas) {
+	if (IsKeyDown(KEY_A) || m_data.tutorialEnabled) {
+		float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
+		auto holeSize = m_data.tutorialHighlightSize;
+
+		auto shader = m_resourceSystem.getShader("hole");
+
+		int holeCenterLoc = GetShaderLocation(shader, "holeCenter");
+		int resolutionLoc = GetShaderLocation(shader, "resolution");
+		int holeSizeLoc = GetShaderLocation(shader, "holeSize");
+
+		SetShaderValue(shader, holeCenterLoc, &m_data.tutorialHighlightPos, SHADER_UNIFORM_VEC2);
+		SetShaderValue(shader, resolutionLoc, &resolution, SHADER_UNIFORM_VEC2);
+		SetShaderValue(shader, holeSizeLoc, &holeSize, SHADER_UNIFORM_VEC2);
+
+		BeginShaderMode(shader);
+		atlas.drawSprite(atlas.getSpriteInfo("one_pixel"), {0, 0}, {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y});
+		EndShaderMode();
+
+		const char* text = m_data.tutorialText.c_str();
+		auto size = MeasureTextEx(GuiGetFont(), text, FONT_SMALL, 1);
+		auto rect = LayoutHelper::arrangePositionAndSize({0, 0}, size, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Center, VAlign::Center);
+		DrawTextEx(GuiGetFont(), text, {rect.x, rect.y}, FONT_SMALL, 1, WHITE);
+
+		rect = LayoutHelper::arrangePositionAndSize({0, 100}, {100, 40}, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Center, VAlign::Bottom);
+		if (GuiButton(rect, "Next")) {
+			m_onTutorialNextCallbacks.executeCallbacks();
+		}
+	}
+}
+
 CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
 	return m_onDefenderSelectedCallbacks.registerCallback(std::move(callback));
+}
+
+CallbackHandle HUD::onTutorialNext(std::function<void()> callback) {
+	return m_onTutorialNextCallbacks.registerCallback(std::move(callback));
 }
 
 void HUD::clear() {
@@ -209,7 +248,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 
 		defender.isHover = false;
 		bool isSelected = false;
-		if (m_isEnabled) {
+		if (m_isEnabled && !m_data.tutorialEnabled) {
 			isSelected = (m_data.selectedDefenderIndex == i);
 
 			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {

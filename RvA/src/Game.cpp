@@ -3,7 +3,9 @@
 #include "Config.h"
 #include "GUI/GUI.h"
 #include "GameRegistry.h"
+#include "LevelDefinition.h"
 #include "MusicManager.h"
+#include "ResourceSystem.h"
 #include "Session.h"
 #include "atlas/Atlas.h"
 #include "constants.h"
@@ -20,11 +22,24 @@
 
 using namespace std::string_literals;
 
+void MyTraceLog(int logLevel, const char* text, va_list args) {
+	vfprintf(stdout, text, args);
+	fprintf(stdout, "\n");
+}
+
 // We do this to avoid recompilation of every class depending on Game.h
 struct Game::pimpl {
-	pimpl() : m_scale(1.f), m_screenWidth(SCREEN_WIDTH), m_screenHeight(SCREEN_HEIGHT), m_gui(m_atlas, m_musicManager), m_gameSession(m_gui, m_gameRegistry), m_musicManager(m_config) {
+	pimpl()
+		: m_scale(1.f)
+		, m_screenWidth(SCREEN_WIDTH)
+		, m_screenHeight(SCREEN_HEIGHT)
+		, m_gui(m_atlas, m_musicManager)
+		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry)
+		, m_musicManager(m_config) {
 		Random::setInstance(&m_random);
+		SetTraceLogCallback(MyTraceLog); // Use our logger
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+		SetTraceLogLevel(LOG_ALL);
 		InitWindow(m_screenWidth, m_screenHeight, "RvA");
 		SetTargetFPS(60);
 
@@ -32,6 +47,8 @@ struct Game::pimpl {
 		m_uiRenderTexture = LoadRenderTexture(static_cast<int>(UI_RENDERTEXTURE_SIZE.x), static_cast<int>(UI_RENDERTEXTURE_SIZE.y));
 		SetTextureFilter(m_gameRenderTexture.texture, TEXTURE_FILTER_POINT);
 		SetTextureFilter(m_uiRenderTexture.texture, TEXTURE_FILTER_POINT);
+
+		m_resourceSystem.loadResources();
 
 		m_atlas.load("assets/atlas.png");
 		m_gui.loadResources();
@@ -133,6 +150,7 @@ struct Game::pimpl {
 	GUI m_gui;
 	Atlas m_atlas;
 	Config m_config;
+	ResourceSystem m_resourceSystem;
 	MusicManager m_musicManager;
 
 	GameRegistry m_gameRegistry;
@@ -150,7 +168,7 @@ Game::Game() {
 	registerBulletTypes();
 	registerEnemyTypes();
 	registerDropTypes();
-	registerLevels();
+	LevelDefinition::registerLevels(m_pimpl->m_gameRegistry, m_pimpl->m_atlas);
 	registerPortals();
 	verifyLevelData();
 
@@ -291,7 +309,7 @@ void Game::registerBulletTypes() {
 										  .offsetPos = {24, 7},
 										  .radius = 2.f,
 										  .damage = {25, 16},
-										  .maxLifetime = 3.f,
+										  .maxLifetime = 5.f,
 									  });
 
 	m_pimpl->m_gameRegistry.addBullet("ChasingShot",
@@ -299,7 +317,7 @@ void Game::registerBulletTypes() {
 										  .startOffset = {20, 8},
 										  .radius = 10.f,
 										  .damage = {50, 16},
-										  .maxLifetime = 3.f,
+										  .maxLifetime = 5.f,
 										  .speed = 150,
 										  .color = {165, 48, 48, 255},
 										  .direction = {1, 0},
@@ -403,199 +421,6 @@ void Game::registerPortals() {
 									   .lifespan = 4.f});
 }
 
-void Game::registerLevels() {
-	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
-
-	constexpr int MAX_BATTERY_CHARGE = 100;
-	std::string b1 = "B1";
-	std::string b2 = "B2";
-	std::string portal = "Portal";
-
-	auto lastColumn = FixedValue{18};
-
-	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 200.1f}};
-	m_pimpl->m_gameRegistry.addLevel("level1",
-									 {
-										 .name = "Level 1",
-										 .startingScraps = 100,
-										 .maxBatteryCharge = MAX_BATTERY_CHARGE,
-										 .winCountdownDuration = 2.f,
-										 .winCondition = AllWavesGoneCondition{},
-										 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-										 .groundBackground = sprite("ground_bkg"),
-										 .topBackground = sprite("top_bkg"),
-										 .timeline =
-											 {
-												 .keyframes =
-													 {
-														 {0.f,
-														  SpawnEntityBurstOperation{
-															  .amount = FixedValue{1},
-															  .interval = FixedValue{1.f},
-															  .row = RandomRange{0, 6},
-															  .column = lastColumn,
-															  .id = selection,
-														  }},
-														 {3.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-														 {5.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-														 {7.f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-														 {15.f,
-														  SpawnEntityBurstOperation{
-															  .amount = FixedValue{10},
-															  .interval = FixedValue{1.f},
-															  .row = RandomRange{0, 6},
-															  .column = lastColumn,
-															  .id = selection,
-														  }},
-													 },
-											 },
-									 });
-
-	m_pimpl->m_gameRegistry.addLevel("level2",
-									 {
-										 .name = "Level 2",
-										 .startingScraps = 100,
-										 .maxBatteryCharge = MAX_BATTERY_CHARGE,
-										 .winCountdownDuration = 2.f,
-										 .winCondition = AllWavesGoneCondition{},
-										 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-										 .groundBackground = sprite("ground_bkg"),
-										 .topBackground = sprite("top_bkg"),
-										 .timeline =
-											 {
-												 .keyframes =
-													 {
-														 {2.f,
-														  SpawnEntityBurstOperation{
-															  .amount = FixedValue{5},
-															  .interval = FixedValue{1.f},
-															  .row = RandomRange{0, 6},
-															  .column = lastColumn,
-															  .id = FixedValue{"B1"s},
-														  }},
-														 {10.f,
-														  SpawnEntityBurstOperation{
-															  .amount = FixedValue{5},
-															  .interval = FixedValue{1.f},
-															  .row = RandomRange{0, 6},
-															  .column = lastColumn,
-															  .id = FixedValue{"B2"s},
-														  }},
-														 {20.f,
-														  SpawnEntityBurstOperation{
-															  .amount = FixedValue{5},
-															  .interval = FixedValue{1.f},
-															  .row = RandomRange{0, 6},
-															  .column = lastColumn,
-															  .id = FixedValue{"Portal"s},
-														  }},
-													 },
-											 },
-									 });
-
-	auto enemyAt = [&](int row) { return SpawnEntityOperation{.row = FixedValue{row}, .column = lastColumn, .id = FixedValue{"B1"s}}; };
-
-	auto space = 2.5f;
-
-	m_pimpl->m_gameRegistry.addLevel("level3",
-									 {
-										 .name = "Hello",
-										 .startingScraps = 100,
-										 .maxBatteryCharge = 10000,
-										 .winCountdownDuration = 2.f,
-										 .winCondition = AllWavesGoneCondition{},
-										 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-										 .groundBackground = sprite("ground_bkg"),
-										 .topBackground = sprite("top_bkg"),
-										 .timeline = {.keyframes =
-														  {
-															  // H
-															  {space + 0.f, enemyAt(1)},
-															  {space + 0.f, enemyAt(2)},
-															  {space + 0.f, enemyAt(3)},
-															  {space + 0.f, enemyAt(4)},
-															  {space + 0.f, enemyAt(5)},
-															  {space + 0.5f, enemyAt(3)},
-															  {space + 1.f, enemyAt(3)},
-															  {space + 1.5f, enemyAt(1)},
-															  {space + 1.5f, enemyAt(2)},
-															  {space + 1.5f, enemyAt(3)},
-															  {space + 1.5f, enemyAt(4)},
-															  {space + 1.5f, enemyAt(5)},
-
-															  // E
-															  {space * 2 + 0.5f, enemyAt(1)},
-															  {space * 2 + 0.5f, enemyAt(2)},
-															  {space * 2 + 0.5f, enemyAt(3)},
-															  {space * 2 + 0.5f, enemyAt(4)},
-															  {space * 2 + 0.5f, enemyAt(5)},
-															  {space * 2 + 1.f, enemyAt(1)},
-															  {space * 2 + 1.f, enemyAt(3)},
-															  {space * 2 + 1.f, enemyAt(5)},
-															  {space * 2 + 1.5f, enemyAt(1)},
-															  {space * 2 + 1.5f, enemyAt(3)},
-															  {space * 2 + 1.5f, enemyAt(5)},
-
-															  // L
-															  {space * 3 + 0.5f, enemyAt(1)},
-															  {space * 3 + 0.5f, enemyAt(2)},
-															  {space * 3 + 0.5f, enemyAt(3)},
-															  {space * 3 + 0.5f, enemyAt(4)},
-															  {space * 3 + 0.5f, enemyAt(5)},
-															  {space * 3 + 1.f, enemyAt(5)},
-															  {space * 3 + 1.5f, enemyAt(5)},
-
-															  // L
-															  {space * 4 + 0.5f, enemyAt(1)},
-															  {space * 4 + 0.5f, enemyAt(2)},
-															  {space * 4 + 0.5f, enemyAt(3)},
-															  {space * 4 + 0.5f, enemyAt(4)},
-															  {space * 4 + 0.5f, enemyAt(5)},
-															  {space * 4 + 1.f, enemyAt(5)},
-															  {space * 4 + 1.5f, enemyAt(5)},
-
-															  // O
-															  {space * 5 + 0.5f, enemyAt(1)},
-															  {space * 5 + 0.5f, enemyAt(2)},
-															  {space * 5 + 0.5f, enemyAt(3)},
-															  {space * 5 + 0.5f, enemyAt(4)},
-															  {space * 5 + 0.5f, enemyAt(5)},
-															  {space * 5 + 1.f, enemyAt(1)},
-															  {space * 5 + 1.f, enemyAt(5)},
-															  {space * 5 + 1.5f, enemyAt(1)},
-															  {space * 5 + 1.5f, enemyAt(2)},
-															  {space * 5 + 1.5f, enemyAt(3)},
-															  {space * 5 + 1.5f, enemyAt(4)},
-															  {space * 5 + 1.5f, enemyAt(5)},
-														  }},
-									 });
-
-	auto defenderSelection = EntitySelection{{"Solarpanel", 0.25f}, {"Lasertron", 0.25f}, {"Catapult", 0.25f}, {"Shooter", 0.25f}};
-	m_pimpl->m_gameRegistry.addLevel("demoLevel",
-									 {.name = "",
-									  .startingScraps = 900,
-									  .maxBatteryCharge = 1000,
-									  .winCountdownDuration = 2.f,
-									  .winCondition = AllWavesGoneCondition{},
-									  .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-									  .groundBackground = sprite("ground_bkg"),
-									  .topBackground = sprite("top_bkg"),
-									  .timeline = {.keyframes = {
-													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{0}, .id = defenderSelection, .type = EntityType::Defender}},
-													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{1}, .id = defenderSelection, .type = EntityType::Defender}},
-													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{2}, .id = defenderSelection, .type = EntityType::Defender}},
-													   {0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{3}, .id = defenderSelection, .type = EntityType::Defender}},
-													   {0,
-														SpawnEntityBurstOperation{
-															.amount = FixedValue{2000},
-															.interval = RandomRange{1.f, 4.f},
-															.row = RandomRange{0, 6},
-															.column = lastColumn,
-															.id = selection,
-														}},
-												   }}});
-}
-
 void Game::verifyLevelData() {
 	auto levels = m_pimpl->m_gameRegistry.getLevels();
 	for (const auto& [levelName, level] : levels) {
@@ -662,6 +487,10 @@ Session& Game::getGameSession() {
 
 Config& Game::getConfig() {
 	return m_pimpl->m_config;
+}
+
+ResourceSystem& Game::getResourceSystem() {
+	return m_pimpl->m_resourceSystem;
 }
 
 // When it comes to rendering we should move to a more retained approach

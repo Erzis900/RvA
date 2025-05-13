@@ -24,6 +24,7 @@ for root, _, filenames in os.walk(base_dir):
 
 params = ""
 for file in individual_files:
+    print(file + "\n")
     params += f'"{file}" '
     
 for key, paths in frames.items():
@@ -33,6 +34,7 @@ for key, paths in frames.items():
     # Add the paths to the params string
     params += f'"{key}"="'
     for path in paths:
+        print(path + "\n")
         params += f'{path} '
 
     params += '" '

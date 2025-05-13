@@ -29,7 +29,22 @@ struct SpawnEntityBurstOperation {
 	EntityType type{EntityType::Enemy};
 };
 
-using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation>;
+struct TutorialOperation {
+	std::string text{};
+	Vector2 highlightPosition{};
+	Vector2 highlightSize{};
+};
+
+enum class HUDOperationType {
+	Disable,
+	Enable,
+};
+
+struct HUDOperation {
+	HUDOperationType type{};
+};
+
+using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation>;
 
 struct Keyframe {
 	float time;

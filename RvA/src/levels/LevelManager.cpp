@@ -92,6 +92,18 @@ void LevelManager::performKeyframeOperation(const SpawnEntityBurstOperation& act
 	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &action, .count = action.amount.generate(), .duration = action.interval.generate(), .time = 0.f});
 }
 
+void LevelManager::performKeyframeOperation(const TutorialOperation& action) {
+	m_onGameActionCallbacks.executeCallbacks(TutorialAction{
+		.text = action.text,
+		.highlightPosition = action.highlightPosition,
+		.highlightSize = action.highlightSize,
+	});
+}
+
+void LevelManager::performKeyframeOperation(const HUDOperation& action) {
+	m_onGameActionCallbacks.executeCallbacks(HUDAction{.enable = action.type == HUDOperationType::Enable});
+}
+
 void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type) {
 	auto entityId = id.generate();
 	auto rowVal = row.generate();

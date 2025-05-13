@@ -1,13 +1,11 @@
 #include "Session.h"
 
-#include "Game.h"
 #include "GameRegistry.h"
 
-#include <iostream>
 #include <ranges>
 #include <raymath.h>
 
-Session::Session(GUI& gui, const GameRegistry& gameRegistry)
+Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry)
 	: m_gameRegistry(gameRegistry)
 	, m_defenderManager(m_collisionSystem)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem)
@@ -15,7 +13,7 @@ Session::Session(GUI& gui, const GameRegistry& gameRegistry)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_levelManager(m_gameRegistry)
-	, m_hud(gui)
+	, m_hud(gui, resourceSystem)
 	, m_portalManager(m_collisionSystem) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
@@ -57,21 +55,23 @@ void Session::drawGrid() {
 }
 
 void Session::update(float dt) {
-	auto enemyResult = m_enemyManager.update(dt);
-	performActions(enemyResult);
-	m_collisionSystem.update(dt);
+	if (!m_tutorialMode) {
+		auto enemyResult = m_enemyManager.update(dt);
+		performActions(enemyResult);
+		m_collisionSystem.update(dt);
 
-	performDefenderSpawnOnInput();
-	auto result = m_defenderManager.update(dt);
-	performActions(result.actions);
+		performDefenderSpawnOnInput();
+		auto result = m_defenderManager.update(dt);
+		performActions(result.actions);
 
-	updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
+		updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
 
-	m_bulletManager.update(dt);
-	m_dropManager.update(dt);
-	m_defenderPicker.update(dt);
-	m_levelManager.update(dt);
-	m_portalManager.update(dt);
+		m_bulletManager.update(dt);
+		m_dropManager.update(dt);
+		m_defenderPicker.update(dt);
+		m_levelManager.update(dt);
+		m_portalManager.update(dt);
+	}
 
 	if (DEV_MODE) {
 		// When pressing F3 deal 500 damage to a random enemy
@@ -233,6 +233,19 @@ void Session::performAction(const LoseAction& action) {
 	setState(SessionState::Lost);
 }
 
+void Session::performAction(const TutorialAction& action) {
+	auto& data = m_hud.data();
+	m_tutorialMode = true;
+	data.tutorialEnabled = true;
+	data.tutorialText = action.text;
+	data.tutorialHighlightSize = action.highlightSize;
+	data.tutorialHighlightPos = action.highlightPosition;
+}
+
+void Session::performAction(const HUDAction& action) {
+	m_hud.setEnable(action.enable);
+}
+
 void Session::performAction(const std::monostate& action) {
 	// No action to perform
 }
@@ -262,6 +275,10 @@ void Session::setupHUD() {
 	hudData.levelName = m_levelData->info->name;
 	hudData.maxBatteryCharge = m_levelData->info->maxBatteryCharge;
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].id); });
+	m_onTutorialNextCallbackHandle = m_hud.onTutorialNext([&] {
+		m_hud.data().tutorialEnabled = false;
+		m_tutorialMode = false;
+	});
 }
 
 void Session::manageCollision(const Collision& collision) {
@@ -378,7 +395,6 @@ void Session::setState(SessionState state) {
 			m_defenderPicker.reset();
 			m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 			m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
-
 			setupHUD();
 			m_hud.setEnable(!m_demoMode);
 		} else {

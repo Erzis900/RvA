@@ -3,19 +3,20 @@
 #include "utilities/CallbackRegistry.h"
 
 #include <memory>
-#include <raylib.h>
 
 namespace flow {
 class Fsm;
 }
 
 template<typename T> class ConfigValue;
+
 class Atlas;
 class Config;
 class GameRegistry;
 class GUI;
 class MusicManager;
 class Session;
+class ResourceSystem;
 
 class Game {
 public:
@@ -30,6 +31,7 @@ public:
 	MusicManager& getMusicManager();
 	Session& getGameSession();
 	Config& getConfig();
+	ResourceSystem& getResourceSystem();
 
 	// When it comes to rendering we should move to a more retained approach
 	// Instead of propagating calls by calling Class::draw the idea is to move out from that pattern
@@ -44,9 +46,8 @@ private:
 	void registerBulletTypes();
 	void registerEnemyTypes();
 	void registerDropTypes();
-	void registerLevels();
 	void registerPortals();
-	
+
 	void verifyLevelData();
 	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
 

@@ -147,12 +147,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\LevelDefinition.cpp" />
     <ClCompile Include="src\portal\PortalTypeRegistry.cpp" />
     <ClCompile Include="src\portal\PortalManager.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\CreditsHelper.cpp" />
     <ClCompile Include="src\GUI\FadeScreen.cpp" />
     <ClCompile Include="src\levels\LevelRegistry.cpp" />
+    <ClCompile Include="src\ResourceSystem.cpp" />
     <ClCompile Include="src\states\EndScreenState.cpp" />
     <ClCompile Include="src\states\IntroState.cpp" />
     <ClCompile Include="src\bullet\BulletManager.cpp" />
@@ -203,6 +205,7 @@
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\LevelDefinition.h" />
     <ClInclude Include="src\portal\PortalTypeRegistry.h" />
     <ClInclude Include="src\portal\PortalManager.h" />
     <ClInclude Include="src\Config.h" />
@@ -316,6 +319,7 @@
     <ClInclude Include="src\portal\PortalTypes.h" />
     <ClInclude Include="src\GUI\FadeScreen.h" />
     <ClInclude Include="src\GUI\GUIStyle.h" />
+    <ClInclude Include="src\ResourceSystem.h" />
     <ClInclude Include="src\states\EndScreenState.h" />
     <ClInclude Include="src\states\IntroState.h" />
     <ClInclude Include="src\bullet\BulletManager.h" />
