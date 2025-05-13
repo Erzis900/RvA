@@ -12,6 +12,7 @@
 #include <vector>
 
 class CollisionSystem;
+class MusicManager;
 
 enum class DefenderState {
 	On,

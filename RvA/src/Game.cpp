@@ -318,7 +318,7 @@ void Game::registerBulletTypes() {
 										  .shootSound = &getMusicManager().getLongLaser(),
 										  .shootAnimationSpeed = 15,
 										  .shootAnimationDuration = 2.f,
-										  
+
 									  });
 }
 

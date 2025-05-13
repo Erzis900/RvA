@@ -69,10 +69,6 @@ public:
 		return *m_levelData;
 	}
 
-	const auto& getMusicManager() const {
-		return m_musicManager;
-	}
-
 private:
 	void drawGrid();
 	void updateBatteryAndScraps(float scrapGain, float batteryDrain);
@@ -129,7 +125,6 @@ private:
 	DefenderPicker m_defenderPicker;
 	LevelManager m_levelManager;
 	PortalManager m_portalManager;
-	MusicManager m_musicManager;
 	HUD m_hud;
 	bool m_demoMode{false};
 };

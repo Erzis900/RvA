@@ -1,8 +1,7 @@
 #include "DefenderManager.h"
 
-#include "collisions/CollisionSystem.h"
-
 #include "MusicManager.h"
+#include "collisions/CollisionSystem.h"
 
 DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem), m_musicManager(musicManager) {
 	m_defenders.reserve(128);
