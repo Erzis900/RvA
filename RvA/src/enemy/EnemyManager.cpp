@@ -6,7 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-EnemyManager::EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem) : m_gameRegistry(gameRegistry), m_collisionSystem(collisionSystem) {}
+EnemyManager::EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem, MusicManager& musicManager) : m_gameRegistry(gameRegistry), m_collisionSystem(collisionSystem), m_musicManager(musicManager) {}
 
 void EnemyManager::clear() {
 	for (auto& enemy : m_enemies) {
@@ -31,7 +31,8 @@ GameActions EnemyManager::update(float dt) {
 		if (!enemy->isDying()) {
 			if (enemy->getHp() <= 0) {
 				// TODO I don't know whats causing the error, please fix this:
-				//enemy->getInfo()->musicManager->play(enemy->getInfo()->dyingSoundEffect); 
+				//enemy->getInfo()->musicManager->play(enemy->getInfo()->dyingSoundEffect);
+				m_musicManager.play(m_musicManager.getAlienDeath());
 				enemy->setState(EnemyState::Dying);
 				m_collisionSystem.destroyCollider(enemy->getColliderHandle());
 			} else {

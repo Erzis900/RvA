@@ -19,7 +19,7 @@ struct EnemyDestroyedInfo {
 
 class EnemyManager {
 public:
-	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem);
+	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem, MusicManager& musicManger);
 
 	void clear();
 	GameActions update(float dt);
@@ -41,4 +41,5 @@ private:
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 };

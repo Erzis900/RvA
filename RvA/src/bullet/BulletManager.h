@@ -12,7 +12,7 @@ class Enemy;
 
 class BulletManager {
 public:
-	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem);
+	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem, MusicManager& musicManager);
 
 	void clear();
 	void update(float dt);
@@ -47,5 +47,6 @@ private:
 	std::vector<std::unique_ptr<Bullet>> m_bullets;
 	EnemyManager& m_enemyManager;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 	float m_latestDeltaTime{};
 };
