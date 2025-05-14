@@ -2,6 +2,7 @@
 
 #include "DefenderTypes.h"
 
+#include <cassert>
 #include <string>
 #include <unordered_map>
 
@@ -20,11 +21,15 @@ public:
 	}
 
 	const auto& getDefender(const std::string& id) const {
-		return m_pickableItems.at(id);
+		auto it = std::ranges::find_if(m_pickableItems, [&](const auto& item) { return item.id == id; });
+		assert(it != m_pickableItems.end());
+		return *it;
 	}
 
 	bool canAfford(const std::string& id) const;
 	void startCooldown(const std::string& id);
+
+	void addPickableItem(const std::string& id);
 
 private:
 	Session& m_gameSession;
@@ -37,5 +42,5 @@ private:
 		float currentCooldown{};
 	};
 
-	std::unordered_map<std::string, Item> m_pickableItems;
+	std::vector<Item> m_pickableItems;
 };

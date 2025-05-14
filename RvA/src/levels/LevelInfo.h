@@ -1,10 +1,14 @@
 #pragma once
 
+#include "GUI/Widgets.h"
 #include "atlas/Atlas.h"
 #include "utilities/ConfigCondition.h"
 #include "utilities/ConfigValue.h"
 
+#include <optional>
 #include <string>
+
+struct LevelData;
 
 enum class EntityType {
 	Defender,
@@ -18,6 +22,7 @@ struct SpawnEntityOperation {
 	ConfigValue<int> column{};
 	ConfigValue<std::string> id{};
 	EntityType type{EntityType::Enemy};
+	bool enabled{true};
 };
 
 struct SpawnEntityBurstOperation {
@@ -33,18 +38,42 @@ struct TutorialOperation {
 	std::string text{};
 	Vector2 highlightPosition{};
 	Vector2 highlightSize{};
+	std::optional<Vector2> textPosition{};
+	std::optional<HAlign> textHAlign{};
+	std::optional<VAlign> textVAlign{};
+	std::optional<float> timer;
+};
+
+// A special operation which accept a function.
+// It blocks the timeline till the function returns true
+struct CheckOperation {
+	std::function<bool(const LevelData&)> check;
 };
 
 enum class HUDOperationType {
 	Disable,
 	Enable,
+	ShowResources,
+	HideResources,
+	ShowDefenderPicker,
+	HideDefenderPicker,
 };
 
 struct HUDOperation {
 	HUDOperationType type{};
 };
 
-using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation>;
+enum class DefenderPickerOperationType {
+	AddItem,
+	Reset,
+};
+
+struct DefenderPickerOperation {
+	DefenderPickerOperationType type{};
+	std::string id{};
+};
+
+using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation, DefenderPickerOperation, CheckOperation>;
 
 struct Keyframe {
 	float time;

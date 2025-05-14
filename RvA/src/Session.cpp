@@ -16,8 +16,7 @@ Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& g
 	, m_hud(gui, resourceSystem)
 	, m_portalManager(m_collisionSystem) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
-	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(
-		[this](int row, int column) { std::erase_if(m_hud.data().occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; }); });
+	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(std::bind_front(&Session::onDefenderDestroyed, this));
 	m_onCollectedDropHandle = m_dropManager.onDropCollected(std::bind_front(&Session::onDropCollected, this));
 
 	m_collisionSystem.addColliderMatch(Collider::Flag::Bullet, Collider::Flag::Enemy);
@@ -55,7 +54,7 @@ void Session::drawGrid() {
 }
 
 void Session::update(float dt) {
-	if (!m_tutorialMode) {
+	if (!m_pauseGameplayLogic) {
 		auto enemyResult = m_enemyManager.update(dt);
 		performActions(enemyResult);
 		m_collisionSystem.update(dt);
@@ -125,7 +124,7 @@ void Session::setDemoMode(bool demoMode) {
 	if (m_demoMode) {
 		m_levelManager.setLevelSequence({"demoLevel"});
 	} else {
-		m_levelManager.setLevelSequence({"level1", "level2", "level3"});
+		m_levelManager.setLevelSequence({"tutorial1", "level1", "level2", "level3"});
 	}
 }
 
@@ -152,6 +151,7 @@ void Session::performDefenderSpawnOnInput() {
 						m_defenderManager.spawnDefender(defenderInfo, row, column);
 						m_levelData->scraps -= defenderInfo->cost;
 						m_defenderPicker.startCooldown(*m_selectedDefender);
+						m_levelData->numberOfEnabledDefenders++;
 						resetSelectedDefender();
 						m_hud.data().occupiedCells.emplace_back(row, column);
 					}
@@ -159,6 +159,7 @@ void Session::performDefenderSpawnOnInput() {
 			} else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
 				if (!canPlaceDefender(row, column)) {
 					m_defenderManager.toggleDefender(row, column);
+					m_levelData->numberOfEnabledDefenders += m_defenderManager.getDefender(row, column)->state == DefenderState::Off ? -1 : 1;
 				}
 			}
 		}
@@ -195,7 +196,13 @@ void Session::performAction(const EnemySpawnAction& action) {
 void Session::performAction(const DefenderSpawnAction& action) {
 	auto defenderInfo = m_gameRegistry.getDefender(action.id);
 	if (defenderInfo) {
-		m_defenderManager.spawnDefender(defenderInfo, action.row, action.column);
+		auto& defender = m_defenderManager.spawnDefender(defenderInfo, action.row, action.column);
+		if (action.isEnabled) {
+			m_defenderManager.setState(defender, DefenderState::On);
+			m_levelData->numberOfEnabledDefenders++;
+		} else {
+			m_defenderManager.setState(defender, DefenderState::Off);
+		}
 	}
 }
 
@@ -235,15 +242,33 @@ void Session::performAction(const LoseAction& action) {
 
 void Session::performAction(const TutorialAction& action) {
 	auto& data = m_hud.data();
-	m_tutorialMode = true;
+
+	if (!action.timer.has_value()) {
+		m_pauseGameplayLogic = true;
+	}
+
 	data.tutorialEnabled = true;
-	data.tutorialText = action.text;
-	data.tutorialHighlightSize = action.highlightSize;
-	data.tutorialHighlightPos = action.highlightPosition;
+	data.tutorialTime = 0;
+	data.tutorialAction = action;
 }
 
 void Session::performAction(const HUDAction& action) {
-	m_hud.setEnable(action.enable);
+	switch (action.type) {
+	case HUDOperationType::Enable			 : m_hud.setEnable(true); break;
+	case HUDOperationType::Disable			 : m_hud.setEnable(false); break;
+	case HUDOperationType::ShowResources	 : m_hud.data().showResources = true; break;
+	case HUDOperationType::HideResources	 : m_hud.data().showResources = false; break;
+	case HUDOperationType::ShowDefenderPicker: m_hud.data().showDefenderPicker = true; break;
+	case HUDOperationType::HideDefenderPicker: m_hud.data().showDefenderPicker = false; break;
+	}
+}
+
+void Session::performAction(const DefenderPickerAction& action) {
+	switch (action.type) {
+	case DefenderPickerOperationType::AddItem: m_defenderPicker.addPickableItem(action.id); break;
+	case DefenderPickerOperationType::Reset	 : m_defenderPicker.reset(); break;
+	}
+	refreshHUDDefenderPickerData();
 }
 
 void Session::performAction(const std::monostate& action) {
@@ -266,18 +291,16 @@ bool Session::canPlaceDefender(int x, int y) const {
 
 void Session::setupHUD() {
 	auto& hudData = m_hud.data();
-	hudData.defenders.clear();
-	for (const auto& [type, pickableDefender] : m_defenderPicker.getAvailableDefenders()) {
-		auto defenderInfo = m_gameRegistry.getDefender(type);
-		hudData.defenders.emplace_back(defenderInfo->name, type, Animation::createAnimation(defenderInfo->spriteEnabled), defenderInfo->cost);
-	}
+	refreshHUDDefenderPickerData();
 
 	hudData.levelName = m_levelData->info->name;
 	hudData.maxBatteryCharge = m_levelData->info->maxBatteryCharge;
+	hudData.showDefenderPicker = !m_demoMode;
+	hudData.showResources = !m_demoMode;
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().defenders[index].id); });
 	m_onTutorialNextCallbackHandle = m_hud.onTutorialNext([&] {
 		m_hud.data().tutorialEnabled = false;
-		m_tutorialMode = false;
+		m_pauseGameplayLogic = false;
 	});
 }
 
@@ -377,6 +400,8 @@ void Session::setState(SessionState state) {
 		m_levelManager.resetCurrentLevelIndex();
 
 		m_selectedDefender.reset();
+		m_defenderPicker.reset();
+		m_pauseGameplayLogic = true;
 		m_hud.clear();
 		m_hud.setEnable(false);
 		m_hud.setVisible(false);
@@ -384,6 +409,7 @@ void Session::setState(SessionState state) {
 	}
 	case SessionState::Playing: {
 		if (m_gameState != SessionState::Paused && m_gameState != SessionState::Playing) {
+			m_pauseGameplayLogic = false;
 			m_hud.clear();
 			m_hud.setEnable(true);
 			m_hud.setVisible(true);
@@ -392,7 +418,6 @@ void Session::setState(SessionState state) {
 			m_collisionSystem.clearColliders();
 
 			m_levelData = m_levelManager.startNextLevel();
-			m_defenderPicker.reset();
 			m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 			m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 			setupHUD();
@@ -450,6 +475,15 @@ void Session::updateHUD(float dt) {
 	m_hud.update(dt);
 }
 
+void Session::refreshHUDDefenderPickerData() {
+	auto& hudData = m_hud.data();
+	hudData.defenders.clear();
+	for (const auto& pickableDefender : m_defenderPicker.getAvailableDefenders()) {
+		auto defenderInfo = m_gameRegistry.getDefender(pickableDefender.id);
+		hudData.defenders.emplace_back(defenderInfo->name, pickableDefender.id, Animation::createAnimation(defenderInfo->spriteEnabled), defenderInfo->cost);
+	}
+}
+
 void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies) {
 	m_levelData->enemyCount -= static_cast<int>(enemies.size());
 	assert(m_levelData->enemyCount >= 0);
@@ -462,6 +496,13 @@ void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies)
 				m_dropManager.spawnDrop(drop, enemy.position, amount);
 			}
 		}
+	}
+}
+
+void Session::onDefenderDestroyed(Defender& defender) {
+	std::erase_if(m_hud.data().occupiedCells, [&](const auto& cell) { return cell.row == defender.row && cell.column == defender.column; });
+	if (defender.state == DefenderState::On) {
+		m_levelData->numberOfEnabledDefenders--;
 	}
 }
 

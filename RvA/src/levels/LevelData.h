@@ -13,6 +13,7 @@ struct LevelData {
 	int scraps{};
 	float batteryCharge{};
 	int enemyCount{};
+	int numberOfEnabledDefenders{};
 
 	/*
 	 * In most cases we don't want to immediatly trigger a WinAction but wait few seconds

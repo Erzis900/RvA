@@ -52,7 +52,9 @@ void BulletManager::spawnBullet(const BulletData& data, const Vector2& position)
 }
 
 void BulletManager::executeHit(Bullet& bullet, Enemy& enemy) {
-	std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(enemy, bullet, data, m_latestDeltaTime); }, bullet.data);
+	if (bullet.lifetime > 0) {
+		std::visit([this, &enemy, &bullet](auto&& data) { onEnemyHit(enemy, bullet, data, m_latestDeltaTime); }, bullet.data);
+	}
 }
 
 /*

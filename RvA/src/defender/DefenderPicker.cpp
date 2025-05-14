@@ -6,16 +6,11 @@
 DefenderPicker::DefenderPicker(Session& session, const GameRegistry& gameRegistry) : m_gameSession(session), m_gameRegistry(gameRegistry) {}
 
 void DefenderPicker::reset() {
-	const auto& defenderTypeInfos = m_gameRegistry.getDefenders();
-
 	m_pickableItems.clear();
-	for (auto& [id, info] : defenderTypeInfos) {
-		m_pickableItems.emplace(id, Item{.id = id, .cost = info.cost, .maxCooldown = info.buildCooldown});
-	}
 }
 
 void DefenderPicker::update(float dt) {
-	for (auto& [type, item] : m_pickableItems) {
+	for (auto& item : m_pickableItems) {
 		item.currentCooldown -= dt;
 		if (item.currentCooldown < 0.f) {
 			item.currentCooldown = 0.f;
@@ -33,9 +28,14 @@ bool DefenderPicker::canAfford(const std::string& id) const {
 }
 
 void DefenderPicker::startCooldown(const std::string& id) {
-	auto it = m_pickableItems.find(id);
+	auto it = std::ranges::find_if(m_pickableItems, [&](const auto& item) { return item.id == id; });
 	assert(it != m_pickableItems.end());
 	if (it != m_pickableItems.end()) {
-		it->second.currentCooldown = it->second.maxCooldown;
+		it->currentCooldown = it->maxCooldown;
 	}
+}
+
+void DefenderPicker::addPickableItem(const std::string& id) {
+	const auto& defenderInfo = m_gameRegistry.getDefender(id);
+	m_pickableItems.emplace_back(id, defenderInfo->cost, defenderInfo->buildCooldown);
 }

@@ -49,6 +49,7 @@ static void GuiLoadStyleRva(void) {
 
 	//-----------------------------------------------------------------
 
+	GuiSetStyle(0, BORDER_WIDTH, 1);
 	// TODO: Custom user style setup: Set specific properties here (if required)
 	// i.e. Controls specific BORDER_WIDTH, TEXT_PADDING, TEXT_ALIGNMENT
 }

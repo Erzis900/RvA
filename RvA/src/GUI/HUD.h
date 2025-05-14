@@ -3,7 +3,7 @@
 #include "Animation.h"
 #include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
-#include "defender/DefenderTypes.h"
+#include "GameAction.h"
 #include "utilities/CallbackRegistry.h"
 
 #include <functional>
@@ -45,9 +45,10 @@ struct HUDData {
 	std::vector<ProgressBarData> progressBars;
 	std::string levelName;
 	bool tutorialEnabled{};
-	std::string tutorialText;
-	Vector2 tutorialHighlightSize{};
-	Vector2 tutorialHighlightPos{};
+	float tutorialTime{};
+	TutorialAction tutorialAction{};
+	bool showResources{};
+	bool showDefenderPicker{};
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -107,5 +108,4 @@ private:
 	FadeScreen m_fadeScreen;
 	bool m_isAnyDefenderHovered{};
 	int m_hoveredDefenderIndex{};
-	bool m_showBottomBar{};
 };

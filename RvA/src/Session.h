@@ -82,6 +82,7 @@ private:
 	void performAction(const LoseAction& action);
 	void performAction(const TutorialAction& action);
 	void performAction(const HUDAction& action);
+	void performAction(const DefenderPickerAction& action);
 	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
@@ -93,8 +94,10 @@ private:
 
 	void setupHUD();
 	void updateHUD(float dt);
+	void refreshHUDDefenderPickerData();
 
 	void onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies);
+	void onDefenderDestroyed(Defender& defender);
 	void onDropCollected(const std::vector<CollectedDrop>& collectedDrops);
 
 	void manageCollision(const Collision& collision);
@@ -128,5 +131,5 @@ private:
 	PortalManager m_portalManager;
 	HUD m_hud;
 	bool m_demoMode{};
-	bool m_tutorialMode{};
+	bool m_pauseGameplayLogic{};
 };

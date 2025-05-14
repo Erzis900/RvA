@@ -300,6 +300,37 @@ void Game::registerDefenderTypes() {
 										 .bulletType = "LaserBeam",
 										 .shootingAnimationTime = 1.0f,
 										 .buildCooldown = 5.f});
+
+	/*
+	 * Defenders Tweaked for tutorials
+	 */
+	m_pimpl->m_gameRegistry.addDefender("SolarpanelTutorial",
+										{
+											.type = DefenderType::Solar,
+											.name = "Solar Panel",
+											.spriteEnabled = {sprite("solar_idle"), 0.1f},
+											.spriteDisabled = {sprite("solar_off"), 0.1f},
+											.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+											.batteryDrain = -15,
+											.maxHP = 100,
+											.buildCooldown = 2.f,
+										});
+
+	m_pimpl->m_gameRegistry.addDefender("ShooterTutorial",
+										{.type = DefenderType::Shooter,
+										 .name = "Shooter",
+										 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
+										 .spriteDisabled = {sprite("shooter_off"), 0.1f},
+										 .spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
+										 .spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+										 .batteryDrain = 5.f,
+										 .firstShootCooldown = 1.5f,
+										 .shootCooldown = 0.2f,
+										 .maxHP = 150,
+										 .cost = 20,
+										 .bulletType = "SimpleShot",
+										 .shootingAnimationTime = 0.6f,
+										 .buildCooldown = 3.f});
 }
 
 void Game::registerBulletTypes() {
@@ -309,7 +340,7 @@ void Game::registerBulletTypes() {
 										  .offsetPos = {24, 7},
 										  .radius = 2.f,
 										  .damage = {25, 16},
-										  .maxLifetime = 5.f,
+										  .maxLifetime = 3.2f,
 									  });
 
 	m_pimpl->m_gameRegistry.addBullet("ChasingShot",
@@ -342,7 +373,6 @@ void Game::registerEnemyTypes() {
 
 	m_pimpl->m_gameRegistry.addEnemy("B1",
 									 {.type = EnemyType::B1,
-									  .spawnChance = 0.2f,
 									  .maxHp = 100,
 									  .speed = 40,
 									  .attackTime = 0.4f,
@@ -357,7 +387,6 @@ void Game::registerEnemyTypes() {
 
 	m_pimpl->m_gameRegistry.addEnemy("B2",
 									 {.type = EnemyType::B2,
-									  .spawnChance = 0.3f,
 									  .maxHp = 150,
 									  .speed = 80,
 									  .attackTime = 0.5f,
@@ -372,7 +401,6 @@ void Game::registerEnemyTypes() {
 
 	m_pimpl->m_gameRegistry.addEnemy("Portal",
 									 {.type = EnemyType::Portal,
-									  .spawnChance = 0.5f,
 									  .maxHp = 60,
 									  .speed = 30,
 									  .attackTime = 0.5f,
@@ -395,6 +423,65 @@ void Game::registerEnemyTypes() {
 										  .portalCastRange = FixedValue{3},
 										  .animation = {sprite("portal_alien_summon"), 0.1f, 1},
 									  }});
+
+	/*
+	 * Enemies Tweaked for tutorials
+	 */
+	m_pimpl->m_gameRegistry.addEnemy("B1Tutorial",
+									 {.type = EnemyType::B1,
+									  .maxHp = 100,
+									  .speed = 40,
+									  .attackTime = 0.4f,
+									  .defenderDamage = 50,
+									  .baseWallDamage = 10,
+									  .dropType = "simpleScraps",
+									  .dropAmount = FixedValue{10},
+									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+
+	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank",
+									 {.type = EnemyType::B1,
+									  .maxHp = 450,
+									  .speed = 40,
+									  .attackTime = 0.4f,
+									  .defenderDamage = 50,
+									  .baseWallDamage = 10,
+									  .dropType = "simpleScraps",
+									  .dropAmount = FixedValue{10},
+									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+
+	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank2",
+									 {.type = EnemyType::B1,
+									  .maxHp = 300,
+									  .speed = 50,
+									  .attackTime = 0.4f,
+									  .defenderDamage = 50,
+									  .baseWallDamage = 10,
+									  .dropType = "simpleScraps",
+									  .dropAmount = FixedValue{10},
+									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+
+	m_pimpl->m_gameRegistry.addEnemy("B1TutorialFast",
+									 {.type = EnemyType::B1,
+									  .maxHp = 450,
+									  .speed = 80,
+									  .attackTime = 0.4f,
+									  .defenderDamage = 50,
+									  .baseWallDamage = 10,
+									  .dropType = "simpleScraps",
+									  .dropAmount = FixedValue{10},
+									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
+									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
 }
 
 void Game::registerDropTypes() {

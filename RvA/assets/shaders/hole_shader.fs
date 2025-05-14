@@ -13,7 +13,7 @@ void main() {
     vec2 delta = (gl_FragCoord.xy - center) / holeSize; // Normalize by radius
     float dist = dot(delta, delta); // Squared distance
 
-    float smoothness = 0.2;
+    float smoothness = 0.8;
     float edge0 = 1.0 - smoothness;
     float edge1 = 1.0;
     float alpha = mix(0.0, 0.7, smoothstep(edge0, edge1, dist));

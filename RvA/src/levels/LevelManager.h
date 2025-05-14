@@ -37,16 +37,18 @@ private:
 	void updateSpawnBursts(float dt);
 	void updateWinLoseCondition(float dt);
 
-	void performKeyframeOperation(const KeyframeOperation& action);
-	void performKeyframeOperation(const SpawnEntityOperation& action);
-	void performKeyframeOperation(const SpawnEntityBurstOperation& action);
-	void performKeyframeOperation(const TutorialOperation& action);
-	void performKeyframeOperation(const HUDOperation& action);
+	void performKeyframeOperation(const KeyframeOperation& operation);
+	void performKeyframeOperation(const SpawnEntityOperation& operation);
+	void performKeyframeOperation(const SpawnEntityBurstOperation& operation);
+	void performKeyframeOperation(const TutorialOperation& operation);
+	void performKeyframeOperation(const HUDOperation& operation);
+	void performKeyframeOperation(const DefenderPickerOperation& operation);
+	void performKeyframeOperation(const CheckOperation& operation);
 
 	bool checkCondition(const BatteryLevelCondition& condition, float dt);
 	bool checkCondition(const AllWavesGoneCondition& condition, float dt);
 
-	void triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type);
+	void triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type, bool enabled = false);
 
 	const Keyframe* getKeyframe(int index);
 
@@ -63,6 +65,7 @@ private:
 	bool m_lastKeyframeReached{};
 	std::vector<SpawnOvertimeTracker> m_spawnBurstTrackers{};
 	CallbackRegistry<const GameAction&> m_onGameActionCallbacks;
+	const CheckOperation* m_currentCheckOperation{};
 
 	const GameRegistry& m_gameRegistry;
 };

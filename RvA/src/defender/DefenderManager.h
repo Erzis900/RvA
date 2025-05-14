@@ -56,17 +56,18 @@ public:
 	const std::vector<std::unique_ptr<Defender>>& getDefenders() const;
 
 	void toggleDefender(int row, int column);
-	void spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
+	Defender* getDefender(int row, int column);
+	Defender& spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
 	bool hasDefender(int row, int column) const;
 	void setState(Defender& defender, DefenderState state);
 
-	CallbackHandle onDefenderDestroyed(std::function<void(int, int)> callback);
+	CallbackHandle onDefenderDestroyed(std::function<void(Defender&)> callback);
 
 private:
 	void performDying(Defender& defender);
 
 	std::vector<std::unique_ptr<Defender>> m_defenders;
 	std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = {nullptr};
-	CallbackRegistry<int, int> m_onDefenderDestroyedCallbacks;
+	CallbackRegistry<Defender&> m_onDefenderDestroyedCallbacks;
 	CollisionSystem& m_collisionSystem;
 };

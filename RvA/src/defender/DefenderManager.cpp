@@ -91,7 +91,7 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 			break;
 		case DefenderState::Dead:
 			m_defenderGrid[defender->row][defender->column] = nullptr;
-			m_onDefenderDestroyedCallbacks.executeCallbacks(defender->row, defender->column);
+			m_onDefenderDestroyedCallbacks.executeCallbacks(*defender);
 			it = m_defenders.erase(it);
 			break;
 		default: ++it;
@@ -104,7 +104,7 @@ const std::vector<std::unique_ptr<Defender>>& DefenderManager::getDefenders() co
 	return m_defenders;
 }
 
-void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column) {
+Defender& DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column) {
 	auto defender = std::make_unique<Defender>();
 	defender->info = defenderTypeInfo;
 	defender->shootTime = defenderTypeInfo->firstShootCooldown;
@@ -116,7 +116,9 @@ void DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInfo, in
 	defender->colliderHandle = m_collisionSystem.createCollider(Collider::Flag::Defender, defender.get());
 	defender->prepareShootTime = defender->info->shootingAnimationTime;
 	m_defenderGrid[row][column] = defender.get();
+	auto* defenderPtr = defender.get();
 	m_defenders.push_back(std::move(defender));
+	return *defenderPtr;
 }
 
 void DefenderManager::toggleDefender(int row, int column) {
@@ -124,6 +126,10 @@ void DefenderManager::toggleDefender(int row, int column) {
 	if (defender && defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
 		setState(*defender, defender->state != DefenderState::Off ? DefenderState::Off : DefenderState::On);
 	}
+}
+
+Defender* DefenderManager::getDefender(int row, int column) {
+	return m_defenderGrid[row][column];
 }
 
 bool DefenderManager::hasDefender(int row, int column) const {
@@ -148,7 +154,7 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 	}
 }
 
-CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(int, int)> callback) {
+CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(Defender&)> callback) {
 	return m_onDefenderDestroyedCallbacks.registerCallback(std::move(callback));
 }
 

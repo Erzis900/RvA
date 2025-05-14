@@ -44,6 +44,18 @@ void LevelManager::update(float dt) {
 
 void LevelManager::updateTimeline(float dt) {
 	if (!m_lastKeyframeReached) {
+		// If we have a current check operation we check it first
+		// If the check returns false we don't update the timeline
+		// This is useful for example when we have a check that checks if
+		// the player has enough scraps to spawn a defender or similar waiting mechanics
+		if (m_currentCheckOperation) {
+			if (m_currentCheckOperation->check(m_currentLevel)) {
+				m_currentCheckOperation = nullptr;
+			} else {
+				return;
+			}
+		}
+
 		m_currentLevel.time += dt;
 
 		auto keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
@@ -51,11 +63,14 @@ void LevelManager::updateTimeline(float dt) {
 			m_currentLevel.nextKeyframe++;
 
 			performKeyframeOperation(keyFrame->action);
-
-			keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
-			if (!keyFrame) {
-				m_lastKeyframeReached = true;
-				return;
+			if (!m_currentCheckOperation) {
+				keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
+				if (!keyFrame) {
+					m_lastKeyframeReached = true;
+					return;
+				}
+			} else {
+				break;
 			}
 		}
 	}
@@ -80,36 +95,42 @@ void LevelManager::updateSpawnBursts(float dt) {
 	}
 }
 
-void LevelManager::performKeyframeOperation(const KeyframeOperation& action) {
-	std::visit([this](auto&& arg) { performKeyframeOperation(arg); }, action);
+void LevelManager::performKeyframeOperation(const KeyframeOperation& operation) {
+	std::visit([this](auto&& arg) { performKeyframeOperation(arg); }, operation);
 }
 
-void LevelManager::performKeyframeOperation(const SpawnEntityOperation& action) {
-	triggerSpawnEntity(action.row, action.column, action.id, action.type);
+void LevelManager::performKeyframeOperation(const SpawnEntityOperation& operation) {
+	triggerSpawnEntity(operation.row, operation.column, operation.id, operation.type, operation.enabled);
 }
 
-void LevelManager::performKeyframeOperation(const SpawnEntityBurstOperation& action) {
-	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &action, .count = action.amount.generate(), .duration = action.interval.generate(), .time = 0.f});
+void LevelManager::performKeyframeOperation(const SpawnEntityBurstOperation& operation) {
+	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &operation, .count = operation.amount.generate(), .duration = operation.interval.generate(), .time = 0.f});
 }
 
-void LevelManager::performKeyframeOperation(const TutorialOperation& action) {
-	m_onGameActionCallbacks.executeCallbacks(TutorialAction{
-		.text = action.text,
-		.highlightPosition = action.highlightPosition,
-		.highlightSize = action.highlightSize,
-	});
+void LevelManager::performKeyframeOperation(const TutorialOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(operation);
 }
 
-void LevelManager::performKeyframeOperation(const HUDOperation& action) {
-	m_onGameActionCallbacks.executeCallbacks(HUDAction{.enable = action.type == HUDOperationType::Enable});
+void LevelManager::performKeyframeOperation(const HUDOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(HUDAction{.type = operation.type});
 }
 
-void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type) {
+void LevelManager::performKeyframeOperation(const DefenderPickerOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(DefenderPickerAction{.type = operation.type, .id = operation.id});
+}
+
+void LevelManager::performKeyframeOperation(const CheckOperation& operation) {
+	if (!operation.check(m_currentLevel)) {
+		m_currentCheckOperation = &operation; // If the check is false we store the operation to be performed every update
+	}
+}
+
+void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type, bool enabled) {
 	auto entityId = id.generate();
 	auto rowVal = row.generate();
 	auto columnVal = column.generate();
 	if (type == EntityType::Defender) {
-		m_onGameActionCallbacks.executeCallbacks(DefenderSpawnAction{entityId, rowVal, columnVal});
+		m_onGameActionCallbacks.executeCallbacks(DefenderSpawnAction{entityId, rowVal, columnVal, enabled});
 	} else if (type == EntityType::Enemy) {
 		m_onGameActionCallbacks.executeCallbacks(EnemySpawnAction{entityId, rowVal, columnVal});
 	}

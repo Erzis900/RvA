@@ -37,7 +37,6 @@ using EnemyBehavior = std::variant<std::monostate, PortalSpawnBehavior>;		 // Dy
 
 struct EnemyTypeInfo {
 	EnemyType type{};
-	float spawnChance{};
 	float maxHp{};
 	float speed{};
 	float attackTime{};

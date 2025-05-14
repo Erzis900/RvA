@@ -98,8 +98,8 @@ void HUD::setEnable(bool enabled) {
 	m_isEnabled = enabled;
 }
 
-Color calculateBatteryColor(float batteryCharge) {
-	float t = 1.0f - batteryCharge / 100.0f;
+Color calculateBatteryColor(float batteryCharge, float maxBatteryCharge) {
+	float t = 1.0f - batteryCharge / maxBatteryCharge;
 
 	if (t < 0.5f) {
 		// Green to Orange
@@ -115,13 +115,13 @@ void HUD::update(float dt) {
 	m_screen->getText(m_scrapTextHandle).text = scrapsText;
 	auto& batteryText = m_screen->getText(m_batteryTextHandle);
 	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge / m_data.maxBatteryCharge * 100));
-	batteryText.color = calculateBatteryColor(m_data.batteryCharge);
+	batteryText.color = calculateBatteryColor(m_data.batteryCharge, m_data.maxBatteryCharge);
 	auto& levelName = m_screen->getText(m_levelNameHandle);
 	levelName.text = m_data.levelName;
 
 	auto& batteryIndicator = m_screen->getShape(m_batteryIndicatorHandle);
 	batteryIndicator.size.y = std::round(m_data.batteryCharge / m_data.maxBatteryCharge * maxBatteryFill);
-	batteryIndicator.color = Fade(calculateBatteryColor(m_data.batteryCharge), 0.75f);
+	batteryIndicator.color = Fade(calculateBatteryColor(m_data.batteryCharge, m_data.maxBatteryCharge), 0.75f);
 
 	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
 	plateContainer.owner->visible = m_isAnyDefenderHovered;
@@ -132,8 +132,8 @@ void HUD::update(float dt) {
 
 	auto& batteryAndScrapsContainer = m_screen->getStack(m_batteryAndScrapsHandle);
 	auto& defenderContainer = m_screen->getCustom(m_defenderPickerHandle);
-	batteryAndScrapsContainer.owner->visible = m_isEnabled;
-	defenderContainer.owner->visible = m_isEnabled;
+	batteryAndScrapsContainer.owner->visible = m_data.showResources;
+	defenderContainer.owner->visible = m_data.showDefenderPicker;
 
 	for (auto& defender : m_data.defenders) {
 		if (defender.isHover) {
@@ -141,55 +141,12 @@ void HUD::update(float dt) {
 		}
 	}
 
+	m_data.tutorialTime += dt;
 	m_fadeScreen.update(dt);
 }
 
 void HUD::setVisible(bool visible) {
 	m_screen->setVisible(visible);
-}
-
-void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor, Color fillColor) {
-	float barWidth = float(CELL_SIZE);
-	float barHeight = 3.f;
-	float valPercent = value / max;
-
-	Vector2 barPos = {pos.x, pos.y + CELL_SIZE};
-	Rectangle bg = {barPos.x, barPos.y, barWidth, barHeight};
-	Rectangle fg = {barPos.x, barPos.y, barWidth * valPercent, barHeight};
-
-	DrawRectangleRec(bg, bkgColor);
-	DrawRectangleRec(fg, fillColor);
-}
-
-void HUD::drawTutorial(Atlas& atlas) {
-	if (IsKeyDown(KEY_A) || m_data.tutorialEnabled) {
-		float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
-		auto holeSize = m_data.tutorialHighlightSize;
-
-		auto shader = m_resourceSystem.getShader("hole");
-
-		int holeCenterLoc = GetShaderLocation(shader, "holeCenter");
-		int resolutionLoc = GetShaderLocation(shader, "resolution");
-		int holeSizeLoc = GetShaderLocation(shader, "holeSize");
-
-		SetShaderValue(shader, holeCenterLoc, &m_data.tutorialHighlightPos, SHADER_UNIFORM_VEC2);
-		SetShaderValue(shader, resolutionLoc, &resolution, SHADER_UNIFORM_VEC2);
-		SetShaderValue(shader, holeSizeLoc, &holeSize, SHADER_UNIFORM_VEC2);
-
-		BeginShaderMode(shader);
-		atlas.drawSprite(atlas.getSpriteInfo("one_pixel"), {0, 0}, {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y});
-		EndShaderMode();
-
-		const char* text = m_data.tutorialText.c_str();
-		auto size = MeasureTextEx(GuiGetFont(), text, FONT_SMALL, 1);
-		auto rect = LayoutHelper::arrangePositionAndSize({0, 0}, size, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Center, VAlign::Center);
-		DrawTextEx(GuiGetFont(), text, {rect.x, rect.y}, FONT_SMALL, 1, WHITE);
-
-		rect = LayoutHelper::arrangePositionAndSize({0, 100}, {100, 40}, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Center, VAlign::Bottom);
-		if (GuiButton(rect, "Next")) {
-			m_onTutorialNextCallbacks.executeCallbacks();
-		}
-	}
 }
 
 CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
@@ -207,6 +164,9 @@ void HUD::clear() {
 	m_data.batteryCharge = 0.f;
 	m_data.maxBatteryCharge = 0.f;
 	m_data.selectedDefenderIndex.reset();
+	m_data.tutorialAction = {};
+	m_data.tutorialEnabled = false;
+	m_data.tutorialTime = 0;
 	m_data.numberOfEnemiesDefeated = 0;
 	m_data.occupiedCells.clear();
 	m_data.levelName = "";
@@ -329,6 +289,77 @@ void HUD::drawProgressBars(Atlas& atlas, const Rectangle& bounds) {
 	for (auto& progressBar : m_data.progressBars) {
 		if (progressBar.value != progressBar.max) {
 			drawProgressBar(progressBar.value, progressBar.max, progressBar.position, progressBar.bkgColor, progressBar.fillColor);
+		}
+	}
+}
+
+void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor, Color fillColor) {
+	float barWidth = float(CELL_SIZE);
+	float barHeight = 3.f;
+	float valPercent = value / max;
+
+	Vector2 barPos = {pos.x, pos.y + CELL_SIZE};
+	Rectangle bg = {barPos.x, barPos.y, barWidth, barHeight};
+	Rectangle fg = {barPos.x, barPos.y, barWidth * valPercent, barHeight};
+
+	DrawRectangleRec(bg, bkgColor);
+	DrawRectangleRec(fg, fillColor);
+}
+
+void HUD::drawTutorial(Atlas& atlas) {
+	if (m_data.tutorialEnabled) {
+		auto& action = m_data.tutorialAction;
+
+		bool isTimedTutorial = action.timer.has_value();
+
+		auto maxInterpolation = 0.5f;
+		auto tInterpolation = m_data.tutorialTime / maxInterpolation;
+		tInterpolation = std::clamp(tInterpolation, 0.f, 1.f);
+
+		// If it's a timed tutorial we don't block the player so we don't show a semi-transparent background
+		if (!isTimedTutorial) {
+			float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
+			auto holeSize = action.highlightSize;
+
+			auto shader = m_resourceSystem.getShader("hole");
+
+			int holeCenterLoc = GetShaderLocation(shader, "holeCenter");
+			int resolutionLoc = GetShaderLocation(shader, "resolution");
+			int holeSizeLoc = GetShaderLocation(shader, "holeSize");
+
+			SetShaderValue(shader, holeCenterLoc, &action.highlightPosition, SHADER_UNIFORM_VEC2);
+			SetShaderValue(shader, resolutionLoc, &resolution, SHADER_UNIFORM_VEC2);
+			SetShaderValue(shader, holeSizeLoc, &holeSize, SHADER_UNIFORM_VEC2);
+
+			BeginShaderMode(shader);
+			atlas.drawSprite(atlas.getSpriteInfo("one_pixel"), {0, 0}, {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y});
+			EndShaderMode();
+		}
+
+		const char* text = action.text.c_str();
+		auto size = MeasureTextEx(GuiGetFont(), text, FONT_SMALL, 1);
+		auto textPos = action.textPosition.value_or(Vector2{});
+		auto hAlign = action.textHAlign.value_or(HAlign::Left);
+		auto vAlign = action.textVAlign.value_or(VAlign::Top);
+		auto rect = LayoutHelper::arrangePositionAndSize(textPos, size, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, hAlign, vAlign);
+		auto padding = Vector2{10, 5};
+		auto panelRect = Rectangle{rect.x - padding.x, rect.y - padding.y, rect.width + padding.x * 2, rect.height + padding.y * 2};
+		DrawRectangleRec({panelRect.x - 2, panelRect.y - 2, panelRect.width, panelRect.height}, Fade(BLACK, 0.2f * tInterpolation)); // shadow
+		DrawRectangleRec(panelRect, Fade(BLACK, 0.75f * tInterpolation));
+		DrawTextEx(GuiGetFont(), text, {rect.x, rect.y}, FONT_SMALL, 1, Fade(WHITE, tInterpolation));
+
+		if (isTimedTutorial) {
+			if (m_data.tutorialTime >= action.timer) {
+				action.timer = {};
+				m_data.tutorialTime = 0;
+				m_onTutorialNextCallbacks.executeCallbacks();
+			}
+		} else {
+			rect = LayoutHelper::arrangePositionAndSize({20, 20}, {100, 40}, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
+			if (GuiButton(rect, "Next")) {
+				m_data.tutorialTime = 0;
+				m_onTutorialNextCallbacks.executeCallbacks();
+			}
 		}
 	}
 }

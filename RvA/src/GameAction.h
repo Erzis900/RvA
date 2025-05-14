@@ -1,5 +1,7 @@
 #pragma once
 
+#include "levels/LevelInfo.h"
+
 #include <raylib.h>
 #include <string>
 #include <variant>
@@ -12,39 +14,35 @@ struct BulletSpawnAction {
 
 struct EnemySpawnAction {
 	std::string enemyType;
-	int row;
-	int column;
+	int row{};
+	int column{};
 };
 
 struct PortalSpawnAction {
-	int inRow;
-	int inCol;
+	int inRow{};
+	int inCol{};
 
-	int outRow;
-	int outCol;
+	int outRow{};
+	int outCol{};
 };
 
 struct DefenderSpawnAction {
 	std::string id;
-	int row;
-	int column;
-};
-
-struct TutorialAction {
-	std::string text;
-	Vector2 highlightPosition;
-	Vector2 highlightSize;
+	int row{};
+	int column{};
+	bool isEnabled{};
 };
 
 struct WinAction {};
 
 struct LoseAction {};
 
-struct HUDAction {
-	bool enable;
-};
+using TutorialAction = TutorialOperation;
+using HUDAction = HUDOperation;
+using DefenderPickerAction = DefenderPickerOperation;
 
-using GameActionVariant = std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction, TutorialAction, HUDAction>;
+using GameActionVariant =
+	std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction, TutorialAction, HUDAction, DefenderPickerAction>;
 
 struct [[nodiscard]] GameAction : public GameActionVariant {
 	using GameActionVariant::variant;
