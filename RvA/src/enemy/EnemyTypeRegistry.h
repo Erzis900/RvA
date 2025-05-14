@@ -50,8 +50,6 @@ struct EnemyTypeInfo {
 	AnimationData moveAnimation;
 	AnimationData attackAnimation;
 	AnimationData dyingAnimation;
-	MusicManager* musicManager;
-	Sound dyingSoundEffect;
 	AnimationData summonAnimation;
 	EnemyBehaviorInfo behavior{}; // right now we consider only one potential behaviour per enemy
 };
