@@ -124,7 +124,7 @@ void Session::setDemoMode(bool demoMode) {
 	if (m_demoMode) {
 		m_levelManager.setLevelSequence({"demoLevel"});
 	} else {
-		m_levelManager.setLevelSequence({"tutorial1", "level1", "level2", "level3"});
+		m_levelManager.setLevelSequence({"level1", "level2", "level3"});
 	}
 }
 
