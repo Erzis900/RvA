@@ -26,7 +26,7 @@ void MusicManager::load() {
 }
 
 void MusicManager::play(Music& music) {
-	if (m_config.options.isMusic) {
+	if (m_config.options.isMusicEnabled) {
 		if (!IsMusicStreamPlaying(music)) {
 			if (m_currentMusic) {
 				StopMusicStream(*m_currentMusic);
@@ -38,19 +38,19 @@ void MusicManager::play(Music& music) {
 }
 
 void MusicManager::play(Sound& sound) {
-	if (m_config.options.isSound) {
+	if (m_config.options.isSoundEnabled) {
 		PlaySound(sound);
 	}
 }
 
 void MusicManager::stop(Music& music) {
-	if (m_config.options.isMusic) {
+	if (m_config.options.isMusicEnabled) {
 		StopMusicStream(music);
 	}
 }
 
 void MusicManager::updateStream() {
-	if (m_config.options.isMusic && m_currentMusic) {
+	if (m_config.options.isMusicEnabled && m_currentMusic) {
 		UpdateMusicStream(*m_currentMusic);
 	}
 }

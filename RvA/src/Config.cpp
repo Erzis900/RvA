@@ -25,8 +25,9 @@ Config::Config() {
 	m_data = nlohmann::json::parse(configFile);
 
 	options.isFullscreen = m_data["fullscreen"];
-	options.isMusic = m_data["music"];
-	options.isSound = m_data["sound"];
+	options.isMusicEnabled = m_data["musicEnabled"];
+	options.isSoundEnabled = m_data["soundEnabled"];
+	options.isTutorialEnabled = m_data["tutorialEnabled"];
 }
 
 void Config::save() {
@@ -36,8 +37,9 @@ void Config::save() {
 		return;
 	}
 	m_data["fullscreen"] = options.isFullscreen;
-	m_data["music"] = options.isMusic;
-	m_data["sound"] = options.isSound;
+	m_data["musicEnabled"] = options.isMusicEnabled;
+	m_data["soundEnabled"] = options.isSoundEnabled;
+	m_data["tutorialEnabled"] = options.isTutorialEnabled;
 
 	configFile << m_data.dump(4);
 	configFile.close();

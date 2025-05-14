@@ -5,8 +5,9 @@
 #include <ranges>
 #include <raymath.h>
 
-Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry)
+Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config)
 	: m_gameRegistry(gameRegistry)
+	, m_config(config)
 	, m_defenderManager(m_collisionSystem)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem)
 	, m_bulletManager(m_enemyManager, m_collisionSystem)
@@ -121,11 +122,6 @@ void Session::draw(Atlas& atlas) {
 
 void Session::setDemoMode(bool demoMode) {
 	m_demoMode = demoMode;
-	if (m_demoMode) {
-		m_levelManager.setLevelSequence({"demoLevel"});
-	} else {
-		m_levelManager.setLevelSequence({"level1", "level2", "level3"});
-	}
 }
 
 void Session::setSelectedDefender(const std::optional<std::string>& id) {
@@ -208,13 +204,7 @@ void Session::performAction(const DefenderSpawnAction& action) {
 
 void Session::performAction(const WinAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut(
-			[this]() {
-				setState(SessionState::Idle);
-				setState(SessionState::Playing);
-			},
-			[]() {},
-			0.5f);
+		m_hud.startFadeInOut([this]() { setState(SessionState::StartSession); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -227,13 +217,7 @@ void Session::performAction(const WinAction& action) {
 
 void Session::performAction(const LoseAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut(
-			[this]() {
-				setState(SessionState::Idle);
-				setState(SessionState::Playing);
-			},
-			[]() {},
-			0.5f);
+		m_hud.startFadeInOut([this]() { setState(SessionState::StartSession); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -384,6 +368,50 @@ void Session::resetSelectedDefender() {
 	m_hud.data().selectedDefenderIndex.reset();
 }
 
+void Session::resetProgression() {
+	clearAllEntities();
+	m_levelManager.resetCurrentLevelIndex();
+
+	m_selectedDefender.reset();
+	m_defenderPicker.reset();
+	m_pauseGameplayLogic = true;
+	m_hud.clear();
+	m_hud.setEnable(false);
+	m_hud.setVisible(false);
+
+	if (m_demoMode) {
+		m_levelManager.setLevelSequence({"demoLevel"});
+	} else {
+		std::vector<std::string> levelSquence = {"level1", "level2", "level3"};
+		if (m_config.options.isTutorialEnabled) {
+			levelSquence.insert(levelSquence.begin(), "tutorial");
+		}
+		m_levelManager.setLevelSequence(std::move(levelSquence));
+	}
+}
+
+void Session::startNextLevel() {
+	// If we're starting a new level and the current level has been the tutorial we disable it.
+	// It translates into: "If you played the tutorial and you're progressing to the next level, we don't want to show the tutorial again".
+	if (m_levelManager.getCurrentLevel().info && m_levelManager.getCurrentLevel().info->id == "tutorial") {
+		m_config.options.isTutorialEnabled = false;
+	}
+
+	m_pauseGameplayLogic = false;
+	m_hud.clear();
+	m_hud.setEnable(true);
+	m_hud.setVisible(true);
+	clearAllEntities();
+	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
+	m_collisionSystem.clearColliders();
+
+	m_levelData = m_levelManager.startNextLevel();
+	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
+	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
+	setupHUD();
+	m_hud.setEnable(!m_demoMode);
+}
+
 void Session::clearAllEntities() {
 	m_portalManager.clear();
 	m_defenderManager.clear();
@@ -393,38 +421,19 @@ void Session::clearAllEntities() {
 }
 
 void Session::setState(SessionState state) {
+	if (state == SessionState::StartSession) {
+		resetProgression();
+		state = SessionState::StartLevel;
+	}
+
 	// We should use the FSM to define each state here to simplify the code.
 	switch (state) {
 	case SessionState::Idle: {
-		clearAllEntities();
-		m_levelManager.resetCurrentLevelIndex();
-
-		m_selectedDefender.reset();
-		m_defenderPicker.reset();
-		m_pauseGameplayLogic = true;
-		m_hud.clear();
-		m_hud.setEnable(false);
-		m_hud.setVisible(false);
+		resetProgression();
 		break;
 	}
-	case SessionState::Playing: {
-		if (m_gameState != SessionState::Paused && m_gameState != SessionState::Playing) {
-			m_pauseGameplayLogic = false;
-			m_hud.clear();
-			m_hud.setEnable(true);
-			m_hud.setVisible(true);
-			clearAllEntities();
-			m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
-			m_collisionSystem.clearColliders();
-
-			m_levelData = m_levelManager.startNextLevel();
-			m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
-			m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
-			setupHUD();
-			m_hud.setEnable(!m_demoMode);
-		} else {
-			m_hud.setEnable(!m_demoMode);
-		}
+	case SessionState::StartLevel: {
+		startNextLevel();
 		break;
 	}
 	case SessionState::Paused: {

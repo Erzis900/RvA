@@ -208,7 +208,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 
 		defender.isHover = false;
 		bool isSelected = false;
-		if (m_isEnabled && !m_data.tutorialEnabled) {
+		if (m_isEnabled) {
 			isSelected = (m_data.selectedDefenderIndex == i);
 
 			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {

@@ -57,19 +57,12 @@ void PauseState::exit() {
 }
 
 void PauseState::exitGameSession() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
-			m_nextTransition = "menu";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "menu"; }, [this] {}, 0.5f);
 }
 
 void PauseState::restart() {
 	m_game.getGUI().startFadingInOut(
 		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
 			m_game.getMusicManager().stop(m_game.getMusicManager().getGameMusic());
 			m_nextTransition = "restart";
 		},

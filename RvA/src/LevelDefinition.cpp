@@ -233,7 +233,7 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 	auto lastColumn = FixedValue{18};
 
 	gameRegistry.addLevel(
-		"tutorial1",
+		"tutorial",
 		{
 			.name = "Tutorial",
 			.startingScraps = 0,

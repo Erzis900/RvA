@@ -14,17 +14,17 @@ public:
 	void exit() override;
 
 private:
-	std::string getFullscreenString(bool isFullscreen);
-	std::string getMusicString(bool isMusic);
-	std::string getSoundString(bool isSound);
+	void updateLabels();
 
 	void toggleMusic();
 	void toggleSound();
 	void toggleFullscreen();
+	void toggleTutorial();
 
 	WidgetHandle m_musicButton{};
 	WidgetHandle m_windowButton{};
 	WidgetHandle m_soundButton{};
+	WidgetHandle m_toggleTutorialButton{};
 	Screen* m_screen{};
 	std::string m_nextTransition{};
 	float m_alphaBackground{};

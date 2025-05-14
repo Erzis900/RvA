@@ -93,6 +93,7 @@ struct BatteryLevelCondition {
 using LevelCondition = std::variant<BatteryLevelCondition, AllWavesGoneCondition>;
 
 struct LevelInfo {
+	std::string id;
 	std::string name;
 	int startingScraps{};
 	float maxBatteryCharge{};

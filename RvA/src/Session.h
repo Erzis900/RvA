@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Config.h"
 #include "GUI/HUD.h"
 #include "bullet/BulletManager.h"
 #include "collisions/Collider.h"
@@ -11,6 +12,7 @@
 #include "levels/LevelManager.h"
 #include "portal/PortalManager.h"
 
+class Config;
 class GUI;
 
 struct Wall {
@@ -23,7 +25,8 @@ enum class SessionState {
 	End,
 	Lost,
 	Paused,
-	Playing
+	StartSession,
+	StartLevel
 };
 
 /*
@@ -32,7 +35,7 @@ enum class SessionState {
  */
 class Session {
 public:
-	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry);
+	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config);
 	~Session();
 
 	void setState(SessionState state);
@@ -107,6 +110,8 @@ private:
 	void manageEnemyPortalCollision(const Collision& collision);
 
 	void resetSelectedDefender();
+	void resetProgression();
+	void startNextLevel();
 	void clearAllEntities();
 
 	SessionState m_gameState{SessionState::Idle};
@@ -121,6 +126,7 @@ private:
 	CallbackHandle m_onLevelManagerActionHandle;
 
 	const GameRegistry& m_gameRegistry;
+	Config& m_config;
 	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;

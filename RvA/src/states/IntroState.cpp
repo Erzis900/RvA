@@ -2,10 +2,15 @@
 
 #include "GUI/GUI.h"
 #include "Game.h"
+#include "constants.h"
 
 IntroState::IntroState(Game& game) : m_game(game) {}
 
 flow::FsmAction IntroState::enter() {
+	if (DEV_MODE) {
+		return flow::FsmAction::transition("menu");
+	}
+
 	auto& gui = m_game.getGUI();
 
 	// TODO add fade transition and studio logo

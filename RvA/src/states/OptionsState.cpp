@@ -37,13 +37,16 @@ flow::FsmAction OptionsState::enter() {
 			.space({0, 35.f})
 		
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({getMusicString(config.options.isMusic), {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
+				.label_button({"", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({getSoundString(config.options.isSound), {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
+				.label_button({"", {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({getFullscreenString(config.options.isFullscreen), {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
+				.label_button({"", {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({"", {}, btnSize, [this]() { toggleTutorial(); }}, &m_toggleTutorialButton)
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"Back", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
@@ -56,6 +59,9 @@ flow::FsmAction OptionsState::enter() {
 	}
 
 	m_screen = builder.screen();
+
+	updateLabels();
+
 	return flow::FsmAction::none();
 }
 
@@ -75,39 +81,37 @@ void OptionsState::exit() {
 	m_game.getGUI().destroyScreen("Options");
 }
 
+void OptionsState::updateLabels() {
+	auto& options = m_game.getConfig().options;
+	m_screen->getButton(m_musicButton).text = options.isMusicEnabled ? "Music ON" : "Music OFF";
+	m_screen->getButton(m_soundButton).text = options.isSoundEnabled ? "Sound ON" : "Sound OFF";
+	m_screen->getButton(m_windowButton).text = options.isFullscreen ? "Full screen" : "Windowed";
+	m_screen->getButton(m_toggleTutorialButton).text = options.isTutorialEnabled ? "Tutorial ON" : "Tutorial OFF";
+}
+
 // TODO SetMasterVolume includes volume of ALL sounds, MusicManager should handle Volume to differentiate Music and Sound Volume
 // TODO add Volume slider in options screen
 void OptionsState::toggleMusic() {
-	bool& isMusic = m_game.getConfig().options.isMusic;
-	isMusic = !isMusic;
-
-	// isMusic ? SetMasterVolume(1.f) : SetMasterVolume(0.0f);
-
-	m_screen->getButton(m_musicButton).text = getMusicString(isMusic);
+	auto& options = m_game.getConfig().options;
+	options.isMusicEnabled = !options.isMusicEnabled;
+	updateLabels();
 }
 
 void OptionsState::toggleSound() {
-	bool& isSound = m_game.getConfig().options.isSound;
-	isSound = !isSound;
-
-	m_screen->getButton(m_soundButton).text = getSoundString(isSound);
+	auto& options = m_game.getConfig().options;
+	options.isSoundEnabled = !options.isSoundEnabled;
+	updateLabels();
 }
 
 void OptionsState::toggleFullscreen() {
-	bool& isFullscreen = m_game.getConfig().options.isFullscreen;
+	auto& options = m_game.getConfig().options;
+	options.isFullscreen = !options.isFullscreen;
 	ToggleFullscreen();
-
-	m_screen->getButton(m_windowButton).text = getFullscreenString(isFullscreen);
+	updateLabels();
 }
 
-std::string OptionsState::getFullscreenString(bool isFullscreen) {
-	return isFullscreen ? "Full screen" : "Windowed";
-}
-
-std::string OptionsState::getMusicString(bool isMusic) {
-	return isMusic ? "Music ON" : "Music OFF";
-}
-
-std::string OptionsState::getSoundString(bool isSound) {
-	return isSound ? "Sound ON" : "Sound OFF";
+void OptionsState::toggleTutorial() {
+	bool& isTutorial = m_game.getConfig().options.isTutorialEnabled;
+	isTutorial = !isTutorial;
+	updateLabels();
 }

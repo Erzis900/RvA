@@ -24,7 +24,6 @@ flow::FsmAction EndScreenState::enter() {
 
 void EndScreenState::exit() {
 	m_game.getGUI().destroyScreen("EndScreen");
-	m_game.getGameSession().setState(SessionState::Idle);
 }
 
 flow::FsmAction EndScreenState::update(float dt) {
@@ -35,11 +34,5 @@ flow::FsmAction EndScreenState::update(float dt) {
 }
 
 void EndScreenState::goToMenu() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
-			m_nextTransition = "menu";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "menu"; }, [this] {}, 0.5f);
 }
