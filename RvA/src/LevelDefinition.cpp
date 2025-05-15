@@ -301,7 +301,7 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 						 .t(3.5f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{2}, .id = FixedValue{"ShooterTutorial"s}, .type = EntityType::Defender, .enabled = false})
 						 .t(1.0f, MessageOperation{.text = "This time the bot is disabled.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 						 .t(3.0f, MessageOperation{.text = "A disabled bot doesn't drain energy.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(3.0f, MessageOperation{.text = "Right-click the bot to enable/disable them", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "Left-click the bot to enable/disable them", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 						 .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.numberOfEnabledDefenders == 3; }})
 						 .t(0.0f, MessageOperation{.text = "Well done!", .textPosition = Vector2{64, 110}, .timer = 1.5f})
 

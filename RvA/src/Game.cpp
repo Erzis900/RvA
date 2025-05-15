@@ -196,9 +196,9 @@ void Game::setupFSM() {
 
 		// Menus
 		.state<ProceedState>("StartToMainMenu", [this, &session](){ 
-				save();
 				session.setDemoMode(true);
 				session.restartSession();
+				save();
 			})
 			.on("proceed").jumpTo("MainMenu")
 
@@ -214,7 +214,7 @@ void Game::setupFSM() {
 		.state<ProceedState>("StartSession", [this, &session](){ save(); session.restartSession(); })
 			.on("proceed").jumpTo("Play")
 
-		.state<ProceedState>("StartLevel", [this, &session](){ save(); session.startNextLevel(); })
+		.state<ProceedState>("StartLevel", [this, &session](){ session.startNextLevel(); save(); })
 			.on("proceed").jumpTo("Play")
 
 		.state<ProceedState>("ResumeLevel", [this, &session](){ session.resume(); })

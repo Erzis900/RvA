@@ -1,5 +1,6 @@
 #include "DefenderManager.h"
 
+#include "MusicManager.h"
 #include "collisions/CollisionSystem.h"
 
 DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem), m_musicManager(musicManager) {
@@ -125,6 +126,7 @@ void DefenderManager::toggleDefender(int row, int column) {
 	auto defender = m_defenderGrid[row][column];
 	if (defender && defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
 		setState(*defender, defender->state != DefenderState::Off ? DefenderState::Off : DefenderState::On);
+		m_musicManager.playSound("switch");
 	}
 }
 

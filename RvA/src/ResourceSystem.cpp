@@ -10,6 +10,7 @@ void ResourceSystem::loadResources() {
 	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.2f);
 	addSound("laser_shoot", LoadSound("sfx/laserShoot.wav"), 0.2f);
 	addSound("alien_death", LoadSound("sfx/alienDeath.wav"), 0.4f);
+	addSound("switch", LoadSound("sfx/switch.wav"), 0.4f);
 }
 
 void ResourceSystem::unloadResources() {

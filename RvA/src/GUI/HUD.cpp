@@ -375,14 +375,50 @@ void HUD::drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds) {
 
 		auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
 		if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
-			auto offset = Vector2{0, 0};
-			auto size = Vector2{2, 1};
-			auto rect = LayoutHelper::arrangePositionAndSize(offset, {size.x * 2 + 1, size.y * 2}, {pos.x, pos.y, CELL_SIZE, CELL_SIZE}, HAlign::Center, VAlign::Bottom);
+			auto width = 5.f;
+			auto height = 5.f;
+			auto upHeight = 4.f;
+			auto side = height - upHeight;
+			auto bkgPadding = 1.f;
+
+			auto alignRect =
+				LayoutHelper::arrangePositionAndSize({-width, 0}, {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1}, {pos.x, pos.y, defenderSize, defenderSize}, HAlign::Left, VAlign::Center);
+			pos = {alignRect.x, alignRect.y};
 			auto isEnabled = deployedDefender.state != DefenderState::Off;
 
-			DrawRectangleRec({rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2}, Fade(BLACK, 0.5f));
-			DrawRectangleRec({rect.x, rect.y, size.x, rect.height}, Fade(isEnabled ? GRAY : RED, 1.0f));
-			DrawRectangleRec({rect.x + size.x + 1, rect.y, size.x, rect.height}, Fade(isEnabled ? GREEN : GRAY, 1.0f));
+			DrawRectangleV(Vector2Add(pos, {-bkgPadding, -bkgPadding}), {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1}, Fade(BLACK, 1.0f));
+
+			constexpr bool drawSymbols = false;
+			auto line = Rectangle{};
+			auto circle = Rectangle{};
+			if (isEnabled) {
+				line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2}, {pos.x, pos.y, width, height}, HAlign::Center, VAlign::Center);
+				circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2 - 2}, {pos.x, pos.y + height, width, upHeight}, HAlign::Center, VAlign::Center);
+
+				DrawRectangleV(pos, {width, height}, DARKGREEN);
+
+				DrawRectangleV(Vector2Add(pos, {0, height}), {width, upHeight}, GREEN);
+				DrawRectangleV(Vector2Add(pos, {0, height + upHeight}), {width, 1}, LIGHTGRAY);
+				DrawRectangleV(Vector2Add(pos, {0, height + upHeight + 1}), {width, side}, DARKGREEN);
+			} else {
+				line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2 - 2}, {pos.x, pos.y + side + 1, width, upHeight}, HAlign::Center, VAlign::Center);
+				circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2}, {pos.x, pos.y + upHeight + side + 1, width, height}, HAlign::Center, VAlign::Center);
+
+				// Define a Light Red color and a dark red color
+				auto lightRed = Color{255, 100, 100, 255};
+				auto darkRed = Color{150, 0, 0, 255};
+
+				DrawRectangleV(pos, {width, side}, lightRed);
+				DrawRectangleV(Vector2Add(pos, {0, side}), {width, 1}, LIGHTGRAY);
+				DrawRectangleV(Vector2Add(pos, {0, side + 1}), {width, upHeight}, darkRed);
+
+				DrawRectangleV(Vector2Add(pos, {0, side + upHeight + 1}), {width, height}, lightRed);
+			}
+
+			if constexpr (drawSymbols) {
+				DrawRectangleRec(line, WHITE);
+				DrawEllipseLines(circle.x + circle.width / 2, circle.y + circle.height / 2, circle.width / 2, circle.height / 2, WHITE);
+			}
 		}
 	}
 }
