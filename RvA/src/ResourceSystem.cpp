@@ -7,9 +7,9 @@ void ResourceSystem::loadResources() {
 	addMusic("game", LoadMusicStream("sfx/game.mp3"));
 	addMusic("lost", LoadMusicStream("sfx/lost.mp3"));
 
-	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.4f);
-	addSound("laser_shoot", LoadSound("sfx/laserShoot.wav"));
-	addSound("alien_death", LoadSound("sfx/alienDeath.wav"));
+	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.2f);
+	addSound("laser_shoot", LoadSound("sfx/laserShoot.wav"), 0.2f);
+	addSound("alien_death", LoadSound("sfx/alienDeath.wav"), 0.4f);
 }
 
 void ResourceSystem::unloadResources() {

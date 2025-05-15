@@ -5,12 +5,12 @@
 #include <ranges>
 #include <raymath.h>
 
-Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config)
+Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config, MusicManager& musicManager)
 	: m_gameRegistry(gameRegistry)
 	, m_config(config)
-	, m_defenderManager(m_collisionSystem)
-	, m_enemyManager(m_gameRegistry, m_collisionSystem)
-	, m_bulletManager(m_enemyManager, m_collisionSystem)
+	, m_defenderManager(m_collisionSystem, musicManager)
+	, m_enemyManager(m_gameRegistry, m_collisionSystem, musicManager)
+	, m_bulletManager(m_enemyManager, m_collisionSystem, musicManager)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_levelManager(m_gameRegistry)

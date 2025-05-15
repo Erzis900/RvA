@@ -35,7 +35,7 @@ struct Game::pimpl {
 		, m_screenWidth(SCREEN_WIDTH)
 		, m_screenHeight(SCREEN_HEIGHT)
 		, m_gui(m_atlas, m_musicManager)
-		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry, m_config)
+		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry, m_config, m_musicManager)
 		, m_musicManager(m_config, m_resourceSystem) {
 		Random::setInstance(&m_random);
 		SetTraceLogCallback(MyTraceLog); // Use our logger

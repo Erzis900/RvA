@@ -10,6 +10,7 @@
 class Atlas;
 class CollisionSystem;
 class GameRegistry;
+class MusicManager;
 
 struct EnemyDestroyedInfo {
 	const EnemyTypeInfo* info{};
@@ -19,7 +20,7 @@ struct EnemyDestroyedInfo {
 
 class EnemyManager {
 public:
-	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem);
+	EnemyManager(const GameRegistry& gameRegistry, CollisionSystem& collisionSystem, MusicManager& musicManager);
 
 	void clear();
 	GameActions update(float dt);
@@ -41,4 +42,5 @@ private:
 
 	const GameRegistry& m_gameRegistry;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 };
