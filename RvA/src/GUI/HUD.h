@@ -39,7 +39,7 @@ struct HUDTimelineDataItem {
 };
 
 struct HUDTimelineData {
-	std::vector<float> waves;
+	std::vector<HUDTimelineDataItem> waves;
 	float time{};
 	float duration{};
 };

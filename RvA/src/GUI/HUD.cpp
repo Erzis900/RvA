@@ -417,12 +417,12 @@ void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
 	auto& timelineData = m_data.timelineData;
 
 	for (auto& keyframe : timelineData.waves) {
-		auto x = rect.x + keyframe * totalTimelineFill;
+		auto x = rect.x + keyframe.time * totalTimelineFill;
 		auto y = rect.y - 2;
 		// DrawCircle(x, rect.y + 1, 3, Fade(WHITE, 1.f));
 		//  DrawCircle(x, rect.y + 1, 2, RED);
-		atlas.drawSprite(atlas.getSpriteInfo("icon_alien_timeline"), {x - 10, y - 10}, 0, Flip::None, Fade(BLACK, 0.5));
-		atlas.drawSprite(atlas.getSpriteInfo("icon_alien_timeline"), {x - 8, y - 8});
+		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 10, y - 10}, 0, Flip::None, Fade(BLACK, 0.5));
+		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 8, y - 8});
 	}
 
 	auto triangleHeight = 8;

@@ -71,6 +71,7 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 											  {3.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}}},
 											  {5.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}}},
 											  {7.f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"B1"s}}},
+											  {15.f, FlagTimelineOperation{.icon = "icon_alien_timeline"}},
 											  {15.f,
 											   SpawnEntityBurstOperation{
 												   .amount = FixedValue{10},
@@ -363,14 +364,20 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 							})
 						 .t(1.0f,
 							TutorialOperation{
-								.text = "They're Coming!!!",
-								.textPosition = Vector2{0, 250},
+								.text = "THEY'RE COMING!!!",
 								.textHAlign = HAlign::Center,
-								.timer = 1.f,
+								.textVAlign = VAlign::Center,
+								.timer = 3.f,
 							})
-						 .t(0, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{2.f, 4.f}, .row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
 						 .t(5.5f,
 							SpawnEntityBurstOperation{.amount = FixedValue{20}, .interval = RandomRange{2.f, 4.f}, .row = RandomRange{0, 6}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
+						 .t(0,
+							SpawnEntityBurstOperation{.amount = FixedValue{5},
+													  .interval = RandomRange{1.f, 2.f},
+													  .row = Selection<int>{{0, 1}, {3, 1}},
+													  .column = lastColumn,
+													  .id = FixedValue{"B1Tutorial"s}})
+						 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 						 .build()},
 		});
 }
