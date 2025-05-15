@@ -36,6 +36,7 @@ struct SpawnEntityBurstOperation {
 
 struct TutorialOperation {
 	std::string text{};
+	int fontSize{};
 	Vector2 highlightPosition{};
 	Vector2 highlightSize{};
 	std::optional<Vector2> textPosition{};

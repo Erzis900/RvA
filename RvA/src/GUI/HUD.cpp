@@ -311,13 +311,19 @@ void HUD::drawTutorial(Atlas& atlas) {
 		auto& action = m_data.tutorialAction;
 
 		bool isTimedTutorial = action.timer.has_value();
+		float tInterpolation = 0.f;
 
-		auto maxInterpolation = 0.5f;
-		auto tInterpolation = m_data.tutorialTime / maxInterpolation;
+		if (*action.timer - m_data.tutorialTime < 0.25f) {
+			auto maxInterpolation = 0.5f;
+			tInterpolation = (*action.timer - m_data.tutorialTime) / 0.25f;
+		} else {
+			auto maxInterpolation = 0.5f;
+			tInterpolation = m_data.tutorialTime / maxInterpolation;
+		}
 		tInterpolation = std::clamp(tInterpolation, 0.f, 1.f);
 
 		// If it's a timed tutorial we don't block the player so we don't show a semi-transparent background
-		if (!isTimedTutorial) {
+		/*if (!isTimedTutorial) {
 			float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
 			auto holeSize = action.highlightSize;
 
@@ -334,7 +340,7 @@ void HUD::drawTutorial(Atlas& atlas) {
 			BeginShaderMode(shader);
 			atlas.drawSprite(atlas.getSpriteInfo("one_pixel"), {0, 0}, {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y});
 			EndShaderMode();
-		}
+		}*/
 
 		const char* text = action.text.c_str();
 		auto size = MeasureTextEx(GuiGetFont(), text, FONT_SMALL, 1);
