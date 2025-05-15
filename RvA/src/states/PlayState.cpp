@@ -9,7 +9,7 @@
 PlayState::PlayState(Game& game) : m_game(game) {}
 
 flow::FsmAction PlayState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getGameMusic());
+	m_game.getMusicManager().playMusic("game");
 
 	return flow::FsmAction::none();
 }

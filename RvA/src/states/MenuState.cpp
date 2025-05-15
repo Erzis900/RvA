@@ -9,7 +9,7 @@
 MenuState::MenuState(Game& game) : m_game(game) {}
 
 flow::FsmAction MenuState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	m_game.getMusicManager().playMusic("menu");
 
 	// clang-format off
 	auto btnSize = Vector2{100.f, 30.f};

@@ -8,7 +8,7 @@
 EndScreenState::EndScreenState(Game& game) : m_game(game) {}
 
 flow::FsmAction EndScreenState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+	m_game.getMusicManager().playMusic("menu");
 	auto& gui = m_game.getGUI();
 	// clang-format off
 	gui.buildScreen("EndScreen")
