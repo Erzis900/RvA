@@ -33,8 +33,8 @@ Session::~Session() {
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 }
 
-bool Session::isPaused() const {
-	return m_gameState == SessionState::Paused;
+bool Session::isState(SessionState state) const {
+	return m_gameState == state;
 }
 
 void Session::drawGrid() {
@@ -204,7 +204,7 @@ void Session::performAction(const DefenderSpawnAction& action) {
 
 void Session::performAction(const WinAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut([this]() { setState(SessionState::StartSession); }, []() {}, 0.5f);
+		m_hud.startFadeInOut([this]() { restartSession(); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -217,7 +217,7 @@ void Session::performAction(const WinAction& action) {
 
 void Session::performAction(const LoseAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut([this]() { setState(SessionState::StartSession); }, []() {}, 0.5f);
+		m_hud.startFadeInOut([this]() { restartSession(); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -368,6 +368,11 @@ void Session::resetSelectedDefender() {
 	m_hud.data().selectedDefenderIndex.reset();
 }
 
+void Session::restartSession() {
+	resetProgression();
+	startNextLevel();
+}
+
 void Session::resetProgression() {
 	clearAllEntities();
 	m_levelManager.resetCurrentLevelIndex();
@@ -410,6 +415,15 @@ void Session::startNextLevel() {
 	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 	setupHUD();
 	m_hud.setEnable(!m_demoMode);
+	setState(SessionState::Playing);
+}
+
+void Session::pause() {
+	setState(SessionState::Paused);
+}
+
+void Session::resume() {
+	setState(SessionState::Playing);
 }
 
 void Session::clearAllEntities() {
@@ -421,40 +435,16 @@ void Session::clearAllEntities() {
 }
 
 void Session::setState(SessionState state) {
-	if (state == SessionState::StartSession) {
-		resetProgression();
-		state = SessionState::StartLevel;
-	}
-
-	// We should use the FSM to define each state here to simplify the code.
-	switch (state) {
-	case SessionState::Idle: {
-		resetProgression();
-		break;
-	}
-	case SessionState::StartLevel: {
-		startNextLevel();
-		break;
-	}
-	case SessionState::Paused: {
-		m_hud.setEnable(false);
-		break;
-	}
-	case SessionState::Win: {
-		m_hud.setEnable(false);
-		break;
-	}
-	case SessionState::Lost: {
-		m_hud.setEnable(false);
-		break;
-	}
-	case SessionState::End: {
-		m_hud.setEnable(false);
-		break;
-	}
-	default: break;
-	}
 	m_gameState = state;
+
+	switch (state) {
+	case SessionState::Playing: m_hud.setEnable(true); break;
+	case SessionState::Idle	  :
+	case SessionState::Win	  :
+	case SessionState::End	  :
+	case SessionState::Lost	  :
+	case SessionState::Paused : m_hud.setEnable(false); break;
+	}
 }
 
 void Session::updateHUD(float dt) {

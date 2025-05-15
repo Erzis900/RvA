@@ -8,8 +8,6 @@
 PauseState::PauseState(Game& game) : m_game(game) {}
 
 flow::FsmAction PauseState::enter() {
-	m_game.getGameSession().setState(SessionState::Paused);
-
 	// clang-format off
 	auto btnSize = Vector2{100.f, 30.f};
 	auto& gui = m_game.getGUI();	
