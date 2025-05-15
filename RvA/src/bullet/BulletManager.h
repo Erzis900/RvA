@@ -9,10 +9,11 @@
 class CollisionSystem;
 class EnemyManager;
 class Enemy;
+class MusicManager;
 
 class BulletManager {
 public:
-	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem);
+	BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem, MusicManager& musicManager);
 
 	void clear();
 	void update(float dt);
@@ -48,4 +49,5 @@ private:
 	EnemyManager& m_enemyManager;
 	CollisionSystem& m_collisionSystem;
 	float m_latestDeltaTime{};
+	MusicManager& m_musicManager;
 };

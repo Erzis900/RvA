@@ -1,5 +1,6 @@
 #include "bullet/BulletManager.h"
 
+#include "MusicManager.h"
 #include "collisions/CollisionSystem.h"
 #include "constants.h"
 #include "enemy/EnemyManager.h"
@@ -7,7 +8,10 @@
 #include <raymath.h>
 #include <reasings.h>
 
-BulletManager::BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem) : m_enemyManager(enemyManager), m_collisionSystem(collisionSystem) {
+BulletManager::BulletManager(EnemyManager& enemyManager, CollisionSystem& collisionSystem, MusicManager& musicManager)
+	: m_enemyManager(enemyManager)
+	, m_collisionSystem(collisionSystem)
+	, m_musicManager(musicManager) {
 	m_bullets.reserve(128);
 }
 
@@ -99,6 +103,8 @@ void BulletManager::setupBullet(Bullet& bullet, LaserBeamData& data) {
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
 	data.beamWidth = 0;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x, bullet.position.y - data.beamHeight / 2, data.beamWidth, data.beamHeight});
+
+	m_musicManager.playSound("laser_shoot");
 }
 
 void BulletManager::updateBullet(Bullet& bullet, LaserBeamData& data, float dt) {

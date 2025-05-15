@@ -14,6 +14,7 @@
 
 class Config;
 class GUI;
+class MusicManager;
 
 struct Wall {
 	ColliderHandle colliderHandle;
@@ -35,7 +36,7 @@ enum class SessionState {
  */
 class Session {
 public:
-	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config);
+	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config, MusicManager& musicManager);
 	~Session();
 
 	void setState(SessionState state);
