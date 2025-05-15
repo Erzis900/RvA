@@ -19,8 +19,11 @@ public:
 	~Atlas();
 
 	void load(const char* textureName);
-	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE);
-	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, const Vector2& size, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE);
+	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE, float rotation = 0.f);
+	void drawSprite(const SpriteInfo* spriteInfo, const Vector2& pos, const Vector2& size, int currentFrame = 0, Flip flip = Flip::None, Color tint = WHITE, float rotation = 0.f);
+	void drawRotatedSprite(const SpriteInfo* spriteInfo, const Vector2& pos, int currentFrame, Flip flip, Color tint, float rotation);
+	void drawRotatedSprite(const SpriteInfo* spriteInfo, const Vector2& pos, const Vector2& size, int currentFrame, Flip flip, Color tint, float rotation);
+
 
 	texture_atlas_t* getTextureAtlas() {
 		return m_ta;

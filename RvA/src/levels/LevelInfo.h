@@ -58,6 +58,8 @@ enum class HUDOperationType {
 	HideResources,
 	ShowDefenderPicker,
 	HideDefenderPicker,
+	ShowTimeline,
+	HideTimeline,
 };
 
 struct HUDOperation {
@@ -74,7 +76,11 @@ struct DefenderPickerOperation {
 	std::string id{};
 };
 
-using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation, DefenderPickerOperation, CheckOperation>;
+struct FlagTimelineOperation {
+	std::string icon{};
+};
+
+using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation, DefenderPickerOperation, CheckOperation, FlagTimelineOperation>;
 
 struct Keyframe {
 	float time;

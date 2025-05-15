@@ -36,7 +36,7 @@ void GUI::draw() {
 }
 
 void GUI::drawCursor() {
-	m_atlas.drawSprite(m_mouseCurrentSprite, {GetMousePosition().x - 10, GetMousePosition().y - 5});
+	m_atlas.drawSprite(m_mouseCurrentSprite, {GetMousePosition().x - 10, GetMousePosition().y - 5}, {32, 32});
 }
 
 void GUI::drawFPS() {
