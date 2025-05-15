@@ -8,8 +8,8 @@
 PortalManager::PortalManager(CollisionSystem& collisionSystem) : m_collisionSystem(collisionSystem) {}
 
 void PortalManager::spawnPortals(const PortalTypeInfo* entranceInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol) {
-	auto entrance = createPortal(entranceInfo, inRow, inCol);
-	auto exit = createPortal(exitInfo, outRow, outCol);
+	auto entrance = createPortal(entranceInfo, inRow, inCol, WHITE);
+	auto exit = createPortal(exitInfo, outRow, outCol, WHITE);
 
 	m_portalPairs.push_back({std::move(entrance), std::move(exit)});
 }
@@ -24,7 +24,7 @@ Portal* PortalManager::getExit(int entranceId) {
 	return nullptr;
 }
 
-std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, int row, int col) {
+std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, int row, int col, Color tint) {
 	auto portal = std::make_unique<Portal>();
 
 	portal->info = info;
@@ -36,7 +36,7 @@ std::unique_ptr<Portal> PortalManager::createPortal(const PortalTypeInfo* info, 
 	portal->row = row;
 	portal->column = col;
 	portal->state = PortalState::Summoning;
-	portal->tint = WHITE;
+	portal->tint = tint;
 	portal->id = m_portalId++;
 	portal->colliderHandle = m_collisionSystem.createCollider(Collider::Flag::Portal, portal.get());
 

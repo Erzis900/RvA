@@ -14,6 +14,7 @@
 
 class Config;
 class GUI;
+class MusicManager;
 
 struct Wall {
 	ColliderHandle colliderHandle;
@@ -25,8 +26,7 @@ enum class SessionState {
 	End,
 	Lost,
 	Paused,
-	StartSession,
-	StartLevel
+	Playing
 };
 
 /*
@@ -35,14 +35,19 @@ enum class SessionState {
  */
 class Session {
 public:
-	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config);
+	Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config, MusicManager& musicManager);
 	~Session();
 
-	void setState(SessionState state);
-	bool isPaused() const;
+	bool isState(SessionState state) const;
 
 	void update(float dt);
 	void draw(Atlas& atlas);
+
+	void restartSession();
+	void resetProgression();
+	void startNextLevel();
+	void pause();
+	void resume();
 
 	// Demo Mode is used to let the game run without player intervention.
 	// There's no win/lose, bots spawn automatically and the game runs until the player start a real game.
@@ -95,6 +100,7 @@ private:
 	bool canAffordCost(int cost) const;
 	bool canPlaceDefender(int x, int y) const;
 
+	void setState(SessionState state);
 	void setupHUD();
 	void updateHUD(float dt);
 	void refreshHUDDefenderPickerData();
@@ -110,8 +116,6 @@ private:
 	void manageEnemyPortalCollision(const Collision& collision);
 
 	void resetSelectedDefender();
-	void resetProgression();
-	void startNextLevel();
 	void clearAllEntities();
 
 	SessionState m_gameState{SessionState::Idle};

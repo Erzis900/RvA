@@ -14,6 +14,7 @@ const float defenderSlotSize = 52;
 const float defenderSlotHSize = defenderSlotSize * 0.5f;
 const float defenderPadding = 5.f;
 const float maxBatteryFill = (defenderSize * ROWS) - CELL_SIZE * 0.5f;
+const float totalTimelineFill = 200.f;
 
 HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSystem(resourceSystem) {
 	m_data.progressBars.reserve(128);
@@ -22,6 +23,8 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 	auto* batteryTop = m_gui.getAtlas().getSpriteInfo("ui_battery_top");
 	auto* batteryBottom = m_gui.getAtlas().getSpriteInfo("ui_battery_bottom");
 	auto* batteryMiddle = m_gui.getAtlas().getSpriteInfo("ui_battery_middle");
+	auto* timelineSide = m_gui.getAtlas().getSpriteInfo("ui_timeline_side");
+	auto timelineSideSize = Vector2{totalTimelineFill + timelineSide->frames[0].width * 2, static_cast<float>(timelineSide->frames[0].height)};
 
 	// clang-format off
 	m_screen = m_gui.buildScreen("HUD")
@@ -79,7 +82,18 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		// Progress Bars ( HP bar )
 		.custom({
 			.draw = std::bind_front(&HUD::drawProgressBars, this),
-			.vAlign = VAlign::Center
+		})
+		// Deployed Defenders HUD
+		.custom({
+			.draw = std::bind_front(&HUD::drawDeployedDefenderHUD, this),
+		})
+		// Timeline
+		.custom({
+			.pos = { 0, 10 },
+			.draw = std::bind_front(&HUD::drawTimeline, this),
+			.measure = [timelineSideSize](const auto& size) { return timelineSideSize; },
+			.hAlign = HAlign::Center,
+			.vAlign = VAlign::Top,
 		})
 		// Tutorial Screen
 		.custom({
@@ -98,15 +112,13 @@ void HUD::setEnable(bool enabled) {
 	m_isEnabled = enabled;
 }
 
-Color calculateBatteryColor(float batteryCharge, float maxBatteryCharge) {
-	float t = 1.0f - batteryCharge / maxBatteryCharge;
+Color calculatePercentageColor(float value, float maxValue, Color color1 = GREEN, Color color2 = ORANGE, Color color3 = RED) {
+	float t = 1.0f - value / maxValue;
 
 	if (t < 0.5f) {
-		// Green to Orange
-		return ColorLerp(GREEN, ORANGE, t * 2.0f);
+		return ColorLerp(color1, color2, t * 2.0f);
 	} else {
-		// Orange to Red
-		return ColorLerp(ORANGE, RED, (t - 0.5f) * 2.0f);
+		return ColorLerp(color2, color3, (t - 0.5f) * 2.0f);
 	}
 }
 
@@ -115,19 +127,19 @@ void HUD::update(float dt) {
 	m_screen->getText(m_scrapTextHandle).text = scrapsText;
 	auto& batteryText = m_screen->getText(m_batteryTextHandle);
 	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge / m_data.maxBatteryCharge * 100));
-	batteryText.color = calculateBatteryColor(m_data.batteryCharge, m_data.maxBatteryCharge);
+	batteryText.color = calculatePercentageColor(m_data.batteryCharge, m_data.maxBatteryCharge);
 	auto& levelName = m_screen->getText(m_levelNameHandle);
 	levelName.text = m_data.levelName;
 
 	auto& batteryIndicator = m_screen->getShape(m_batteryIndicatorHandle);
 	batteryIndicator.size.y = std::round(m_data.batteryCharge / m_data.maxBatteryCharge * maxBatteryFill);
-	batteryIndicator.color = Fade(calculateBatteryColor(m_data.batteryCharge, m_data.maxBatteryCharge), 0.75f);
+	batteryIndicator.color = Fade(calculatePercentageColor(m_data.batteryCharge, m_data.maxBatteryCharge), 0.75f);
 
 	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
 	plateContainer.owner->visible = m_isAnyDefenderHovered;
 	if (m_isAnyDefenderHovered) {
 		auto& plateText = m_screen->getText(m_plateTextHandle);
-		plateText.text = m_data.defenders[m_hoveredDefenderIndex].name;
+		plateText.text = m_data.pickableDefenders[m_hoveredDefenderIndex].name;
 	}
 
 	auto& batteryAndScrapsContainer = m_screen->getStack(m_batteryAndScrapsHandle);
@@ -135,7 +147,7 @@ void HUD::update(float dt) {
 	batteryAndScrapsContainer.owner->visible = m_data.showResources;
 	defenderContainer.owner->visible = m_data.showDefenderPicker;
 
-	for (auto& defender : m_data.defenders) {
+	for (auto& defender : m_data.pickableDefenders) {
 		if (defender.isHover) {
 			defender.animation.update(dt);
 		}
@@ -158,7 +170,7 @@ CallbackHandle HUD::onTutorialNext(std::function<void()> callback) {
 }
 
 void HUD::clear() {
-	m_data.defenders.clear();
+	m_data.pickableDefenders.clear();
 	m_data.progressBars.clear();
 	m_data.scrapsAmount = 0;
 	m_data.batteryCharge = 0.f;
@@ -182,11 +194,11 @@ void HUD::startFadeInOut(std::function<void()> onFadingInDone, std::function<voi
 
 Vector2 HUD::measureDefenders(const Vector2& availableSize) {
 	auto size = Vector2{0, defenderSlotSize};
-	if (m_data.defenders.empty()) {
+	if (m_data.pickableDefenders.empty()) {
 		return size;
 	}
 
-	for (auto& defender : m_data.defenders) {
+	for (auto& defender : m_data.pickableDefenders) {
 		size.x += defenderSlotSize + defenderPadding;
 	}
 	size.x -= defenderPadding;
@@ -198,7 +210,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 	m_isAnyDefenderHovered = false;
 
 	auto i = 0;
-	for (auto& defender : m_data.defenders) {
+	for (auto& defender : m_data.pickableDefenders) {
 		Vector2 position = {bounds.x + defenderSlotSize * i + defenderPadding * i, bounds.y};
 
 		float halfPadding = defenderPadding / 2;
@@ -280,7 +292,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		}
 
 		position = Vector2Add(mousePos, {-defenderSize * 0.7f, -defenderSize * 0.7f});
-		auto& defender = m_data.defenders[*m_data.selectedDefenderIndex];
+		auto& defender = m_data.pickableDefenders[*m_data.selectedDefenderIndex];
 		atlas.drawSprite(defender.animation.getSpriteInfo(), position, 0, None, Fade(WHITE, 0.7f));
 	}
 }
@@ -288,22 +300,22 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 void HUD::drawProgressBars(Atlas& atlas, const Rectangle& bounds) {
 	for (auto& progressBar : m_data.progressBars) {
 		if (progressBar.value != progressBar.max) {
-			drawProgressBar(progressBar.value, progressBar.max, progressBar.position, progressBar.bkgColor, progressBar.fillColor);
+			drawProgressBar(progressBar.value, progressBar.max, progressBar.position, Fade(BLACK, 0.5f), calculatePercentageColor(progressBar.value, progressBar.max));
 		}
 	}
 }
 
-void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor, Color fillColor) {
+void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color emptyColor, Color fillColor) {
 	float barWidth = float(CELL_SIZE);
 	float barHeight = 3.f;
 	float valPercent = value / max;
 
 	Vector2 barPos = {pos.x, pos.y + CELL_SIZE};
-	Rectangle bg = {barPos.x, barPos.y, barWidth, barHeight};
-	Rectangle fg = {barPos.x, barPos.y, barWidth * valPercent, barHeight};
+	Rectangle empty = {barPos.x, barPos.y, barWidth, barHeight};
+	Rectangle fill = {barPos.x, barPos.y, barWidth * valPercent, barHeight};
 
-	DrawRectangleRec(bg, bkgColor);
-	DrawRectangleRec(fg, fillColor);
+	DrawRectangleRec(empty, emptyColor);
+	DrawRectangleRec(fill, fillColor);
 }
 
 void HUD::drawTutorial(Atlas& atlas) {
@@ -362,4 +374,65 @@ void HUD::drawTutorial(Atlas& atlas) {
 			}
 		}
 	}
+}
+
+void HUD::drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds) {
+	for (auto& deployedDefender : m_data.deployedDefenders) {
+		auto pos = deployedDefender.position;
+
+		auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
+		if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
+			auto offset = Vector2{0, 0};
+			auto size = Vector2{2, 1};
+			auto rect = LayoutHelper::arrangePositionAndSize(offset, {size.x * 2 + 1, size.y * 2}, {pos.x, pos.y, CELL_SIZE, CELL_SIZE}, HAlign::Center, VAlign::Bottom);
+			auto isEnabled = deployedDefender.state != DefenderState::Off;
+
+			DrawRectangleRec({rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2}, Fade(BLACK, 0.5f));
+			DrawRectangleRec({rect.x, rect.y, size.x, rect.height}, Fade(isEnabled ? GRAY : RED, 1.0f));
+			DrawRectangleRec({rect.x + size.x + 1, rect.y, size.x, rect.height}, Fade(isEnabled ? GREEN : GRAY, 1.0f));
+		}
+	}
+}
+
+void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
+	if (!m_data.showTimeline) {
+		return;
+	}
+
+	auto pos = Vector2{bounds.x, bounds.y};
+	auto* timelineSide = m_gui.getAtlas().getSpriteInfo("ui_timeline_side");
+	auto timelineSideSize = Vector2{static_cast<float>(timelineSide->frames[0].width), static_cast<float>(timelineSide->frames[0].height)};
+
+	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
+	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
+
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x, pos.y}, 0, Flip::Horizontal);
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_fill"), {pos.x + timelineSideSize.x, pos.y}, {totalTimelineFill, 20});
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x + timelineSideSize.x + totalTimelineFill, pos.y});
+
+	auto padding = Vector2{10, 10};
+	auto rect = Rectangle{bounds.x + padding.x, bounds.y + padding.y, bounds.width - padding.x * 2, 1};
+	DrawRectangleRec(rect, WHITE);
+
+	auto& timelineData = m_data.timelineData;
+
+	for (auto& keyframe : timelineData.waves) {
+		auto x = rect.x + keyframe.time * totalTimelineFill;
+		auto y = rect.y - 2;
+		// DrawCircle(x, rect.y + 1, 3, Fade(WHITE, 1.f));
+		//  DrawCircle(x, rect.y + 1, 2, RED);
+		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 10, y - 10}, 0, Flip::None, Fade(BLACK, 0.5));
+		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 8, y - 8});
+	}
+
+	auto triangleHeight = 8;
+	auto triangleWidth = 6;
+	auto xOffset = 0;
+	auto yOffset = 2;
+	auto pointingX = rect.x + (timelineData.time / timelineData.duration) * totalTimelineFill;
+	auto pointA = Vector2{pointingX - triangleWidth / 2, rect.y + triangleHeight + yOffset};
+	auto pointB = Vector2{pointingX + triangleWidth / 2, rect.y + triangleHeight + yOffset};
+	auto pointC = Vector2{pointingX, rect.y + yOffset};
+
+	DrawTriangle(pointA, pointB, pointC, RED);
 }

@@ -35,8 +35,8 @@ struct Game::pimpl {
 		, m_screenWidth(SCREEN_WIDTH)
 		, m_screenHeight(SCREEN_HEIGHT)
 		, m_gui(m_atlas, m_musicManager)
-		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry, m_config)
-		, m_musicManager(m_config) {
+		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry, m_config, m_musicManager)
+		, m_musicManager(m_config, m_resourceSystem) {
 		Random::setInstance(&m_random);
 		SetTraceLogCallback(MyTraceLog); // Use our logger
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -49,6 +49,8 @@ struct Game::pimpl {
 		SetTextureFilter(m_gameRenderTexture.texture, TEXTURE_FILTER_POINT);
 		SetTextureFilter(m_uiRenderTexture.texture, TEXTURE_FILTER_POINT);
 
+		InitAudioDevice();
+
 		m_resourceSystem.loadResources();
 
 		m_atlas.load("assets/atlas.png");
@@ -56,10 +58,6 @@ struct Game::pimpl {
 
 		DisableCursor();
 		m_gui.setCursor(CursorType::Default);
-
-		InitAudioDevice();
-		m_musicManager.load();
-		m_gui.setDefaultButtonSound(&m_musicManager.getButtonClick());
 
 		SetExitKey(0);
 	}
@@ -188,6 +186,8 @@ void Game::run() {
 void Game::setupFSM() {
 	auto fsmBuilder = flow::FsmBuilder();
 
+	auto& session = getGameSession();
+
 	// clang-format off
 	fsmBuilder
 		// Intro
@@ -195,10 +195,10 @@ void Game::setupFSM() {
 			.on("menu").jumpTo("StartToMainMenu")
 
 		// Menus
-		.state<ProceedState>("StartToMainMenu", [this](){ 
+		.state<ProceedState>("StartToMainMenu", [this, &session](){ 
 				save();
-				getGameSession().setDemoMode(true);
-				getGameSession().setState(SessionState::StartSession);
+				session.setDemoMode(true);
+				session.restartSession();
 			})
 			.on("proceed").jumpTo("MainMenu")
 
@@ -209,22 +209,28 @@ void Game::setupFSM() {
 
 		.state<OptionsState>("Options", *this, 0.25f, true, true, true)
 			.on("back").jumpTo("MainMenu")
-
+		
 		// In Game States
-		.state<ProceedState>("StartSession", [this](){ save(); getGameSession().setState(SessionState::StartSession); })
+		.state<ProceedState>("StartSession", [this, &session](){ save(); session.restartSession(); })
 			.on("proceed").jumpTo("Play")
 
-		.state<ProceedState>("StartLevel", [this](){ save(); getGameSession().setState(SessionState::StartLevel); })
+		.state<ProceedState>("StartLevel", [this, &session](){ save(); session.startNextLevel(); })
+			.on("proceed").jumpTo("Play")
+
+		.state<ProceedState>("ResumeLevel", [this, &session](){ session.resume(); })
 			.on("proceed").jumpTo("Play")
 
 		.state<PlayState>("Play", *this)
-			.on("pause").jumpTo("PauseMenu")
+			.on("pause").jumpTo("PauseLevel")
 			.on("win").jumpTo("WinScreen")
 			.on("end").jumpTo("EndScreen")
 			.on("lost").jumpTo("LoseScreen")
 
+		.state<ProceedState>("PauseLevel", [this, &session](){ session.pause(); })
+			.on("proceed").jumpTo("PauseMenu")
+
 		.state<PauseState>("PauseMenu", *this)
-			.on("resume").jumpTo("Play")
+			.on("resume").jumpTo("ResumeLevel")
 			.on("restart").jumpTo("StartSession")
 			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("StartToMainMenu")
@@ -516,16 +522,16 @@ void Game::registerPortals() {
 
 	m_pimpl->m_gameRegistry.addPortal("entrance",
 									  {.type = PortalType::Entrance,
-									   .spriteIdle = {sprite("portal_idle"), 0.1f},
-									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
-									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .spriteIdle = {sprite("entrance_portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("entrance_portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("entrance_portal_open"), 0.25f, 1, true},
 									   .lifespan = 4.f});
 
 	m_pimpl->m_gameRegistry.addPortal("exit",
 									  {.type = PortalType::Exit,
-									   .spriteIdle = {sprite("portal_idle"), 0.1f},
-									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
-									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .spriteIdle = {sprite("exit_portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("exit_portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("exit_portal_open"), 0.25f, 1, true},
 									   .lifespan = 4.f});
 }
 

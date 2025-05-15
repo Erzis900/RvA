@@ -57,7 +57,8 @@ private:
 	void performIdle(std::unique_ptr<Portal>& portal, float dt);
 	void performClosing(std::unique_ptr<Portal>& portal, float dt);
 
-	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col);
+	// Leaving tint parameter possibly for future
+	std::unique_ptr<Portal> createPortal(const PortalTypeInfo* info, int row, int col, Color tint);
 
 	std::vector<PortalPair> m_portalPairs;
 	CollisionSystem& m_collisionSystem;

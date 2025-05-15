@@ -8,8 +8,6 @@
 PauseState::PauseState(Game& game) : m_game(game) {}
 
 flow::FsmAction PauseState::enter() {
-	m_game.getGameSession().setState(SessionState::Paused);
-
 	// clang-format off
 	auto btnSize = Vector2{100.f, 30.f};
 	auto& gui = m_game.getGUI();	
@@ -63,7 +61,7 @@ void PauseState::exitGameSession() {
 void PauseState::restart() {
 	m_game.getGUI().startFadingInOut(
 		[this] {
-			m_game.getMusicManager().stop(m_game.getMusicManager().getGameMusic());
+			m_game.getMusicManager().stopMusic();
 			m_nextTransition = "restart";
 		},
 		[this] {},

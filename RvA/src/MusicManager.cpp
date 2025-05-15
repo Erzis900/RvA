@@ -1,32 +1,15 @@
 #include "MusicManager.h"
 
 #include "Config.h"
+#include "ResourceSystem.h"
 #include "constants.h"
 
-MusicManager::MusicManager(Config& config) : m_config(config) {}
+MusicManager::MusicManager(Config& config, ResourceSystem& resourceSystem) : m_config(config), m_resourceSystem(resourceSystem) {}
 
-MusicManager::~MusicManager() {
-	UnloadMusicStream(m_menuMusic);
-	UnloadMusicStream(m_gameMusic);
-	UnloadMusicStream(m_lostMusic);
-}
-
-void MusicManager::load() {
-	// TODO make sure all the music files have consistent formats
-	m_menuMusic = LoadMusicStream("sfx/menu.wav");
-	m_gameMusic = LoadMusicStream("sfx/game.mp3");
-	m_lostMusic = LoadMusicStream("sfx/lost.mp3");
-
-	// is there a shorter code than game.getMusicManager().play(game.getMusicManager().getButtonClick()); to play a sound?
-	// something like playMySound("buttonClick"); without needing to pass &game every time?
-	s_buttonClick = LoadSound("sfx/buttonClick.wav");
-	s_laserShoot = LoadSound("sfx/laserShoot.wav");
-	s_longLaser = LoadSound("sfx/longLaser.wav");
-	s_alienDeath = LoadSound("sfx/alienDeath.wav");
-}
-
-void MusicManager::play(Music& music) {
+void MusicManager::playMusic(const std::string& name) {
 	if (m_config.options.isMusicEnabled) {
+		Music& music = m_resourceSystem.getMusic(name);
+
 		if (!IsMusicStreamPlaying(music)) {
 			if (m_currentMusic) {
 				StopMusicStream(*m_currentMusic);
@@ -37,15 +20,17 @@ void MusicManager::play(Music& music) {
 	}
 }
 
-void MusicManager::play(Sound& sound) {
+void MusicManager::playSound(const std::string& name) {
 	if (m_config.options.isSoundEnabled) {
+		Sound& sound = m_resourceSystem.getSound(name);
+
 		PlaySound(sound);
 	}
 }
 
-void MusicManager::stop(Music& music) {
+void MusicManager::stopMusic() {
 	if (m_config.options.isMusicEnabled) {
-		StopMusicStream(music);
+		StopMusicStream(*m_currentMusic);
 	}
 }
 

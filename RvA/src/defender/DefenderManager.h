@@ -12,14 +12,7 @@
 #include <vector>
 
 class CollisionSystem;
-
-enum class DefenderState {
-	On,
-	Off,
-	Shooting,
-	Dying,
-	Dead
-};
+class MusicManager;
 
 /*
  * The Defender struct contains almost only data related to a single instance
@@ -47,7 +40,7 @@ struct DefenderUpdateResult {
 
 class DefenderManager {
 public:
-	DefenderManager(CollisionSystem& collisionSystem);
+	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager);
 
 	void clear();
 	void draw(Atlas& atlas);
@@ -70,4 +63,5 @@ private:
 	std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = {nullptr};
 	CallbackRegistry<Defender&> m_onDefenderDestroyedCallbacks;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 };
