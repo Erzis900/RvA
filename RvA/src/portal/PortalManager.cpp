@@ -9,7 +9,7 @@ PortalManager::PortalManager(CollisionSystem& collisionSystem) : m_collisionSyst
 
 void PortalManager::spawnPortals(const PortalTypeInfo* entranceInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol) {
 	auto entrance = createPortal(entranceInfo, inRow, inCol, WHITE);
-	auto exit = createPortal(exitInfo, outRow, outCol, RED);
+	auto exit = createPortal(exitInfo, outRow, outCol, WHITE);
 
 	m_portalPairs.push_back({std::move(entrance), std::move(exit)});
 }

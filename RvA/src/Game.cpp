@@ -515,16 +515,16 @@ void Game::registerPortals() {
 
 	m_pimpl->m_gameRegistry.addPortal("entrance",
 									  {.type = PortalType::Entrance,
-									   .spriteIdle = {sprite("portal_idle"), 0.1f},
-									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
-									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .spriteIdle = {sprite("entrance_portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("entrance_portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("entrance_portal_open"), 0.25f, 1, true},
 									   .lifespan = 4.f});
 
 	m_pimpl->m_gameRegistry.addPortal("exit",
 									  {.type = PortalType::Exit,
-									   .spriteIdle = {sprite("portal_idle"), 0.1f},
-									   .spriteOpen = {sprite("portal_open"), 0.25f, 1},
-									   .spriteClose = {sprite("portal_open"), 0.25f, 1, true},
+									   .spriteIdle = {sprite("exit_portal_idle"), 0.1f},
+									   .spriteOpen = {sprite("exit_portal_open"), 0.25f, 1},
+									   .spriteClose = {sprite("exit_portal_open"), 0.25f, 1, true},
 									   .lifespan = 4.f});
 }
 
