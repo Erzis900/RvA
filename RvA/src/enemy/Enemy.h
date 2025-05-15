@@ -32,6 +32,7 @@ public:
 	void draw(Atlas& atlas);
 
 	void applyDamage(const Damage& damage);
+	void setSparkEffect(float duration);
 
 	void setPosition(Vector2 position);
 
@@ -88,8 +89,10 @@ private:
 	Interpolation<> m_damageTakenAnimation;
 	Color m_tint{WHITE};
 	Damage m_latestDamageApplied;
+	float m_sparkEffectTimeRemain{0.f};
 
 	Animation m_animation;
+	Animation m_sparkEffect;
 	EnemyState m_state;
 	const EnemyTypeInfo* m_typeInfo{};
 	ColliderHandle m_colliderHandle{};

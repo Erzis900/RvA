@@ -49,6 +49,7 @@ struct EnemyTypeInfo {
 	AnimationData attackAnimation;
 	AnimationData dyingAnimation;
 	AnimationData summonAnimation;
+	AnimationData sparkEffect;
 	EnemyBehaviorInfo behavior{}; // right now we consider only one potential behaviour per enemy
 };
 

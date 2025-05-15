@@ -336,6 +336,7 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 	case CollisionEvent::Ongoing:
 		if (enemy->getState() == EnemyState::ReadyToAttack) {
 			m_levelData->batteryCharge -= static_cast<int>(enemy->getInfo()->baseWallDamage);
+			enemy->setSparkEffect(1.f);
 			enemy->applyDamage({50, false, DamageSource::BaseWall});
 			enemy->setState(EnemyState::PrepareToAttack);
 		} else if (enemy->getState() != EnemyState::PrepareToAttack) {

@@ -397,7 +397,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f}});
 
 	m_pimpl->m_gameRegistry.addEnemy("B2",
 									 {.type = EnemyType::B2,
@@ -411,7 +412,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
 
 	m_pimpl->m_gameRegistry.addEnemy("Portal",
 									 {.type = EnemyType::Portal,
@@ -427,6 +429,7 @@ void Game::registerEnemyTypes() {
 									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
 									  .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1},
 									  .behavior = PortalSpawnBehaviorInfo{
 										  .timeBeforeActing = 2.5f,
 										  .timeBeforeActingAgain = 1.f,
@@ -453,7 +456,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank",
 									 {.type = EnemyType::B1,
@@ -467,7 +471,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank2",
 									 {.type = EnemyType::B1,
@@ -481,7 +486,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialFast",
 									 {.type = EnemyType::B1,
@@ -495,7 +501,8 @@ void Game::registerEnemyTypes() {
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
-									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1}});
+									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
+									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
 }
 
 void Game::registerDropTypes() {
