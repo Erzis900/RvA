@@ -6,3 +6,11 @@ enum class DefenderType {
 	Catapult,
 	Lasertron
 };
+
+enum class DefenderState {
+	On,
+	Off,
+	Shooting,
+	Dying,
+	Dead
+};

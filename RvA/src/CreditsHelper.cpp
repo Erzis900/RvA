@@ -30,7 +30,7 @@ const std::vector<CreditsItem> creditsItems{
 	{"yeahno", nameColor},
 	{},
 	{"MUSIC", titleColor, true, "sound_on_icon"},
-	{"Trim", nameColor},
+	{"Trimi3je", nameColor},
 	{"Frog Wizard", nameColor},
 };
 

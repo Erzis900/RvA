@@ -13,14 +13,6 @@
 
 class CollisionSystem;
 
-enum class DefenderState {
-	On,
-	Off,
-	Shooting,
-	Dying,
-	Dead
-};
-
 /*
  * The Defender struct contains almost only data related to a single instance
  */

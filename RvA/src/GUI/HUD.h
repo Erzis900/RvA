@@ -4,6 +4,7 @@
 #include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
 #include "GameAction.h"
+#include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
 
 #include <functional>
@@ -27,12 +28,26 @@ struct HUDDefenderData {
 	bool isHover{false};
 };
 
+struct HUDDeployedDefenderData {
+	DefenderState state{};
+	Vector2 position;
+};
+
+struct HUDTimelineDataItem {
+	float time;
+	std::string icon;
+};
+
+struct HUDTimelineData {
+	std::vector<float> waves;
+	float time{};
+	float duration{};
+};
+
 struct ProgressBarData {
 	float value{};
 	float max{};
 	Vector2 position{};
-	Color bkgColor{};
-	Color fillColor{};
 };
 
 struct HUDData {
@@ -41,13 +56,16 @@ struct HUDData {
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
 	int numberOfEnemiesToDefeat{};
-	std::vector<HUDDefenderData> defenders;
+	std::vector<HUDDefenderData> pickableDefenders;
 	std::vector<ProgressBarData> progressBars;
+	std::vector<HUDDeployedDefenderData> deployedDefenders;
+	HUDTimelineData timelineData;
 	std::string levelName;
 	bool tutorialEnabled{};
 	float tutorialTime{};
 	TutorialAction tutorialAction{};
 	bool showResources{};
+	bool showTimeline{};
 	bool showDefenderPicker{};
 
 	std::optional<int> selectedDefenderIndex;
@@ -87,6 +105,8 @@ private:
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 	void drawTutorial(Atlas& atlas);
+	void drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds);
+	void drawTimeline(Atlas& atlas, const Rectangle& bounds);
 
 	bool m_isEnabled{true};
 	HUDData m_data;

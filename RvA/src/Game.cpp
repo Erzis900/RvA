@@ -209,7 +209,7 @@ void Game::setupFSM() {
 
 		.state<OptionsState>("Options", *this, 0.25f, true, true, true)
 			.on("back").jumpTo("MainMenu")
-
+		
 		// In Game States
 		.state<ProceedState>("StartSession", [this](){ save(); getGameSession().setState(SessionState::StartSession); })
 			.on("proceed").jumpTo("Play")

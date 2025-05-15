@@ -2,5 +2,5 @@
     "fullscreen": false,
     "musicEnabled": false,
     "soundEnabled": true,
-    "tutorialEnabled": true
+    "tutorialEnabled": false
 }

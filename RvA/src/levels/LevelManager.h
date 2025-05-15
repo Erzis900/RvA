@@ -44,6 +44,7 @@ private:
 	void performKeyframeOperation(const HUDOperation& operation);
 	void performKeyframeOperation(const DefenderPickerOperation& operation);
 	void performKeyframeOperation(const CheckOperation& operation);
+	void performKeyframeOperation(const FlagTimelineOperation& operation);
 
 	bool checkCondition(const BatteryLevelCondition& condition, float dt);
 	bool checkCondition(const AllWavesGoneCondition& condition, float dt);
