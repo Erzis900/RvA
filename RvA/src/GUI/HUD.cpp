@@ -95,9 +95,9 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 			.hAlign = HAlign::Center,
 			.vAlign = VAlign::Top,
 		})
-		// Tutorial Screen
+		// Message
 		.custom({
-			.draw = [this](auto& atlas, const auto& size){ drawTutorial(atlas); }
+			.draw = [this](auto& atlas, const auto& size){ drawMessage(atlas); }
 		})
 		// Fade Screen
 		.custom({
@@ -153,7 +153,7 @@ void HUD::update(float dt) {
 		}
 	}
 
-	m_data.tutorialTime += dt;
+	m_data.messageTime += dt;
 	m_fadeScreen.update(dt);
 }
 
@@ -165,10 +165,6 @@ CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
 	return m_onDefenderSelectedCallbacks.registerCallback(std::move(callback));
 }
 
-CallbackHandle HUD::onTutorialNext(std::function<void()> callback) {
-	return m_onTutorialNextCallbacks.registerCallback(std::move(callback));
-}
-
 void HUD::clear() {
 	m_data.pickableDefenders.clear();
 	m_data.progressBars.clear();
@@ -176,9 +172,9 @@ void HUD::clear() {
 	m_data.batteryCharge = 0.f;
 	m_data.maxBatteryCharge = 0.f;
 	m_data.selectedDefenderIndex.reset();
-	m_data.tutorialAction = {};
-	m_data.tutorialEnabled = false;
-	m_data.tutorialTime = 0;
+	m_data.messageAction = {};
+	m_data.showMessage = false;
+	m_data.messageTime = 0;
 	m_data.numberOfEnemiesDefeated = 0;
 	m_data.occupiedCells.clear();
 	m_data.levelName = "";
@@ -318,23 +314,22 @@ void HUD::drawProgressBar(float value, float max, const Vector2& pos, Color empt
 	DrawRectangleRec(fill, fillColor);
 }
 
-void HUD::drawTutorial(Atlas& atlas) {
-	if (m_data.tutorialEnabled) {
-		auto& action = m_data.tutorialAction;
+void HUD::drawMessage(Atlas& atlas) {
+	if (m_data.showMessage) {
+		auto& action = m_data.messageAction;
 
-		bool isTimedTutorial = action.timer.has_value();
 		float tInterpolation = 0.f;
 
-		if (*action.timer - m_data.tutorialTime < 0.25f) {
+		if (action.timer - m_data.messageTime < 0.25f) {
 			auto maxInterpolation = 0.5f;
-			tInterpolation = (*action.timer - m_data.tutorialTime) / 0.25f;
+			tInterpolation = (action.timer - m_data.messageTime) / 0.25f;
 		} else {
 			auto maxInterpolation = 0.5f;
-			tInterpolation = m_data.tutorialTime / maxInterpolation;
+			tInterpolation = m_data.messageTime / maxInterpolation;
 		}
 		tInterpolation = std::clamp(tInterpolation, 0.f, 1.f);
 
-		// If it's a timed tutorial we don't block the player so we don't show a semi-transparent background
+		// Keep this as reference till we have another good example of shader usage
 		/*if (!isTimedTutorial) {
 			float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
 			auto holeSize = action.highlightSize;
@@ -355,7 +350,7 @@ void HUD::drawTutorial(Atlas& atlas) {
 		}*/
 
 		const char* text = action.text.c_str();
-		auto size = MeasureTextEx(GuiGetFont(), text, FONT_SMALL, 1);
+		auto size = MeasureTextEx(GuiGetFont(), text, action.fontSize, 1);
 		auto textPos = action.textPosition.value_or(Vector2{});
 		auto hAlign = action.textHAlign.value_or(HAlign::Left);
 		auto vAlign = action.textVAlign.value_or(VAlign::Top);
@@ -364,20 +359,12 @@ void HUD::drawTutorial(Atlas& atlas) {
 		auto panelRect = Rectangle{rect.x - padding.x, rect.y - padding.y, rect.width + padding.x * 2, rect.height + padding.y * 2};
 		DrawRectangleRec({panelRect.x - 2, panelRect.y - 2, panelRect.width, panelRect.height}, Fade(BLACK, 0.2f * tInterpolation)); // shadow
 		DrawRectangleRec(panelRect, Fade(BLACK, 0.75f * tInterpolation));
-		DrawTextEx(GuiGetFont(), text, {rect.x, rect.y}, FONT_SMALL, 1, Fade(WHITE, tInterpolation));
+		DrawTextEx(GuiGetFont(), text, {rect.x, rect.y}, action.fontSize, 1, Fade(WHITE, tInterpolation));
 
-		if (isTimedTutorial) {
-			if (m_data.tutorialTime >= action.timer) {
-				action.timer = {};
-				m_data.tutorialTime = 0;
-				m_onTutorialNextCallbacks.executeCallbacks();
-			}
-		} else {
-			rect = LayoutHelper::arrangePositionAndSize({20, 20}, {100, 40}, {0, 0, GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y}, HAlign::Right, VAlign::Bottom);
-			if (GuiButton(rect, "Next")) {
-				m_data.tutorialTime = 0;
-				m_onTutorialNextCallbacks.executeCallbacks();
-			}
+		if (m_data.messageTime >= action.timer) {
+			action.timer = {};
+			m_data.messageTime = 0;
+			m_data.showMessage = false;
 		}
 	}
 }

@@ -107,7 +107,7 @@ void LevelManager::performKeyframeOperation(const SpawnEntityBurstOperation& ope
 	m_spawnBurstTrackers.emplace_back(SpawnOvertimeTracker{.info = &operation, .count = operation.amount.generate(), .duration = operation.interval.generate(), .time = 0.f});
 }
 
-void LevelManager::performKeyframeOperation(const TutorialOperation& operation) {
+void LevelManager::performKeyframeOperation(const MessageOperation& operation) {
 	m_onGameActionCallbacks.executeCallbacks(operation);
 }
 

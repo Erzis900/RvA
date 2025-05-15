@@ -40,7 +40,7 @@ private:
 	void performKeyframeOperation(const KeyframeOperation& operation);
 	void performKeyframeOperation(const SpawnEntityOperation& operation);
 	void performKeyframeOperation(const SpawnEntityBurstOperation& operation);
-	void performKeyframeOperation(const TutorialOperation& operation);
+	void performKeyframeOperation(const MessageOperation& operation);
 	void performKeyframeOperation(const HUDOperation& operation);
 	void performKeyframeOperation(const DefenderPickerOperation& operation);
 	void performKeyframeOperation(const CheckOperation& operation);

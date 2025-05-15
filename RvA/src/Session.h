@@ -88,7 +88,7 @@ private:
 	void performAction(const DefenderSpawnAction& action);
 	void performAction(const WinAction& action);
 	void performAction(const LoseAction& action);
-	void performAction(const TutorialAction& action);
+	void performAction(const MessageAction& action);
 	void performAction(const HUDAction& action);
 	void performAction(const DefenderPickerAction& action);
 	void performAction(const std::monostate& action);
@@ -123,7 +123,6 @@ private:
 	Wall m_baseWall;
 	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
-	CallbackHandle m_onTutorialNextCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
 	CallbackHandle m_onCollectedDropHandle;

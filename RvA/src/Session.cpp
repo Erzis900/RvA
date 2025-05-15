@@ -226,16 +226,11 @@ void Session::performAction(const LoseAction& action) {
 	setState(SessionState::Lost);
 }
 
-void Session::performAction(const TutorialAction& action) {
+void Session::performAction(const MessageAction& action) {
 	auto& data = m_hud.data();
-
-	if (!action.timer.has_value()) {
-		m_pauseGameplayLogic = true;
-	}
-
-	data.tutorialEnabled = true;
-	data.tutorialTime = 0;
-	data.tutorialAction = action;
+	data.showMessage = true;
+	data.messageTime = 0;
+	data.messageAction = action;
 }
 
 void Session::performAction(const HUDAction& action) {
@@ -287,23 +282,13 @@ void Session::setupHUD() {
 	hudData.showResources = !m_demoMode;
 	hudData.showTimeline = !m_demoMode;
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().pickableDefenders[index].id); });
-	m_onTutorialNextCallbackHandle = m_hud.onTutorialNext([&] {
-		m_hud.data().tutorialEnabled = false;
-		m_pauseGameplayLogic = false;
-	});
 
 	hudData.timelineData.duration = m_levelData->info->timeline.keyframes.back().time;
 	hudData.timelineData.time = m_levelData->time;
 	for (const auto& keyframe : m_levelData->info->timeline.keyframes) {
-		std::optional<float> time;
-		std::string icon;
 		if (std::holds_alternative<FlagTimelineOperation>(keyframe.action)) {
-			time = keyframe.time;
-			icon = std::get<FlagTimelineOperation>(keyframe.action).icon;
-		}
-
-		if (time.has_value()) {
-			hudData.timelineData.waves.emplace_back(*time / hudData.timelineData.duration, icon);
+			auto& flag = std::get<FlagTimelineOperation>(keyframe.action);
+			hudData.timelineData.waves.emplace_back(keyframe.time / hudData.timelineData.duration, flag.icon);
 		}
 	}
 }

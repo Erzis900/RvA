@@ -2,6 +2,7 @@
 
 #include "GUI/Widgets.h"
 #include "atlas/Atlas.h"
+#include "constants.h"
 #include "utilities/ConfigCondition.h"
 #include "utilities/ConfigValue.h"
 
@@ -34,15 +35,15 @@ struct SpawnEntityBurstOperation {
 	EntityType type{EntityType::Enemy};
 };
 
-struct TutorialOperation {
+struct MessageOperation {
 	std::string text{};
-	int fontSize{};
+	float fontSize{FONT_SMALL};
 	Vector2 highlightPosition{};
 	Vector2 highlightSize{};
 	std::optional<Vector2> textPosition{};
 	std::optional<HAlign> textHAlign{};
 	std::optional<VAlign> textVAlign{};
-	std::optional<float> timer;
+	float timer;
 };
 
 // A special operation which accept a function.
@@ -80,7 +81,7 @@ struct FlagTimelineOperation {
 	std::string icon{};
 };
 
-using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, TutorialOperation, HUDOperation, DefenderPickerOperation, CheckOperation, FlagTimelineOperation>;
+using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, MessageOperation, HUDOperation, DefenderPickerOperation, CheckOperation, FlagTimelineOperation>;
 
 struct Keyframe {
 	float time;

@@ -61,9 +61,9 @@ struct HUDData {
 	std::vector<HUDDeployedDefenderData> deployedDefenders;
 	HUDTimelineData timelineData;
 	std::string levelName;
-	bool tutorialEnabled{};
-	float tutorialTime{};
-	TutorialAction tutorialAction{};
+	bool showMessage{};
+	float messageTime{};
+	MessageAction messageAction{};
 	bool showResources{};
 	bool showTimeline{};
 	bool showDefenderPicker{};
@@ -88,7 +88,6 @@ public:
 
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void(int)> callback);
-	CallbackHandle onTutorialNext(std::function<void()> callback);
 
 	// Data
 	auto& data() {
@@ -104,7 +103,7 @@ private:
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
-	void drawTutorial(Atlas& atlas);
+	void drawMessage(Atlas& atlas);
 	void drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds);
 	void drawTimeline(Atlas& atlas, const Rectangle& bounds);
 
@@ -114,7 +113,6 @@ private:
 	ResourceSystem& m_resourceSystem;
 
 	CallbackRegistry<const int&> m_onDefenderSelectedCallbacks;
-	CallbackRegistry<> m_onTutorialNextCallbacks;
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};

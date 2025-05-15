@@ -37,12 +37,12 @@ struct WinAction {};
 
 struct LoseAction {};
 
-using TutorialAction = TutorialOperation;
+using MessageAction = MessageOperation;
 using HUDAction = HUDOperation;
 using DefenderPickerAction = DefenderPickerOperation;
 
 using GameActionVariant =
-	std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction, TutorialAction, HUDAction, DefenderPickerAction>;
+	std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction, MessageAction, HUDAction, DefenderPickerAction>;
 
 struct [[nodiscard]] GameAction : public GameActionVariant {
 	using GameActionVariant::variant;

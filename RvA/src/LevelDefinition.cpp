@@ -250,66 +250,66 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 						 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
 						 .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
 						 .t(0.f, HUDOperation{.type = HUDOperationType::HideResources})
-						 .t(0.f, TutorialOperation{.text = "Welcome to Game Name!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
-						 .t(3.5f, TutorialOperation{.text = "Let's go over the basics.", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+						 .t(0.f, MessageOperation{.text = "Welcome to Game Name!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+						 .t(3.5f, MessageOperation{.text = "Let's go over the basics.", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 						 .t(2.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1TutorialTank"s}})
-						 .t(1.65f, TutorialOperation{.text = "Here's an enemy Alien!", .textPosition = Vector2{50, 125}, .textHAlign = HAlign::Right, .timer = 2.0f})
+						 .t(1.65f, MessageOperation{.text = "Here's an enemy Alien!", .textPosition = Vector2{50, 125}, .textHAlign = HAlign::Right, .timer = 2.0f})
 						 .t(2.35f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{2}, .id = FixedValue{"ShooterTutorial"s}, .type = EntityType::Defender})
-						 .t(0.0f, TutorialOperation{.text = "This is one of your bots", .textPosition = Vector2{80, 125}, .timer = 3.0f})
-						 .t(3.0f, TutorialOperation{.text = "They attack aliens automatically!", .textPosition = Vector2{60, 125}, .timer = 3.0f})
-						 .t(3.0f, TutorialOperation{.text = "but they use energy to operate.", .textPosition = Vector2{60, 125}, .timer = 3.0f})
-						 .t(3.0f, TutorialOperation{.text = "Your energy comes from a battery.", .textPosition = Vector2{64, 70}, .timer = 3.f})
-						 .t(3.0f, TutorialOperation{.text = "If it runs out... it's GAME OVER!", .textPosition = Vector2{64, 70}, .timer = 3.f})
-						 .t(3.0f, TutorialOperation{.text = "We need a way to produce energy!", .textPosition = Vector2{64, 70}, .timer = 3.0f})
+						 .t(0.0f, MessageOperation{.text = "This is one of your bots", .textPosition = Vector2{80, 125}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "They attack aliens automatically!", .textPosition = Vector2{60, 125}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "but they use energy to operate.", .textPosition = Vector2{60, 125}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "Your energy comes from a battery.", .textPosition = Vector2{64, 70}, .timer = 3.f})
+						 .t(3.0f, MessageOperation{.text = "If it runs out... it's GAME OVER!", .textPosition = Vector2{64, 70}, .timer = 3.f})
+						 .t(3.0f, MessageOperation{.text = "We need a way to produce energy!", .textPosition = Vector2{64, 70}, .timer = 3.0f})
 						 .t(3.5f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender})
-						 .t(0.0f, TutorialOperation{.text = "There we go!", .textPosition = Vector2{50, 125}, .timer = 4.0f})
-						 .t(4.5f, TutorialOperation{.text = "A special bot named Solar Panel!", .textPosition = Vector2{64, 70}, .timer = 4.0f})
+						 .t(0.0f, MessageOperation{.text = "There we go!", .textPosition = Vector2{50, 125}, .timer = 4.0f})
+						 .t(4.5f, MessageOperation{.text = "A special bot named Solar Panel!", .textPosition = Vector2{64, 70}, .timer = 4.0f})
 						 .t(0.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1TutorialTank2"s}})
-						 .t(4.5f, TutorialOperation{.text = "It doesn't attack but generates energy.", .textPosition = Vector2{64, 70}, .timer = 3.0f})
+						 .t(4.5f, MessageOperation{.text = "It doesn't attack but generates energy.", .textPosition = Vector2{64, 70}, .timer = 3.0f})
 						 .t(0.0f, SpawnEntityBurstOperation{.amount = FixedValue{4}, .interval = RandomRange{2.f, 3.f}, .row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
 						 .t(3.5f,
-							TutorialOperation{.text = "When an alien dies it drop scraps.",
-											  .highlightPosition = {392, 158},
-											  .highlightSize = {32, 32},
-											  .textPosition = Vector2{40, 105},
-											  .textHAlign = HAlign::Right,
-											  .timer = 4.f})
+							MessageOperation{.text = "When an alien dies it drop scraps.",
+											 .highlightPosition = {392, 158},
+											 .highlightSize = {32, 32},
+											 .textPosition = Vector2{40, 105},
+											 .textHAlign = HAlign::Right,
+											 .timer = 4.f})
 						 .t(4.5f,
-							TutorialOperation{.text = "You can use scraps to build more bots!",
-											  .highlightPosition = {392, 158},
-											  .highlightSize = {32, 32},
-											  .textPosition = Vector2{40, 105},
-											  .textHAlign = HAlign::Right,
-											  .timer = 4.f})
+							MessageOperation{.text = "You can use scraps to build more bots!",
+											 .highlightPosition = {392, 158},
+											 .highlightSize = {32, 32},
+											 .textPosition = Vector2{40, 105},
+											 .textHAlign = HAlign::Right,
+											 .timer = 4.f})
 						 .t(4.5f, HUDOperation{.type = HUDOperationType::ShowResources})
 						 .t(0.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "Here You can keep track of your battery level\nand how much scrap you've collected.",
 								.textPosition = Vector2{30, 250},
 								.timer = 6.f,
 							})
 						 .t(6.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1TutorialFast"s}})
-						 .t(1.0f, TutorialOperation{.text = "Oh no!", .textPosition = Vector2{64, 70}, .timer = 1.5f})
-						 .t(2.0f, TutorialOperation{.text = "This lane has no defences.", .textPosition = Vector2{64, 70}, .timer = 2.5f})
-						 .t(3.5f, TutorialOperation{.text = "Aliens will try to destroy the battery.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(1.0f, MessageOperation{.text = "Oh no!", .textPosition = Vector2{64, 70}, .timer = 1.5f})
+						 .t(2.0f, MessageOperation{.text = "This lane has no defences.", .textPosition = Vector2{64, 70}, .timer = 2.5f})
+						 .t(3.5f, MessageOperation{.text = "Aliens will try to destroy the battery.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 						 .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1TutorialFast"s}})
-						 .t(3.5f, TutorialOperation{.text = "The battery electrocutes them.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(3.5f, TutorialOperation{.text = "Electrocution is your last defense.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(3.5f, TutorialOperation{.text = "But it consumes a lot of battery charge.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.5f, MessageOperation{.text = "The battery electrocutes them.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.5f, MessageOperation{.text = "Electrocution is your last defense.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.5f, MessageOperation{.text = "But it consumes a lot of battery charge.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 
-						 .t(3.5f, TutorialOperation{.text = "Let's cover this lane with one extra bot.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.5f, MessageOperation{.text = "Let's cover this lane with one extra bot.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 						 .t(3.5f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{2}, .id = FixedValue{"ShooterTutorial"s}, .type = EntityType::Defender, .enabled = false})
-						 .t(1.0f, TutorialOperation{.text = "This time the bot is disabled.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(3.0f, TutorialOperation{.text = "A disabled bot doesn't drain energy.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(3.0f, TutorialOperation{.text = "Right-click the bot to enable/disable them", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(1.0f, MessageOperation{.text = "This time the bot is disabled.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "A disabled bot doesn't drain energy.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(3.0f, MessageOperation{.text = "Right-click the bot to enable/disable them", .textPosition = Vector2{64, 110}, .timer = 3.0f})
 						 .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.numberOfEnabledDefenders == 3; }})
-						 .t(0.0f, TutorialOperation{.text = "Well done!", .textPosition = Vector2{64, 110}, .timer = 1.5f})
+						 .t(0.0f, MessageOperation{.text = "Well done!", .textPosition = Vector2{64, 110}, .timer = 1.5f})
 
 						 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
-						 .t(0.5f, TutorialOperation{.text = "This lane is now defended.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
-						 .t(5.0f, TutorialOperation{.text = "You should reinforce the other lanes too.", .textPosition = Vector2{64, 110}, .timer = 5.0f})
+						 .t(0.5f, MessageOperation{.text = "This lane is now defended.", .textPosition = Vector2{64, 110}, .timer = 3.0f})
+						 .t(5.0f, MessageOperation{.text = "You should reinforce the other lanes too.", .textPosition = Vector2{64, 110}, .timer = 5.0f})
 						 .t(5.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "Choose the bots you want to build from this menu.",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
@@ -321,49 +321,49 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 						 .t(0.0f, HUDOperation{.type = HUDOperationType::Enable})
 						 .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.numberOfEnabledDefenders == 6; }})
 						 .t(0.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "Prepare for the real wave of aliens.",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 6.f,
 							})
 						 .t(6.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "If you defeat all of them you win this level.",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 6.f,
 							})
 						 .t(6.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "Good Luck!",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 3.f,
 							})
 						 .t(3.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "3...",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 1.f,
 							})
 						 .t(1.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "2...",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 1.f,
 							})
 						 .t(1.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "1...",
 								.textPosition = Vector2{0, 250},
 								.textHAlign = HAlign::Center,
 								.timer = 1.f,
 							})
 						 .t(1.0f,
-							TutorialOperation{
+							MessageOperation{
 								.text = "THEY'RE COMING!!!",
 								.textHAlign = HAlign::Center,
 								.textVAlign = VAlign::Center,
