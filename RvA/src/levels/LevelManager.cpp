@@ -125,6 +125,10 @@ void LevelManager::performKeyframeOperation(const CheckOperation& operation) {
 	}
 }
 
+void LevelManager::performKeyframeOperation(const FlagTimelineOperation& operation) {
+	// This operation is here just to be displayed in the timeline HUD. We might want to perform some code if we want to spice things up in the UI but we're fine for now
+}
+
 void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type, bool enabled) {
 	auto entityId = id.generate();
 	auto rowVal = row.generate();
