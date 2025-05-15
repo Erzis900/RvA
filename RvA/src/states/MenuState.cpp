@@ -39,9 +39,6 @@ flow::FsmAction MenuState::enter() {
 	CreditsHelper::fillCredits(screenBuilder, gui);
 	// clang-format on
 
-	m_game.getGameSession().setDemoMode(true);
-	m_game.getGameSession().setState(SessionState::Playing);
-
 	return flow::FsmAction::none();
 }
 
@@ -63,7 +60,6 @@ void MenuState::startGame() {
 	m_game.getGUI().startFadingInOut(
 		[this] {
 			m_game.getGameSession().setDemoMode(false);
-			m_game.getGameSession().setState(SessionState::Idle);
 			m_nextTransition = "play";
 		},
 		[this] {},

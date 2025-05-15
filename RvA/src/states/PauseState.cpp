@@ -57,13 +57,7 @@ void PauseState::exit() {
 }
 
 void PauseState::exitGameSession() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
-			m_nextTransition = "menu";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "menu"; }, [this] {}, 0.5f);
 }
 
 void PauseState::restart() {

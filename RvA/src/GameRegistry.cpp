@@ -17,6 +17,7 @@ void GameRegistry::addDrop(std::string id, DropTypeInfo info) {
 }
 
 void GameRegistry::addLevel(std::string id, LevelInfo info) {
+	info.id = id;
 	m_levelRegistry.registerLevel(std::move(id), std::move(info));
 }
 

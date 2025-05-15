@@ -195,6 +195,7 @@
     <ClCompile Include="src\states\PauseState.cpp" />
     <ClCompile Include="src\states\PlayState.cpp" />
     <ClCompile Include="src\states\MenuState.cpp" />
+    <ClCompile Include="src\states\ProceedState.cpp" />
     <ClCompile Include="src\states\WinState.cpp" />
     <ClCompile Include="src\utilities\CallbackRegistry.cpp" />
     <ClCompile Include="src\utilities\ConfigCondition.cpp" />
@@ -367,6 +368,7 @@
     <ClInclude Include="src\states\PauseState.h" />
     <ClInclude Include="src\states\PlayState.h" />
     <ClInclude Include="src\states\MenuState.h" />
+    <ClInclude Include="src\states\ProceedState.h" />
     <ClInclude Include="src\states\WinState.h" />
     <ClInclude Include="src\utilities\CallbackRegistry.h" />
     <ClInclude Include="src\utilities\ClassId.h" />

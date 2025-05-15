@@ -35,7 +35,7 @@ void MusicManager::stopMusic() {
 }
 
 void MusicManager::updateStream() {
-	if (m_config.options.isMusic && m_currentMusic) {
+	if (m_config.options.isMusicEnabled && m_currentMusic) {
 		UpdateMusicStream(*m_currentMusic);
 	}
 }

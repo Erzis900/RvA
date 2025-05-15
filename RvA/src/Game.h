@@ -41,6 +41,7 @@ public:
 
 private:
 	void setupFSM();
+	void save();
 
 	void registerDefenderTypes();
 	void registerBulletTypes();

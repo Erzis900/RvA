@@ -9,8 +9,9 @@ public:
 
 	struct options {
 		bool isFullscreen{false};
-		bool isMusic{true};
-		bool isSound{true};
+		bool isMusicEnabled{true};
+		bool isSoundEnabled{true};
+		bool isTutorialEnabled{true};
 	} options;
 
 	json getData() const {

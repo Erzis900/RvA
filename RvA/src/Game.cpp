@@ -17,6 +17,7 @@
 #include "states/OptionsState.h"
 #include "states/PauseState.h"
 #include "states/PlayState.h"
+#include "states/ProceedState.h"
 #include "states/WinState.h"
 #include "utilities/Random.h"
 
@@ -187,12 +188,20 @@ void Game::setupFSM() {
 
 	// clang-format off
 	fsmBuilder
+		// Intro
 		.state<IntroState>("Intro", *this)
-			.on("menu").jumpTo("MainMenu")
+			.on("menu").jumpTo("StartToMainMenu")
 
 		// Menus
+		.state<ProceedState>("StartToMainMenu", [this](){ 
+				save();
+				getGameSession().setDemoMode(true);
+				getGameSession().setState(SessionState::StartSession);
+			})
+			.on("proceed").jumpTo("MainMenu")
+
 		.state<MenuState>("MainMenu", *this)
-			.on("play").jumpTo("Play")
+			.on("play").jumpTo("StartSession")
 			.on("options").jumpTo("Options")
 			.on("exit").exitFsm()
 
@@ -200,6 +209,12 @@ void Game::setupFSM() {
 			.on("back").jumpTo("MainMenu")
 
 		// In Game States
+		.state<ProceedState>("StartSession", [this](){ save(); getGameSession().setState(SessionState::StartSession); })
+			.on("proceed").jumpTo("Play")
+
+		.state<ProceedState>("StartLevel", [this](){ save(); getGameSession().setState(SessionState::StartLevel); })
+			.on("proceed").jumpTo("Play")
+
 		.state<PlayState>("Play", *this)
 			.on("pause").jumpTo("PauseMenu")
 			.on("win").jumpTo("WinScreen")
@@ -208,31 +223,30 @@ void Game::setupFSM() {
 
 		.state<PauseState>("PauseMenu", *this)
 			.on("resume").jumpTo("Play")
-			.on("restart").jumpTo("Play")
+			.on("restart").jumpTo("StartSession")
 			.on("options").jumpTo("InGameOptions")
-			.on("menu").jumpTo("MainMenu")
+			.on("menu").jumpTo("StartToMainMenu")
 		
 		.state<OptionsState>("InGameOptions", *this, 0.7f, false, false, false)
 			.on("back").jumpTo("PauseMenu")
 
 		.state<WinState>("WinScreen", *this)
-			.on("next").jumpTo("Play")
+			.on("next").jumpTo("StartLevel")
 
 		.state<EndScreenState>("EndScreen", *this)
-			.on("menu").jumpTo("MainMenu")
+			.on("menu").jumpTo("StartToMainMenu")
 
 		.state<LostState>("LoseScreen", *this)
-			.on("restart").jumpTo("Play")
-			.on("menu").jumpTo("MainMenu");
+			.on("restart").jumpTo("StartSession")
+			.on("menu").jumpTo("StartToMainMenu");
 	// clang-format on
 
-	std::string startState = "Intro";
-	if (DEV_MODE) {
-		startState = "MainMenu";
-	}
-
-	auto [fsm, fsmInfo] = fsmBuilder.build(startState, nullptr);
+	auto [fsm, fsmInfo] = fsmBuilder.build("Intro", nullptr);
 	m_pimpl->m_fsm = std::move(fsm);
+}
+
+void Game::save() {
+	m_pimpl->m_config.save();
 }
 
 void Game::registerDefenderTypes() {

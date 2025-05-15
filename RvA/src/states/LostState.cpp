@@ -39,21 +39,9 @@ void LostState::exit() {
 }
 
 void LostState::restart() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
-			m_nextTransition = "restart";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "restart"; }, [this] {}, 0.5f);
 }
 
 void LostState::goToMenu() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setState(SessionState::Idle);
-			m_nextTransition = "menu";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "menu"; }, [this] {}, 0.5f);
 }
