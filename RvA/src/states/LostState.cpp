@@ -8,7 +8,7 @@
 LostState::LostState(Game& game) : m_game(game) {}
 
 flow::FsmAction LostState::enter() {
-	m_game.getMusicManager().play(m_game.getMusicManager().getLostMusic());
+	m_game.getMusicManager().playMusic("lost");
 
 	// clang-format off
 	auto btnSize = Vector2{autoSize, 40.f};

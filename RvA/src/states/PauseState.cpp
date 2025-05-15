@@ -70,7 +70,7 @@ void PauseState::restart() {
 	m_game.getGUI().startFadingInOut(
 		[this] {
 			m_game.getGameSession().setState(SessionState::Idle);
-			m_game.getMusicManager().stop(m_game.getMusicManager().getGameMusic());
+			m_game.getMusicManager().stopMusic();
 			m_nextTransition = "restart";
 		},
 		[this] {},

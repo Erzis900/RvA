@@ -83,7 +83,7 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 			isPressed = ::GuiButton(node.finalRect, button.text.c_str());
 		}
 		if (isPressed) {
-			m_musicManager.play(*m_defaultButtonSound);
+			m_musicManager.playSound("button_click");
 			button.onClick();
 		}
 		break;
@@ -193,10 +193,6 @@ ScreenBuilder GUI::buildScreen(const char* name) {
 	auto screenPtr = screen.get();
 	m_screens.emplace_back(name, std::move(screen));
 	return ScreenBuilder(*screenPtr);
-}
-
-void GUI::setDefaultButtonSound(Sound* sound) {
-	m_defaultButtonSound = sound;
 }
 
 void GUI::toggleDebugView() {

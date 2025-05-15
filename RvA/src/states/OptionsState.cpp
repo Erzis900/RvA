@@ -17,7 +17,7 @@ OptionsState::OptionsState(Game& game, float alphaBackground, bool playMenuMusic
 
 flow::FsmAction OptionsState::enter() {
 	if (m_playMenuMusic) {
-		m_game.getMusicManager().play(m_game.getMusicManager().getMenuMusic());
+		m_game.getMusicManager().playMusic("menu");
 	}
 
 	auto btnSize = Vector2{100.f, 30.f};

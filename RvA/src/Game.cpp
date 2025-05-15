@@ -35,7 +35,7 @@ struct Game::pimpl {
 		, m_screenHeight(SCREEN_HEIGHT)
 		, m_gui(m_atlas, m_musicManager)
 		, m_gameSession(m_gui, m_resourceSystem, m_gameRegistry)
-		, m_musicManager(m_config) {
+		, m_musicManager(m_config, m_resourceSystem) {
 		Random::setInstance(&m_random);
 		SetTraceLogCallback(MyTraceLog); // Use our logger
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -48,6 +48,8 @@ struct Game::pimpl {
 		SetTextureFilter(m_gameRenderTexture.texture, TEXTURE_FILTER_POINT);
 		SetTextureFilter(m_uiRenderTexture.texture, TEXTURE_FILTER_POINT);
 
+		InitAudioDevice();
+
 		m_resourceSystem.loadResources();
 
 		m_atlas.load("assets/atlas.png");
@@ -55,10 +57,6 @@ struct Game::pimpl {
 
 		DisableCursor();
 		m_gui.setCursor(CursorType::Default);
-
-		InitAudioDevice();
-		m_musicManager.load();
-		m_gui.setDefaultButtonSound(&m_musicManager.getButtonClick());
 
 		SetExitKey(0);
 	}

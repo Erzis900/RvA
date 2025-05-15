@@ -36,8 +36,6 @@ public:
 	void destroyScreen(const char* name);
 	ScreenBuilder buildScreen(const char* name);
 
-	void setDefaultButtonSound(Sound* sound);
-
 	void toggleDebugView();
 
 	auto& getAtlas() {
@@ -62,7 +60,6 @@ private:
 	bool m_drawingScreens{};
 	std::vector<std::pair<std::string, std::unique_ptr<Screen>>> m_screens;
 	std::vector<std::string> m_screensToDestroy;
-	Sound* m_defaultButtonSound{};
 	bool m_isDebugViewEnabled{false};
 	Font m_font{};
 };
