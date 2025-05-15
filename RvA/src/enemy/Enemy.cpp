@@ -89,9 +89,9 @@ void Enemy::draw(Atlas& atlas) {
 	DrawEllipse(m_position.x + CELL_SIZE * 0.5f, m_position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));
 	atlas.drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
 	if (m_sparkEffectTimeRemain > 0.f) {
-		atlas.drawRotatedSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 5, m_position.y - 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 30.f);
-		atlas.drawRotatedSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 10, m_position.y - 0}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 0.f);
-		atlas.drawRotatedSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 15, m_position.y + 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, -30.f);
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 5, m_position.y - 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 30.f);
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 10, m_position.y - 0}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 0.f);
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 15, m_position.y + 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, -30.f);
 	}
 }
 
