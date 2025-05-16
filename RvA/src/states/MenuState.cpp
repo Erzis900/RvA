@@ -20,7 +20,7 @@ flow::FsmAction MenuState::enter() {
 		.default_bkg(0.25f)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = { 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
-				.big_text({ .text = "GAME NAME", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
+				.big_text({ .text = "Robots vs Aliens", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
 			.end()
 
 			.space({0, 35.f})
