@@ -266,7 +266,7 @@ void Game::registerDefenderTypes() {
 											.name = "Solar Panel",
 											.spriteEnabled = {sprite("solar_idle"), 0.1f},
 											.spriteDisabled = {sprite("solar_off"), 0.1f},
-											.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+											.spriteDying = {sprite("solar_death"), 0.1f, 1},
 											.batteryDrain = -5,
 											//.scrapsGain = 5,
 											.maxHP = 100,
@@ -279,7 +279,7 @@ void Game::registerDefenderTypes() {
 										 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
 										 .spriteDisabled = {sprite("shooter_off"), 0.1f},
 										 .spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
-										 .spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+										 .spriteDying = {sprite("shooter_death"), 0.1f, 1},
 										 .batteryDrain = 5.f,
 										 .firstShootCooldown = 1.5f,
 										 .shootCooldown = 0.1f,
@@ -295,7 +295,7 @@ void Game::registerDefenderTypes() {
 										 .spriteEnabled = {sprite("catapult_idle"), 0.1f},
 										 .spriteDisabled = {sprite("catapult_off"), 0.1f},
 										 .spriteShoot = {sprite("catapult_shoot"), 0.1f, 1},
-										 .spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+										 .spriteDying = {sprite("catapult_death"), 0.1f, 1},
 										 .batteryDrain = 10.f,
 										 .firstShootCooldown = 3.f,
 										 .shootCooldown = 1.f,
@@ -311,7 +311,7 @@ void Game::registerDefenderTypes() {
 										 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
 										 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
 										 .spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},
-										 .spriteDying = {sprite("b1_alien_death"), 0.1f, 1},
+										 .spriteDying = {sprite("lasertron_death"), 0.1f, 1},
 										 .batteryDrain = 20.f,
 										 .firstShootCooldown = 3.f,
 										 .shootCooldown = 2.f,
@@ -330,7 +330,7 @@ void Game::registerDefenderTypes() {
 											.name = "Solar Panel",
 											.spriteEnabled = {sprite("solar_idle"), 0.1f},
 											.spriteDisabled = {sprite("solar_off"), 0.1f},
-											.spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+											.spriteDying = {sprite("solar_death"), 0.1f, 1},
 											.batteryDrain = -15,
 											.maxHP = 100,
 											.buildCooldown = 2.f,
@@ -342,7 +342,7 @@ void Game::registerDefenderTypes() {
 										 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
 										 .spriteDisabled = {sprite("shooter_off"), 0.1f},
 										 .spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
-										 .spriteDying = {sprite("b1_alien_death"), 0.1f, 1}, // TODO add respective dying animation (art not done)
+										 .spriteDying = {sprite("shooter_death"), 0.1f, 1},
 										 .batteryDrain = 5.f,
 										 .firstShootCooldown = 1.5f,
 										 .shootCooldown = 0.2f,
