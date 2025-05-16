@@ -4,6 +4,7 @@
 #include "GUI/FadeScreen.h"
 #include "GUI/Widgets.h"
 #include "GameAction.h"
+#include "bullet/BulletTypes.h"
 #include "defender/DefenderTypes.h"
 #include "utilities/CallbackRegistry.h"
 
@@ -22,6 +23,8 @@ struct HUDDefenderData {
 	std::string id;
 	Animation animation;
 	int cost;
+	float batteryDrain{};
+	DamageInfo damage{};
 	float cooldown{};
 	float maxCooldown{};
 	bool canAfford{true};
@@ -121,6 +124,7 @@ private:
 	WidgetHandle m_levelNameHandle{};
 	WidgetHandle m_plateContainerHandle{};
 	WidgetHandle m_plateTextHandle{};
+	WidgetHandle m_plateDescriptionHandle{};
 	WidgetHandle m_batteryAndScrapsHandle{};
 	WidgetHandle m_defenderPickerHandle{};
 	FadeScreen m_fadeScreen;

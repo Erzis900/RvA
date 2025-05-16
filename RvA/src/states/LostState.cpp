@@ -11,11 +11,11 @@ flow::FsmAction LostState::enter() {
 	m_game.getMusicManager().playMusic("lost");
 
 	// clang-format off
-	auto btnSize = Vector2{autoSize, 40.f};
+	auto btnSize = Vector2{100, 30.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Lose")
 		.default_bkg(0.5f)
-		.vertical_stack(5, 200.f)
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 10}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
 			.medium_text({.text = "You Lost!", .color = WHITE, .hAlign = HAlign::Center})
 			.space({0, 35.f})
 			.button({"Restart", {}, btnSize, [this]() { restart(); }})

@@ -13,10 +13,10 @@ flow::FsmAction EndScreenState::enter() {
 	// clang-format off
 	gui.buildScreen("EndScreen")
 		.default_bkg(0.5f)
-		.vertical_stack(5, 200.f)
-			.medium_text({.text = "Thank you for playing!", .color = WHITE, .hAlign = HAlign::Center})
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 5}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
+			.medium_text({.text = "Thank you for playing!", .color = WHITE})
 			.space({0, 35.f})
-			.button({"Main Menu", {}, {autoSize, 40.f}, [this]() { goToMenu(); }})
+			.button({"Main Menu", {}, {100, 30.f}, [this]() { goToMenu(); }})
 		.end();
 	// clang-format on
 	return flow::FsmAction::none();

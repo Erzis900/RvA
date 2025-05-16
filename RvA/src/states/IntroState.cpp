@@ -18,9 +18,9 @@ flow::FsmAction IntroState::enter() {
 	// clang-format off
 	gui.buildScreen("Intro")
 		.default_bkg()
-		.vertical_stack(2, 200.f)
-			.medium_text({.text = "Studio name presents:", .color = WHITE, .hAlign = HAlign::Center})
-			.small_text({.text = "Game name!", .color = WHITE, .hAlign = HAlign::Center})
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 50}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
+			.small_text({.text = "Studio name presents:", .color = WHITE})
+			.medium_text({.text = "Game name!", .color = WHITE})
 		.end();
 	// clang-format on
 

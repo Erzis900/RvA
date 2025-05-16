@@ -477,10 +477,15 @@ void Session::updateHUD(float dt) {
 	}
 
 	for (auto& hudDefender : hudData.pickableDefenders) {
+		auto* defender = m_gameRegistry.getDefender(hudDefender.id);
+		auto* bullet = defender->bulletType ? m_gameRegistry.getBullet(*defender->bulletType) : nullptr;
 		auto& pickableDefender = m_defenderPicker.getDefender(hudDefender.id);
 		hudDefender.cost = pickableDefender.cost;
 		hudDefender.cooldown = pickableDefender.currentCooldown;
 		hudDefender.maxCooldown = pickableDefender.maxCooldown;
+		hudDefender.batteryDrain = defender->batteryDrain;
+
+		hudDefender.damage = bullet ? std::visit([](auto&& arg) { return arg.damage; }, *bullet) : DamageInfo{};
 		hudDefender.canAfford = m_defenderPicker.canAfford(hudDefender.id);
 	}
 

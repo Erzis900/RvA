@@ -39,6 +39,8 @@ public:
 		return m_levelRegistry.getLevels();
 	}
 
+	void verifyData();
+
 private:
 	EnemyTypeRegistry m_enemyRegistry;
 	DefenderTypeRegistry m_defenderRegistry;

@@ -100,11 +100,11 @@ ScreenBuilder& ScreenBuilder::stack(UIStack stack, WidgetHandle* handleResult) {
 }
 
 ScreenBuilder& ScreenBuilder::vertical_stack(float padding, float size, VAlign vAlignment, HAlign hAlignment, ContentAlign cAlignment) {
-	return stack({.orientation = GUIOrientation::Vertical, .padding = {0, padding}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {size, autoSize}, .alignContent = cAlignment});
+	return stack({.orientation = GUIOrientation::Vertical, .padding = {0, padding}, .hAlign = hAlignment, .vAlign = vAlignment, .size = Vec2{size, autoSize}, .alignContent = cAlignment});
 }
 
 ScreenBuilder& ScreenBuilder::horizontal_stack(float padding, float size, HAlign hAlignment, VAlign vAlignment, ContentAlign cAlignment) {
-	return stack({.orientation = GUIOrientation::Horizontal, .padding = {padding, 0}, .hAlign = hAlignment, .vAlign = vAlignment, .size = {autoSize, size}, .alignContent = cAlignment});
+	return stack({.orientation = GUIOrientation::Horizontal, .padding = {padding, 0}, .hAlign = hAlignment, .vAlign = vAlignment, .size = Vec2{autoSize, size}, .alignContent = cAlignment});
 }
 
 ScreenBuilder& ScreenBuilder::end() {

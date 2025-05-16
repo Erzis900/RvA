@@ -55,7 +55,12 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Stack: {
 		auto& stack = screen.getStack(node.handle);
-		auto stackAvailableSize = adjustSize(stack.size, availableSize);
+		auto stackAvailableSize = Vector2{};
+		if (!stack.size.has_value()) {
+			stackAvailableSize = availableSize;
+		} else {
+			stackAvailableSize = adjustSize(*stack.size, availableSize);
+		}
 
 		Vector2 preferredSize{};
 		switch (stack.orientation) {
@@ -63,18 +68,23 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 			for (auto& child : node.children) {
 				auto childSize = measure(*child, screen, stackAvailableSize);
 				preferredSize.x += childSize.x + stack.padding.x;
-				preferredSize.y = std::max(stackAvailableSize.y, childSize.y);
+				preferredSize.y = std::max(preferredSize.y, childSize.y);
 			}
 			break;
 		case GUIOrientation::Vertical:
 			for (auto& child : node.children) {
 				auto childSize = measure(*child, screen, stackAvailableSize);
 				preferredSize.y += childSize.y + stack.padding.y;
-				preferredSize.x = std::max(stackAvailableSize.x, childSize.x);
+				preferredSize.x = std::max(preferredSize.x, childSize.x);
 			}
 			break;
 		}
-		node.preferredSize = adjustSize(availableSize, preferredSize);
+
+		if (!stack.size.has_value()) {
+			node.preferredSize = adjustSize(preferredSize, stackAvailableSize);
+		} else {
+			node.preferredSize = adjustSize(*stack.size, availableSize);
+		}
 		break;
 	}
 	case WidgetType::Border: {
@@ -172,11 +182,15 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 			}
 			auto hAlignment = toHorizontaAlignment(stack.alignContent);
 			auto vAlignment = toVerticalAlignment(stack.sideAlignContent);
+			// Calculate rect where we should position the items
 			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
-
 			auto x = contentRect.x;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {x, contentRect.y, std::min(stackRect.width, child->preferredSize.x), stackRect.height});
+				// Calculate correct area for this children
+				auto childRect =
+					arrangePositionAndSize({0, 0}, child->preferredSize, {x, contentRect.y, std::min(stackRect.width, child->preferredSize.x), contentRect.height}, HAlign::Left, vAlignment);
+
+				arrange(*child, screen, childRect);
 				x += child->finalRect.width + stack.padding.x;
 			}
 			break;
@@ -196,7 +210,10 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 			auto contentRect = arrangePositionAndSize({0, 0}, {width, height}, stackRect, hAlignment, vAlignment);
 			float y = contentRect.y;
 			for (auto& child : node.children) {
-				arrange(*child, screen, {contentRect.x, y, stackRect.width, std::min(stackRect.height, child->preferredSize.y)});
+				// Calculate correct area for this children
+				auto childRect =
+					arrangePositionAndSize({0, 0}, child->preferredSize, {contentRect.x, y, contentRect.width, std::min(stackRect.height, child->preferredSize.y)}, hAlignment, VAlign::Top);
+				arrange(*child, screen, childRect);
 				y += child->finalRect.height + stack.padding.y;
 			}
 			break;

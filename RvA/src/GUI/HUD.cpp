@@ -30,20 +30,20 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 	m_screen = m_gui.buildScreen("HUD")
 		// Bottom Bar
 		// TODO(Gerark) - Due to Texture Bleeding we're forced to set this strange padding and offset. Remove them as soon as the issue is solved.
-		.stack({ .orientation = GUIOrientation::Horizontal, .padding = { -2, 0 }, .hAlign = HAlign::Stretch, .vAlign = VAlign::Bottom, .size = { autoSize, 69.f }, .pos = { -1, -1 } })
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = { -2, 0 }, .hAlign = HAlign::Stretch, .vAlign = VAlign::Bottom, .size = Vec2{ autoSize, 69.f }, .pos = { -1, -1 } })
 			.image({ .sprite = bottomBarSpriteInfo })
 			.image({ .sprite = bottomBarSpriteInfo, .flip = Flip::Horizontal })
 		.end()
 		// Level Name
 		.small_text({ .text = "", .color = WHITE, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom, .pos = { 5, 5 } }, &m_levelNameHandle)
 		// Battery & Scraps
-		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .size = { autoSize, 65 }, .pos = { 10, 0 }, .alignContent = ContentAlign::Center }, &m_batteryAndScrapsHandle)
-            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .alignContent = ContentAlign::Center })
+		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .pos = { 10, 0 }, .alignContent = ContentAlign::Center }, &m_batteryAndScrapsHandle)
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scraps_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
 				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
-            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .size = { 32.f, autoSize }, .alignContent = ContentAlign::Center })
+            .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_batteryTextHandle)
 				.small_text({ .text = "BATTERY", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
@@ -52,24 +52,27 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		// Big Battery
 		.stack({
 			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
-			.size = { 64, autoSize }, .pos = { 0, 50 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.size = Vec2{ 64, autoSize }, .pos = { 0, 10 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
 			.image({ .sprite = batteryTop })
 			.image({ .size = Vector2{32, maxBatteryFill}, .sprite = batteryMiddle, .textureFillMode = TextureFillMode::Repeat }, &m_batteryFillHandle)
 			.image({ .sprite = batteryBottom })
 		.end()
 		.stack({
 			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
-			.size = { 64, autoSize }, .pos = { 5, 75 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.size = Vec2{ 64, autoSize }, .pos = { 5, 81 }, .alignContent = ContentAlign::End, .sideAlignContent = ContentAlign::Center })
 			.shape({ .size = { 4, maxBatteryFill }, .color = Fade(BLACK, 0.25f), .type = ShapeType::Rectangle, .roundness = 5 })
 		.end()
 		.stack({
 			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
-			.size = { 64, autoSize }, .pos = { 5, 75 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+			.size = Vec2{ 64, autoSize }, .pos = { 5, 81 }, .alignContent = ContentAlign::End, .sideAlignContent = ContentAlign::Center })
 			.shape({ .size = { 4, maxBatteryFill }, .color = Fade(GREEN, 0.75f), .type = ShapeType::Rectangle, .roundness = 5 }, &m_batteryIndicatorHandle)
 		.end()
 		// Plate
 		.border({ .color = Fade(BLACK, 0.5), .bkgColor = Fade(BLACK, 0.5), .pos = {0, 70}, .padding = {20, 5}, .hAlign = HAlign::Center, .vAlign = VAlign::Bottom }, &m_plateContainerHandle)
-			.small_text({ .text = "DEFENDER NAME", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_plateTextHandle)
+			.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 5}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+				.small_text({ .text = "DEFENDER NAME", .color = WHITE }, &m_plateTextHandle)
+				.small_text({ .text = "COST", .color = LIGHTGRAY }, &m_plateDescriptionHandle)
+			.end()
 		.end()
 		// Defender Picker
 		.custom({
@@ -138,8 +141,18 @@ void HUD::update(float dt) {
 	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
 	plateContainer.owner->visible = m_isAnyDefenderHovered;
 	if (m_isAnyDefenderHovered) {
+		auto& defender = m_data.pickableDefenders[m_hoveredDefenderIndex];
 		auto& plateText = m_screen->getText(m_plateTextHandle);
-		plateText.text = m_data.pickableDefenders[m_hoveredDefenderIndex].name;
+		auto& plateDescription = m_screen->getText(m_plateDescriptionHandle);
+
+		plateText.text = defender.name;
+		auto batteryGain = static_cast<int>(-defender.batteryDrain);
+		const char* sign = batteryGain >= 0 ? "+" : "";
+		if (defender.damage.baseDamage == 0) {
+			plateDescription.text = TextFormat("Battery: %s%d", sign, batteryGain);
+		} else {
+			plateDescription.text = TextFormat("Battery: %s%d   Damage: %d", sign, batteryGain, (int)defender.damage.baseDamage);
+		}
 	}
 
 	auto& batteryAndScrapsContainer = m_screen->getStack(m_batteryAndScrapsHandle);

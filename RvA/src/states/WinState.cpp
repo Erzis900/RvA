@@ -29,12 +29,12 @@ flow::FsmAction WinState::enter() {
 	}
 
 	// clang-format off
-	auto btnSize = Vector2{autoSize, 40.f};
+	auto btnSize = Vector2{100, 30.f};
 	auto& gui = m_game.getGUI();
 	gui.buildScreen("Win")
 		.default_bkg(0.5f)
 		.shape({ .pos = { 0, 100 }, .size = { autoSize, 20 }, .color = Fade(WHITE, 0.5f), .type = ShapeType::Rectangle })
-		.vertical_stack(5, 200.f)
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 5}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
 			.medium_text({.text = "Level Completed!!!", .color = WHITE, .hAlign = HAlign::Center})
 			.space({0, 35.f})
 			.button({"Next Level", {}, btnSize, [this]() { goToNextLevel(); }})

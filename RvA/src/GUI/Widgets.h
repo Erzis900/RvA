@@ -15,6 +15,8 @@
 constexpr float MaxValue = std::numeric_limits<float>::max();
 constexpr float autoSize = MaxValue;
 
+using Vec2 = Vector2;
+using Rec = Rectangle;
 using WidgetHandle = unsigned int;
 class Atlas;
 
@@ -85,7 +87,7 @@ struct UIStack {
 	Vector2 padding{};
 	HAlign hAlign{};
 	VAlign vAlign{};
-	Vector2 size{MaxValue, MaxValue};
+	std::optional<Vector2> size{};
 	Vector2 pos{};
 	ContentAlign alignContent{};
 	ContentAlign sideAlignContent{};
