@@ -171,6 +171,9 @@
     <ClCompile Include="src\states\ProceedState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utilities\Task.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -690,6 +693,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\states\ProceedState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

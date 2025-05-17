@@ -5,6 +5,7 @@
 #include "collisions/Collider.h"
 #include "defender/DefenderTypeRegistry.h"
 #include "utilities/CallbackRegistry.h"
+#include "utilities/Task.h"
 
 #include <array>
 #include <constants.h>
@@ -23,6 +24,7 @@ struct Defender {
 	Animation animation;
 	float shootTime{};
 	float prepareShootTime{};
+	bool hasFired{};
 	float scrapsGainTime{};
 	int hp{};
 	int row{};
@@ -30,6 +32,7 @@ struct Defender {
 	ColliderHandle colliderHandle{};
 	DefenderState state{DefenderState::On};
 	Color tint{WHITE};
+	TaskContainer task{};
 };
 
 struct DefenderUpdateResult {
@@ -64,4 +67,5 @@ private:
 	CallbackRegistry<Defender&> m_onDefenderDestroyedCallbacks;
 	CollisionSystem& m_collisionSystem;
 	MusicManager& m_musicManager;
+	DefenderUpdateResult m_updateResult;
 };

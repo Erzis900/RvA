@@ -282,7 +282,7 @@ void Game::registerDefenderTypes() {
 										 .spriteDying = {sprite("shooter_death"), 0.1f, 1},
 										 .batteryDrain = 5.f,
 										 .firstShootCooldown = 1.5f,
-										 .shootCooldown = 0.1f,
+										 .shootCooldown = 0.3f,
 										 .maxHP = 150,
 										 .cost = 10,
 										 .bulletType = "SimpleShot",

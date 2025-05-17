@@ -203,6 +203,7 @@
     <ClCompile Include="src\utilities\DelayedAction.cpp" />
     <ClCompile Include="src\utilities\Interpolation.cpp" />
     <ClCompile Include="src\utilities\Random.cpp" />
+    <ClCompile Include="src\utilities\Task.cpp" />
     <ClCompile Include="src\utilities\TimedAction.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -378,6 +379,7 @@
     <ClInclude Include="src\utilities\Interpolation.h" />
     <ClInclude Include="src\utilities\Random.h" />
     <ClInclude Include="src\utilities\ServiceLocator.h" />
+    <ClInclude Include="src\utilities\Task.h" />
     <ClInclude Include="src\utilities\TimedAction.h" />
   </ItemGroup>
   <ItemGroup>

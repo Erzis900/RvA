@@ -26,8 +26,44 @@ void DefenderManager::draw(Atlas& atlas) {
 	}
 }
 
+void DefenderManager::setState(Defender& defender, DefenderState state) {
+	if (defender.state != state) {
+		defender.task.clear();
+		defender.state = state;
+		switch (state) {
+		case DefenderState::On		: defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
+		case DefenderState::Off		: defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
+		case DefenderState::Shooting: {
+			defender.animation = Animation::createAnimation(defender.info->spriteShoot);
+			defender.task.addTask({[&defender](float dt) {
+				if (defender.animation.isOver()) {
+					defender.animation = Animation::createAnimation(defender.info->spriteEnabled);
+					return true;
+				}
+				return false;
+			}});
+			defender.task.addTask({[&](float dt) {
+				defender.prepareShootTime -= dt;
+				if (defender.prepareShootTime <= 0) {
+					m_updateResult.actions.push_back(BulletSpawnAction{.bulletType = *defender.info->bulletType, .position = defender.position});
+					return true;
+				}
+				return false;
+			}});
+			break;
+		}
+		case DefenderState::Dying: {
+			m_collisionSystem.destroyCollider(defender.colliderHandle);
+			defender.animation = Animation::createAnimation(defender.info->spriteDying);
+			break;
+		}
+		case DefenderState::Dead: break;
+		}
+	}
+}
+
 DefenderUpdateResult DefenderManager::update(float dt) {
-	DefenderUpdateResult result;
+	m_updateResult = {};
 	for (auto it = m_defenders.begin(); it != m_defenders.end();) {
 		auto& defender = *it;
 
@@ -37,13 +73,13 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 
 		defender->animation.update(dt);
 		if (defender->state != DefenderState::Off) {
-			result.amountOfBatteryDrain += dt * defender->info->batteryDrain;
+			m_updateResult.amountOfBatteryDrain += dt * defender->info->batteryDrain;
 
 			if (defender->info->scrapsGain != 0) {
 				defender->scrapsGainTime += dt;
 				if (defender->scrapsGainTime > 1.f) {
 					defender->scrapsGainTime = 0;
-					result.amountOfScrapsGain += defender->info->scrapsGain;
+					m_updateResult.amountOfScrapsGain += defender->info->scrapsGain;
 				}
 			}
 
@@ -58,23 +94,10 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 					}
 					break;
 				case DefenderState::Shooting:
-					/*
-					 * We always wait for the entire shooting animation to finish before going back to the On state
-					 */
-					if (defender->animation.isOver()) {
+					defender->task.update(dt);
+					if (defender->task.isDone()) {
+						defender->task.clear();
 						setState(*defender, DefenderState::On);
-					}
-
-					/*
-					 * The animation can be longer then the time we need to wait for the bullet to spawn
-					 * This prevent the bullet from spawning multiple times. Once we reach 0 we spawn the bullet
-					 * and we can't enter inside this loop anymore.
-					 */
-					if (defender->prepareShootTime > 0) {
-						defender->prepareShootTime -= dt;
-						if (defender->prepareShootTime <= 0) {
-							result.actions.push_back(BulletSpawnAction{.bulletType = *defender->info->bulletType, .position = defender->position});
-						}
 					}
 					break;
 				}
@@ -98,7 +121,7 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 		default: ++it;
 		}
 	}
-	return result;
+	return m_updateResult;
 }
 
 const std::vector<std::unique_ptr<Defender>>& DefenderManager::getDefenders() const {
@@ -137,23 +160,6 @@ Defender* DefenderManager::getDefender(int row, int column) {
 bool DefenderManager::hasDefender(int row, int column) const {
 	auto defender = m_defenderGrid[row][column];
 	return defender != nullptr;
-}
-
-void DefenderManager::setState(Defender& defender, DefenderState state) {
-	if (defender.state != state) {
-		defender.state = state;
-		switch (state) {
-		case DefenderState::On		: defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
-		case DefenderState::Off		: defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
-		case DefenderState::Shooting: defender.animation = Animation::createAnimation(defender.info->spriteShoot); break;
-		case DefenderState::Dying	: {
-			m_collisionSystem.destroyCollider(defender.colliderHandle);
-			defender.animation = Animation::createAnimation(defender.info->spriteDying);
-			break;
-		}
-		case DefenderState::Dead: break;
-		}
-	}
 }
 
 CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(Defender&)> callback) {
