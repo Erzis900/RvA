@@ -422,7 +422,7 @@ void Session::startNextLevel() {
 
 	m_pauseGameplayLogic = false;
 	m_hud.clear();
-	m_hud.setEnable(true);
+	m_hud.setEnable(!m_demoMode);
 	m_hud.setVisible(true);
 	clearAllEntities();
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
@@ -432,7 +432,6 @@ void Session::startNextLevel() {
 	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 	setupHUD();
-	m_hud.setEnable(!m_demoMode);
 	setState(SessionState::Playing);
 }
 
@@ -456,7 +455,7 @@ void Session::setState(SessionState state) {
 	m_gameState = state;
 
 	switch (state) {
-	case SessionState::Playing: m_hud.setEnable(true); break;
+	case SessionState::Playing: m_hud.setEnable(!m_demoMode); break;
 	case SessionState::Idle	  :
 	case SessionState::Win	  :
 	case SessionState::End	  :

@@ -392,7 +392,7 @@ void HUD::drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds) {
 		auto pos = deployedDefender.position;
 
 		auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
-		if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
+		if (m_isEnabled && CheckCollisionPointRec(GetMousePosition(), frameRect)) {
 			auto width = 5.f;
 			auto height = 5.f;
 			auto upHeight = 4.f;

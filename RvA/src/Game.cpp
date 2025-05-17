@@ -286,7 +286,7 @@ void Game::registerDefenderTypes() {
 										 .maxHP = 150,
 										 .cost = 10,
 										 .bulletType = "SimpleShot",
-										 .shootingAnimationTime = 0.6f,
+										 .shootingAnimationTime = 0.5f,
 										 .buildCooldown = 3.f});
 
 	m_pimpl->m_gameRegistry.addDefender("Catapult",

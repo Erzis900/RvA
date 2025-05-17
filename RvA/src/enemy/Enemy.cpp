@@ -10,7 +10,7 @@ Enemy::Enemy(Vector2 position, const EnemyTypeInfo* typeInfo, int row) : m_posit
 	m_hp = typeInfo->maxHp;
 	m_attackTime = typeInfo->attackTime;
 	setAnimation(m_typeInfo->idleAnimation);
-	
+
 	m_sparkEffect = Animation::createAnimation(m_typeInfo->sparkEffect);
 	setupBehavior(m_typeInfo->behavior);
 	setState(EnemyState::Idle);
@@ -29,7 +29,10 @@ void Enemy::setState(EnemyState state) {
 			m_attackTime = 0.5f;
 			break;
 		}
-		case EnemyState::Dying: setAnimation(m_typeInfo->dyingAnimation); break;
+		case EnemyState::Dying: {
+			setAnimation(m_typeInfo->dyingAnimation);
+			break;
+		}
 		}
 	}
 }
@@ -56,7 +59,10 @@ void Enemy::applyDamage(const Damage& damage) {
 }
 
 void Enemy::setSparkEffect(float duration) {
-	m_sparkEffectTimeRemain = duration;
+	if (m_sparkEffectTimeRemain <= 0 && m_sparkEffect.isOver()) {
+		m_sparkEffectTimeRemain = duration;
+		m_sparkEffect.restart();
+	}
 }
 
 void Enemy::setPosition(Vector2 position) {
@@ -77,10 +83,9 @@ GameAction Enemy::update(float dt) {
 
 	m_animation.update(dt);
 	m_damageTakenAnimation.update(dt);
-	if (m_sparkEffectTimeRemain > 0.f) {
-		m_sparkEffectTimeRemain -= dt;
-		m_sparkEffect.update(dt);
-	}
+
+	m_sparkEffectTimeRemain -= dt;
+	m_sparkEffect.update(dt);
 
 	return action;
 }
@@ -88,10 +93,10 @@ GameAction Enemy::update(float dt) {
 void Enemy::draw(Atlas& atlas) {
 	DrawEllipse(m_position.x + CELL_SIZE * 0.5f, m_position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));
 	atlas.drawSprite(m_animation.getSpriteInfo(), m_position, m_animation.getCurrentFrame(), Flip::None, m_tint);
-	if (m_sparkEffectTimeRemain > 0.f) {
-		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 5, m_position.y - 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 30.f);
-		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 10, m_position.y - 0}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, 0.f);
-		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 15, m_position.y + 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, -30.f);
+	if (m_sparkEffectTimeRemain > 0.f && !m_sparkEffect.isOver()) {
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 5, m_position.y - 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, Random::range(25.f, 35.f));
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 10, m_position.y - 0}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, Random::range(-5.f, 5.f));
+		atlas.drawSprite(m_sparkEffect.getSpriteInfo(), {m_position.x - 15, m_position.y + 25}, m_sparkEffect.getCurrentFrame(), Flip::None, WHITE, Random::range(-25.f, -35.f));
 	}
 }
 

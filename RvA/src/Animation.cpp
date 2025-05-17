@@ -13,16 +13,9 @@ Animation Animation::createAnimation(AnimationData animationData) {
 
 Animation::Animation() {}
 
-Animation::Animation(const SpriteInfo* spriteInfo, float frameTime, int loop, bool reverse) : m_spriteInfo(spriteInfo), m_frameTime(frameTime), m_loop(loop) {
-	if (reverse) {
-		m_currentFrame = spriteInfo->num_frames - 1;
-		m_step = -1;
-		m_lastFrame = 0;
-	} else {
-		m_currentFrame = 0;
-		m_step = 1;
-		m_lastFrame = spriteInfo->num_frames - 1;
-	}
+Animation::Animation(const SpriteInfo* spriteInfo, float frameTime, int loop, bool reverse) : m_spriteInfo(spriteInfo), m_frameTime(frameTime), m_loop(loop), m_startLoop(loop) {
+	m_step = reverse ? -1 : 1;
+	restart();
 }
 
 void Animation::update(float dt) {
@@ -49,6 +42,19 @@ void Animation::setLoop(int loop) {
 
 bool Animation::isOver() const {
 	return m_loop == 0;
+}
+
+void Animation::restart() {
+	m_elapsedTime = 0.f;
+	if (m_step == -1) {
+		m_currentFrame = m_spriteInfo->num_frames - 1;
+		m_lastFrame = 0;
+	} else {
+		m_currentFrame = 0;
+		m_lastFrame = m_spriteInfo->num_frames - 1;
+	}
+	m_startFrame = m_currentFrame;
+	m_loop = m_startLoop;
 }
 
 const SpriteInfo* Animation::getSpriteInfo() const {
