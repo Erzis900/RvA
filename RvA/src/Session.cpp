@@ -120,7 +120,7 @@ void Session::update(float dt) {
 void Session::draw(Atlas& atlas) {
 	if (m_gameState != SessionState::Idle) {
 		// TODO(Gerark) due to texture bleeding we have to offset the texture. Remove the -1 offset as soon as we solve the issue.
-		atlas.drawSprite(m_levelData->info->topBackground, {-1, -1}, 0, Flip::None, WHITE);
+		atlas.drawSprite(m_levelData->info->topBackground, {-1, -1}, 0, Flip::None, {200, 200, 200, 255});
 		atlas.drawSprite(m_levelData->info->groundBackground, {-1, 63}, 0, Flip::None, {200, 200, 200, 255});
 
 		drawGrid();
@@ -402,7 +402,9 @@ void Session::resetProgression() {
 	m_hud.setEnable(false);
 	m_hud.setVisible(false);
 
-	if (m_demoMode) {
+	if (FORCE_LEVEL_SEQUENCE) {
+		m_levelManager.setLevelSequence(FORCED_LEVEL_SEQUENCE);
+	} else if (m_demoMode) {
 		m_levelManager.setLevelSequence({"demoLevel"});
 	} else {
 		std::vector<std::string> levelSquence = {"level1", "level2", "level3"};

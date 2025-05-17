@@ -30,6 +30,7 @@ private:
 
 void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	registerTutorialLevels(gameRegistry, atlas);
+	registerRaylibDemoVideoLevels(gameRegistry, atlas);
 
 	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
 
@@ -379,5 +380,61 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 													  .id = FixedValue{"B1Tutorial"s}})
 						 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 						 .build()},
+		});
+}
+
+void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, Atlas& atlas) {
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+	auto lastColumn = FixedValue{18};
+
+	gameRegistry.addLevel(
+		"raylibDemo",
+		{
+			.name = "",
+			.startingScraps = 200,
+			.maxBatteryCharge = 100,
+			.winCountdownDuration = 2.f,
+			.winCondition = AllWavesGoneCondition{},
+			.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+			.groundBackground = sprite("ground_bkg"),
+			.topBackground = sprite("top_bkg"),
+			.timeline = {.keyframes =
+							 KeyframeBuilder::start()
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "ShooterDemo"})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "SolarpanelTutorial"})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Catapult"})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "LasertronDemo"})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{2}, .id = FixedValue{"ShooterDemo"s}, .type = EntityType::Defender})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{"ShooterDemo"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{5}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{8}, .id = FixedValue{"B1"s}})
+								 .t(0,
+									SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{2.f, 4.f}, .row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
+								 .t(2.0f,
+									MessageOperation{
+										.text = "THEY'RE COMING!!!",
+										.fontSize = FONT_MEDIUM,
+										.textHAlign = HAlign::Center,
+										.textVAlign = VAlign::Center,
+										.timer = 2.f,
+									})
+								 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{"B2"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.5f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
+
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"PortalDemo"s}})
+
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.5f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B2"s}})
+
+								 .build()},
 		});
 }

@@ -351,6 +351,42 @@ void Game::registerDefenderTypes() {
 										 .bulletType = "SimpleShot",
 										 .shootingAnimationTime = 0.6f,
 										 .buildCooldown = 3.f});
+
+	/*
+	 * Defenders tweaked for raylib demo video
+	 */
+
+	m_pimpl->m_gameRegistry.addDefender("ShooterDemo",
+										{.type = DefenderType::Shooter,
+										 .name = "Shooter",
+										 .spriteEnabled = {sprite("shooter_idle"), 0.1f},
+										 .spriteDisabled = {sprite("shooter_off"), 0.1f},
+										 .spriteShoot = {sprite("shooter_shoot"), 0.1f, 1},
+										 .spriteDying = {sprite("shooter_death"), 0.1f, 1},
+										 .batteryDrain = 5.f,
+										 .firstShootCooldown = 1.5f,
+										 .shootCooldown = 0.2f,
+										 .maxHP = 150,
+										 .cost = 20,
+										 .bulletType = "SimpleShotDemo",
+										 .shootingAnimationTime = 0.6f,
+										 .buildCooldown = 3.f});
+
+	m_pimpl->m_gameRegistry.addDefender("LasertronDemo",
+										{.type = DefenderType::Lasertron,
+										 .name = "Lasertron",
+										 .spriteEnabled = {sprite("lasertron_idle"), 0.1f},
+										 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
+										 .spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},
+										 .spriteDying = {sprite("lasertron_death"), 0.1f, 1},
+										 .batteryDrain = 20.f,
+										 .firstShootCooldown = 3.f,
+										 .shootCooldown = 2.f,
+										 .maxHP = 250,
+										 .cost = 30,
+										 .bulletType = "LaserBeam",
+										 .shootingAnimationTime = 1.0f,
+										 .buildCooldown = 5.f});
 }
 
 void Game::registerBulletTypes() {
@@ -379,6 +415,31 @@ void Game::registerBulletTypes() {
 										  .startOffset = {30, 15},
 										  .beamHeight = 4,
 										  .damage = {100.f, 0, true},
+										  .auraSize = 2,
+										  .beamStartColor = {245, 125, 74, 255},
+										  .beamEndColor = RED,
+										  .maxLifetime = 0.4f,
+										  .shootAnimationSpeed = 15,
+										  .shootAnimationDuration = 2.f,
+									  });
+
+	/*
+	 * Bullet tweaked for raylib demo video
+	 */
+	m_pimpl->m_gameRegistry.addBullet("SimpleShotDemo",
+									  BulletShotData{
+										  .velocity = {150, 0},
+										  .offsetPos = {24, 7},
+										  .radius = 2.f,
+										  .damage = {25, 5},
+										  .maxLifetime = 3.2f,
+									  });
+
+	m_pimpl->m_gameRegistry.addBullet("LaserBeamDemo",
+									  LaserBeamData{
+										  .startOffset = {30, 15},
+										  .beamHeight = 4,
+										  .damage = {250.f, 0, true},
 										  .auraSize = 2,
 										  .beamStartColor = {245, 125, 74, 255},
 										  .beamEndColor = RED,
@@ -511,6 +572,36 @@ void Game::registerEnemyTypes() {
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
 									  .sparkEffect = electrocuteAnimationData});
+
+	/*
+	 * Enemies tweaked for raylib demo
+	 */
+
+	m_pimpl->m_gameRegistry.addEnemy("PortalDemo",
+									 {.type = EnemyType::Portal,
+									  .maxHp = 120,
+									  .speed = 40,
+									  .attackTime = 0.5f,
+									  .defenderDamage = 50,
+									  .baseWallDamage = 10,
+									  .dropType = "simpleScraps",
+									  .dropAmount = RandomRangeStep{100, 200, 10},
+									  .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
+									  .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
+									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
+									  .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
+									  .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1},
+									  .sparkEffect = electrocuteAnimationData,
+									  .behavior = PortalSpawnBehaviorInfo{
+										  .timeBeforeActing = 2.5f,
+										  .timeBeforeActingAgain = 1.f,
+										  .chanceIncreaseOverTime = 1.f,
+										  .baseChanceToSpawn = 100.f,
+										  .columnDistance = FixedValue{6},
+										  .rowDistance = FixedValue{-1},
+										  .portalCastRange = FixedValue{3},
+										  .animation = {sprite("portal_alien_summon"), 0.1f, 1},
+									  }});
 }
 
 void Game::registerDropTypes() {

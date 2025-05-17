@@ -1,10 +1,12 @@
 #pragma once
 
 #include <raylib.h>
+#include <string>
 #include <tuple>
+#include <vector>
 
-constexpr int SCREEN_WIDTH = 1280;
-constexpr int SCREEN_HEIGHT = 720;
+constexpr int SCREEN_WIDTH = 1920;
+constexpr int SCREEN_HEIGHT = 1080;
 
 constexpr Vector2 GAME_RENDERTEXTURE_SIZE = {640, 360};
 constexpr Vector2 UI_RENDERTEXTURE_SIZE = {640, 360};
@@ -22,6 +24,9 @@ constexpr int FONT_MEDIUM = 32;
 constexpr int FONT_BIG = 64;
 
 constexpr Color DEFAULT_BKG_COLOR = {30, 46, 73, 255};
+
+constexpr bool FORCE_LEVEL_SEQUENCE = false;
+extern std::vector<std::string> FORCED_LEVEL_SEQUENCE;
 
 std::tuple<int, int> getCoordinates(const Vector2& position);
 Vector2 getSnappedPosition(const Vector2& position);

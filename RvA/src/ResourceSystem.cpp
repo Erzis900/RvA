@@ -4,7 +4,7 @@ void ResourceSystem::loadResources() {
 	addShader("hole", LoadShader(nullptr, "assets/shaders/hole_shader.fs"));
 
 	addMusic("menu", LoadMusicStream("sfx/menu.wav"));
-	addMusic("game", LoadMusicStream("sfx/game.mp3"));
+	addMusic("game", LoadMusicStream("sfx/robots leaking.wav"));
 	addMusic("lost", LoadMusicStream("sfx/lost.mp3"));
 
 	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.2f);

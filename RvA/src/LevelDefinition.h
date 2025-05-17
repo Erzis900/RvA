@@ -9,4 +9,5 @@ public:
 
 private:
 	static void registerTutorialLevels(GameRegistry& gameRegistry, Atlas& atlas);
+	static void registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, Atlas& atlas);
 };

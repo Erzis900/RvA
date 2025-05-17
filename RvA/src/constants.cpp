@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <cmath>
 
+std::vector<std::string> FORCED_LEVEL_SEQUENCE = {
+	"raylibDemo",
+};
+
 std::tuple<int, int> getCoordinates(const Vector2& position) {
 	auto row = static_cast<int>(std::floor((position.y - GRID_OFFSET.y) / CELL_SIZE));
 	auto column = static_cast<int>(std::floor((position.x - GRID_OFFSET.x) / CELL_SIZE));
