@@ -391,6 +391,8 @@ void Game::registerBulletTypes() {
 void Game::registerEnemyTypes() {
 	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
 
+	auto electrocuteAnimationData = AnimationData{sprite("electrocute"), 0.1f, 1};
+
 	m_pimpl->m_gameRegistry.addEnemy("B1",
 									 {.type = EnemyType::B1,
 									  .maxHp = 100,
@@ -404,7 +406,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f}});
+									  .sparkEffect = electrocuteAnimationData});
 
 	m_pimpl->m_gameRegistry.addEnemy("B2",
 									 {.type = EnemyType::B2,
@@ -419,7 +421,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
+									  .sparkEffect = electrocuteAnimationData});
 
 	m_pimpl->m_gameRegistry.addEnemy("Portal",
 									 {.type = EnemyType::Portal,
@@ -435,7 +437,7 @@ void Game::registerEnemyTypes() {
 									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("portal_alien_death"), 0.1f, 1},
 									  .summonAnimation = {sprite("portal_alien_summon"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1},
+									  .sparkEffect = electrocuteAnimationData,
 									  .behavior = PortalSpawnBehaviorInfo{
 										  .timeBeforeActing = 2.5f,
 										  .timeBeforeActingAgain = 1.f,
@@ -463,7 +465,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
+									  .sparkEffect = electrocuteAnimationData});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank",
 									 {.type = EnemyType::B1,
@@ -478,7 +480,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
+									  .sparkEffect = electrocuteAnimationData});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialTank2",
 									 {.type = EnemyType::B1,
@@ -493,7 +495,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
+									  .sparkEffect = electrocuteAnimationData});
 
 	m_pimpl->m_gameRegistry.addEnemy("B1TutorialFast",
 									 {.type = EnemyType::B1,
@@ -508,7 +510,7 @@ void Game::registerEnemyTypes() {
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
-									  .sparkEffect = {sprite("spark"), 0.1f, 1}});
+									  .sparkEffect = electrocuteAnimationData});
 }
 
 void Game::registerDropTypes() {

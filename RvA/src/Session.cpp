@@ -56,6 +56,7 @@ void Session::drawGrid() {
 
 void Session::update(float dt) {
 	if (!m_pauseGameplayLogic) {
+		dt *= m_levelData->gameSpeed;
 		auto enemyResult = m_enemyManager.update(dt);
 		performActions(enemyResult);
 		m_collisionSystem.update(dt);
@@ -99,6 +100,17 @@ void Session::update(float dt) {
 		if (IsKeyPressed(KEY_B)) {
 			m_levelData->batteryCharge += 50;
 			m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
+		}
+
+		// When pressing F increase the game speed
+		if (IsKeyPressed(KEY_F)) {
+			// super hacky way to achieve this and it works only with integer multipliers.
+			const std::array speeds = {1, 2, 3, 4, 5};
+			int index = m_levelData->gameSpeed;
+			if (index >= speeds.size()) {
+				index = 0;
+			}
+			m_levelData->gameSpeed = static_cast<float>(speeds[index]);
 		}
 	}
 

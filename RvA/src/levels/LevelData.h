@@ -8,6 +8,7 @@
 struct LevelData {
 	const LevelInfo* info{};
 	float time{};
+	float gameSpeed{1.f};
 	int nextKeyframe{};
 
 	int scraps{};
