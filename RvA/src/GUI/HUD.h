@@ -121,6 +121,7 @@ private:
 	WidgetHandle m_batteryTextHandle{};
 	WidgetHandle m_batteryFillHandle{};
 	WidgetHandle m_batteryIndicatorHandle{};
+	WidgetHandle m_batteryStatIconHandle{};
 	WidgetHandle m_levelNameHandle{};
 	WidgetHandle m_plateContainerHandle{};
 	WidgetHandle m_plateTextHandle{};

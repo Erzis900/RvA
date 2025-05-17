@@ -26,6 +26,14 @@ void GUI::loadResources() {
 
 void GUI::update(float dt) {
 	m_fadeScreen.update(dt);
+	for (auto& [id, screen] : m_screens) {
+		screen->getImages().forEachActive([&](auto handle, UIImg& image) {
+			if (std::holds_alternative<Animation>(image.sprite)) {
+				auto& animation = std::get<Animation>(image.sprite);
+				animation.update(dt);
+			}
+		});
+	}
 }
 
 void GUI::draw() {
@@ -114,21 +122,35 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
-		switch (image.textureFillMode) {
-		case TextureFillMode::Repeat: {
-			// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
-			for (int y = 0; y < node.finalRect.height; y += image.sprite->frames[0].height) {
-				for (int x = 0; x < node.finalRect.width; x += image.sprite->frames[0].width) {
-					m_atlas.drawSprite(image.sprite, {node.finalRect.x + x, node.finalRect.y + y}, {(float)image.sprite->frames[0].width, (float)image.sprite->frames[0].height}, 0, image.flip);
+		std::visit(
+			[&](auto&& arg) {
+				auto spriteIndex = image.spriteIndex.value_or(0);
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, const SpriteInfo*>) {
+					switch (image.textureFillMode) {
+					case TextureFillMode::Repeat: {
+						// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
+						for (int y = 0; y < node.finalRect.height; y += arg->frames[0].height) {
+							for (int x = 0; x < node.finalRect.width; x += arg->frames[0].width) {
+								m_atlas.drawSprite(arg, {node.finalRect.x + x, node.finalRect.y + y}, {(float)arg->frames[0].width, (float)arg->frames[0].height}, spriteIndex, image.flip);
+							}
+						}
+						break;
+					}
+					case TextureFillMode::Stretch: {
+						m_atlas.drawSprite(arg, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, spriteIndex, image.flip);
+						break;
+					}
+					}
+				} else if constexpr (std::is_same_v<T, Animation>) {
+					Animation& animation = arg;
+					auto frame = animation.getSpriteInfo()->frames;
+					m_atlas.drawSprite(animation.getSpriteInfo(), {node.finalRect.x, node.finalRect.y}, {(float)frame->width, (float)frame->height}, animation.getCurrentFrame(), image.flip);
+				} else {
+					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
 				}
-			}
-			break;
-		}
-		case TextureFillMode::Stretch: {
-			m_atlas.drawSprite(image.sprite, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, 0, image.flip);
-			break;
-		}
-		}
+			},
+			image.sprite);
 		break;
 	}
 	case WidgetType::Border: {

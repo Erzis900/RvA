@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Animation.h"
 #include "FixedItemPool.h"
 #include "atlas/Atlas.h"
 
@@ -155,7 +156,8 @@ struct UIShape {
 struct UIImg {
 	Vector2 pos{};
 	std::optional<Vector2> size{};
-	const SpriteInfo* sprite{};
+	std::variant<const SpriteInfo*, Animation> sprite{};
+	std::optional<int> spriteIndex;
 	HAlign hAlign{};
 	VAlign vAlign{};
 	Fit fit{};
@@ -234,6 +236,10 @@ public:
 
 	[[nodiscard]] bool isVisible() const {
 		return m_isVisible;
+	}
+
+	auto& getImages() {
+		return m_imagePool;
 	}
 
 private:

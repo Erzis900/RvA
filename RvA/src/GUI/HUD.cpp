@@ -44,7 +44,7 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
             .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
-				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
+				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_mini"), .hAlign = HAlign::Center, .fit = Fit::Ignore }, &m_batteryStatIconHandle)
 				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_batteryTextHandle)
 				.small_text({ .text = "BATTERY", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()
@@ -126,17 +126,22 @@ Color calculatePercentageColor(float value, float maxValue, Color color1 = GREEN
 }
 
 void HUD::update(float dt) {
+	float currentBatteryPerc = m_data.batteryCharge / m_data.maxBatteryCharge;
+
 	auto scrapsText = TextFormat("%d", m_data.scrapsAmount);
 	m_screen->getText(m_scrapTextHandle).text = scrapsText;
 	auto& batteryText = m_screen->getText(m_batteryTextHandle);
-	batteryText.text = TextFormat("%d%%", int(m_data.batteryCharge / m_data.maxBatteryCharge * 100));
+	batteryText.text = TextFormat("%d%%", int(currentBatteryPerc * 100));
 	batteryText.color = calculatePercentageColor(m_data.batteryCharge, m_data.maxBatteryCharge);
 	auto& levelName = m_screen->getText(m_levelNameHandle);
 	levelName.text = m_data.levelName;
 
 	auto& batteryIndicator = m_screen->getShape(m_batteryIndicatorHandle);
-	batteryIndicator.size.y = std::round(m_data.batteryCharge / m_data.maxBatteryCharge * maxBatteryFill);
+	batteryIndicator.size.y = std::round(currentBatteryPerc * maxBatteryFill);
 	batteryIndicator.color = Fade(calculatePercentageColor(m_data.batteryCharge, m_data.maxBatteryCharge), 0.75f);
+
+	auto& batteryStatIcon = m_screen->getImage(m_batteryStatIconHandle);
+	batteryStatIcon.spriteIndex = static_cast<int>(std::round(currentBatteryPerc * 17.f));
 
 	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
 	plateContainer.owner->visible = m_isAnyDefenderHovered;

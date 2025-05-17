@@ -48,8 +48,22 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 	}
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
-		texture_atlas_frame_t* frameInfo = image.sprite->frames; // take the first frame
-		auto size = image.size ? *image.size : Vector2{static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)};
+		auto spriteSize = std::visit(
+			[](auto&& arg) {
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, const SpriteInfo*>) {
+					texture_atlas_frame_t* frameInfo = arg->frames; // take the first frame
+					return Vector2{static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)};
+				} else if constexpr (std::is_same_v<T, Animation>) {
+					Animation& animation = arg;
+					texture_atlas_frame_t* frameInfo = animation.getSpriteInfo()->frames; // take the first frame
+					return Vector2{static_cast<float>(frameInfo->width), static_cast<float>(frameInfo->height)};
+				} else {
+					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
+				}
+			},
+			image.sprite);
+		auto size = image.size ? *image.size : spriteSize;
 		node.preferredSize = adjustSize(size, availableSize, image.fit);
 		break;
 	}
