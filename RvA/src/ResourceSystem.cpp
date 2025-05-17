@@ -1,8 +1,6 @@
 #include "ResourceSystem.h"
 
 void ResourceSystem::loadResources() {
-	addShader("hole", LoadShader(nullptr, "assets/shaders/hole_shader.fs"));
-
 	addMusic("menu", LoadMusicStream("sfx/menu.wav"));
 	addMusic("game", LoadMusicStream("sfx/robots leaking.wav"));
 	addMusic("lost", LoadMusicStream("sfx/lost.mp3"));

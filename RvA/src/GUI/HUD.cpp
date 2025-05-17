@@ -356,26 +356,6 @@ void HUD::drawMessage(Atlas& atlas) {
 		}
 		tInterpolation = std::clamp(tInterpolation, 0.f, 1.f);
 
-		// Keep this as reference till we have another good example of shader usage
-		/*if (!isTimedTutorial) {
-			float resolution[2] = {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y};
-			auto holeSize = action.highlightSize;
-
-			auto shader = m_resourceSystem.getShader("hole");
-
-			int holeCenterLoc = GetShaderLocation(shader, "holeCenter");
-			int resolutionLoc = GetShaderLocation(shader, "resolution");
-			int holeSizeLoc = GetShaderLocation(shader, "holeSize");
-
-			SetShaderValue(shader, holeCenterLoc, &action.highlightPosition, SHADER_UNIFORM_VEC2);
-			SetShaderValue(shader, resolutionLoc, &resolution, SHADER_UNIFORM_VEC2);
-			SetShaderValue(shader, holeSizeLoc, &holeSize, SHADER_UNIFORM_VEC2);
-
-			BeginShaderMode(shader);
-			atlas.drawSprite(atlas.getSpriteInfo("one_pixel"), {0, 0}, {GAME_RENDERTEXTURE_SIZE.x, GAME_RENDERTEXTURE_SIZE.y});
-			EndShaderMode();
-		}*/
-
 		const char* text = action.text.c_str();
 		auto size = MeasureTextEx(GuiGetFont(), text, action.fontSize, 1);
 		auto textPos = action.textPosition.value_or(Vector2{});

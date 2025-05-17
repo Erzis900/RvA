@@ -5,8 +5,8 @@
 #include <tuple>
 #include <vector>
 
-constexpr int SCREEN_WIDTH = 1920;
-constexpr int SCREEN_HEIGHT = 1080;
+constexpr int SCREEN_WIDTH = 1280;
+constexpr int SCREEN_HEIGHT = 720;
 
 constexpr Vector2 GAME_RENDERTEXTURE_SIZE = {640, 360};
 constexpr Vector2 UI_RENDERTEXTURE_SIZE = {640, 360};
