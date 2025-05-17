@@ -145,7 +145,7 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 				} else if constexpr (std::is_same_v<T, Animation>) {
 					Animation& animation = arg;
 					auto frame = animation.getSpriteInfo()->frames;
-					m_atlas.drawSprite(animation.getSpriteInfo(), {node.finalRect.x, node.finalRect.y}, {(float)frame->width, (float)frame->height}, animation.getCurrentFrame(), image.flip);
+					m_atlas.drawSprite(animation.getSpriteInfo(), {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, animation.getCurrentFrame(), image.flip);
 				} else {
 					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
 				}

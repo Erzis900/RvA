@@ -1,13 +1,19 @@
 import os
 from PIL import Image
 import sys
+import shutil
 
 filename = sys.argv[1]
 prefix = sys.argv[2]
 width = sys.argv[3]
+cleanup = sys.argv[4].lower()
 
 FRAME_WIDTH = int(width)
 OUTPUT_FOLDER = "frames_output"
+
+if cleanup == "y" and os.path.exists(OUTPUT_FOLDER):
+    print(f"Cleaning up {OUTPUT_FOLDER}...")
+    shutil.rmtree(OUTPUT_FOLDER)
 
 def split_image_into_frames(input_path, output_prefix):
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
