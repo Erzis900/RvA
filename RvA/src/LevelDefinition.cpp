@@ -247,7 +247,6 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 			.timeline =
 				{.keyframes =
 					 KeyframeBuilder::start()
-						 .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{2}, .id = FixedValue{"B1TutorialFast"s}})
 						 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
 						 .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
 						 .t(0.f, HUDOperation{.type = HUDOperationType::HideResources})

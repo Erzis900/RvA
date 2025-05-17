@@ -55,6 +55,8 @@ struct ProgressBarData {
 
 struct HUDData {
 	float batteryCharge{};
+	float prevBatteryCharge{};
+	float batteryChargeDiff{};
 	float maxBatteryCharge{};
 	int scrapsAmount{};
 	int numberOfEnemiesDefeated{};
@@ -103,12 +105,14 @@ public:
 
 private:
 	Vector2 measureDefenders(const Vector2& availableSize);
+	Vector2 measureBatteryTrend(const Vector2& availableSize);
 	void drawDefenders(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBars(Atlas& atlas, const Rectangle& bounds);
 	void drawProgressBar(float value, float max, const Vector2& pos, Color bkgColor = DARKGRAY, Color fillColor = GREEN);
 	void drawMessage(Atlas& atlas);
 	void drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds);
 	void drawTimeline(Atlas& atlas, const Rectangle& bounds);
+	void drawBatteryTrend(Atlas& atlas, const Rectangle& bounds);
 
 	bool m_isEnabled{true};
 	HUDData m_data;

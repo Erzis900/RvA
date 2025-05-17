@@ -40,13 +40,19 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .pos = { 10, 0 }, .alignContent = ContentAlign::Center }, &m_batteryAndScrapsHandle)
             .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scrap_idle"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
-				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
-				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
+				.small_text({ .text = "0", .color = ORANGE}, &m_scrapTextHandle)
+				.small_text({ .text = "SCRAPS", .color = WHITE})
 			.end()
             .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
 				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("battery_mini"), .hAlign = HAlign::Center, .fit = Fit::Ignore }, &m_batteryStatIconHandle)
-				.small_text({ .text = "100%", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_batteryTextHandle)
-				.small_text({ .text = "BATTERY", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
+				.stack({ .orientation = GUIOrientation::Horizontal, .padding = { 5, 0 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
+					.small_text({ .text = "100%", .color = ORANGE }, &m_batteryTextHandle)
+					.custom({
+						.draw = std::bind_front(&HUD::drawBatteryTrend, this),
+						.measure = std::bind_front(&HUD::measureBatteryTrend, this)
+					})
+				.end()
+				.small_text({ .text = "BATTERY", .color = WHITE })
 			.end()
 		.end()
 		// Big Battery
@@ -173,6 +179,9 @@ void HUD::update(float dt) {
 
 	m_data.messageTime += dt;
 	m_fadeScreen.update(dt);
+
+	m_data.batteryChargeDiff = m_data.batteryCharge - m_data.prevBatteryCharge;
+	m_data.prevBatteryCharge = m_data.batteryCharge;
 }
 
 void HUD::setVisible(bool visible) {
@@ -482,4 +491,30 @@ void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
 	auto pointC = Vector2{pointingX, rect.y + yOffset};
 
 	DrawTriangle(pointA, pointB, pointC, RED);
+}
+
+Vector2 HUD::measureBatteryTrend(const Vector2& availableSize) {
+	return Vector2(5, 5);
+}
+
+void HUD::drawBatteryTrend(Atlas& atlas, const Rectangle& bounds) {
+	auto color = GREEN;
+
+	// Draw a triangle in raylib with a height of 10 pixels
+	if (m_data.batteryChargeDiff < 0) {
+		auto pointA = Vector2{bounds.x, bounds.y};
+		auto pointB = Vector2{bounds.x + bounds.width, bounds.y};
+		auto pointC = Vector2{bounds.x + bounds.width / 2, bounds.y + bounds.height};
+		color = RED;
+		DrawTriangle(pointC, pointB, pointA, color);
+	} else if (m_data.batteryChargeDiff == 0) {
+		DrawRectangle(bounds.x, bounds.y, bounds.width, 1, DARKGRAY);
+		DrawRectangle(bounds.x, bounds.y + 3, bounds.width, 1, DARKGRAY);
+	} else if (m_data.batteryChargeDiff > 0) {
+		auto pointA = Vector2{bounds.x, bounds.y + bounds.height};
+		auto pointB = Vector2{bounds.x + bounds.width, bounds.y + bounds.height};
+		auto pointC = Vector2{bounds.x + bounds.width / 2, bounds.y};
+		color = GREEN;
+		DrawTriangle(pointA, pointB, pointC, color);
+	}
 }
