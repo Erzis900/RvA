@@ -39,7 +39,7 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		// Battery & Scraps
 		.stack({ .orientation = GUIOrientation::Horizontal, .padding = 10, .vAlign = VAlign::Bottom, .pos = { 10, 0 }, .alignContent = ContentAlign::Center }, &m_batteryAndScrapsHandle)
             .stack({ .orientation = GUIOrientation::Vertical, .padding = 0, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
-				.image({ .sprite = m_gui.getAtlas().getSpriteInfo("scraps_icon"), .hAlign = HAlign::Center, .fit = Fit::Ignore })
+				.image({ .sprite = Animation::createAnimation({m_gui.getAtlas().getSpriteInfo("scrap_idle"), 0.2f}), .hAlign = HAlign::Center, .fit = Fit::Ignore })
 				.small_text({ .text = "0", .color = ORANGE, .hAlign = HAlign::Center, .vAlign = VAlign::Center }, &m_scrapTextHandle)
 				.small_text({ .text = "SCRAPS", .color = WHITE, .hAlign = HAlign::Center, .vAlign = VAlign::Center })
 			.end()

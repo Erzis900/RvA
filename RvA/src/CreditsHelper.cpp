@@ -19,7 +19,7 @@ auto nameColor = Color{140, 140, 140, 255};
 
 // TODO(Gerark) - This list could be defined in data ( maybe a json file to easily edit it without recompiling )
 const std::vector<CreditsItem> creditsItems{
-	{"PROGRAMMING", titleColor, true, "scraps_icon", DARKGRAY},
+	{"PROGRAMMING", titleColor, true, "scrap_idle", DARKGRAY},
 	{"Gerark", nameColor},
 	{"Erzis", nameColor},
 	{"Zazeraz", nameColor},

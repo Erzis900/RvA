@@ -109,7 +109,7 @@ void Session::draw(Atlas& atlas) {
 	if (m_gameState != SessionState::Idle) {
 		// TODO(Gerark) due to texture bleeding we have to offset the texture. Remove the -1 offset as soon as we solve the issue.
 		atlas.drawSprite(m_levelData->info->topBackground, {-1, -1}, 0, Flip::None, WHITE);
-		atlas.drawSprite(m_levelData->info->groundBackground, {-1, 63}, 0, Flip::None, WHITE);
+		atlas.drawSprite(m_levelData->info->groundBackground, {-1, 63}, 0, Flip::None, {200, 200, 200, 255});
 
 		drawGrid();
 
