@@ -70,6 +70,18 @@ struct Game::pimpl {
 	}
 
 	void update() {
+		auto isWindowFocused = false;
+		if (IsWindowFocused()) {
+			isWindowFocused = true;
+		} else if (IsWindowMinimized()) {
+			isWindowFocused = false;
+		}
+
+		if (!m_isWindowFocused && isWindowFocused) {
+			DisableCursor();
+		}
+		m_isWindowFocused = isWindowFocused;
+
 		float dt = GetFrameTime();
 		updateMouse();
 
@@ -158,6 +170,7 @@ struct Game::pimpl {
 	std::unique_ptr<flow::Fsm> m_fsm;
 	CallbackRegistry<> m_drawCallbacks;
 	Random m_random;
+	bool m_isWindowFocused{};
 };
 
 Game::Game() {
