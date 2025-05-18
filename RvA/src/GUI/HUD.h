@@ -139,4 +139,5 @@ private:
 	FadeScreen m_fadeScreen;
 	bool m_isAnyDefenderHovered{};
 	int m_hoveredDefenderIndex{};
+	float m_blinkingBatteryTime{};
 };

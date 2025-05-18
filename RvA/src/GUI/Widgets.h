@@ -158,6 +158,7 @@ struct UIImg {
 	std::optional<Vector2> size{};
 	std::variant<const SpriteInfo*, Animation> sprite{};
 	std::optional<int> spriteIndex;
+	Color color{WHITE};
 	HAlign hAlign{};
 	VAlign vAlign{};
 	Fit fit{};

@@ -182,6 +182,23 @@ void HUD::update(float dt) {
 
 	m_data.batteryChargeDiff = m_data.batteryCharge - m_data.prevBatteryCharge;
 	m_data.prevBatteryCharge = m_data.batteryCharge;
+
+	auto& batteryFill = m_screen->getImage(m_batteryFillHandle);
+	auto& batteryTip = m_screen->getImage(m_batteryTipHandle);
+	auto& batteryBottom = m_screen->getImage(m_batteryBottomHandle);
+	if (currentBatteryPerc < 0.5f && m_data.batteryChargeDiff <= 0) {
+		m_blinkingBatteryTime += dt;
+		auto t = (1 + sin(m_blinkingBatteryTime * (12 - currentBatteryPerc * 12))) * 0.5f;
+		auto color = ColorLerp(WHITE, RED, t);
+		batteryFill.color = color;
+		batteryTip.color = color;
+		batteryBottom.color = color;
+	} else {
+		m_blinkingBatteryTime = 0;
+		batteryFill.color = WHITE;
+		batteryTip.color = WHITE;
+		batteryBottom.color = WHITE;
+	}
 }
 
 void HUD::setVisible(bool visible) {

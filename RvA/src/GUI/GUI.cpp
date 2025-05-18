@@ -132,20 +132,26 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 						// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
 						for (int y = 0; y < node.finalRect.height; y += arg->frames[0].height) {
 							for (int x = 0; x < node.finalRect.width; x += arg->frames[0].width) {
-								m_atlas.drawSprite(arg, {node.finalRect.x + x, node.finalRect.y + y}, {(float)arg->frames[0].width, (float)arg->frames[0].height}, spriteIndex, image.flip);
+								m_atlas
+									.drawSprite(arg, {node.finalRect.x + x, node.finalRect.y + y}, {(float)arg->frames[0].width, (float)arg->frames[0].height}, spriteIndex, image.flip, image.color);
 							}
 						}
 						break;
 					}
 					case TextureFillMode::Stretch: {
-						m_atlas.drawSprite(arg, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, spriteIndex, image.flip);
+						m_atlas.drawSprite(arg, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, spriteIndex, image.flip, image.color);
 						break;
 					}
 					}
 				} else if constexpr (std::is_same_v<T, Animation>) {
 					Animation& animation = arg;
 					auto frame = animation.getSpriteInfo()->frames;
-					m_atlas.drawSprite(animation.getSpriteInfo(), {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, animation.getCurrentFrame(), image.flip);
+					m_atlas.drawSprite(animation.getSpriteInfo(),
+									   {node.finalRect.x, node.finalRect.y},
+									   {node.finalRect.width, node.finalRect.height},
+									   animation.getCurrentFrame(),
+									   image.flip,
+									   image.color);
 				} else {
 					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
 				}
