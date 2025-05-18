@@ -59,25 +59,14 @@ public:
 		return m_gameState;
 	}
 
-	auto& getCollisionSystem() {
-		return m_collisionSystem;
-	}
-
-	const auto& getDefenderManager() const {
-		return m_defenderManager;
-	}
-
-	const auto& getEnemyManager() const {
-		return m_enemyManager;
-	}
-
 	const auto& getCurrentLevel() const {
 		return *m_levelData;
 	}
 
 private:
 	void drawGrid();
-	void updateBatteryAndScraps(float scrapGain, float batteryDrain);
+	void updateBatteryAndScraps(float batteryDrain);
+	void updateEnabledDefendersStats();
 	void performDefenderSpawnOnInput();
 
 	void performActions(const GameActions& actions);
@@ -91,6 +80,8 @@ private:
 	void performAction(const MessageAction& action);
 	void performAction(const HUDAction& action);
 	void performAction(const DefenderPickerAction& action);
+	void performAction(const EnableDefenderAction& action);
+	void performAction(const UpdateValidCellAction& action);
 	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
@@ -141,4 +132,5 @@ private:
 	HUD m_hud;
 	bool m_demoMode{};
 	bool m_pauseGameplayLogic{};
+	float m_gridDrawTime{};
 };

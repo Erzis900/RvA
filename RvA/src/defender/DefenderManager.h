@@ -37,7 +37,6 @@ struct Defender {
 
 struct DefenderUpdateResult {
 	float amountOfBatteryDrain{};
-	float amountOfScrapsGain{};
 	GameActions actions;
 };
 
@@ -52,10 +51,11 @@ public:
 	const std::vector<std::unique_ptr<Defender>>& getDefenders() const;
 
 	void toggleDefender(int row, int column);
-	Defender* getDefender(int row, int column);
+	void enableDefender(Defender& defender);
+	void disableDefender(Defender& defender);
 	Defender& spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
-	bool hasDefender(int row, int column) const;
 	void setState(Defender& defender, DefenderState state);
+	bool hasDefender(int row, int column) const;
 
 	CallbackHandle onDefenderDestroyed(std::function<void(Defender&)> callback);
 

@@ -14,6 +14,7 @@ public:
 	DefenderPicker(Session& session, const GameRegistry& gameRegistry);
 
 	void reset();
+	void resetCooldowns();
 	void update(float dt);
 
 	const auto& getAvailableDefenders() const {

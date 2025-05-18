@@ -51,7 +51,7 @@ void Enemy::applyDamage(const Damage& damage) {
 	m_damageTakenAnimation.start(0, 1, 0.25f)
 		.onTick([this, position = m_position](const auto& value) {
 			m_tint = colorLerp(RED, WHITE, value);
-			if (m_latestDamageApplied.bounceBackPower != 0) {
+			if (m_hp > 0 && m_latestDamageApplied.bounceBackPower != 0) {
 				m_position = Vector2Add(position, Vector2Lerp({0, 0}, {m_latestDamageApplied.bounceBackPower, 0}, value));
 			}
 		})

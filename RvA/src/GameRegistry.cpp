@@ -4,8 +4,30 @@ void GameRegistry::addEnemy(std::string id, EnemyTypeInfo info) {
 	m_enemyRegistry.registerEnemyType(std::move(id), std::move(info));
 }
 
+void GameRegistry::addEnemyFromTemplate(const std::string& templateId, std::string id, std::function<void(EnemyTypeInfo&)> callback) {
+	auto enemyTypeInfo = m_enemyRegistry.getEnemyTypeInfo(templateId);
+	if (enemyTypeInfo) {
+		EnemyTypeInfo newEnemyTypeInfo = *enemyTypeInfo;
+		callback(newEnemyTypeInfo);
+		addEnemy(std::move(id), std::move(newEnemyTypeInfo));
+	} else {
+		assert(0 && "Enemy type not found");
+	}
+}
+
 void GameRegistry::addDefender(std::string id, DefenderTypeInfo info) {
 	m_defenderRegistry.registerDefender(std::move(id), std::move(info));
+}
+
+void GameRegistry::addDefenderFromTemplate(const std::string& templateId, std::string id, std::function<void(DefenderTypeInfo&)> callback) {
+	auto defenderTypeInfo = m_defenderRegistry.getDefenderInfo(templateId);
+	if (defenderTypeInfo) {
+		DefenderTypeInfo newDefenderTypeInfo = *defenderTypeInfo;
+		callback(newDefenderTypeInfo);
+		addDefender(std::move(id), std::move(newDefenderTypeInfo));
+	} else {
+		assert(0 && "Defender type not found");
+	}
 }
 
 void GameRegistry::addBullet(std::string id, BulletData info) {
@@ -16,13 +38,46 @@ void GameRegistry::addDrop(std::string id, DropTypeInfo info) {
 	m_dropRegistry.addDrop(std::move(id), std::move(info));
 }
 
+void GameRegistry::addDropFromTemplate(const std::string& templateId, std::string id, std::function<void(DropTypeInfo&)> callback) {
+	auto dropTypeInfo = m_dropRegistry.getDropType(templateId);
+	if (dropTypeInfo) {
+		DropTypeInfo newDropTypeInfo = *dropTypeInfo;
+		callback(newDropTypeInfo);
+		addDrop(std::move(id), std::move(newDropTypeInfo));
+	} else {
+		assert(0 && "Drop type not found");
+	}
+}
+
 void GameRegistry::addLevel(std::string id, LevelInfo info) {
 	info.id = id;
 	m_levelRegistry.registerLevel(std::move(id), std::move(info));
 }
 
+void GameRegistry::addLevelFromTemplate(const std::string& templateId, std::string id, std::function<void(LevelInfo&)> callback) {
+	auto levelInfo = m_levelRegistry.getLevel(templateId);
+	if (levelInfo) {
+		LevelInfo newLevelInfo = *levelInfo;
+		callback(newLevelInfo);
+		addLevel(std::move(id), std::move(newLevelInfo));
+	} else {
+		assert(0 && "Level type not found");
+	}
+}
+
 void GameRegistry::addPortal(std::string id, PortalTypeInfo info) {
 	m_portalRegistry.registerPortal(std::move(id), std::move(info));
+}
+
+void GameRegistry::addPortalFromTemplate(const std::string& templateId, std::string id, std::function<void(PortalTypeInfo&)> callback) {
+	auto portalTypeInfo = m_portalRegistry.getPortalInfo(templateId);
+	if (portalTypeInfo) {
+		PortalTypeInfo newPortalTypeInfo = *portalTypeInfo;
+		callback(newPortalTypeInfo);
+		addPortal(std::move(id), std::move(newPortalTypeInfo));
+	} else {
+		assert(0 && "Portal type not found");
+	}
 }
 
 const EnemyTypeInfo* GameRegistry::getEnemy(const std::string& id) const {

@@ -9,6 +9,12 @@ void DefenderPicker::reset() {
 	m_pickableItems.clear();
 }
 
+void DefenderPicker::resetCooldowns() {
+	for (auto& item : m_pickableItems) {
+		item.currentCooldown = 0.f;
+	}
+}
+
 void DefenderPicker::update(float dt) {
 	for (auto& item : m_pickableItems) {
 		item.currentCooldown -= dt;

@@ -72,6 +72,8 @@ struct HUDData {
 	bool showResources{};
 	bool showTimeline{};
 	bool showDefenderPicker{};
+	bool showDefenderOverlay{};
+	bool showPlate{};
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -80,7 +82,7 @@ struct HUDData {
 		int column{};
 	};
 
-	std::vector<OccupiedCell> occupiedCells;
+	std::function<bool(int, int)> isValidBuildCellCallback;
 };
 
 class HUD {
@@ -123,7 +125,9 @@ private:
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
+	WidgetHandle m_batteryTipHandle{};
 	WidgetHandle m_batteryFillHandle{};
+	WidgetHandle m_batteryBottomHandle{};
 	WidgetHandle m_batteryIndicatorHandle{};
 	WidgetHandle m_batteryStatIconHandle{};
 	WidgetHandle m_levelNameHandle{};

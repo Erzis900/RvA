@@ -11,14 +11,13 @@
  * For example what's the max number of HP or how much it cost, and so on.
  */
 struct DefenderTypeInfo {
-	DefenderType type{};
+	std::string id;
 	std::string name;
 	AnimationData spriteEnabled;
 	AnimationData spriteDisabled;
 	AnimationData spriteShoot;
 	AnimationData spriteDying;
 	float batteryDrain{};
-	float scrapsGain{};
 	float firstShootCooldown{};
 	float shootCooldown{};
 	int maxHP{};

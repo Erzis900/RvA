@@ -59,9 +59,9 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		.stack({
 			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
 			.size = Vec2{ 64, autoSize }, .pos = { 0, 10 }, .alignContent = ContentAlign::Center, .sideAlignContent = ContentAlign::Center })
-			.image({ .sprite = batteryTop })
+			.image({ .sprite = batteryTop }, &m_batteryTipHandle)
 			.image({ .size = Vector2{32, maxBatteryFill}, .sprite = batteryMiddle, .textureFillMode = TextureFillMode::Repeat }, &m_batteryFillHandle)
-			.image({ .sprite = batteryBottom })
+			.image({ .sprite = batteryBottom }, &m_batteryBottomHandle)
 		.end()
 		.stack({
 			.orientation = GUIOrientation::Vertical, .hAlign = HAlign::Left, .vAlign = VAlign::Bottom,
@@ -150,7 +150,7 @@ void HUD::update(float dt) {
 	batteryStatIcon.spriteIndex = static_cast<int>(std::round(currentBatteryPerc * 17.f));
 
 	auto& plateContainer = m_screen->getBorder(m_plateContainerHandle);
-	plateContainer.owner->visible = m_isAnyDefenderHovered;
+	plateContainer.owner->visible = m_isAnyDefenderHovered && m_data.showPlate;
 	if (m_isAnyDefenderHovered) {
 		auto& defender = m_data.pickableDefenders[m_hoveredDefenderIndex];
 		auto& plateText = m_screen->getText(m_plateTextHandle);
@@ -203,7 +203,6 @@ void HUD::clear() {
 	m_data.showMessage = false;
 	m_data.messageTime = 0;
 	m_data.numberOfEnemiesDefeated = 0;
-	m_data.occupiedCells.clear();
 	m_data.levelName = "";
 	m_isAnyDefenderHovered = false;
 	m_hoveredDefenderIndex = 0;
@@ -310,8 +309,8 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		auto position = getSnappedPosition(mousePos);
 
 		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
-			const bool isOccupied = std::ranges::any_of(m_data.occupiedCells, [row, column](const auto& cell) { return cell.row == row && cell.column == column; });
-			DrawRectangleRec({position.x, position.y, CELL_SIZE, CELL_SIZE}, isOccupied ? Fade(RED, 0.5f) : Fade(SKYBLUE, 0.5f));
+			const bool isValid = m_data.isValidBuildCellCallback(row, column);
+			DrawRectangleRec({position.x, position.y, CELL_SIZE, CELL_SIZE}, isValid ? Fade(SKYBLUE, 0.5f) : Fade(RED, 0.5f));
 		}
 
 		position = Vector2Add(mousePos, {-defenderSize * 0.7f, -defenderSize * 0.7f});
@@ -377,54 +376,59 @@ void HUD::drawMessage(Atlas& atlas) {
 }
 
 void HUD::drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds) {
-	for (auto& deployedDefender : m_data.deployedDefenders) {
-		auto pos = deployedDefender.position;
+	if (m_data.showDefenderOverlay) {
+		for (auto& deployedDefender : m_data.deployedDefenders) {
+			auto pos = deployedDefender.position;
 
-		auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
-		if (m_isEnabled && CheckCollisionPointRec(GetMousePosition(), frameRect)) {
-			auto width = 5.f;
-			auto height = 5.f;
-			auto upHeight = 4.f;
-			auto side = height - upHeight;
-			auto bkgPadding = 1.f;
+			auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
+			if (m_isEnabled && CheckCollisionPointRec(GetMousePosition(), frameRect)) {
+				auto width = 5.f;
+				auto height = 5.f;
+				auto upHeight = 4.f;
+				auto side = height - upHeight;
+				auto bkgPadding = 1.f;
 
-			auto alignRect =
-				LayoutHelper::arrangePositionAndSize({-width, 0}, {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1}, {pos.x, pos.y, defenderSize, defenderSize}, HAlign::Left, VAlign::Center);
-			pos = {alignRect.x, alignRect.y};
-			auto isEnabled = deployedDefender.state != DefenderState::Off;
+				auto alignRect = LayoutHelper::arrangePositionAndSize({-width, 0},
+																	  {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1},
+																	  {pos.x, pos.y, defenderSize, defenderSize},
+																	  HAlign::Left,
+																	  VAlign::Center);
+				pos = {alignRect.x, alignRect.y};
+				auto isEnabled = deployedDefender.state != DefenderState::Off;
 
-			DrawRectangleV(Vector2Add(pos, {-bkgPadding, -bkgPadding}), {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1}, Fade(BLACK, 1.0f));
+				DrawRectangleV(Vector2Add(pos, {-bkgPadding, -bkgPadding}), {width + bkgPadding * 2, height * 2 + bkgPadding * 2 + 1}, Fade(BLACK, 1.0f));
 
-			constexpr bool drawSymbols = false;
-			auto line = Rectangle{};
-			auto circle = Rectangle{};
-			if (isEnabled) {
-				line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2}, {pos.x, pos.y, width, height}, HAlign::Center, VAlign::Center);
-				circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2 - 2}, {pos.x, pos.y + height, width, upHeight}, HAlign::Center, VAlign::Center);
+				constexpr bool drawSymbols = false;
+				auto line = Rectangle{};
+				auto circle = Rectangle{};
+				if (isEnabled) {
+					line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2}, {pos.x, pos.y, width, height}, HAlign::Center, VAlign::Center);
+					circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2 - 2}, {pos.x, pos.y + height, width, upHeight}, HAlign::Center, VAlign::Center);
 
-				DrawRectangleV(pos, {width, height}, DARKGREEN);
+					DrawRectangleV(pos, {width, height}, DARKGREEN);
 
-				DrawRectangleV(Vector2Add(pos, {0, height}), {width, upHeight}, GREEN);
-				DrawRectangleV(Vector2Add(pos, {0, height + upHeight}), {width, 1}, LIGHTGRAY);
-				DrawRectangleV(Vector2Add(pos, {0, height + upHeight + 1}), {width, side}, DARKGREEN);
-			} else {
-				line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2 - 2}, {pos.x, pos.y + side + 1, width, upHeight}, HAlign::Center, VAlign::Center);
-				circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2}, {pos.x, pos.y + upHeight + side + 1, width, height}, HAlign::Center, VAlign::Center);
+					DrawRectangleV(Vector2Add(pos, {0, height}), {width, upHeight}, GREEN);
+					DrawRectangleV(Vector2Add(pos, {0, height + upHeight}), {width, 1}, LIGHTGRAY);
+					DrawRectangleV(Vector2Add(pos, {0, height + upHeight + 1}), {width, side}, DARKGREEN);
+				} else {
+					line = LayoutHelper::arrangePositionAndSize({}, {1.f, height / 2 - 2}, {pos.x, pos.y + side + 1, width, upHeight}, HAlign::Center, VAlign::Center);
+					circle = LayoutHelper::arrangePositionAndSize({1, 0}, {height / 2, height / 2}, {pos.x, pos.y + upHeight + side + 1, width, height}, HAlign::Center, VAlign::Center);
 
-				// Define a Light Red color and a dark red color
-				auto lightRed = Color{255, 100, 100, 255};
-				auto darkRed = Color{150, 0, 0, 255};
+					// Define a Light Red color and a dark red color
+					auto lightRed = Color{255, 100, 100, 255};
+					auto darkRed = Color{150, 0, 0, 255};
 
-				DrawRectangleV(pos, {width, side}, lightRed);
-				DrawRectangleV(Vector2Add(pos, {0, side}), {width, 1}, LIGHTGRAY);
-				DrawRectangleV(Vector2Add(pos, {0, side + 1}), {width, upHeight}, darkRed);
+					DrawRectangleV(pos, {width, side}, lightRed);
+					DrawRectangleV(Vector2Add(pos, {0, side}), {width, 1}, LIGHTGRAY);
+					DrawRectangleV(Vector2Add(pos, {0, side + 1}), {width, upHeight}, darkRed);
 
-				DrawRectangleV(Vector2Add(pos, {0, side + upHeight + 1}), {width, height}, lightRed);
-			}
+					DrawRectangleV(Vector2Add(pos, {0, side + upHeight + 1}), {width, height}, lightRed);
+				}
 
-			if constexpr (drawSymbols) {
-				DrawRectangleRec(line, WHITE);
-				DrawEllipseLines(circle.x + circle.width / 2, circle.y + circle.height / 2, circle.width / 2, circle.height / 2, WHITE);
+				if constexpr (drawSymbols) {
+					DrawRectangleRec(line, WHITE);
+					DrawEllipseLines(circle.x + circle.width / 2, circle.y + circle.height / 2, circle.width / 2, circle.height / 2, WHITE);
+				}
 			}
 		}
 	}

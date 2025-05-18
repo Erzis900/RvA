@@ -62,6 +62,10 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 	}
 }
 
+bool DefenderManager::hasDefender(int row, int column) const {
+	return m_defenderGrid[row][column] != nullptr;
+}
+
 DefenderUpdateResult DefenderManager::update(float dt) {
 	m_updateResult = {};
 	for (auto it = m_defenders.begin(); it != m_defenders.end();) {
@@ -74,14 +78,6 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 		defender->animation.update(dt);
 		if (defender->state != DefenderState::Off) {
 			m_updateResult.amountOfBatteryDrain += dt * defender->info->batteryDrain;
-
-			if (defender->info->scrapsGain != 0) {
-				defender->scrapsGainTime += dt;
-				if (defender->scrapsGainTime > 1.f) {
-					defender->scrapsGainTime = 0;
-					m_updateResult.amountOfScrapsGain += defender->info->scrapsGain;
-				}
-			}
 
 			if (defender->info->bulletType) {
 				switch (defender->state) {
@@ -146,20 +142,34 @@ Defender& DefenderManager::spawnDefender(const DefenderTypeInfo* defenderTypeInf
 }
 
 void DefenderManager::toggleDefender(int row, int column) {
-	auto defender = m_defenderGrid[row][column];
-	if (defender && defender->state != DefenderState::Dying && defender->state != DefenderState::Dead) {
-		setState(*defender, defender->state != DefenderState::Off ? DefenderState::Off : DefenderState::On);
-		m_musicManager.playSound("switch");
+	auto* defender = m_defenderGrid[row][column];
+	if (!defender) {
+		return;
+	}
+
+	if (defender->state == DefenderState::Off) {
+		enableDefender(*defender);
+	} else if (defender->state != DefenderState::Off) {
+		disableDefender(*defender);
 	}
 }
 
-Defender* DefenderManager::getDefender(int row, int column) {
-	return m_defenderGrid[row][column];
+void DefenderManager::enableDefender(Defender& defender) {
+	if (defender.state != DefenderState::Dying && defender.state != DefenderState::Dead) {
+		if (defender.state == DefenderState::Off) {
+			setState(defender, DefenderState::On);
+			m_musicManager.playSound("switch");
+		}
+	}
 }
 
-bool DefenderManager::hasDefender(int row, int column) const {
-	auto defender = m_defenderGrid[row][column];
-	return defender != nullptr;
+void DefenderManager::disableDefender(Defender& defender) {
+	if (defender.state != DefenderState::Dying && defender.state != DefenderState::Dead) {
+		if (defender.state != DefenderState::Off) {
+			setState(defender, DefenderState::Off);
+			m_musicManager.playSound("switch");
+		}
+	}
 }
 
 CallbackHandle DefenderManager::onDefenderDestroyed(std::function<void(Defender&)> callback) {

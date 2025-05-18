@@ -1,6 +1,7 @@
 #include "DefenderTypeRegistry.h"
 
 void DefenderTypeRegistry::registerDefender(std::string id, DefenderTypeInfo defenderTypeInfo) {
+	defenderTypeInfo.id = id;
 	m_defenderTypes.insert({std::move(id), std::move(defenderTypeInfo)});
 }
 

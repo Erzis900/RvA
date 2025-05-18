@@ -35,6 +35,12 @@ struct SpawnEntityBurstOperation {
 	EntityType type{EntityType::Enemy};
 };
 
+struct EnableDefenderOperation {
+	bool enable{};
+	ConfigValue<int> targetIndex{};
+	ConfigValue<std::string> targetId{};
+};
+
 struct MessageOperation {
 	std::string text{};
 	float fontSize{FONT_SMALL};
@@ -61,6 +67,10 @@ enum class HUDOperationType {
 	HideDefenderPicker,
 	ShowTimeline,
 	HideTimeline,
+	HidePlate,
+	ShowPlate,
+	HideDefenderOverlay,
+	ShowDefenderOverlay,
 };
 
 struct HUDOperation {
@@ -81,7 +91,25 @@ struct FlagTimelineOperation {
 	std::string icon{};
 };
 
-using KeyframeOperation = std::variant<SpawnEntityOperation, SpawnEntityBurstOperation, MessageOperation, HUDOperation, DefenderPickerOperation, CheckOperation, FlagTimelineOperation>;
+struct CellPosition {
+	ConfigValue<int> row{};
+	ConfigValue<int> column{};
+};
+
+struct UpdateValidCellOperation {
+	bool clearAll{};
+	std::vector<CellPosition> cells{};
+};
+
+using KeyframeOperation = std::variant<SpawnEntityOperation,
+									   SpawnEntityBurstOperation,
+									   MessageOperation,
+									   HUDOperation,
+									   DefenderPickerOperation,
+									   CheckOperation,
+									   FlagTimelineOperation,
+									   EnableDefenderOperation,
+									   UpdateValidCellOperation>;
 
 struct Keyframe {
 	float time;

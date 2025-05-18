@@ -50,8 +50,24 @@ void Session::drawGrid() {
 	}
 
 	DrawLineEx({GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y}, {GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y + rowCount * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
-
 	DrawLineEx({GRID_OFFSET.x, GRID_OFFSET.y + rowCount * CELL_SIZE}, {GRID_OFFSET.x + columnCount * CELL_SIZE, GRID_OFFSET.y + rowCount * CELL_SIZE}, 1, Fade(BLACK, 0.1f));
+
+	if (m_selectedDefender) {
+		auto y = 0;
+		for (auto& row : m_levelData->validBuildingCells) {
+			auto x = 0;
+			for (auto& isValid : row) {
+				auto rect = Rectangle{(float)x * CELL_SIZE, (float)y * CELL_SIZE, CELL_SIZE, CELL_SIZE};
+				rect.x += GRID_OFFSET.x + 2;
+				rect.y += GRID_OFFSET.y + 2;
+				rect.width -= 4;
+				rect.height -= 4;
+				DrawRectangleRec(rect, Fade(isValid ? SKYBLUE : RED, 0.1f + ((1 + sin(m_gridDrawTime * 2.5)) * 0.125f)));
+				++x;
+			}
+			++y;
+		}
+	}
 }
 
 void Session::update(float dt) {
@@ -67,13 +83,15 @@ void Session::update(float dt) {
 		auto result = m_defenderManager.update(dt);
 		performActions(result.actions);
 
-		updateBatteryAndScraps(result.amountOfScrapsGain, result.amountOfBatteryDrain);
+		updateBatteryAndScraps(result.amountOfBatteryDrain);
 
 		m_bulletManager.update(dt);
 		m_dropManager.update(dt);
 		m_defenderPicker.update(dt);
 		m_levelManager.update(dt);
 		m_portalManager.update(dt);
+
+		m_gridDrawTime += dt;
 	}
 
 	if (DEV_MODE) {
@@ -106,11 +124,15 @@ void Session::update(float dt) {
 		if (IsKeyPressed(KEY_F)) {
 			// super hacky way to achieve this and it works only with integer multipliers.
 			const std::array speeds = {1, 2, 3, 4, 5};
-			int index = m_levelData->gameSpeed;
+			int index = static_cast<int>(m_levelData->gameSpeed);
 			if (index >= speeds.size()) {
 				index = 0;
 			}
 			m_levelData->gameSpeed = static_cast<float>(speeds[index]);
+		}
+
+		if (IsKeyPressed(KEY_F1)) {
+			m_collisionSystem.toggleDebugView();
 		}
 	}
 
@@ -142,10 +164,25 @@ void Session::setSelectedDefender(const std::optional<std::string>& id) {
 	m_selectedDefender = id;
 }
 
-void Session::updateBatteryAndScraps(float scrapGain, float batteryDrain) {
-	m_levelData->scraps += scrapGain;
+void Session::updateBatteryAndScraps(float batteryDrain) {
 	m_levelData->batteryCharge -= batteryDrain;
 	m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
+}
+
+void Session::updateEnabledDefendersStats() {
+	m_levelData->numberOfEnabledDefenders = 0;
+	m_levelData->enabledDefenders.clear();
+	for (auto& defender : m_defenderManager.getDefenders()) {
+		if (defender->state != DefenderState::Off) {
+			m_levelData->numberOfEnabledDefenders++;
+			auto itr = m_levelData->enabledDefenders.find(defender->info->id);
+			if (itr == m_levelData->enabledDefenders.end()) {
+				m_levelData->enabledDefenders[defender->info->id] = 1;
+			} else {
+				itr->second++;
+			}
+		}
+	}
 }
 
 void Session::performDefenderSpawnOnInput() {
@@ -159,17 +196,17 @@ void Session::performDefenderSpawnOnInput() {
 					if (canPlaceDefender(row, column)) {
 						auto defenderInfo = m_gameRegistry.getDefender(*m_selectedDefender);
 						if (defenderInfo && canAffordCost(defenderInfo->cost)) {
-							m_defenderManager.spawnDefender(defenderInfo, row, column);
+							auto& defender = m_defenderManager.spawnDefender(defenderInfo, row, column);
 							m_levelData->scraps -= defenderInfo->cost;
 							m_defenderPicker.startCooldown(*m_selectedDefender);
-							m_levelData->numberOfEnabledDefenders++;
+							m_levelData->validBuildingCells[defender.row][defender.column] = false;
+							updateEnabledDefendersStats();
 							resetSelectedDefender();
-							m_hud.data().occupiedCells.emplace_back(row, column);
 						}
 					}
 				} else if (!canPlaceDefender(row, column)) {
 					m_defenderManager.toggleDefender(row, column);
-					m_levelData->numberOfEnabledDefenders += m_defenderManager.getDefender(row, column)->state == DefenderState::Off ? -1 : 1;
+					updateEnabledDefendersStats();
 				}
 			}
 		}
@@ -207,9 +244,10 @@ void Session::performAction(const DefenderSpawnAction& action) {
 	auto defenderInfo = m_gameRegistry.getDefender(action.id);
 	if (defenderInfo) {
 		auto& defender = m_defenderManager.spawnDefender(defenderInfo, action.row, action.column);
+		m_levelData->validBuildingCells[defender.row][defender.column] = false;
 		if (action.isEnabled) {
 			m_defenderManager.setState(defender, DefenderState::On);
-			m_levelData->numberOfEnabledDefenders++;
+			updateEnabledDefendersStats();
 		} else {
 			m_defenderManager.setState(defender, DefenderState::Off);
 		}
@@ -247,14 +285,18 @@ void Session::performAction(const MessageAction& action) {
 
 void Session::performAction(const HUDAction& action) {
 	switch (action.type) {
-	case HUDOperationType::Enable			 : m_hud.setEnable(true); break;
-	case HUDOperationType::Disable			 : m_hud.setEnable(false); break;
-	case HUDOperationType::ShowResources	 : m_hud.data().showResources = true; break;
-	case HUDOperationType::HideResources	 : m_hud.data().showResources = false; break;
-	case HUDOperationType::ShowDefenderPicker: m_hud.data().showDefenderPicker = true; break;
-	case HUDOperationType::HideDefenderPicker: m_hud.data().showDefenderPicker = false; break;
-	case HUDOperationType::ShowTimeline		 : m_hud.data().showTimeline = true; break;
-	case HUDOperationType::HideTimeline		 : m_hud.data().showTimeline = false; break;
+	case HUDOperationType::Enable			  : m_hud.setEnable(true); break;
+	case HUDOperationType::Disable			  : m_hud.setEnable(false); break;
+	case HUDOperationType::ShowResources	  : m_hud.data().showResources = true; break;
+	case HUDOperationType::HideResources	  : m_hud.data().showResources = false; break;
+	case HUDOperationType::ShowDefenderPicker : m_hud.data().showDefenderPicker = true; break;
+	case HUDOperationType::HideDefenderPicker : m_hud.data().showDefenderPicker = false; break;
+	case HUDOperationType::ShowTimeline		  : m_hud.data().showTimeline = true; break;
+	case HUDOperationType::HideTimeline		  : m_hud.data().showTimeline = false; break;
+	case HUDOperationType::ShowPlate		  : m_hud.data().showPlate = true; break;
+	case HUDOperationType::HidePlate		  : m_hud.data().showPlate = false; break;
+	case HUDOperationType::ShowDefenderOverlay: m_hud.data().showDefenderOverlay = true; break;
+	case HUDOperationType::HideDefenderOverlay: m_hud.data().showDefenderOverlay = false; break;
 	}
 }
 
@@ -264,6 +306,54 @@ void Session::performAction(const DefenderPickerAction& action) {
 	case DefenderPickerOperationType::Reset	 : m_defenderPicker.reset(); break;
 	}
 	refreshHUDDefenderPickerData();
+}
+
+void Session::performAction(const EnableDefenderAction& action) {
+	auto* defenderInfo = m_gameRegistry.getDefender(action.targetId.generate());
+	auto targetIndex = action.targetIndex.generate();
+	if (defenderInfo) {
+		auto index = 0;
+		for (auto& defender : m_defenderManager.getDefenders()) {
+			if (defender->info->id == defenderInfo->id) {
+				if (targetIndex == index) {
+					if (action.enable) {
+						m_defenderManager.enableDefender(*defender);
+					} else {
+						m_defenderManager.disableDefender(*defender);
+					}
+					updateEnabledDefendersStats();
+					break;
+				}
+				++index;
+			}
+		}
+	}
+}
+
+void Session::performAction(const UpdateValidCellAction& action) {
+	if (!m_levelData) {
+		return;
+	}
+
+	for (auto& row : m_levelData->validBuildingCells) {
+		for (auto& cell : row) {
+			cell = action.clearAll;
+		}
+	}
+
+	for (auto& [configRow, configColumn] : action.cells) {
+		auto row = configRow.generate();
+		auto column = configColumn.generate();
+		m_levelData->validBuildingCells[row][column] = true;
+	}
+
+	for (auto row = 0; row < ROWS; ++row) {
+		for (auto col = 0; col < COLS; ++col) {
+			if (m_defenderManager.hasDefender(row, col)) {
+				m_levelData->validBuildingCells[row][col] = false;
+			}
+		}
+	}
 }
 
 void Session::performAction(const std::monostate& action) {
@@ -281,7 +371,7 @@ bool Session::canAffordCost(int cost) const {
 }
 
 bool Session::canPlaceDefender(int x, int y) const {
-	return !m_defenderManager.hasDefender(x, y);
+	return m_levelData->validBuildingCells[x][y];
 }
 
 void Session::setupHUD() {
@@ -293,6 +383,7 @@ void Session::setupHUD() {
 	hudData.showDefenderPicker = !m_demoMode;
 	hudData.showResources = !m_demoMode;
 	hudData.showTimeline = !m_demoMode;
+	hudData.isValidBuildCellCallback = [this](int row, int column) { return m_levelData->validBuildingCells[row][column]; };
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().pickableDefenders[index].id); });
 
 	hudData.timelineData.duration = m_levelData->info->timeline.keyframes.back().time;
@@ -421,7 +512,7 @@ void Session::startNextLevel() {
 	if (m_levelManager.getCurrentLevel().info && m_levelManager.getCurrentLevel().info->id == "tutorial") {
 		m_config.options.isTutorialEnabled = false;
 	}
-
+	m_defenderPicker.resetCooldowns();
 	m_pauseGameplayLogic = false;
 	m_hud.clear();
 	m_hud.setEnable(!m_demoMode);
@@ -474,7 +565,7 @@ void Session::updateHUD(float dt) {
 	// TODO(Gerark) - Not very optimal but we'll see if it's going to ever be a bottleneck.
 	hudData.progressBars.clear();
 	hudData.deployedDefenders.clear();
-	for (auto& defender : getDefenderManager().getDefenders()) {
+	for (auto& defender : m_defenderManager.getDefenders()) {
 		if (defender->state == DefenderState::Dying || defender->state == DefenderState::Dead) {
 			continue;
 		}
@@ -482,7 +573,7 @@ void Session::updateHUD(float dt) {
 		hudData.deployedDefenders.emplace_back(defender->state, defender->position);
 	}
 
-	for (auto& enemy : getEnemyManager().getEnemies()) {
+	for (auto& enemy : m_enemyManager.getEnemies()) {
 		if (enemy->isDying()) {
 			continue;
 		}
@@ -532,10 +623,10 @@ void Session::onEnemiesDestroyed(const std::vector<EnemyDestroyedInfo>& enemies)
 }
 
 void Session::onDefenderDestroyed(Defender& defender) {
-	std::erase_if(m_hud.data().occupiedCells, [&](const auto& cell) { return cell.row == defender.row && cell.column == defender.column; });
 	if (defender.state == DefenderState::On) {
-		m_levelData->numberOfEnabledDefenders--;
+		updateEnabledDefendersStats();
 	}
+	m_levelData->validBuildingCells[defender.row][defender.column] = true;
 }
 
 void Session::onDropCollected(const std::vector<CollectedDrop>& collectedDrops) {

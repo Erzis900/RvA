@@ -7,6 +7,7 @@ LevelManager::LevelManager(const GameRegistry& gameRegistry) : m_gameRegistry(ga
 void LevelManager::resetCurrentLevelIndex() {
 	m_currentLevelIndex.reset();
 	m_currentLevel = {};
+	m_currentCheckOperation = nullptr;
 }
 
 LevelData* LevelManager::startNextLevel() {
@@ -17,15 +18,15 @@ LevelData* LevelManager::startNextLevel() {
 	}
 
 	m_lastKeyframeReached = false;
-	m_currentLevel.time = 0.f;
-	m_currentLevel.nextKeyframe = 0;
+	m_currentLevel = {};
 	m_currentLevel.info = m_gameRegistry.getLevel(m_levelSequence[*m_currentLevelIndex]);
 	m_currentLevel.scraps = m_currentLevel.info->startingScraps;
 	m_currentLevel.batteryCharge = m_currentLevel.info->maxBatteryCharge;
-	m_currentLevel.enemyCount = 0;
-	m_currentLevel.isWinningCountdownActive = false;
-	m_currentLevel.countdownToWin = 0.f;
+	for (auto& row : m_currentLevel.validBuildingCells) {
+		row.fill(true);
+	}
 	m_spawnBurstTrackers.clear();
+	m_currentCheckOperation = nullptr;
 	return &m_currentLevel;
 }
 
@@ -127,6 +128,14 @@ void LevelManager::performKeyframeOperation(const CheckOperation& operation) {
 
 void LevelManager::performKeyframeOperation(const FlagTimelineOperation& operation) {
 	// This operation is here just to be displayed in the timeline HUD. We might want to perform some code if we want to spice things up in the UI but we're fine for now
+}
+
+void LevelManager::performKeyframeOperation(const EnableDefenderOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(operation);
+}
+
+void LevelManager::performKeyframeOperation(const UpdateValidCellOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(operation);
 }
 
 void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type, bool enabled) {

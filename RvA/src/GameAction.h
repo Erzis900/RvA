@@ -40,9 +40,21 @@ struct LoseAction {};
 using MessageAction = MessageOperation;
 using HUDAction = HUDOperation;
 using DefenderPickerAction = DefenderPickerOperation;
+using EnableDefenderAction = EnableDefenderOperation;
+using UpdateValidCellAction = UpdateValidCellOperation;
 
-using GameActionVariant =
-	std::variant<std::monostate, BulletSpawnAction, EnemySpawnAction, DefenderSpawnAction, PortalSpawnAction, WinAction, LoseAction, MessageAction, HUDAction, DefenderPickerAction>;
+using GameActionVariant = std::variant<std::monostate,
+									   BulletSpawnAction,
+									   EnemySpawnAction,
+									   DefenderSpawnAction,
+									   PortalSpawnAction,
+									   WinAction,
+									   LoseAction,
+									   MessageAction,
+									   HUDAction,
+									   DefenderPickerAction,
+									   EnableDefenderAction,
+									   UpdateValidCellAction>;
 
 struct [[nodiscard]] GameAction : public GameActionVariant {
 	using GameActionVariant::variant;

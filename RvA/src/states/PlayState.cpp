@@ -24,12 +24,6 @@ flow::FsmAction PlayState::update(float dt) {
 	case SessionState::Lost: return flow::FsmAction::transition("lost");
 	}
 
-	if constexpr (DEV_MODE) {
-		if (IsKeyPressed(KEY_F1)) {
-			session.getCollisionSystem().toggleDebugView();
-		}
-	}
-
 	if (IsKeyPressed(KEY_ESCAPE)) {
 		return flow::FsmAction::transition("pause");
 	}
