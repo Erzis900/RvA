@@ -8,13 +8,13 @@ MusicManager::MusicManager(Config& config, ResourceSystem& resourceSystem) : m_c
 
 void MusicManager::playMusic(const std::string& name) {
 	if (m_config.options.isMusicEnabled) {
-		Music& music = m_resourceSystem.getMusic(name);
+		Music* music = m_resourceSystem.getMusic(name);
 
-		if (!IsMusicStreamPlaying(music)) {
+		if (music && !IsMusicStreamPlaying(*music)) {
 			if (m_currentMusic) {
 				StopMusicStream(*m_currentMusic);
 			}
-			m_currentMusic = music;
+			m_currentMusic = *music;
 			PlayMusicStream(*m_currentMusic);
 		}
 	}
@@ -22,9 +22,10 @@ void MusicManager::playMusic(const std::string& name) {
 
 void MusicManager::playSound(const std::string& name) {
 	if (m_config.options.isSoundEnabled) {
-		Sound& sound = m_resourceSystem.getSound(name);
-
-		PlaySound(sound);
+		Sound* sound = m_resourceSystem.getSound(name);
+		if (sound) {
+			PlaySound(*sound);
+		}
 	}
 }
 

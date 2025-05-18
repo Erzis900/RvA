@@ -1,12 +1,14 @@
 #include "Session.h"
 
 #include "GameRegistry.h"
+#include "MusicManager.h"
 
 #include <ranges>
 #include <raymath.h>
 
 Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& gameRegistry, Config& config, MusicManager& musicManager)
 	: m_gameRegistry(gameRegistry)
+	, m_musicManager(musicManager)
 	, m_config(config)
 	, m_defenderManager(m_collisionSystem, musicManager)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem, musicManager)
@@ -525,6 +527,7 @@ void Session::startNextLevel() {
 	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 	setupHUD();
+	m_musicManager.playMusic(m_levelData->info->musicId);
 	setState(SessionState::Playing);
 }
 

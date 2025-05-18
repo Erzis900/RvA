@@ -2,7 +2,8 @@
 
 void ResourceSystem::loadResources() {
 	addMusic("menu", LoadMusicStream("sfx/menu.wav"));
-	addMusic("game", LoadMusicStream("sfx/robots leaking.wav"));
+	addMusic("level1", LoadMusicStream("sfx/game.mp3"));
+	addMusic("level2", LoadMusicStream("sfx/robots leaking.wav"));
 	addMusic("lost", LoadMusicStream("sfx/lost.mp3"));
 
 	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.2f);
@@ -28,25 +29,28 @@ void ResourceSystem::unloadResources() {
 	m_sounds.clear();
 }
 
-Shader& ResourceSystem::getShader(const std::string& id) {
+Shader* ResourceSystem::getShader(const std::string& id) {
 	auto it = m_shaders.find(id);
 	if (it != m_shaders.end()) {
-		return it->second;
+		return &it->second;
 	}
+	return nullptr;
 }
 
-Music& ResourceSystem::getMusic(const std::string& id) {
+Music* ResourceSystem::getMusic(const std::string& id) {
 	auto it = m_musics.find(id);
 	if (it != m_musics.end()) {
-		return it->second;
+		return &it->second;
 	}
+	return nullptr;
 }
 
-Sound& ResourceSystem::getSound(const std::string& id) {
+Sound* ResourceSystem::getSound(const std::string& id) {
 	auto it = m_sounds.find(id);
 	if (it != m_sounds.end()) {
-		return it->second;
+		return &it->second;
 	}
+	return nullptr;
 }
 
 void ResourceSystem::addShader(std::string id, Shader shader) {

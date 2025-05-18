@@ -120,6 +120,7 @@ private:
 	CallbackHandle m_onLevelManagerActionHandle;
 
 	const GameRegistry& m_gameRegistry;
+	MusicManager& m_musicManager;
 	Config& m_config;
 	CollisionSystem m_collisionSystem;
 	DefenderManager m_defenderManager;

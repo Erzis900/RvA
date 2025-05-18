@@ -131,6 +131,7 @@ using LevelCondition = std::variant<BatteryLevelCondition, AllWavesGoneCondition
 struct LevelInfo {
 	std::string id;
 	std::string name;
+	std::string musicId;
 	int startingScraps{};
 	float maxBatteryCharge{};
 	float winCountdownDuration{};

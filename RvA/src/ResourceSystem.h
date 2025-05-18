@@ -9,9 +9,9 @@ public:
 	void loadResources();
 	void unloadResources();
 
-	Shader& getShader(const std::string& id);
-	Music& getMusic(const std::string& id);
-	Sound& getSound(const std::string& id);
+	Shader* getShader(const std::string& id);
+	Music* getMusic(const std::string& id);
+	Sound* getSound(const std::string& id);
 
 private:
 	void addShader(std::string id, Shader shader);

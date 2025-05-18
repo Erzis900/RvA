@@ -45,6 +45,7 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	gameRegistry.addLevel("level1",
 						  {
 							  .name = "Level 1",
+							  .musicId = "level1",
 							  .startingScraps = 100,
 							  .maxBatteryCharge = MAX_BATTERY_CHARGE,
 							  .winCountdownDuration = 2.f,
@@ -88,6 +89,7 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	gameRegistry.addLevel("level2",
 						  {
 							  .name = "Level 2",
+							  .musicId = "level1",
 							  .startingScraps = 100,
 							  .maxBatteryCharge = MAX_BATTERY_CHARGE,
 							  .winCountdownDuration = 2.f,
@@ -134,6 +136,7 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	gameRegistry.addLevel("level3",
 						  {
 							  .name = "Hello",
+							  .musicId = "level1",
 							  .startingScraps = 100,
 							  .maxBatteryCharge = 10000,
 							  .winCountdownDuration = 2.f,
@@ -207,6 +210,7 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	auto defenderSelection = EntitySelection{{"Solarpanel", 0.25f}, {"Lasertron", 0.25f}, {"Catapult", 0.25f}, {"Shooter", 0.25f}};
 	gameRegistry.addLevel("demoLevel",
 						  {.name = "",
+						   .musicId = "level1",
 						   .startingScraps = 900,
 						   .maxBatteryCharge = 1000,
 						   .winCountdownDuration = 2.f,
@@ -246,6 +250,7 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 		"tutorial",
 		{
 			.name = "Tutorial",
+			.musicId = "level2",
 			.startingScraps = 20,
 			.maxBatteryCharge = 100,
 			.winCountdownDuration = 2.f,
@@ -421,6 +426,7 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 		"raylibDemo",
 		{
 			.name = "",
+			.musicId = "level2",
 			.startingScraps = 200,
 			.maxBatteryCharge = 100,
 			.winCountdownDuration = 2.f,

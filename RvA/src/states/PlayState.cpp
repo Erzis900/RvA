@@ -2,15 +2,11 @@
 
 #include "GUI/GUI.h"
 #include "Game.h"
-#include "MusicManager.h"
 #include "Session.h"
-#include "constants.h"
 
 PlayState::PlayState(Game& game) : m_game(game) {}
 
 flow::FsmAction PlayState::enter() {
-	m_game.getMusicManager().playMusic("game");
-
 	return flow::FsmAction::none();
 }
 
