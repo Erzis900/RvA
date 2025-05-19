@@ -1,14 +1,16 @@
 #include "ResourceSystem.h"
 
 void ResourceSystem::loadResources() {
+	// I will convert from wav to mp3 in the end once everything is finalized
 	addMusic("menu", LoadMusicStream("audio/music/menu.wav"));
-	addMusic("level1", LoadMusicStream("audio/music/game.mp3"));
-	addMusic("level2", LoadMusicStream("audio/music/robots leaking.wav"));
+	addMusic("level1", LoadMusicStream("audio/music/level1.mp3"));
+	addMusic("level2", LoadMusicStream("audio/music/level2.wav"));
 	addMusic("lost", LoadMusicStream("audio/music/lost.mp3"));
 
-	addSound("button_click", LoadSound("audio/sfx/buttonClick.wav"), 0.2f);
-	addSound("laser_shoot", LoadSound("audio/sfx/laserShoot.wav"), 0.2f);
-	addSound("alien_death", LoadSound("audio/sfx/alienDeath.wav"), 0.4f);
+	addSound("button_click", LoadSound("audio/sfx/button_click.wav"), 0.2f);
+	addSound("button_hover", LoadSound("audio/sfx/button_hover.wav"), 1.f);
+	addSound("laser_shoot", LoadSound("audio/sfx/laser_shoot.wav"), 0.2f);
+	addSound("alien_death", LoadSound("audio/sfx/alien_death.wav"), 0.4f);
 	addSound("switch", LoadSound("audio/sfx/switch.wav"), 0.4f);
 }
 
