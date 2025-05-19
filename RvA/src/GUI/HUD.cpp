@@ -458,18 +458,18 @@ void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
 
 	auto pos = Vector2{bounds.x, bounds.y};
 	auto* timelineSide = m_gui.getAtlas().getSpriteInfo("ui_timeline_side");
-	auto timelineSideSize = Vector2{static_cast<float>(timelineSide->frames[0].width), static_cast<float>(timelineSide->frames[0].height)};
+	auto sideSize = Vector2{static_cast<float>(timelineSide->frames[0].width), static_cast<float>(timelineSide->frames[0].height)};
 
 	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
 	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
 
-	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x, pos.y}, 0, Flip::Horizontal);
-	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_fill"), {pos.x + timelineSideSize.x, pos.y}, {totalTimelineFill, 20});
-	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x + timelineSideSize.x + totalTimelineFill, pos.y});
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x, pos.y}, 0);
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_fill"), {pos.x + sideSize.x - totalTimelineFill - 2, pos.y}, {totalTimelineFill * 3 + 4, sideSize.y});
+	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x + sideSize.x + totalTimelineFill, pos.y}, 0, Flip::Horizontal);
 
 	auto padding = Vector2{10, 10};
 	auto rect = Rectangle{bounds.x + padding.x, bounds.y + padding.y, bounds.width - padding.x * 2, 1};
-	DrawRectangleRec(rect, WHITE);
+	// DrawRectangleRec(rect, WHITE);
 
 	auto& timelineData = m_data.timelineData;
 
@@ -478,20 +478,14 @@ void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
 		auto y = rect.y - 2;
 		// DrawCircle(x, rect.y + 1, 3, Fade(WHITE, 1.f));
 		//  DrawCircle(x, rect.y + 1, 2, RED);
-		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 10, y - 10}, 0, Flip::None, Fade(BLACK, 0.5));
 		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 8, y - 8});
 	}
 
-	auto triangleHeight = 8;
-	auto triangleWidth = 6;
-	auto xOffset = 0;
-	auto yOffset = 2;
-	auto pointingX = rect.x + (timelineData.time / timelineData.duration) * totalTimelineFill;
-	auto pointA = Vector2{pointingX - triangleWidth / 2, rect.y + triangleHeight + yOffset};
-	auto pointB = Vector2{pointingX + triangleWidth / 2, rect.y + triangleHeight + yOffset};
-	auto pointC = Vector2{pointingX, rect.y + yOffset};
+	auto spriteInfo = atlas.getSpriteInfo("icon_arrow_timeline");
+	auto x = rect.x + (timelineData.time / timelineData.duration) * totalTimelineFill;
+	auto arrowPos = Vector2{x - spriteInfo->frames->width, rect.y + 2};
 
-	DrawTriangle(pointA, pointB, pointC, RED);
+	atlas.drawSprite(spriteInfo, arrowPos);
 }
 
 Vector2 HUD::measureBatteryTrend(const Vector2& availableSize) {
