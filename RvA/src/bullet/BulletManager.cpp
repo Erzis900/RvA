@@ -70,6 +70,8 @@ void BulletManager::setupBullet(Bullet& bullet, BulletShotData& data) {
 
 	auto side = data.radius * 2;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x - data.radius, bullet.position.y - data.radius, side, side});
+
+	m_musicManager.playSound("shooter_bullet");
 }
 
 void BulletManager::updateBullet(Bullet& bullet, BulletShotData& data, float dt) {
@@ -139,6 +141,8 @@ void BulletManager::setupBullet(Bullet& bullet, ChasingShotData& data) {
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
 	auto halfRadius = data.radius * 0.5f;
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius});
+
+	m_musicManager.playSound("catapult_bullet");
 }
 
 void BulletManager::updateBullet(Bullet& bullet, ChasingShotData& data, float dt) {
