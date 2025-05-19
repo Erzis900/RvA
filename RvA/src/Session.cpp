@@ -198,6 +198,7 @@ void Session::performDefenderSpawnOnInput() {
 					if (canPlaceDefender(row, column)) {
 						auto defenderInfo = m_gameRegistry.getDefender(*m_selectedDefender);
 						if (defenderInfo && canAffordCost(defenderInfo->cost)) {
+							m_musicManager.playSound("robot_place");
 							auto& defender = m_defenderManager.spawnDefender(defenderInfo, row, column);
 							m_levelData->scraps -= defenderInfo->cost;
 							m_defenderPicker.startCooldown(*m_selectedDefender);

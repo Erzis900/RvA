@@ -20,6 +20,7 @@ void ResourceSystem::loadResources() {
 	// Robot
 	addSound("robot_death", LoadSound("audio/sfx/robot/death.wav"), 0.4f);
 	addSound("robot_hit", LoadSound("audio/sfx/robot/hit.wav"), 0.4f);
+	addSound("robot_place", LoadSound("audio/sfx/robot/place.wav"), 0.8f);
 
 	// Portal
 	addSound("portal_open", LoadSound("audio/sfx/portal/portal_open.wav"), 0.8f);
