@@ -535,7 +535,10 @@ void Session::startNextLevel() {
 	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 	setupHUD();
-	m_musicManager.playMusic(m_levelData->info->musicId);
+
+	if (!m_demoMode) {
+		m_musicManager.playMusic(m_levelData->info->musicId);
+	}
 	setState(SessionState::Playing);
 }
 

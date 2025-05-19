@@ -17,6 +17,7 @@ void MusicManager::playMusic(const std::string& name) {
 				StopMusicStream(*m_currentMusic);
 			}
 			m_currentMusic = *music;
+			SetMasterVolume(m_config.options.masterVolume);
 			SetMusicVolume(*m_currentMusic, m_config.options.musicVolume);
 			PlayMusicStream(*m_currentMusic);
 		}
