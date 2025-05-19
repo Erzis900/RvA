@@ -103,7 +103,7 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 	}
 	case WidgetType::Slider: {
 		auto& slider = screen.getSlider(node.handle);
-		::GuiSlider(node.finalRect, "Prova", "Prova2", &slider.value, slider.min, slider.max);
+		::GuiSlider(node.finalRect, nullptr, nullptr, &slider.value, slider.min, slider.max);
 		break;
 	}
 	case WidgetType::Custom: {

@@ -28,6 +28,9 @@ Config::Config() {
 	options.isMusicEnabled = m_data["musicEnabled"];
 	options.isSoundEnabled = m_data["soundEnabled"];
 	options.isTutorialEnabled = m_data["tutorialEnabled"];
+	options.sfxVolume = m_data["sfxVolume"];
+	options.musicVolume = m_data["musicVolume"];
+	options.masterVolume = m_data["masterVolume"];
 }
 
 void Config::save() {
@@ -40,6 +43,9 @@ void Config::save() {
 	m_data["musicEnabled"] = options.isMusicEnabled;
 	m_data["soundEnabled"] = options.isSoundEnabled;
 	m_data["tutorialEnabled"] = options.isTutorialEnabled;
+	m_data["sfxVolume"] = options.sfxVolume;
+	m_data["musicVolume"] = options.musicVolume;
+	m_data["masterVolume"] = options.masterVolume;
 
 	configFile << m_data.dump(4);
 	configFile.close();

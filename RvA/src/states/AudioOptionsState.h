@@ -21,6 +21,12 @@ private:
 
 	WidgetHandle m_musicButton{};
 	WidgetHandle m_soundButton{};
+	WidgetHandle m_musicSliderHandle{};
+	WidgetHandle m_musicTextVolumeHandle{};
+	WidgetHandle m_soundSliderHandle{};
+	WidgetHandle m_soundTextVolumeHandle{};
+	WidgetHandle m_masterSliderHandle{};
+	WidgetHandle m_masterTextVolumeHandle{};
 	Screen* m_screen{};
 	std::string m_nextTransition{};
 	float m_alphaBackground{};

@@ -1,6 +1,9 @@
 {
     "fullscreen": false,
+    "masterVolume": 0.5,
     "musicEnabled": true,
+    "musicVolume": 0.5,
+    "sfxVolume": 0.5,
     "soundEnabled": true,
     "tutorialEnabled": false
 }

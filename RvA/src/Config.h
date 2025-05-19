@@ -12,6 +12,9 @@ public:
 		bool isMusicEnabled{true};
 		bool isSoundEnabled{true};
 		bool isTutorialEnabled{true};
+		float sfxVolume{0.5};
+		float musicVolume{0.5};
+		float masterVolume{0.5};
 	} options;
 
 	json getData() const {
