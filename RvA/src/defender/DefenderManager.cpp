@@ -55,6 +55,7 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 		case DefenderState::Dying: {
 			m_collisionSystem.destroyCollider(defender.colliderHandle);
 			defender.animation = Animation::createAnimation(defender.info->spriteDying);
+			m_musicManager.playSound("robot_death");
 			break;
 		}
 		case DefenderState::Dead: break;

@@ -10,6 +10,7 @@
 #include <vector>
 
 class CollisionSystem;
+class MusicManager;
 
 enum class PortalState {
 	Summoning,
@@ -41,7 +42,7 @@ struct PortalPair {
 
 class PortalManager {
 public:
-	PortalManager(CollisionSystem& collisionSystem);
+	PortalManager(CollisionSystem& collisionSystem, MusicManager& musicManager);
 
 	void draw(Atlas& atlas);
 	void update(float dt);
@@ -62,6 +63,7 @@ private:
 
 	std::vector<PortalPair> m_portalPairs;
 	CollisionSystem& m_collisionSystem;
+	MusicManager& m_musicManager;
 
 	int m_portalId{0};
 };

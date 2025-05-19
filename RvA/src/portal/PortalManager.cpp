@@ -1,13 +1,15 @@
 #include "PortalManager.h"
 
+#include "MusicManager.h"
 #include "collisions/CollisionSystem.h"
 #include "constants.h"
 
 #include <iostream>
 
-PortalManager::PortalManager(CollisionSystem& collisionSystem) : m_collisionSystem(collisionSystem) {}
+PortalManager::PortalManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem), m_musicManager(musicManager) {}
 
 void PortalManager::spawnPortals(const PortalTypeInfo* entranceInfo, const PortalTypeInfo* exitInfo, int inRow, int inCol, int outRow, int outCol) {
+	m_musicManager.playSound("portal_open");
 	auto entrance = createPortal(entranceInfo, inRow, inCol, WHITE);
 	auto exit = createPortal(exitInfo, outRow, outCol, WHITE);
 

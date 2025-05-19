@@ -17,7 +17,7 @@ Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& g
 	, m_defenderPicker(*this, m_gameRegistry)
 	, m_levelManager(m_gameRegistry)
 	, m_hud(gui, resourceSystem)
-	, m_portalManager(m_collisionSystem) {
+	, m_portalManager(m_collisionSystem, musicManager) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(std::bind_front(&Session::onDefenderDestroyed, this));
 	m_onCollectedDropHandle = m_dropManager.onDropCollected(std::bind_front(&Session::onDropCollected, this));
@@ -411,6 +411,8 @@ void Session::manageBulletEnemyCollision(const Collision& collision) {
 	if (collision.event == CollisionEvent::Enter || collision.event == CollisionEvent::Ongoing) {
 		const auto& [bullet, enemy] = collision.extractOwners<Bullet, Enemy>();
 		m_bulletManager.executeHit(*bullet, *enemy);
+
+		m_musicManager.playSound("alien_hit");
 	}
 }
 
@@ -427,6 +429,8 @@ void Session::manageDefenderEnemyCollision(const Collision& collision) {
 		if (enemy->getState() == EnemyState::ReadyToAttack) {
 			defender->hp -= static_cast<int>(enemy->getInfo()->defenderDamage);
 			enemy->setState(EnemyState::PrepareToAttack);
+
+			m_musicManager.playSound("robot_hit");
 		} else if (enemy->getState() != EnemyState::PrepareToAttack) {
 			enemy->setState(EnemyState::PrepareToAttack);
 		}
@@ -449,6 +453,7 @@ void Session::manageBaseWallEnemyCollision(const Collision& collision) {
 			enemy->setSparkEffect(1.f);
 			enemy->applyDamage({50, false, DamageSource::BaseWall});
 			enemy->setState(EnemyState::PrepareToAttack);
+			m_musicManager.playSound("alien_shock");
 		} else if (enemy->getState() != EnemyState::PrepareToAttack) {
 			enemy->setState(EnemyState::PrepareToAttack);
 		}
@@ -465,6 +470,8 @@ void Session::manageEnemyPortalCollision(const Collision& collision) {
 	if (portal->type == PortalType::Entrance) {
 		switch (collision.event) {
 		case CollisionEvent::Enter:
+			m_musicManager.playSound("teleporting");
+
 			Vector2 exitPosition = m_portalManager.getExit(portal->id)->position;
 			enemy->setPosition(exitPosition);
 			break;
