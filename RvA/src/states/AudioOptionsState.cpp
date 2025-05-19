@@ -1,4 +1,4 @@
-#include "OptionsState.h"
+#include "AudioOptionsState.h"
 
 #include "Config.h"
 #include "CreditsHelper.h"
@@ -8,14 +8,14 @@
 #include "Session.h"
 #include "constants.h"
 
-OptionsState::OptionsState(Game& game, float alphaBackground, bool playMenuMusic, bool showCredits, bool playSession)
+AudioOptionsState::AudioOptionsState(Game& game, float alphaBackground, bool playMenuMusic, bool showCredits, bool playSession)
 	: m_game(game)
 	, m_alphaBackground(alphaBackground)
 	, m_playMenuMusic(playMenuMusic)
 	, m_showCredits(showCredits)
 	, m_playSession(playSession) {}
 
-flow::FsmAction OptionsState::enter() {
+flow::FsmAction AudioOptionsState::enter() {
 	if (m_playMenuMusic) {
 		m_game.getMusicManager().playMusic("menu");
 	}
@@ -31,20 +31,18 @@ flow::FsmAction OptionsState::enter() {
 		.default_bkg(m_alphaBackground)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = Vec2{ 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
-				.big_text({ .text = "OPTIONS", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
+				.big_text({ .text = "AUDIO OPTIONS", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
 			.end()
 
 			.space({0, 35.f})
 		
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({"Audio", {}, btnSize, [this]() { m_nextTransition = "audio"; }})
+				.label_button({"", {}, btnSize, [this]() { toggleMusic(); }}, &m_musicButton)
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({"", {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
+				.label_button({"", {}, btnSize, [this]() { toggleSound(); }}, &m_soundButton)
 			.end()
-			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({"", {}, btnSize, [this]() { toggleTutorial(); }}, &m_toggleTutorialButton)
-			.end()
+			.slider({ .min = 0.f, .max = 1.f, .value = 0.3f, .size = {100.f, 30.f} })
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"Back", {}, btnSize, [this, &config]() { config.save(); m_nextTransition = "back"; }})
 			.end()
@@ -62,7 +60,7 @@ flow::FsmAction OptionsState::enter() {
 	return flow::FsmAction::none();
 }
 
-flow::FsmAction OptionsState::update(float dt) {
+flow::FsmAction AudioOptionsState::update(float dt) {
 	if (m_playSession) {
 		m_game.getGameSession().update(dt);
 	}
@@ -74,25 +72,26 @@ flow::FsmAction OptionsState::update(float dt) {
 	return flow::FsmAction::none();
 }
 
-void OptionsState::exit() {
+void AudioOptionsState::exit() {
 	m_game.getGUI().destroyScreen("Options");
 }
 
-void OptionsState::updateLabels() {
+void AudioOptionsState::updateLabels() {
 	auto& options = m_game.getConfig().options;
-	m_screen->getButton(m_windowButton).text = options.isFullscreen ? "Full screen" : "Windowed";
-	m_screen->getButton(m_toggleTutorialButton).text = options.isTutorialEnabled ? "Tutorial ON" : "Tutorial OFF";
+	m_screen->getButton(m_musicButton).text = options.isMusicEnabled ? "Music ON" : "Music OFF";
+	m_screen->getButton(m_soundButton).text = options.isSoundEnabled ? "Sound ON" : "Sound OFF";
 }
 
-void OptionsState::toggleFullscreen() {
+// TODO SetMasterVolume includes volume of ALL sounds, MusicManager should handle Volume to differentiate Music and Sound Volume
+// TODO add Volume slider in options screen
+void AudioOptionsState::toggleMusic() {
 	auto& options = m_game.getConfig().options;
-	options.isFullscreen = !options.isFullscreen;
-	ToggleFullscreen();
+	options.isMusicEnabled = !options.isMusicEnabled;
 	updateLabels();
 }
 
-void OptionsState::toggleTutorial() {
-	bool& isTutorial = m_game.getConfig().options.isTutorialEnabled;
-	isTutorial = !isTutorial;
+void AudioOptionsState::toggleSound() {
+	auto& options = m_game.getConfig().options;
+	options.isSoundEnabled = !options.isSoundEnabled;
 	updateLabels();
 }

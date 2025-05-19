@@ -5,9 +5,9 @@
 
 class Game;
 
-class OptionsState : public flow::FsmState {
+class AudioOptionsState : public flow::FsmState {
 public:
-	OptionsState(Game& game, float alphaBackground, bool playMenuMusic, bool showCredits, bool playSession);
+	AudioOptionsState(Game& game, float alphaBackground, bool playMenuMusic, bool showCredits, bool playSession);
 
 	flow::FsmAction update(float dt) override;
 	flow::FsmAction enter() override;
@@ -16,11 +16,11 @@ public:
 private:
 	void updateLabels();
 
-	void toggleFullscreen();
-	void toggleTutorial();
+	void toggleMusic();
+	void toggleSound();
 
-	WidgetHandle m_windowButton{};
-	WidgetHandle m_toggleTutorialButton{};
+	WidgetHandle m_musicButton{};
+	WidgetHandle m_soundButton{};
 	Screen* m_screen{};
 	std::string m_nextTransition{};
 	float m_alphaBackground{};

@@ -460,24 +460,18 @@ void HUD::drawTimeline(Atlas& atlas, const Rectangle& bounds) {
 	auto* timelineSide = m_gui.getAtlas().getSpriteInfo("ui_timeline_side");
 	auto sideSize = Vector2{static_cast<float>(timelineSide->frames[0].width), static_cast<float>(timelineSide->frames[0].height)};
 
-	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
-	//  DrawCircleV({pos.x, pos.y + bounds.height / 2}, bounds.height / 2, WHITE);
-
 	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x, pos.y}, 0);
 	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_fill"), {pos.x + sideSize.x - totalTimelineFill - 2, pos.y}, {totalTimelineFill * 3 + 4, sideSize.y});
 	atlas.drawSprite(atlas.getSpriteInfo("ui_timeline_side"), {pos.x + sideSize.x + totalTimelineFill, pos.y}, 0, Flip::Horizontal);
 
 	auto padding = Vector2{10, 10};
 	auto rect = Rectangle{bounds.x + padding.x, bounds.y + padding.y, bounds.width - padding.x * 2, 1};
-	// DrawRectangleRec(rect, WHITE);
 
 	auto& timelineData = m_data.timelineData;
 
 	for (auto& keyframe : timelineData.waves) {
 		auto x = rect.x + keyframe.time * totalTimelineFill;
 		auto y = rect.y - 2;
-		// DrawCircle(x, rect.y + 1, 3, Fade(WHITE, 1.f));
-		//  DrawCircle(x, rect.y + 1, 2, RED);
 		atlas.drawSprite(atlas.getSpriteInfo(keyframe.icon.c_str()), {x - 8, y - 8});
 	}
 

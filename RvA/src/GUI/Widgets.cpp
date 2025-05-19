@@ -46,6 +46,15 @@ WidgetHandle Screen::create(UIStack stack, WidgetHandle* handleResult) {
 	return handle;
 }
 
+WidgetHandle Screen::create(UISlider slider, WidgetHandle* handleResult) {
+	auto handle = m_sliderPool.createItem(std::move(slider));
+	m_sliderPool.getItem(handle)->handle = handle;
+	if (handleResult) {
+		*handleResult = handle;
+	}
+	return handle;
+}
+
 WidgetHandle Screen::create(UISpace space) {
 	auto handle = m_spacePool.createItem(std::move(space));
 	m_spacePool.getItem(handle)->handle = handle;
@@ -200,6 +209,17 @@ ScreenBuilder& ScreenBuilder::custom(UICustom custom, WidgetHandle* handleResult
 
 	node->handle = handle;
 	node->type = WidgetType::Custom;
+	node->parent = m_nodeStack.top();
+	m_nodeStack.top()->children.push_back(std::move(node));
+	return *this;
+}
+
+ScreenBuilder& ScreenBuilder::slider(UISlider slider, WidgetHandle* handleResult) {
+	auto node = std::make_unique<UINode>();
+	slider.owner = node.get();
+	auto handle = m_screen.create(std::move(slider), handleResult);
+	node->handle = handle;
+	node->type = WidgetType::Slider;
 	node->parent = m_nodeStack.top();
 	m_nodeStack.top()->children.push_back(std::move(node));
 	return *this;

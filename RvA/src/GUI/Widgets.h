@@ -30,6 +30,7 @@ enum class WidgetType {
 	Custom,
 	Shape,
 	Border,
+	Slider,
 	Root
 };
 
@@ -168,6 +169,19 @@ struct UIImg {
 	UINode* owner{};
 };
 
+struct UISlider {
+	float min{};
+	float max{};
+	float value{};
+	float step{};
+	Vector2 pos{};
+	Vector2 size{};
+	HAlign hAlign{};
+	VAlign vAlign{};
+	WidgetHandle handle{};
+	UINode* owner{};
+};
+
 struct UICustom {
 	Vector2 pos{};
 	std::function<void(Atlas&, const Rectangle& bounds)> draw{};
@@ -197,6 +211,7 @@ public:
 	WidgetHandle create(UIImg image, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UICustom custom, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UIStack stack, WidgetHandle* handleResult = nullptr);
+	WidgetHandle create(UISlider slider, WidgetHandle* handleResult = nullptr);
 	WidgetHandle create(UISpace space);
 
 	UIButton& getButton(WidgetHandle handle) {
@@ -231,6 +246,10 @@ public:
 		return *m_imagePool.getItem(handle);
 	}
 
+	UISlider& getSlider(WidgetHandle handle) {
+		return *m_sliderPool.getItem(handle);
+	}
+
 	void setVisible(bool visible) {
 		m_isVisible = visible;
 	}
@@ -255,6 +274,7 @@ private:
 	FixedItemPool<UICustom, 32> m_customPool;
 	FixedItemPool<UIBorder, 32> m_borderPool;
 	FixedItemPool<UIImg, 32> m_imagePool;
+	FixedItemPool<UISlider, 32> m_sliderPool;
 	std::string m_name;
 	bool m_isVisible{true};
 };
@@ -279,6 +299,7 @@ public:
 	ScreenBuilder& border(UIBorder border, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& image(UIImg image, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& custom(UICustom custom, WidgetHandle* handleResult = nullptr);
+	ScreenBuilder& slider(UISlider slider, WidgetHandle* handleResult = nullptr);
 	ScreenBuilder& space(UISpace space);
 	ScreenBuilder& default_bkg(float alpha = 1.f);
 

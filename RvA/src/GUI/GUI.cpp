@@ -101,6 +101,11 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 		::DrawTextEx(m_font, text.text.c_str(), {node.finalRect.x, node.finalRect.y}, node.finalRect.height, text.fontSpacing, text.color);
 		break;
 	}
+	case WidgetType::Slider: {
+		auto& slider = screen.getSlider(node.handle);
+		::GuiSlider(node.finalRect, "Prova", "Prova2", &slider.value, slider.min, slider.max);
+		break;
+	}
 	case WidgetType::Custom: {
 		auto& custom = screen.getCustom(node.handle);
 		custom.draw(m_atlas, node.finalRect);

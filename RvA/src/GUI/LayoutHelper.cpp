@@ -46,6 +46,11 @@ Vector2 LayoutHelper::measure(UINode& node, Screen& screen, const Vector2& avail
 		node.preferredSize = adjustSize(shape.size, availableSize);
 		break;
 	}
+	case WidgetType::Slider: {
+		auto& slider = screen.getSlider(node.handle);
+		node.preferredSize = adjustSize(slider.size, availableSize);
+		break;
+	}
 	case WidgetType::Image: {
 		auto& image = screen.getImage(node.handle);
 		auto spriteSize = std::visit(
@@ -150,6 +155,12 @@ void LayoutHelper::arrange(UINode& node, Screen& screen, const Rectangle& finalR
 		auto& shape = screen.getShape(node.handle);
 		auto size = adjustSize(shape.size, node.preferredSize);
 		node.finalRect = arrangePositionAndSize(shape.pos, size, finalRect, shape.hAlign, shape.vAlign);
+		break;
+	}
+	case WidgetType::Slider: {
+		auto& slider = screen.getSlider(node.handle);
+		auto size = adjustSize(slider.size, node.preferredSize);
+		node.finalRect = arrangePositionAndSize(slider.pos, size, finalRect, slider.hAlign, slider.vAlign);
 		break;
 	}
 	case WidgetType::Image: {

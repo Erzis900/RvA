@@ -10,6 +10,7 @@
 #include "atlas/Atlas.h"
 #include "constants.h"
 #include "fsm/FsmBuilder.h"
+#include "states/AudioOptionsState.h"
 #include "states/EndScreenState.h"
 #include "states/IntroState.h"
 #include "states/LostState.h"
@@ -221,7 +222,11 @@ void Game::setupFSM() {
 			.on("exit").exitFsm()
 
 		.state<OptionsState>("Options", *this, 0.25f, true, true, true)
+			.on("audio").jumpTo("AudioOptions")
 			.on("back").jumpTo("MainMenu")
+		
+		.state<AudioOptionsState>("AudioOptions", *this, 0.25f, true, true, true)
+			.on("back").jumpTo("Options")
 		
 		// In Game States
 		.state<ProceedState>("StartSession", [this, &session](){ save(); session.restartSession(); })
@@ -249,7 +254,11 @@ void Game::setupFSM() {
 			.on("menu").jumpTo("StartToMainMenu")
 		
 		.state<OptionsState>("InGameOptions", *this, 0.7f, false, false, false)
+			.on("audio").jumpTo("InGameAudioOptions")
 			.on("back").jumpTo("PauseMenu")
+		
+		.state<AudioOptionsState>("InGameAudioOptions", *this, 0.7f, false, false, false)
+			.on("back").jumpTo("InGameOptions")
 
 		.state<WinState>("WinScreen", *this)
 			.on("next").jumpTo("StartLevel")
