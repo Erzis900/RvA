@@ -106,7 +106,7 @@ void OptionsState::toggleSound() {
 void OptionsState::toggleFullscreen() {
 	auto& options = m_game.getConfig().options;
 	options.isFullscreen = !options.isFullscreen;
-	ToggleFullscreen();
+	ToggleBorderlessWindowed();
 	updateLabels();
 }
 

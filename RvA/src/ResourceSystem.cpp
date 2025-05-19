@@ -1,15 +1,15 @@
 #include "ResourceSystem.h"
 
 void ResourceSystem::loadResources() {
-	addMusic("menu", LoadMusicStream("sfx/menu.wav"));
-	addMusic("level1", LoadMusicStream("sfx/game.mp3"));
-	addMusic("level2", LoadMusicStream("sfx/robots leaking.wav"));
-	addMusic("lost", LoadMusicStream("sfx/lost.mp3"));
+	addMusic("menu", LoadMusicStream("audio/music/menu.wav"));
+	addMusic("level1", LoadMusicStream("audio/music/game.mp3"));
+	addMusic("level2", LoadMusicStream("audio/music/robots leaking.wav"));
+	addMusic("lost", LoadMusicStream("audio/music/lost.mp3"));
 
-	addSound("button_click", LoadSound("sfx/buttonClick.wav"), 0.2f);
-	addSound("laser_shoot", LoadSound("sfx/laserShoot.wav"), 0.2f);
-	addSound("alien_death", LoadSound("sfx/alienDeath.wav"), 0.4f);
-	addSound("switch", LoadSound("sfx/switch.wav"), 0.4f);
+	addSound("button_click", LoadSound("audio/sfx/buttonClick.wav"), 0.2f);
+	addSound("laser_shoot", LoadSound("audio/sfx/laserShoot.wav"), 0.2f);
+	addSound("alien_death", LoadSound("audio/sfx/alienDeath.wav"), 0.4f);
+	addSound("switch", LoadSound("audio/sfx/switch.wav"), 0.4f);
 }
 
 void ResourceSystem::unloadResources() {

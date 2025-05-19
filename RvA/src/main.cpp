@@ -10,6 +10,7 @@
 int main() {
 	SetTraceLogLevel(LOG_ERROR);
 
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	Game game;
 	game.run();
 
