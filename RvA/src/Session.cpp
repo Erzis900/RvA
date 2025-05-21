@@ -2,6 +2,7 @@
 
 #include "GameRegistry.h"
 #include "MusicManager.h"
+#include "ResourceSystem.h"
 
 #include <ranges>
 #include <raymath.h>
@@ -10,7 +11,7 @@ Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& g
 	: m_gameRegistry(gameRegistry)
 	, m_musicManager(musicManager)
 	, m_config(config)
-	, m_defenderManager(m_collisionSystem, musicManager)
+	, m_defenderManager(m_collisionSystem, musicManager, resourceSystem)
 	, m_enemyManager(m_gameRegistry, m_collisionSystem, musicManager)
 	, m_bulletManager(m_enemyManager, m_collisionSystem, musicManager)
 	, m_dropManager(m_gameRegistry, m_collisionSystem)
@@ -188,11 +189,10 @@ void Session::updateEnabledDefendersStats() {
 }
 
 void Session::performDefenderSpawnOnInput() {
-	if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))) {
-		auto mousePos = GetMousePosition();
-		auto [row, column] = getCoordinates(mousePos);
-
-		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
+	auto mousePos = GetMousePosition();
+	auto [row, column] = getCoordinates(mousePos);
+	if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
+		if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))) {
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 				if (m_selectedDefender) {
 					if (canPlaceDefender(row, column)) {
@@ -214,9 +214,20 @@ void Session::performDefenderSpawnOnInput() {
 			}
 		}
 
-		if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && m_selectedDefender) {
-			resetSelectedDefender();
+		if (!m_selectedDefender) {
+			auto* defender = m_defenderManager.getDefender(row, column);
+			if (defender) {
+				m_defenderManager.highlight(*defender);
+			} else {
+				m_defenderManager.unhighlight();
+			}
 		}
+	} else {
+		m_defenderManager.unhighlight();
+	}
+
+	if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && m_selectedDefender) {
+		resetSelectedDefender();
 	}
 }
 
@@ -506,9 +517,9 @@ void Session::resetProgression() {
 	if (FORCE_LEVEL_SEQUENCE) {
 		m_levelManager.setLevelSequence(FORCED_LEVEL_SEQUENCE);
 	} else if (m_demoMode) {
-		m_levelManager.setLevelSequence({"demoLevel"});
+		m_levelManager.setLevelSequence({"menuLevel"});
 	} else {
-		std::vector<std::string> levelSquence = {"level1", "level2", "level3"};
+		std::vector<std::string> levelSquence = {"switchOnOff", "level2", "level3"};
 		if (m_config.options.isTutorialEnabled) {
 			levelSquence.insert(levelSquence.begin(), "tutorial");
 		}

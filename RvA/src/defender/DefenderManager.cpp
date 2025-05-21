@@ -1,9 +1,13 @@
 #include "DefenderManager.h"
 
 #include "MusicManager.h"
+#include "ResourceSystem.h"
 #include "collisions/CollisionSystem.h"
 
-DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager) : m_collisionSystem(collisionSystem), m_musicManager(musicManager) {
+DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem)
+	: m_collisionSystem(collisionSystem)
+	, m_musicManager(musicManager)
+	, m_resourceSystem(resourceSystem) {
 	m_defenders.reserve(128);
 }
 
@@ -17,12 +21,19 @@ void DefenderManager::clear() {
 			defender = nullptr;
 		}
 	}
+	m_highlightShader = m_resourceSystem.getShader("highlight");
 }
 
 void DefenderManager::draw(Atlas& atlas) {
 	for (auto& defender : m_defenders) {
 		DrawEllipse(defender->position.x + CELL_SIZE * 0.5f, defender->position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));
-		atlas.drawSprite(defender->animation.getSpriteInfo(), defender->position, defender->animation.getCurrentFrame(), Flip::None, defender->tint);
+		if (defender.get() == m_highlightedDefender) {
+			BeginShaderMode(*m_highlightShader);
+			atlas.drawSprite(defender->animation.getSpriteInfo(), defender->position, defender->animation.getCurrentFrame(), Flip::None, defender->tint);
+			EndShaderMode();
+		} else {
+			atlas.drawSprite(defender->animation.getSpriteInfo(), defender->position, defender->animation.getCurrentFrame(), Flip::None, defender->tint);
+		}
 	}
 }
 
@@ -65,6 +76,14 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 
 bool DefenderManager::hasDefender(int row, int column) const {
 	return m_defenderGrid[row][column] != nullptr;
+}
+
+void DefenderManager::highlight(Defender& defender) {
+	m_highlightedDefender = &defender;
+}
+
+void DefenderManager::unhighlight() {
+	m_highlightedDefender = nullptr;
 }
 
 DefenderUpdateResult DefenderManager::update(float dt) {
@@ -113,6 +132,9 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 		case DefenderState::Dead:
 			m_defenderGrid[defender->row][defender->column] = nullptr;
 			m_onDefenderDestroyedCallbacks.executeCallbacks(*defender);
+			if (m_highlightedDefender == defender.get()) {
+				m_highlightedDefender = nullptr;
+			}
 			it = m_defenders.erase(it);
 			break;
 		default: ++it;
@@ -153,6 +175,10 @@ void DefenderManager::toggleDefender(int row, int column) {
 	} else if (defender->state != DefenderState::Off) {
 		disableDefender(*defender);
 	}
+}
+
+Defender* DefenderManager::getDefender(int row, int column) {
+	return m_defenderGrid[row][column];
 }
 
 void DefenderManager::enableDefender(Defender& defender) {

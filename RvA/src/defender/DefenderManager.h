@@ -14,6 +14,7 @@
 
 class CollisionSystem;
 class MusicManager;
+class ResourceSystem;
 
 /*
  * The Defender struct contains almost only data related to a single instance
@@ -42,7 +43,7 @@ struct DefenderUpdateResult {
 
 class DefenderManager {
 public:
-	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager);
+	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem);
 
 	void clear();
 	void draw(Atlas& atlas);
@@ -51,11 +52,14 @@ public:
 	const std::vector<std::unique_ptr<Defender>>& getDefenders() const;
 
 	void toggleDefender(int row, int column);
+	Defender* getDefender(int row, int column);
 	void enableDefender(Defender& defender);
 	void disableDefender(Defender& defender);
 	Defender& spawnDefender(const DefenderTypeInfo* defenderTypeInfo, int row, int column);
 	void setState(Defender& defender, DefenderState state);
 	bool hasDefender(int row, int column) const;
+	void highlight(Defender& defender);
+	void unhighlight();
 
 	CallbackHandle onDefenderDestroyed(std::function<void(Defender&)> callback);
 
@@ -64,8 +68,11 @@ private:
 
 	std::vector<std::unique_ptr<Defender>> m_defenders;
 	std::array<std::array<Defender*, COLS>, ROWS> m_defenderGrid = {nullptr};
+	Defender* m_highlightedDefender{nullptr};
 	CallbackRegistry<Defender&> m_onDefenderDestroyedCallbacks;
 	CollisionSystem& m_collisionSystem;
 	MusicManager& m_musicManager;
+	ResourceSystem& m_resourceSystem;
 	DefenderUpdateResult m_updateResult;
+	Shader* m_highlightShader{};
 };

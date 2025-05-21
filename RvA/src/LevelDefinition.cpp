@@ -7,6 +7,10 @@
 
 using namespace std::string_literals;
 
+auto lastColumn = FixedValue{COLS};
+auto firstRow = FixedValue{0};
+auto lastRow = FixedValue{ROWS - 1};
+
 class KeyframeBuilder {
 public:
 	static KeyframeBuilder start() {
@@ -31,212 +35,13 @@ private:
 void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	registerTutorialLevels(gameRegistry, atlas);
 	registerRaylibDemoVideoLevels(gameRegistry, atlas);
+	registerMenuLevels(gameRegistry, atlas);
 
-	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
-
-	constexpr int MAX_BATTERY_CHARGE = 100;
-	std::string b1 = "B1";
-	std::string b2 = "B2";
-	std::string portal = "Portal";
-
-	auto lastColumn = FixedValue{18};
-
-	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 200.1f}};
-	gameRegistry.addLevel("level1",
-						  {
-							  .name = "Level 1",
-							  .musicId = "level1",
-							  .startingScraps = 100,
-							  .maxBatteryCharge = MAX_BATTERY_CHARGE,
-							  .winCountdownDuration = 2.f,
-							  .winCondition = AllWavesGoneCondition{},
-							  .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-							  .groundBackground = sprite("ground_bkg"),
-							  .topBackground = sprite("top_bkg"),
-							  .timeline =
-								  {
-									  .keyframes =
-										  {
-											  {0.f, DefenderPickerOperation{.type = DefenderPickerOperationType::Reset}},
-											  {0.f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Solarpanel"}},
-											  {0.f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Shooter"}},
-											  {0.f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Catapult"}},
-											  {0.f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Lasertron"}},
-											  {0.f,
-											   SpawnEntityBurstOperation{
-												   .amount = FixedValue{1},
-												   .interval = FixedValue{1.f},
-												   .row = RandomRange{0, 6},
-												   .column = lastColumn,
-												   .id = selection,
-											   }},
-											  {3.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-											  {5.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-											  {7.f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"B1"s}}},
-											  {15.f, FlagTimelineOperation{.icon = "icon_alien_timeline"}},
-											  {15.f,
-											   SpawnEntityBurstOperation{
-												   .amount = FixedValue{10},
-												   .interval = FixedValue{1.f},
-												   .row = RandomRange{0, 6},
-												   .column = lastColumn,
-												   .id = selection,
-											   }},
-										  },
-								  },
-						  });
-
-	gameRegistry.addLevel("level2",
-						  {
-							  .name = "Level 2",
-							  .musicId = "level1",
-							  .startingScraps = 100,
-							  .maxBatteryCharge = MAX_BATTERY_CHARGE,
-							  .winCountdownDuration = 2.f,
-							  .winCondition = AllWavesGoneCondition{},
-							  .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-							  .groundBackground = sprite("ground_bkg"),
-							  .topBackground = sprite("top_bkg"),
-							  .timeline =
-								  {
-									  .keyframes =
-										  {
-											  {2.f,
-											   SpawnEntityBurstOperation{
-												   .amount = FixedValue{5},
-												   .interval = FixedValue{1.f},
-												   .row = RandomRange{0, 6},
-												   .column = lastColumn,
-												   .id = FixedValue{"B1"s},
-											   }},
-											  {10.f,
-											   SpawnEntityBurstOperation{
-												   .amount = FixedValue{5},
-												   .interval = FixedValue{1.f},
-												   .row = RandomRange{0, 6},
-												   .column = lastColumn,
-												   .id = FixedValue{"B2"s},
-											   }},
-											  {20.f,
-											   SpawnEntityBurstOperation{
-												   .amount = FixedValue{5},
-												   .interval = FixedValue{1.f},
-												   .row = RandomRange{0, 6},
-												   .column = lastColumn,
-												   .id = FixedValue{"Portal"s},
-											   }},
-										  },
-								  },
-						  });
-
-	auto enemyAt = [&](int row) { return SpawnEntityOperation{.row = FixedValue{row}, .column = lastColumn, .id = FixedValue{"B1"s}}; };
-
-	auto space = 2.5f;
-
-	gameRegistry.addLevel("level3",
-						  {
-							  .name = "Hello",
-							  .musicId = "level1",
-							  .startingScraps = 100,
-							  .maxBatteryCharge = 10000,
-							  .winCountdownDuration = 2.f,
-							  .winCondition = AllWavesGoneCondition{},
-							  .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-							  .groundBackground = sprite("ground_bkg"),
-							  .topBackground = sprite("top_bkg"),
-							  .timeline = {.keyframes =
-											   {
-												   // H
-												   {space + 0.f, enemyAt(1)},
-												   {space + 0.f, enemyAt(2)},
-												   {space + 0.f, enemyAt(3)},
-												   {space + 0.f, enemyAt(4)},
-												   {space + 0.f, enemyAt(5)},
-												   {space + 0.5f, enemyAt(3)},
-												   {space + 1.f, enemyAt(3)},
-												   {space + 1.5f, enemyAt(1)},
-												   {space + 1.5f, enemyAt(2)},
-												   {space + 1.5f, enemyAt(3)},
-												   {space + 1.5f, enemyAt(4)},
-												   {space + 1.5f, enemyAt(5)},
-
-												   // E
-												   {space * 2 + 0.5f, enemyAt(1)},
-												   {space * 2 + 0.5f, enemyAt(2)},
-												   {space * 2 + 0.5f, enemyAt(3)},
-												   {space * 2 + 0.5f, enemyAt(4)},
-												   {space * 2 + 0.5f, enemyAt(5)},
-												   {space * 2 + 1.f, enemyAt(1)},
-												   {space * 2 + 1.f, enemyAt(3)},
-												   {space * 2 + 1.f, enemyAt(5)},
-												   {space * 2 + 1.5f, enemyAt(1)},
-												   {space * 2 + 1.5f, enemyAt(3)},
-												   {space * 2 + 1.5f, enemyAt(5)},
-
-												   // L
-												   {space * 3 + 0.5f, enemyAt(1)},
-												   {space * 3 + 0.5f, enemyAt(2)},
-												   {space * 3 + 0.5f, enemyAt(3)},
-												   {space * 3 + 0.5f, enemyAt(4)},
-												   {space * 3 + 0.5f, enemyAt(5)},
-												   {space * 3 + 1.f, enemyAt(5)},
-												   {space * 3 + 1.5f, enemyAt(5)},
-
-												   // L
-												   {space * 4 + 0.5f, enemyAt(1)},
-												   {space * 4 + 0.5f, enemyAt(2)},
-												   {space * 4 + 0.5f, enemyAt(3)},
-												   {space * 4 + 0.5f, enemyAt(4)},
-												   {space * 4 + 0.5f, enemyAt(5)},
-												   {space * 4 + 1.f, enemyAt(5)},
-												   {space * 4 + 1.5f, enemyAt(5)},
-
-												   // O
-												   {space * 5 + 0.5f, enemyAt(1)},
-												   {space * 5 + 0.5f, enemyAt(2)},
-												   {space * 5 + 0.5f, enemyAt(3)},
-												   {space * 5 + 0.5f, enemyAt(4)},
-												   {space * 5 + 0.5f, enemyAt(5)},
-												   {space * 5 + 1.f, enemyAt(1)},
-												   {space * 5 + 1.f, enemyAt(5)},
-												   {space * 5 + 1.5f, enemyAt(1)},
-												   {space * 5 + 1.5f, enemyAt(2)},
-												   {space * 5 + 1.5f, enemyAt(3)},
-												   {space * 5 + 1.5f, enemyAt(4)},
-												   {space * 5 + 1.5f, enemyAt(5)},
-											   }},
-						  });
-
-	auto defenderSelection = EntitySelection{{"Solarpanel", 0.25f}, {"Lasertron", 0.25f}, {"Catapult", 0.25f}, {"Shooter", 0.25f}};
-	gameRegistry.addLevel("demoLevel",
-						  {.name = "",
-						   .musicId = "level1",
-						   .startingScraps = 900,
-						   .maxBatteryCharge = 1000,
-						   .winCountdownDuration = 2.f,
-						   .winCondition = AllWavesGoneCondition{},
-						   .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
-						   .groundBackground = sprite("ground_bkg"),
-						   .topBackground = sprite("top_bkg"),
-						   .timeline = {.keyframes = {
-											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{0}, .id = defenderSelection, .type = EntityType::Defender}},
-											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{1}, .id = defenderSelection, .type = EntityType::Defender}},
-											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{2}, .id = defenderSelection, .type = EntityType::Defender}},
-											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{3}, .id = defenderSelection, .type = EntityType::Defender}},
-											{0,
-											 SpawnEntityBurstOperation{
-												 .amount = FixedValue{2000},
-												 .interval = RandomRange{1.f, 4.f},
-												 .row = RandomRange{0, 6},
-												 .column = lastColumn,
-												 .id = selection,
-											 }},
-										}}});
+	registerSwitchOnOffLevel(gameRegistry, atlas);
 }
 
 void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
-	auto lastColumn = FixedValue{18};
 
 	auto solarPanel = "SolarpanelTut1"s;
 	auto shooter = "ShooterTut1"s;
@@ -418,9 +223,42 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 		});
 }
 
+void LevelDefinition::registerMenuLevels(GameRegistry& gameRegistry, Atlas& atlas) {
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+	std::string b1 = "B1";
+	std::string b2 = "B2";
+	std::string portal = "Portal";
+
+	auto selection = EntitySelection{{b1, 0.7f}, {b2, 0.2f}, {portal, 0.1f}};
+	auto defenderSelection = EntitySelection{{"Solarpanel", 0.25f}, {"Lasertron", 0.25f}, {"Catapult", 0.25f}, {"Shooter", 0.25f}};
+	gameRegistry.addLevel("menuLevel",
+						  {.name = "",
+						   .musicId = "level1",
+						   .startingScraps = 900,
+						   .maxBatteryCharge = 1000,
+						   .winCountdownDuration = 2.f,
+						   .winCondition = AllWavesGoneCondition{},
+						   .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+						   .groundBackground = sprite("ground_bkg"),
+						   .topBackground = sprite("top_bkg"),
+						   .timeline = {.keyframes = {
+											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{0}, .id = defenderSelection, .type = EntityType::Defender}},
+											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{1}, .id = defenderSelection, .type = EntityType::Defender}},
+											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{2}, .id = defenderSelection, .type = EntityType::Defender}},
+											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{3}, .id = defenderSelection, .type = EntityType::Defender}},
+											{0,
+											 SpawnEntityBurstOperation{
+												 .amount = FixedValue{2000},
+												 .interval = RandomRange{1.f, 4.f},
+												 .row = RandomRange{0, 6},
+												 .column = lastColumn,
+												 .id = selection,
+											 }},
+										}}});
+}
+
 void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
-	auto lastColumn = FixedValue{18};
 
 	gameRegistry.addLevel(
 		"raylibDemo",
@@ -473,4 +311,123 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 
 								 .build()},
 		});
+}
+
+void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas& atlas) {
+	// This level forces the players to work with enable/disable state
+	// The bots are already placed in the map and there's no scrap gain.
+	// The solar panels are limited and the player has to enable the correct defenders to face the waves
+
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+
+	auto shooter = "Shooter"s;
+	auto catapult = "Catapult"s;
+	auto solar = "Solarpanel"s;
+
+	auto alien1 = "noScrapAlien1"s;
+	gameRegistry.addEnemyFromTemplate("B1", alien1, [&](EnemyTypeInfo& info) {
+		info.maxHp = 100;
+		info.speed = 50;
+		info.attackTime = 0.35f;
+		info.dropType = std::nullopt;
+	});
+
+	auto lasertron = "LasertronSpecial"s;
+	gameRegistry.addDefenderFromTemplate("Lasertron", lasertron, [&](DefenderTypeInfo& info) {
+		info.batteryDrain = 15;
+		info.bulletType = "LaserBeamSpecial";
+		info.firstShootCooldown = 1.0f;
+		info.shootCooldown = 1.0f;
+	});
+
+	gameRegistry.addBulletFromTemplate<LaserBeamData>("LaserBeam", "LaserBeamSpecial", [&](LaserBeamData& info) { info.damage.baseDamage = 200.f; });
+
+	gameRegistry.addLevel(
+		"switchOnOff",
+		{.name = "On - Off - On - Off",
+		 .musicId = "level1",
+		 .startingScraps = 0,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {.keyframes =
+						  KeyframeBuilder::start()
+							  .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+							  .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::HidePlate})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{5}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{1}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{0}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
+							  .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{0}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
+
+							  .t(0.2f, MessageOperation{.text = "Aliens here don't drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+							  .t(5.0f, MessageOperation{.text = "Gonna win with what we already have in the fields!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
+							  .t(6.0f, MessageOperation{.text = "Remember to enable or disable just what you need!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
+							  .t(6.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+							  .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+							  .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+							  .t(1.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+							  .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+							  .t(0.5f, MessageOperation{.text = "Great!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+							  .t(1.0f, MessageOperation{.text = "That was probably too easy tho...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+							  .t(4.0f, MessageOperation{.text = "Let's try again!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+							  .t(3.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+							  .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(6.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(4.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+							  .t(0.5f, MessageOperation{.text = "What???!??!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+							  .t(3.0f, MessageOperation{.text = "Ok, you know how to use LaserTron then...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+							  .t(5.0f, MessageOperation{.text = "But can you use all your bots at once???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+							  .t(5.0f, MessageOperation{.text = "Let's gooo!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+							  .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .build()}});
 }

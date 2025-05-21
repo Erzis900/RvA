@@ -1,6 +1,13 @@
 #include "ResourceSystem.h"
 
 void ResourceSystem::loadResources() {
+	// Shaders
+	addShader("highlight", LoadShader(nullptr, "assets/shaders/highlight.fs"));
+	Shader* shader = getShader("highlight");
+	int hlColorLoc = GetShaderLocation(*shader, "highlightColor");
+	Vector4 glow = {0.25f, 0.25f, 0.25f, 0.25f};
+	SetShaderValue(*shader, hlColorLoc, &glow, SHADER_UNIFORM_VEC4);
+
 	// I will convert from wav to mp3 in the end once everything is finalized
 	addMusic("menu", LoadMusicStream("audio/music/menu.wav"));
 	addMusic("level1", LoadMusicStream("audio/music/level1.mp3"));
