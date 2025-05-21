@@ -24,7 +24,7 @@ flow::FsmAction PauseState::enter() {
 				.label_button({"Resume", {}, btnSize, [this]() { m_nextTransition = "resume"; }})
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({"Restart", {}, btnSize, [this]() { restart(); }})
+				.label_button({"Restart Level", {}, btnSize, [this]() { restart(); }})
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"Options", {}, btnSize, [this]() { m_nextTransition = "options"; }})

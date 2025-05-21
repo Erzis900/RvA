@@ -88,8 +88,13 @@ struct Game::pimpl {
 
 		m_fsm->update(dt);
 
-		if (DEV_MODE && IsKeyPressed(KEY_F2)) {
-			m_gui.toggleDebugView();
+		if (DEV_MODE) {
+			if (IsKeyPressed(KEY_F2)) {
+				m_gui.toggleDebugView();
+			} else if (IsKeyPressed(KEY_F10)) {
+				static int i = 0;
+				TakeScreenshot(TextFormat("screenshot%d.png", i++));
+			}
 		}
 
 		m_gui.update(dt);
@@ -211,7 +216,8 @@ void Game::setupFSM() {
 		// Menus
 		.state<ProceedState>("StartToMainMenu", [this, &session](){ 
 				session.setDemoMode(true);
-				session.restartSession();
+				session.resetProgression();
+				session.startNextLevel();
 				save();
 			})
 			.on("proceed").jumpTo("MainMenu")
@@ -229,10 +235,18 @@ void Game::setupFSM() {
 			.on("back").jumpTo("Options")
 		
 		// In Game States
-		.state<ProceedState>("StartSession", [this, &session](){ save(); session.restartSession(); })
+		.state<ProceedState>("StartSession", [this, &session](){ 
+				session.setDemoMode(false);
+				session.resetProgression();
+				session.startNextLevel();
+				save();
+		})
 			.on("proceed").jumpTo("Play")
 
 		.state<ProceedState>("StartLevel", [this, &session](){ session.startNextLevel(); save(); })
+			.on("proceed").jumpTo("Play")
+
+		.state<ProceedState>("RestartLevel", [this, &session](){ session.startCurrentLevel(); })
 			.on("proceed").jumpTo("Play")
 
 		.state<ProceedState>("ResumeLevel", [this, &session](){ session.resume(); })
@@ -242,6 +256,7 @@ void Game::setupFSM() {
 			.on("pause").jumpTo("PauseLevel")
 			.on("win").jumpTo("WinScreen")
 			.on("end").jumpTo("EndScreen")
+			.on("skip").jumpTo("StartLevel")
 			.on("lost").jumpTo("LoseScreen")
 
 		.state<ProceedState>("PauseLevel", [this, &session](){ session.pause(); })
@@ -249,7 +264,7 @@ void Game::setupFSM() {
 
 		.state<PauseState>("PauseMenu", *this)
 			.on("resume").jumpTo("ResumeLevel")
-			.on("restart").jumpTo("StartSession")
+			.on("restart").jumpTo("RestartLevel")
 			.on("options").jumpTo("InGameOptions")
 			.on("menu").jumpTo("StartToMainMenu")
 		
@@ -267,7 +282,7 @@ void Game::setupFSM() {
 			.on("menu").jumpTo("StartToMainMenu")
 
 		.state<LostState>("LoseScreen", *this)
-			.on("restart").jumpTo("StartSession")
+			.on("restart").jumpTo("RestartLevel")
 			.on("menu").jumpTo("StartToMainMenu");
 	// clang-format on
 
@@ -289,7 +304,8 @@ void Game::registerDefenderTypes() {
 											.spriteDisabled = {sprite("solar_off"), 0.1f},
 											.spriteDying = {sprite("solar_death"), 0.1f, 1},
 											.batteryDrain = -5,
-											.maxHP = 100,
+											.maxHP = 200,
+											.cost = 50,
 											.buildCooldown = 2.f,
 										});
 
@@ -318,7 +334,7 @@ void Game::registerDefenderTypes() {
 										 .firstShootCooldown = 3.f,
 										 .shootCooldown = 1.f,
 										 .maxHP = 200,
-										 .cost = 20,
+										 .cost = 40,
 										 .bulletType = "ChasingShot",
 										 .shootingAnimationTime = 0.6f,
 										 .buildCooldown = 5.f});
@@ -329,9 +345,9 @@ void Game::registerDefenderTypes() {
 										 .spriteDisabled = {sprite("lasertron_off"), 0.1f},
 										 .spriteShoot = {sprite("lasertron_shoot"), 0.1f, 1},
 										 .spriteDying = {sprite("lasertron_death"), 0.1f, 1},
-										 .batteryDrain = 20.f,
-										 .firstShootCooldown = 3.f,
-										 .shootCooldown = 2.f,
+										 .batteryDrain = 15.f,
+										 .firstShootCooldown = 1.f,
+										 .shootCooldown = 1.f,
 										 .maxHP = 250,
 										 .cost = 30,
 										 .bulletType = "LaserBeam",
@@ -376,7 +392,7 @@ void Game::registerBulletTypes() {
 									  ChasingShotData{
 										  .startOffset = {20, 8},
 										  .radius = 10.f,
-										  .damage = {50, 16},
+										  .damage = {40, 5},
 										  .maxLifetime = 5.f,
 										  .speed = 150,
 										  .color = {165, 48, 48, 255},
@@ -387,7 +403,7 @@ void Game::registerBulletTypes() {
 									  LaserBeamData{
 										  .startOffset = {30, 15},
 										  .beamHeight = 4,
-										  .damage = {100.f, 0, true},
+										  .damage = {200.f, 0, true},
 										  .auraSize = 2,
 										  .beamStartColor = {245, 125, 74, 255},
 										  .beamEndColor = RED,
@@ -411,7 +427,7 @@ void Game::registerEnemyTypes() {
 	m_pimpl->m_gameRegistry.addEnemy("B1",
 									 {.type = EnemyType::B1,
 									  .maxHp = 100,
-									  .speed = 40,
+									  .speed = 50,
 									  .attackTime = 0.4f,
 									  .defenderDamage = 50,
 									  .baseWallDamage = 10,
@@ -419,7 +435,7 @@ void Game::registerEnemyTypes() {
 									  .dropAmount = FixedValue{10},
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
-									  .attackAnimation = {sprite("b1_alien_attack"), 0.1f},
+									  .attackAnimation = {sprite("b1_alien_attack"), 0.08f},
 									  .dyingAnimation = {sprite("b1_alien_death"), 0.1f, 1},
 									  .sparkEffect = electrocuteAnimationData});
 
@@ -428,10 +444,11 @@ void Game::registerEnemyTypes() {
 									  .maxHp = 150,
 									  .speed = 80,
 									  .attackTime = 0.5f,
-									  .defenderDamage = 50,
+									  .defenderDamage = 100,
 									  .baseWallDamage = 10,
+									  .bounceResistance = 10,
 									  .dropType = "simpleScraps",
-									  .dropAmount = RandomRangeStep{20, 40, 10},
+									  .dropAmount = FixedValue{50},
 									  .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
@@ -458,9 +475,9 @@ void Game::registerEnemyTypes() {
 										  .timeBeforeActingAgain = 1.f,
 										  .chanceIncreaseOverTime = 1.f,
 										  .baseChanceToSpawn = 30.f,
-										  .columnDistance = RandomRange{4, 8},
+										  .columnDistance = RandomRange{4, 5},
 										  .rowDistance = RandomRange{-2, 2},
-										  .portalCastRange = FixedValue{3},
+										  .portalCastRange = FixedValue{2},
 										  .animation = {sprite("portal_alien_summon"), 0.1f, 1},
 									  }});
 

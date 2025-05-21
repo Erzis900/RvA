@@ -112,6 +112,8 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		.custom({
 			.draw = [this](const auto& atlas, const auto& size){ m_fadeScreen.draw(); }
 		})
+		// Skip Button
+		.button({ .text = "Skip", .pos = { 10, 40 }, .size = {50, 20.f}, .onClick = [this]() { m_onSkipClickedCallbacks.executeCallbacks(); }, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom}, &m_skipButtonHandle)
 	.screen();
 	// clang-format on
 	m_screen->setVisible(false);
@@ -199,6 +201,9 @@ void HUD::update(float dt) {
 		batteryTip.color = WHITE;
 		batteryBottom.color = WHITE;
 	}
+
+	auto& skipButton = m_screen->getButton(m_skipButtonHandle);
+	skipButton.owner->visible = m_data.showSkipButton;
 }
 
 void HUD::setVisible(bool visible) {
@@ -207,6 +212,10 @@ void HUD::setVisible(bool visible) {
 
 CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
 	return m_onDefenderSelectedCallbacks.registerCallback(std::move(callback));
+}
+
+CallbackHandle HUD::onSkipClicked(std::function<void()> callback) {
+	return m_onSkipClickedCallbacks.registerCallback(std::move(callback));
 }
 
 void HUD::clear() {
@@ -221,6 +230,7 @@ void HUD::clear() {
 	m_data.messageTime = 0;
 	m_data.numberOfEnemiesDefeated = 0;
 	m_data.levelName = "";
+	m_data.showSkipButton = false;
 	m_isAnyDefenderHovered = false;
 	m_hoveredDefenderIndex = 0;
 }

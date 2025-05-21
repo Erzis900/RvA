@@ -42,6 +42,7 @@ struct EnemyTypeInfo {
 	float attackTime{};
 	float defenderDamage{};
 	float baseWallDamage{};
+	float bounceResistance{};
 	std::optional<std::string> dropType{};
 	ConfigValue<int> dropAmount{};
 	AnimationData idleAnimation;

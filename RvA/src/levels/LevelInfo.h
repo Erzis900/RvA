@@ -71,6 +71,8 @@ enum class HUDOperationType {
 	ShowPlate,
 	HideDefenderOverlay,
 	ShowDefenderOverlay,
+	ShowSkipButton,
+	HideSkipButton
 };
 
 struct HUDOperation {

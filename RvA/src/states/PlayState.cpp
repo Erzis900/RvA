@@ -18,6 +18,7 @@ flow::FsmAction PlayState::update(float dt) {
 	case SessionState::Win : return flow::FsmAction::transition("win");
 	case SessionState::End : return flow::FsmAction::transition("end");
 	case SessionState::Lost: return flow::FsmAction::transition("lost");
+	case SessionState::Skip: return flow::FsmAction::transition("skip");
 	}
 
 	if (IsKeyPressed(KEY_ESCAPE)) {

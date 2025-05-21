@@ -33,6 +33,18 @@ void GUI::update(float dt) {
 				animation.update(dt);
 			}
 		});
+
+		screen->getButtons().forEachActive([&](auto handle, UIButton& button) {
+			if (button.owner->visible) {
+				// check if the button collides with the mouse and play enter exit sound
+				bool isOver = (CheckCollisionPointRec(GetMousePosition(), button.owner->finalRect));
+				if (isOver && !button.isMouseOver) {
+					m_musicManager.playSound("button_hover");
+				}
+
+				button.isMouseOver = isOver;
+			}
+		});
 	}
 }
 
@@ -137,14 +149,19 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 						// Not exactly the right repeat approach. Must be improved as it doesn't take care of the calculated size.
 						for (int y = 0; y < node.finalRect.height; y += arg->frames[0].height) {
 							for (int x = 0; x < node.finalRect.width; x += arg->frames[0].width) {
-								m_atlas
-									.drawSprite(arg, {node.finalRect.x + x, node.finalRect.y + y}, {(float)arg->frames[0].width, (float)arg->frames[0].height}, spriteIndex, image.flip, image.color);
+								m_atlas.drawSprite(arg,
+												   {node.finalRect.x + x, node.finalRect.y + y},
+												   {(float)arg->frames[0].width, (float)arg->frames[0].height},
+												   spriteIndex,
+												   image.flip,
+												   image.color,
+												   image.rotation);
 							}
 						}
 						break;
 					}
 					case TextureFillMode::Stretch: {
-						m_atlas.drawSprite(arg, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, spriteIndex, image.flip, image.color);
+						m_atlas.drawSprite(arg, {node.finalRect.x, node.finalRect.y}, {node.finalRect.width, node.finalRect.height}, spriteIndex, image.flip, image.color, image.rotation);
 						break;
 					}
 					}
@@ -156,7 +173,8 @@ void GUI::drawWidget(UINode& node, Screen& screen) {
 									   {node.finalRect.width, node.finalRect.height},
 									   animation.getCurrentFrame(),
 									   image.flip,
-									   image.color);
+									   image.color,
+									   image.rotation);
 				} else {
 					static_assert(sizeof(T) == 0, "Non-exhaustive visitor!");
 				}

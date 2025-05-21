@@ -24,6 +24,7 @@ enum class SessionState {
 	Idle,
 	Win,
 	End,
+	Skip,
 	Lost,
 	Paused,
 	Playing
@@ -43,8 +44,8 @@ public:
 	void update(float dt);
 	void draw(Atlas& atlas);
 
-	void restartSession();
 	void resetProgression();
+	void startCurrentLevel();
 	void startNextLevel();
 	void pause();
 	void resume();
@@ -108,12 +109,14 @@ private:
 
 	void resetSelectedDefender();
 	void clearAllEntities();
+	void startLevel();
 
 	SessionState m_gameState{SessionState::Idle};
 	std::optional<std::string> m_selectedDefender;
 	Wall m_baseWall;
 	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
+	CallbackHandle m_onSkipCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
 	CallbackHandle m_onCollectedDropHandle;

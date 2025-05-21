@@ -139,6 +139,7 @@ struct UIButton {
 	VAlign vAlign{};
 	bool useLabelStyle{};
 	WidgetHandle handle{};
+	bool isMouseOver{};
 	UINode* owner{};
 };
 
@@ -164,6 +165,7 @@ struct UIImg {
 	VAlign vAlign{};
 	Fit fit{};
 	Flip flip{};
+	float rotation{};
 	TextureFillMode textureFillMode;
 	WidgetHandle handle{};
 	UINode* owner{};
@@ -260,6 +262,10 @@ public:
 
 	auto& getImages() {
 		return m_imagePool;
+	}
+
+	auto& getButtons() {
+		return m_buttonPool;
 	}
 
 private:

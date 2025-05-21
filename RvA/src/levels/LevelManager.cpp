@@ -10,13 +10,7 @@ void LevelManager::resetCurrentLevelIndex() {
 	m_currentCheckOperation = nullptr;
 }
 
-LevelData* LevelManager::startNextLevel() {
-	if (!m_currentLevelIndex) {
-		m_currentLevelIndex = 0;
-	} else {
-		(*m_currentLevelIndex)++;
-	}
-
+LevelData* LevelManager::resetCurrentLevel() {
 	m_lastKeyframeReached = false;
 	m_currentLevel = {};
 	m_currentLevel.info = m_gameRegistry.getLevel(m_levelSequence[*m_currentLevelIndex]);
@@ -28,6 +22,16 @@ LevelData* LevelManager::startNextLevel() {
 	m_spawnBurstTrackers.clear();
 	m_currentCheckOperation = nullptr;
 	return &m_currentLevel;
+}
+
+LevelData* LevelManager::startNextLevel() {
+	if (!m_currentLevelIndex) {
+		m_currentLevelIndex = 0;
+	} else {
+		(*m_currentLevelIndex)++;
+	}
+
+	return resetCurrentLevel();
 }
 
 bool LevelManager::isLastLevel() const {

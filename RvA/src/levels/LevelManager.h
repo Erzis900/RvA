@@ -19,6 +19,7 @@ public:
 	LevelManager(const GameRegistry& gameRegistry);
 
 	void resetCurrentLevelIndex();
+	LevelData* resetCurrentLevel();
 	LevelData* startNextLevel();
 	bool isLastLevel() const;
 

@@ -26,7 +26,7 @@ flow::FsmAction MenuState::enter() {
 			.space({0, 35.f})
 		
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
-				.label_button({ .text = "Play", .size = btnSize, .onClick = [this]() { startGame(); }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
+				.label_button({ .text = "Play Demo", .size = btnSize, .onClick = [this]() { startGame(); }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({ .text = "Options", .size = btnSize, .onClick = [this]() { m_nextTransition = "options"; }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
@@ -57,11 +57,5 @@ void MenuState::exit() {
 }
 
 void MenuState::startGame() {
-	m_game.getGUI().startFadingInOut(
-		[this] {
-			m_game.getGameSession().setDemoMode(false);
-			m_nextTransition = "play";
-		},
-		[this] {},
-		0.5f);
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "play"; }, [this] {}, 0.5f);
 }

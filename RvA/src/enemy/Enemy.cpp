@@ -26,7 +26,7 @@ void Enemy::setState(EnemyState state) {
 		case EnemyState::PrepareToAttack:
 		case EnemyState::ReadyToAttack	: {
 			setAnimation(m_typeInfo->attackAnimation);
-			m_attackTime = 0.5f;
+			m_attackTime = m_typeInfo->attackTime;
 			break;
 		}
 		case EnemyState::Dying: {
@@ -51,8 +51,10 @@ void Enemy::applyDamage(const Damage& damage) {
 	m_damageTakenAnimation.start(0, 1, 0.25f)
 		.onTick([this, position = m_position](const auto& value) {
 			m_tint = colorLerp(RED, WHITE, value);
-			if (m_hp > 0 && m_latestDamageApplied.bounceBackPower != 0) {
-				m_position = Vector2Add(position, Vector2Lerp({0, 0}, {m_latestDamageApplied.bounceBackPower, 0}, value));
+			auto bounce = m_latestDamageApplied.bounceBackPower - m_typeInfo->bounceResistance;
+			bounce = std::clamp(bounce, 0.f, m_latestDamageApplied.bounceBackPower);
+			if (m_hp > 0 && bounce != 0) {
+				m_position = Vector2Add(position, Vector2Lerp({0, 0}, {bounce, 0}, value));
 			}
 		})
 		.onComplete([this]() { m_tint = WHITE; });

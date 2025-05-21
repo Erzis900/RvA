@@ -74,6 +74,7 @@ struct HUDData {
 	bool showDefenderPicker{};
 	bool showDefenderOverlay{};
 	bool showPlate{};
+	bool showSkipButton{};
 
 	std::optional<int> selectedDefenderIndex;
 
@@ -95,6 +96,7 @@ public:
 
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void(int)> callback);
+	CallbackHandle onSkipClicked(std::function<void()> callback);
 
 	// Data
 	auto& data() {
@@ -122,6 +124,7 @@ private:
 	ResourceSystem& m_resourceSystem;
 
 	CallbackRegistry<const int&> m_onDefenderSelectedCallbacks;
+	CallbackRegistry<> m_onSkipClickedCallbacks;
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
@@ -136,6 +139,7 @@ private:
 	WidgetHandle m_plateDescriptionHandle{};
 	WidgetHandle m_batteryAndScrapsHandle{};
 	WidgetHandle m_defenderPickerHandle{};
+	WidgetHandle m_skipButtonHandle{};
 	FadeScreen m_fadeScreen;
 	bool m_isAnyDefenderHovered{};
 	int m_hoveredDefenderIndex{};

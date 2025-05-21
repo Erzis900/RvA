@@ -116,6 +116,9 @@ void Session::update(float dt) {
 		if (IsKeyPressed(KEY_L)) {
 			performAction(LoseAction{});
 		}
+		if (IsKeyPressed(KEY_E)) {
+			setState(SessionState::End);
+		}
 
 		// When pressing B add 50 battery
 		if (IsKeyPressed(KEY_B)) {
@@ -270,7 +273,7 @@ void Session::performAction(const DefenderSpawnAction& action) {
 
 void Session::performAction(const WinAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut([this]() { restartSession(); }, []() {}, 0.5f);
+		m_hud.startFadeInOut([this]() { startCurrentLevel(); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -283,7 +286,7 @@ void Session::performAction(const WinAction& action) {
 
 void Session::performAction(const LoseAction& action) {
 	if (m_demoMode) {
-		m_hud.startFadeInOut([this]() { restartSession(); }, []() {}, 0.5f);
+		m_hud.startFadeInOut([this]() { startCurrentLevel(); }, []() {}, 0.5f);
 		return;
 	}
 
@@ -311,6 +314,8 @@ void Session::performAction(const HUDAction& action) {
 	case HUDOperationType::HidePlate		  : m_hud.data().showPlate = false; break;
 	case HUDOperationType::ShowDefenderOverlay: m_hud.data().showDefenderOverlay = true; break;
 	case HUDOperationType::HideDefenderOverlay: m_hud.data().showDefenderOverlay = false; break;
+	case HUDOperationType::ShowSkipButton	  : m_hud.data().showSkipButton = true; break;
+	case HUDOperationType::HideSkipButton	  : m_hud.data().showSkipButton = false; break;
 	}
 }
 
@@ -399,9 +404,11 @@ void Session::setupHUD() {
 	hudData.showTimeline = !m_demoMode;
 	hudData.isValidBuildCellCallback = [this](int row, int column) { return m_levelData->validBuildingCells[row][column]; };
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().pickableDefenders[index].id); });
+	m_onSkipCallbackHandle = m_hud.onSkipClicked([this]() { setState(SessionState::Skip); });
 
 	hudData.timelineData.duration = m_levelData->info->timeline.keyframes.back().time;
 	hudData.timelineData.time = m_levelData->time;
+	hudData.timelineData.waves.clear();
 	for (const auto& keyframe : m_levelData->info->timeline.keyframes) {
 		if (std::holds_alternative<FlagTimelineOperation>(keyframe.action)) {
 			auto& flag = std::get<FlagTimelineOperation>(keyframe.action);
@@ -498,11 +505,6 @@ void Session::resetSelectedDefender() {
 	m_hud.data().selectedDefenderIndex.reset();
 }
 
-void Session::restartSession() {
-	resetProgression();
-	startNextLevel();
-}
-
 void Session::resetProgression() {
 	clearAllEntities();
 	m_levelManager.resetCurrentLevelIndex();
@@ -519,21 +521,17 @@ void Session::resetProgression() {
 	} else if (m_demoMode) {
 		m_levelManager.setLevelSequence({"menuLevel"});
 	} else {
-		std::vector<std::string> levelSquence = {"switchOnOff", "level2", "level3"};
+		std::vector<std::string> levelSequence = {"level1", "switchOnOff", "level2", "switchOnOff2", "tank", "portal"};
 		if (m_config.options.isTutorialEnabled) {
-			levelSquence.insert(levelSquence.begin(), "tutorial");
+			levelSequence.insert(levelSequence.begin(), "tutorial");
 		}
-		m_levelManager.setLevelSequence(std::move(levelSquence));
+		m_levelManager.setLevelSequence(std::move(levelSequence));
 	}
 }
 
-void Session::startNextLevel() {
-	// If we're starting a new level and the current level has been the tutorial we disable it.
-	// It translates into: "If you played the tutorial and you're progressing to the next level, we don't want to show the tutorial again".
-	if (m_levelManager.getCurrentLevel().info && m_levelManager.getCurrentLevel().info->id == "tutorial") {
-		m_config.options.isTutorialEnabled = false;
-	}
-	m_defenderPicker.resetCooldowns();
+void Session::startLevel() {
+	m_selectedDefender.reset();
+	m_defenderPicker.reset();
 	m_pauseGameplayLogic = false;
 	m_hud.clear();
 	m_hud.setEnable(!m_demoMode);
@@ -542,7 +540,6 @@ void Session::startNextLevel() {
 	m_collisionSystem.destroyCollider(m_baseWall.colliderHandle);
 	m_collisionSystem.clearColliders();
 
-	m_levelData = m_levelManager.startNextLevel();
 	m_baseWall.colliderHandle = m_collisionSystem.createCollider(Collider::Flag::BaseWall, &m_baseWall);
 	m_collisionSystem.updateCollider(m_baseWall.colliderHandle, {GRID_OFFSET.x - 5, GRID_OFFSET.y, 5, CELL_SIZE * ROWS});
 	setupHUD();
@@ -551,6 +548,21 @@ void Session::startNextLevel() {
 		m_musicManager.playMusic(m_levelData->info->musicId);
 	}
 	setState(SessionState::Playing);
+}
+
+void Session::startCurrentLevel() {
+	m_levelData = m_levelManager.resetCurrentLevel();
+	startLevel();
+}
+
+void Session::startNextLevel() {
+	// If we're starting a new level and the current level has been the tutorial we disable it.
+	// It translates into: "If you played the tutorial and you're progressing to the next level, we don't want to show the tutorial again".
+	if (m_levelManager.getCurrentLevel().info && m_levelManager.getCurrentLevel().info->id == "tutorial") {
+		m_config.options.isTutorialEnabled = false;
+	}
+	m_levelData = m_levelManager.startNextLevel();
+	startLevel();
 }
 
 void Session::pause() {
@@ -578,6 +590,7 @@ void Session::setState(SessionState state) {
 	case SessionState::Win	  :
 	case SessionState::End	  :
 	case SessionState::Lost	  :
+	case SessionState::Skip	  :
 	case SessionState::Paused : m_hud.setEnable(false); break;
 	}
 }

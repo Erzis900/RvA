@@ -37,7 +37,11 @@ void LevelDefinition::registerLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	registerRaylibDemoVideoLevels(gameRegistry, atlas);
 	registerMenuLevels(gameRegistry, atlas);
 
+	registerBaseLevels(gameRegistry, atlas);
 	registerSwitchOnOffLevel(gameRegistry, atlas);
+	registerTankLevel(gameRegistry, atlas);
+	registerSwitchOnOffLevel2(gameRegistry, atlas);
+	registerPortalLevel(gameRegistry, atlas);
 }
 
 void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& atlas) {
@@ -69,6 +73,7 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 								 .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
 								 .t(0.0f, HUDOperation{.type = HUDOperationType::HidePlate})
 								 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+								 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowSkipButton})
 								 .t(0.0f, HUDOperation{.type = HUDOperationType::HideDefenderOverlay})
 								 .t(0.f, MessageOperation{.text = "Let's go over the basics.", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 								 .t(2.f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{alien1}})
@@ -313,6 +318,104 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 		});
 }
 
+void LevelDefinition::registerBaseLevels(GameRegistry& gameRegistry, Atlas& atlas) {
+	// This level forces the players to work with enable/disable state
+	// The bots are already placed in the map and there's no scrap gain.
+	// The solar panels are limited and the player has to enable the correct defenders to face the waves
+
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+
+	auto shooter = "Shooter"s;
+	auto catapult = "Catapult"s;
+	auto solar = "Solarpanel"s;
+	auto lasertron = "Lasertron"s;
+
+	auto alien1 = "B1"s;
+
+	gameRegistry.addLevel(
+		"level1",
+		{.name = "An easy one",
+		 .musicId = "level1",
+		 .startingScraps = 100,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {
+			 .keyframes =
+				 KeyframeBuilder::start()
+					 .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = solar})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = shooter})
+
+					 .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(2.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+					 .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{10}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .t(30.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+					 .t(1.5f, MessageOperation{.text = "I give you some time to breath...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{15}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+					 .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+					 .build()}});
+
+	gameRegistry.addLevel(
+		"level2",
+		{.name = "Let's raise the bar",
+		 .musicId = "level1",
+		 .startingScraps = 100,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {.keyframes =
+						  KeyframeBuilder::start()
+							  .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+							  .t(0.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+							  .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+							  .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = solar})
+							  .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = shooter})
+							  .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = lasertron})
+
+							  .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+							  .t(2.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+							  .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{20}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .t(30.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+							  .t(1.5f, MessageOperation{.text = "Nice, but this was just the first wave...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+							  .t(4.0f, MessageOperation{.text = "Attaaaaaack!!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+							  .t(2.5f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(0), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(2), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(4), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(6), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(5), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(5.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = RandomRange{0.5f, 1.f}, .row = FixedValue(1), .column = lastColumn, .id = FixedValue{alien1}})
+
+							  .build()}});
+}
+
 void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas& atlas) {
 	// This level forces the players to work with enable/disable state
 	// The bots are already placed in the map and there's no scrap gain.
@@ -323,29 +426,15 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 	auto shooter = "Shooter"s;
 	auto catapult = "Catapult"s;
 	auto solar = "Solarpanel"s;
+	auto lasertron = "Lasertron"s;
 
 	auto alien1 = "noScrapAlien1"s;
-	gameRegistry.addEnemyFromTemplate("B1", alien1, [&](EnemyTypeInfo& info) {
-		info.maxHp = 100;
-		info.speed = 50;
-		info.attackTime = 0.35f;
-		info.dropType = std::nullopt;
-	});
-
-	auto lasertron = "LasertronSpecial"s;
-	gameRegistry.addDefenderFromTemplate("Lasertron", lasertron, [&](DefenderTypeInfo& info) {
-		info.batteryDrain = 15;
-		info.bulletType = "LaserBeamSpecial";
-		info.firstShootCooldown = 1.0f;
-		info.shootCooldown = 1.0f;
-	});
-
-	gameRegistry.addBulletFromTemplate<LaserBeamData>("LaserBeam", "LaserBeamSpecial", [&](LaserBeamData& info) { info.damage.baseDamage = 200.f; });
+	gameRegistry.addEnemyFromTemplate("B1", alien1, [&](EnemyTypeInfo& info) { info.dropType = std::nullopt; });
 
 	gameRegistry.addLevel(
 		"switchOnOff",
-		{.name = "On - Off - On - Off",
-		 .musicId = "level1",
+		{.name = "On & Off & On & Off",
+		 .musicId = "level2",
 		 .startingScraps = 0,
 		 .maxBatteryCharge = 100,
 		 .winCountdownDuration = 2.f,
@@ -396,21 +485,21 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 
 							  .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
 
-							  .t(0.5f, MessageOperation{.text = "Great!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
-							  .t(1.0f, MessageOperation{.text = "That was probably too easy tho...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
-							  .t(4.0f, MessageOperation{.text = "Let's try again!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+							  .t(0.5f, MessageOperation{.text = "Great!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.5f})
+							  .t(1.5f, MessageOperation{.text = "That was probably too easy tho...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+							  .t(3.0f, MessageOperation{.text = "Let's try again!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
-							  .t(3.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+							  .t(2.5f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+							  .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 
-							  .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
 							  .t(6.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
 							  .t(5.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
 							  .t(4.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
 
 							  .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
 
-							  .t(0.5f, MessageOperation{.text = "What???!??!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
-							  .t(3.0f, MessageOperation{.text = "Ok, you know how to use LaserTron then...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+							  .t(0.5f, MessageOperation{.text = "What???!??!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.5f})
+							  .t(1.5f, MessageOperation{.text = "Ok, you know how to use LaserTron then...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
 							  .t(5.0f, MessageOperation{.text = "But can you use all your bots at once???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
 							  .t(5.0f, MessageOperation{.text = "Let's gooo!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
@@ -430,4 +519,280 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 							  .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
 
 							  .build()}});
+}
+
+void LevelDefinition::registerTankLevel(GameRegistry& gameRegistry, Atlas& atlas) {
+	// Presentation of the Tank-Speedy alien
+
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+
+	auto shooter = "Shooter"s;
+	auto catapult = "Catapult"s;
+	auto solar = "Solarpanel"s;
+	auto lasertron = "Lasertron"s;
+
+	auto alien1 = "B1"s;
+	auto alien2 = "B2"s;
+
+	gameRegistry.addLevel(
+		"tank",
+		{.name = "So... they have Berserkers too?",
+		 .musicId = "level1",
+		 .startingScraps = 100,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {
+			 .keyframes =
+				 KeyframeBuilder::start()
+					 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
+
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+					 .t(2.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(2.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien2}})
+
+					 .t(12.0f, MessageOperation{.text = "Wtf was that????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+					 .t(3.0f, MessageOperation{.text = "It's stronger and faster! Damn...", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = solar})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = shooter})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = lasertron})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = catapult})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+
+					 .t(2.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+
+					 .t(10.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+					 .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+					 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+					 .t(0.0f, SpawnEntityBurstOperation{.amount = FixedValue{15}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = FixedValue{8.0f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+
+					 .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+					 .build()}});
+}
+
+void LevelDefinition::registerSwitchOnOffLevel2(GameRegistry& gameRegistry, Atlas& atlas) {
+	// This level forces the players to work with enable/disable state
+	// The bots are already placed in the map and there's no scrap gain.
+	// The solar panels are limited and the player has to enable the correct defenders to face the waves
+
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+
+	auto shooter = "Shooter"s;
+	auto catapult = "Catapult"s;
+	auto solar = "Solarpanel"s;
+	auto lasertron = "Lasertron"s;
+
+	auto alien1 = "noScrapAlien1"s;
+	gameRegistry.addEnemyFromTemplate("B1", alien1, [&](EnemyTypeInfo& info) { info.dropType = std::nullopt; });
+
+	gameRegistry.addLevel(
+		"switchOnOff2",
+		{.name = "On & Off & On & Off 2",
+		 .musicId = "level2",
+		 .startingScraps = 0,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {.keyframes = KeyframeBuilder::start()
+									   .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+									   .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::HidePlate})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{1}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{1}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{1}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.2f, MessageOperation{.text = "Again, aliens here don't drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+									   .t(5.0f, MessageOperation{.text = "Who the hell put the solar panel there???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
+									   .t(6.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+									   .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+									   .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+									   .t(1.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+									   .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+									   .t(0.5f, MessageOperation{.text = "Great!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.5f})
+									   .t(1.5f, MessageOperation{.text = "That was probably too easy tho...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+									   .t(3.0f, MessageOperation{.text = "Let's try again!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+									   .t(2.5f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+									   .t(6.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(5.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(4.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+									   .t(0.5f, MessageOperation{.text = "It's not over yet.", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+									   .t(5.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+									   .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = firstRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{5}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{0.5f, 1.f}, .row = lastRow, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
+									   .t(2.f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{alien1}})
+
+									   .build()}});
+}
+
+void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atlas) {
+	// Presentation of the portal alien
+
+	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
+
+	auto shooter = "Shooter"s;
+	auto catapult = "Catapult"s;
+	auto solar = "Solarpanel"s;
+	auto lasertron = "Lasertron"s;
+
+	auto alien1 = "B1"s;
+	auto alien2 = "B2"s;
+	auto portal = "Portal"s;
+	auto alienPortalFirst = "alienPortalFirst"s;
+
+	gameRegistry.addEnemyFromTemplate("Portal", alienPortalFirst, [&](EnemyTypeInfo& info) {
+		info.behavior = PortalSpawnBehaviorInfo{
+			.timeBeforeActing = 3.0f,
+			.timeBeforeActingAgain = 1.f,
+			.chanceIncreaseOverTime = 1.f,
+			.baseChanceToSpawn = 100.f,
+			.columnDistance = FixedValue{8},
+			.rowDistance = FixedValue{-1},
+			.portalCastRange = FixedValue{2},
+			.animation = {sprite("portal_alien_summon"), 0.1f, 1},
+		};
+	});
+
+	gameRegistry.addLevel(
+		"portal",
+		{.name = "Tele             port",
+		 .musicId = "level2",
+		 .startingScraps = 100,
+		 .maxBatteryCharge = 100,
+		 .winCountdownDuration = 2.f,
+		 .winCondition = AllWavesGoneCondition{},
+		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
+		 .groundBackground = sprite("ground_bkg"),
+		 .topBackground = sprite("top_bkg"),
+		 .timeline = {
+			 .keyframes =
+				 KeyframeBuilder::start()
+					 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
+
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alienPortalFirst}})
+					 .t(3.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .t(8.0f, MessageOperation{.text = "Ok... they can teleport now????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+					 .t(4.0f, MessageOperation{.text = "Better pay attention to those purple one", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+					 .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = solar})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = shooter})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = lasertron})
+					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = catapult})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
+
+					 .t(2.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+					 .t(0.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .t(0.f, SpawnEntityOperation{.row = FixedValue(2), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(2), .column = lastColumn, .id = FixedValue{portal}})
+					 .t(3.f, SpawnEntityOperation{.row = FixedValue(2), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(2), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .t(10.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
+
+					 .t(2.0f, MessageOperation{.text = "Final Wave!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(0.0f, SpawnEntityBurstOperation{.amount = FixedValue{15}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
+
+					 .t(1.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = FixedValue{8.0f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+
+					 .t(0.f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{portal}})
+					 .t(3.f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .t(0.f, SpawnEntityOperation{.row = FixedValue(1), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(1), .column = lastColumn, .id = FixedValue{portal}})
+					 .t(3.f, SpawnEntityOperation{.row = FixedValue(1), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(1), .column = lastColumn, .id = FixedValue{alien1}})
+
+					 .build()}});
 }
