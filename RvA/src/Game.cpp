@@ -501,7 +501,7 @@ void Game::registerEnemyTypes() {
 		info.dropAmount = {FixedValue{30}};
 	});
 	m_pimpl->m_gameRegistry.addEnemyFromTemplate("B1", "DefaultAlienTut5", [](EnemyTypeInfo& info) {
-		info.maxHp = 100;
+		info.maxHp = 60;
 		info.dropAmount = {FixedValue{10}};
 	});
 

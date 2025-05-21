@@ -499,7 +499,7 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 							  .t(0.0f, CheckOperation{.check = [](const LevelData& levelData) { return levelData.enemyCount == 0; }})
 
 							  .t(0.5f, MessageOperation{.text = "What???!??!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.5f})
-							  .t(1.5f, MessageOperation{.text = "Ok, you know how to use LaserTron then...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+							  .t(1.5f, MessageOperation{.text = "Ok, you know how to use Lasertrons then...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
 							  .t(5.0f, MessageOperation{.text = "But can you use all your bots at once???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
 							  .t(5.0f, MessageOperation{.text = "Let's gooo!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
@@ -639,7 +639,7 @@ void LevelDefinition::registerSwitchOnOffLevel2(GameRegistry& gameRegistry, Atla
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
 
 									   .t(0.2f, MessageOperation{.text = "Again, aliens here don't drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
-									   .t(5.0f, MessageOperation{.text = "Who the hell put the solar panel there???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
+									   .t(5.0f, MessageOperation{.text = "Who the hell put the solar panels there???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
 									   .t(6.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
@@ -750,7 +750,7 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
 
 					 .t(8.0f, MessageOperation{.text = "Ok... they can teleport now????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
-					 .t(4.0f, MessageOperation{.text = "Better pay attention to those purple one", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+					 .t(4.0f, MessageOperation{.text = "Pay attention to those purple ones", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
 					 .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
 					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
@@ -779,10 +779,10 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 
 					 .t(2.0f, MessageOperation{.text = "Final Wave!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
-					 .t(0.0f, SpawnEntityBurstOperation{.amount = FixedValue{15}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.0f, SpawnEntityBurstOperation{.amount = FixedValue{10}, .interval = RandomRange{3.0f, 5.f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 
-					 .t(1.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = FixedValue{8.0f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(1.0f, SpawnEntityBurstOperation{.amount = FixedValue{5}, .interval = FixedValue{6.0f}, .row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
 
 					 .t(0.f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(4), .column = lastColumn, .id = FixedValue{portal}})

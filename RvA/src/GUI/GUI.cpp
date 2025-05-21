@@ -50,7 +50,9 @@ void GUI::update(float dt) {
 
 void GUI::draw() {
 	drawScreens();
-	drawFPS();
+	if (DEV_MODE) {
+		drawFPS();
+	}
 	drawCursor();
 	m_fadeScreen.draw();
 }
