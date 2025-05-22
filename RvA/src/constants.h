@@ -17,7 +17,7 @@ constexpr int COLS = 18;
 constexpr int CELL_SIZE = 32;
 constexpr Vector2 GRID_OFFSET = {64, 64};
 
-constexpr bool DEV_MODE = true;
+constexpr bool DEV_MODE = false;
 
 constexpr int FONT_SMALL = 16;
 constexpr int FONT_MEDIUM = 32;

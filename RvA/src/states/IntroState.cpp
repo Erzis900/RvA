@@ -18,8 +18,7 @@ flow::FsmAction IntroState::enter() {
 	// clang-format off
 	gui.buildScreen("Intro")
 		.default_bkg()
-		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 50}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
-			.small_text({.text = "Oxid Studio presents:", .color = WHITE})
+		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 0}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
 			.medium_text({.text = "Robots vs Aliens!", .color = WHITE})
 		.end();
 	// clang-format on

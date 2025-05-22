@@ -9,9 +9,9 @@ void ResourceSystem::loadResources() {
 	SetShaderValue(*shader, hlColorLoc, &glow, SHADER_UNIFORM_VEC4);
 
 	// I will convert from wav to mp3 in the end once everything is finalized
-	addMusic("menu", LoadMusicStream("audio/music/menu.wav"));
+	addMusic("menu", LoadMusicStream("audio/music/menu.mp3"));
 	addMusic("level1", LoadMusicStream("audio/music/level1.mp3"));
-	addMusic("level2", LoadMusicStream("audio/music/level2.wav"));
+	addMusic("level2", LoadMusicStream("audio/music/level2.mp3"));
 	addMusic("lost", LoadMusicStream("audio/music/lost.mp3"));
 
 	// UI
