@@ -100,12 +100,7 @@ void Session::update(float dt) {
 	if (m_config.options.cheatEnabled) {
 		// When pressing F3 deal 500 damage to a random enemy
 		if (IsKeyPressed(KEY_F3)) {
-			auto& enemies = m_enemyManager.getEnemies();
-			auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
-			if (!filtered.empty()) {
-				std::vector<Enemy*> result(filtered.begin(), filtered.end());
-				result[Random::range(0, static_cast<int>(result.size()) - 1)]->applyDamage({.value = 500, .source = DamageSource::Bullet});
-			}
+			killRandomEnemy();
 		}
 
 		// When pressing W win the game
@@ -122,19 +117,12 @@ void Session::update(float dt) {
 
 		// When pressing B add 50 battery
 		if (IsKeyPressed(KEY_B)) {
-			m_levelData->batteryCharge += 50;
-			m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
+			addBattery(50);
 		}
 
 		// When pressing F increase the game speed
 		if (IsKeyPressed(KEY_F)) {
-			// super hacky way to achieve this and it works only with integer multipliers.
-			const std::array speeds = {1, 2, 3, 4, 5};
-			int index = static_cast<int>(m_levelData->gameSpeed);
-			if (index >= speeds.size()) {
-				index = 0;
-			}
-			m_levelData->gameSpeed = static_cast<float>(speeds[index]);
+			changeGameSpeed();
 		}
 
 		if (IsKeyPressed(KEY_F1)) {
@@ -378,6 +366,22 @@ void Session::performAction(const UpdateValidCellAction& action) {
 	}
 }
 
+void Session::performAction(const EndAction& action) {
+	setState(SessionState::End);
+}
+
+void Session::performAction(const ChangeSpeed& action) {
+	changeGameSpeed();
+}
+
+void Session::performAction(const KillRandomEnemy& action) {
+	killRandomEnemy();
+}
+
+void Session::performAction(const AddBattery& action) {
+	addBattery(action.amount);
+}
+
 void Session::performAction(const std::monostate& action) {
 	// No action to perform
 }
@@ -408,6 +412,7 @@ void Session::setupHUD() {
 	hudData.isValidBuildCellCallback = [this](int row, int column) { return m_levelData->validBuildingCells[row][column]; };
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().pickableDefenders[index].id); });
 	m_onSkipCallbackHandle = m_hud.onSkipClicked([this]() { setState(SessionState::Skip); });
+	m_onActionCallbackHandle = m_hud.onAction([this](const GameAction& action) { performAction(action); });
 
 	hudData.timelineData.duration = m_levelData->info->timeline.keyframes.back().time;
 	hudData.timelineData.time = m_levelData->time;
@@ -554,6 +559,30 @@ void Session::startLevel() {
 	setState(SessionState::Playing);
 }
 
+void Session::changeGameSpeed() {
+	// super hacky way to achieve this and it works only with integer multipliers.
+	const std::array speeds = {1, 2, 3, 4, 5};
+	int index = static_cast<int>(m_levelData->gameSpeed);
+	if (index >= speeds.size()) {
+		index = 0;
+	}
+	m_levelData->gameSpeed = static_cast<float>(speeds[index]);
+}
+
+void Session::killRandomEnemy() {
+	auto& enemies = m_enemyManager.getEnemies();
+	auto filtered = enemies | std::views::transform([](auto& ptr) { return ptr.get(); }) | std::views::filter([](Enemy* item) { return !item->isDying(); });
+	if (!filtered.empty()) {
+		std::vector<Enemy*> result(filtered.begin(), filtered.end());
+		result[Random::range(0, static_cast<int>(result.size()) - 1)]->applyDamage({.value = 500, .source = DamageSource::Bullet});
+	}
+}
+
+void Session::addBattery(int battery) {
+	m_levelData->batteryCharge += 50;
+	m_levelData->batteryCharge = Clamp(m_levelData->batteryCharge, 0, m_levelData->info->maxBatteryCharge);
+}
+
 void Session::startCurrentLevel() {
 	m_levelData = m_levelManager.resetCurrentLevel();
 	startLevel();
@@ -636,6 +665,8 @@ void Session::updateHUD(float dt) {
 	}
 
 	hudData.timelineData.time = m_levelData->time;
+
+	hudData.showCheats = m_config.options.cheatEnabled && !m_demoMode && m_gameState == SessionState::Playing;
 
 	m_hud.update(dt);
 }

@@ -35,6 +35,16 @@ struct DefenderSpawnAction {
 
 struct WinAction {};
 
+struct EndAction {};
+
+struct KillRandomEnemy {};
+
+struct AddBattery {
+	int amount;
+};
+
+struct ChangeSpeed {};
+
 struct LoseAction {};
 
 using MessageAction = MessageOperation;
@@ -50,11 +60,15 @@ using GameActionVariant = std::variant<std::monostate,
 									   PortalSpawnAction,
 									   WinAction,
 									   LoseAction,
+									   EndAction,
 									   MessageAction,
 									   HUDAction,
 									   DefenderPickerAction,
 									   EnableDefenderAction,
-									   UpdateValidCellAction>;
+									   UpdateValidCellAction,
+									   KillRandomEnemy,
+									   AddBattery,
+									   ChangeSpeed>;
 
 struct [[nodiscard]] GameAction : public GameActionVariant {
 	using GameActionVariant::variant;

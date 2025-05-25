@@ -27,7 +27,7 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 	auto timelineSideSize = Vector2{totalTimelineFill + timelineSide->frames[0].width * 2, static_cast<float>(timelineSide->frames[0].height)};
 
 	// clang-format off
-	m_screen = m_gui.buildScreen("HUD")
+	auto screenBuilder = m_gui.buildScreen("HUD")
 		// Bottom Bar
 		// TODO(Gerark) - Due to Texture Bleeding we're forced to set this strange padding and offset. Remove them as soon as the issue is solved.
 		.stack({ .orientation = GUIOrientation::Horizontal, .padding = { -2, 0 }, .hAlign = HAlign::Stretch, .vAlign = VAlign::Bottom, .size = Vec2{ autoSize, 69.f }, .pos = { -1, -1 } })
@@ -112,15 +112,23 @@ HUD::HUD(GUI& gui, ResourceSystem& resourceSystem) : m_gui(gui), m_resourceSyste
 		.custom({
 			.draw = [this](const auto& atlas, const auto& size){ m_fadeScreen.draw(); }
 		})
-		// Skip Button
-		.button({ .text = "Skip", .pos = { 10, 40 }, .size = {50, 20.f}, .onClick = [this]() { m_onSkipClickedCallbacks.executeCallbacks(); }, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom}, &m_skipButtonHandle)
-	.screen();
+		.button({ .text = "Skip", .pos = { 10, 40 }, .size = {50, 20.f}, .onClick = [this]() { m_onSkipClickedCallbacks.executeCallbacks(); }, .hAlign = HAlign::Right, .vAlign = VAlign::Bottom}, &m_skipButtonHandle);
+
+	// Cheats Stack
+	fillCheatsButton(screenBuilder);
+
+	// Skip Button
+
+	m_screen = screenBuilder.screen();
+
 	// clang-format on
 	m_screen->setVisible(false);
 }
 
 void HUD::setEnable(bool enabled) {
 	m_isEnabled = enabled;
+	auto& cheatStack = m_screen->getStack(m_cheatStackHandle);
+	cheatStack.owner->visible = m_data.showCheats && m_isEnabled;
 }
 
 Color calculatePercentageColor(float value, float maxValue, Color color1 = GREEN, Color color2 = ORANGE, Color color3 = RED) {
@@ -204,6 +212,9 @@ void HUD::update(float dt) {
 
 	auto& skipButton = m_screen->getButton(m_skipButtonHandle);
 	skipButton.owner->visible = m_data.showSkipButton;
+
+	auto& cheatStack = m_screen->getStack(m_cheatStackHandle);
+	cheatStack.owner->visible = m_data.showCheats && m_isEnabled;
 }
 
 void HUD::setVisible(bool visible) {
@@ -216,6 +227,10 @@ CallbackHandle HUD::onDefenderSelected(std::function<void(int)> callback) {
 
 CallbackHandle HUD::onSkipClicked(std::function<void()> callback) {
 	return m_onSkipClickedCallbacks.registerCallback(std::move(callback));
+}
+
+CallbackHandle HUD::onAction(std::function<void(const GameAction&)> callback) {
+	return m_onGameActionCallbacks.registerCallback(std::move(callback));
 }
 
 void HUD::clear() {
@@ -516,4 +531,32 @@ void HUD::drawBatteryTrend(Atlas& atlas, const Rectangle& bounds) {
 		color = GREEN;
 		DrawTriangle(pointA, pointB, pointC, color);
 	}
+}
+
+struct CheatButton {
+	std::string text;
+	std::function<void()> callback;
+};
+
+void HUD::fillCheatsButton(ScreenBuilder& screenBuilder) {
+	std::vector<CheatButton> cheatButtons = {{"win", [this]() { m_onGameActionCallbacks.executeCallbacks(WinAction()); }},
+											 {"lose", [this]() { m_onGameActionCallbacks.executeCallbacks(LoseAction()); }},
+											 {"end", [this]() { m_onGameActionCallbacks.executeCallbacks(EndAction()); }},
+											 {"battery", [this]() { m_onGameActionCallbacks.executeCallbacks(AddBattery{100}); }},
+											 {"time", [this]() { m_onGameActionCallbacks.executeCallbacks(ChangeSpeed()); }},
+											 {"kill", [this]() { m_onGameActionCallbacks.executeCallbacks(KillRandomEnemy()); }}};
+	screenBuilder.stack({.orientation = GUIOrientation::Vertical, .padding = {0, 1}, .hAlign = HAlign::Left, .vAlign = VAlign::Top, .pos = {0, 0}}, &m_cheatStackHandle);
+
+	auto i = 0;
+	for (auto& cheatButton : cheatButtons) {
+		if (i % 2 == 0) {
+			screenBuilder.stack({.orientation = GUIOrientation::Horizontal, .padding = {1, 0}, .pos = {0, 0}});
+		}
+		screenBuilder.button({.text = cheatButton.text, .size = {50, 15.f}, .onClick = cheatButton.callback});
+		if (i % 2 != 0) {
+			screenBuilder.end();
+		}
+		++i;
+	}
+	screenBuilder.end();
 }

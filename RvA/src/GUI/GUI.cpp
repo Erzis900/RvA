@@ -35,6 +35,13 @@ void GUI::update(float dt) {
 		});
 
 		screen->getButtons().forEachActive([&](auto handle, UIButton& button) {
+			// check if parents are also invisible
+			for (auto* parent = button.owner; parent != nullptr; parent = parent->parent) {
+				if (!parent->visible) {
+					return;
+				}
+			}
+
 			if (button.owner->visible) {
 				// check if the button collides with the mouse and play enter exit sound
 				bool isOver = (CheckCollisionPointRec(getCorrectedMousePosition(), button.owner->finalRect));

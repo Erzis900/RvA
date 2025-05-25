@@ -83,6 +83,10 @@ private:
 	void performAction(const DefenderPickerAction& action);
 	void performAction(const EnableDefenderAction& action);
 	void performAction(const UpdateValidCellAction& action);
+	void performAction(const EndAction& action);
+	void performAction(const ChangeSpeed& action);
+	void performAction(const KillRandomEnemy& action);
+	void performAction(const AddBattery& action);
 	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
@@ -111,12 +115,18 @@ private:
 	void clearAllEntities();
 	void startLevel();
 
+	// cheats functions
+	void changeGameSpeed();
+	void killRandomEnemy();
+	void addBattery(int battery);
+
 	SessionState m_gameState{SessionState::Idle};
 	std::optional<std::string> m_selectedDefender;
 	Wall m_baseWall;
 	LevelData* m_levelData{};
 	CallbackHandle m_onDefenderSelectedCallbackHandle;
 	CallbackHandle m_onSkipCallbackHandle;
+	CallbackHandle m_onActionCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
 	CallbackHandle m_onCollectedDropHandle;

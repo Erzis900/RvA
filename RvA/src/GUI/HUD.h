@@ -74,6 +74,7 @@ struct HUDData {
 	bool showTimeline{};
 	bool showDefenderPicker{};
 	bool showDefenderOverlay{};
+	bool showCheats{};
 	bool showPlate{};
 	bool showSkipButton{};
 
@@ -98,6 +99,7 @@ public:
 	// Events
 	CallbackHandle onDefenderSelected(std::function<void(int)> callback);
 	CallbackHandle onSkipClicked(std::function<void()> callback);
+	CallbackHandle onAction(std::function<void(const GameAction&)> callback);
 
 	// Data
 	auto& data() {
@@ -119,6 +121,8 @@ private:
 	void drawTimeline(Atlas& atlas, const Rectangle& bounds);
 	void drawBatteryTrend(Atlas& atlas, const Rectangle& bounds);
 
+	void fillCheatsButton(ScreenBuilder& screenBuilder);
+
 	bool m_isEnabled{true};
 	HUDData m_data;
 	GUI& m_gui;
@@ -126,6 +130,7 @@ private:
 
 	CallbackRegistry<const int&> m_onDefenderSelectedCallbacks;
 	CallbackRegistry<> m_onSkipClickedCallbacks;
+	CallbackRegistry<const GameAction&> m_onGameActionCallbacks;
 	Screen* m_screen{};
 	WidgetHandle m_scrapTextHandle{};
 	WidgetHandle m_batteryTextHandle{};
@@ -140,7 +145,9 @@ private:
 	WidgetHandle m_plateDescriptionHandle{};
 	WidgetHandle m_batteryAndScrapsHandle{};
 	WidgetHandle m_defenderPickerHandle{};
+	WidgetHandle m_cheatStackHandle{};
 	WidgetHandle m_skipButtonHandle{};
+
 	FadeScreen m_fadeScreen;
 	bool m_isAnyDefenderHovered{};
 	int m_hoveredDefenderIndex{};
