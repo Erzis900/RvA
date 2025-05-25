@@ -265,6 +265,8 @@ void LevelDefinition::registerMenuLevels(GameRegistry& gameRegistry, Atlas& atla
 void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, Atlas& atlas) {
 	auto sprite = [&atlas](const char* spriteName) { return atlas.getSpriteInfo(spriteName); };
 
+	gameRegistry.addDefenderFromTemplate("Solarpanel", "SP1", [&](DefenderTypeInfo& info) { info.batteryDrain = -20; });
+
 	gameRegistry.addLevel(
 		"raylibDemo",
 		{
@@ -279,18 +281,21 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 			.topBackground = sprite("top_bkg"),
 			.timeline = {.keyframes =
 							 KeyframeBuilder::start()
-								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "ShooterDemo"})
-								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "SolarpanelTutorial"})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Shooter"})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "SP1"})
 								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Catapult"})
-								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "LasertronDemo"})
-								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{2}, .id = FixedValue{"ShooterDemo"s}, .type = EntityType::Defender})
-								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{"ShooterDemo"s}, .type = EntityType::Defender, .enabled = false})
-								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
-								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
-								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{5}, .column = FixedValue{0}, .id = FixedValue{"SolarpanelTutorial"s}, .type = EntityType::Defender, .enabled = false})
-								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{8}, .id = FixedValue{"B1"s}})
-								 .t(0,
-									SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{2.f, 4.f}, .row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1Tutorial"s}})
+								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Lasertron"})
+								 .t(0.0f, HUDOperation{.type = HUDOperationType::Enable})
+								 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = FixedValue{2}, .id = FixedValue{"Shooter"s}, .type = EntityType::Defender})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{4}, .id = FixedValue{"Shooter"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{"Shooter"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{4}, .id = FixedValue{"Shooter"s}, .type = EntityType::Defender, .enabled = false})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{"SP1"s}, .type = EntityType::Defender, .enabled = true})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{"SP1"s}, .type = EntityType::Defender, .enabled = true})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{5}, .column = FixedValue{0}, .id = FixedValue{"SP1"s}, .type = EntityType::Defender, .enabled = true})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0, SpawnEntityBurstOperation{.amount = FixedValue{6}, .interval = RandomRange{2.f, 4.f}, .row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B1"s}})
 								 .t(2.0f,
 									MessageOperation{
 										.text = "THEY'RE COMING!!!",
@@ -308,6 +313,18 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
 
 								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = lastColumn, .id = FixedValue{"PortalDemo"s}})
+
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.5f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = lastColumn, .id = FixedValue{"B2"s}})
+
+								 .t(8.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{"B2"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(0.5f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{"B1"s}})
+								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = lastColumn, .id = FixedValue{"B1"s}})
 
 								 .t(1.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = lastColumn, .id = FixedValue{"B1"s}})
 								 .t(0.0f, SpawnEntityOperation{.row = FixedValue{1}, .column = lastColumn, .id = FixedValue{"B1"s}})
@@ -730,7 +747,7 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 		"portal",
 		{.name = "Tele             port",
 		 .musicId = "level2",
-		 .startingScraps = 100,
+		 .startingScraps = 200,
 		 .maxBatteryCharge = 100,
 		 .winCountdownDuration = 2.f,
 		 .winCondition = AllWavesGoneCondition{},
@@ -750,11 +767,10 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 					 .t(3.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
 
-					 .t(8.0f, MessageOperation{.text = "Ok... they can teleport now????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
-					 .t(4.0f, MessageOperation{.text = "Pay attention to those purple ones", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
-					 .t(2.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+					 .t(8.0f, MessageOperation{.text = "They can teleport????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
+					 .t(4.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
-					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})

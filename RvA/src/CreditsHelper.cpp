@@ -29,6 +29,7 @@ const std::vector<CreditsItem> creditsItems{
 	{"Marvin Gorner", nameColor},
 	{"Adsol", nameColor},
 	{"Cabbage", nameColor},
+	{"SolaarNoble", nameColor},
 	{},
 	{"CONCEPT ART", titleColor, true, "shooter_idle", Fade(RED, 0.5f), {32, 32}},
 	{"yeahno", nameColor},
