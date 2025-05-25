@@ -17,6 +17,8 @@ void DropManager::spawnDrop(const DropTypeInfo* dropInfo, const Vector2& positio
 	drop->enterAnimation = 0.f;
 	drop->info = dropInfo;
 	drop->amount = amount;
+	m_collectedDrops.emplace_back(drop->info, drop->amount);
+	m_onDropsCollectedCallbacks.executeCallbacks(m_collectedDrops);
 	m_drops.push_back(std::move(drop));
 }
 
@@ -32,7 +34,6 @@ void DropManager::update(float dt) {
 		auto& drop = *it;
 
 		if (drop->enterAnimation >= drop->info->animationDuration) {
-			m_collectedDrops.emplace_back(drop->info, drop->amount);
 			it = m_drops.erase(it);
 		} else {
 			drop->enterAnimation += dt;

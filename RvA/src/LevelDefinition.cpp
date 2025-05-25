@@ -376,7 +376,7 @@ void LevelDefinition::registerBaseLevels(GameRegistry& gameRegistry, Atlas& atla
 		"level2",
 		{.name = "Let's raise the bar",
 		 .musicId = "level1",
-		 .startingScraps = 200,
+		 .startingScraps = 250,
 		 .maxBatteryCharge = 150,
 		 .winCountdownDuration = 2.f,
 		 .winCondition = AllWavesGoneCondition{},
