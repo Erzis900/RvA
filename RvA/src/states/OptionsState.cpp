@@ -43,6 +43,9 @@ flow::FsmAction OptionsState::enter() {
 			.end()
 #endif
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+				.label_button({"", {}, btnSize, [this]() { toggleCheats(); }}, &m_toggleCheatsButton)
+			.end()
+			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"", {}, btnSize, [this]() { toggleTutorial(); }}, &m_toggleTutorialButton)
 			.end()
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
@@ -84,6 +87,7 @@ void OptionsState::updateLabels() {
 	m_screen->getButton(m_windowButton).text = options.isFullscreen ? "Full screen" : "Windowed";
 #endif
 	m_screen->getButton(m_toggleTutorialButton).text = options.isTutorialEnabled ? "Tutorial ON" : "Tutorial OFF";
+	m_screen->getButton(m_toggleCheatsButton).text = options.cheatEnabled ? "Cheats ON" : "Cheats OFF";
 }
 
 void OptionsState::toggleFullscreen() {
@@ -96,5 +100,11 @@ void OptionsState::toggleFullscreen() {
 void OptionsState::toggleTutorial() {
 	bool& isTutorial = m_game.getConfig().options.isTutorialEnabled;
 	isTutorial = !isTutorial;
+	updateLabels();
+}
+
+void OptionsState::toggleCheats() {
+	bool& cheatEnabled = m_game.getConfig().options.cheatEnabled;
+	cheatEnabled = !cheatEnabled;
 	updateLabels();
 }

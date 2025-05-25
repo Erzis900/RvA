@@ -35,3 +35,31 @@ REM Return to original directory
 popd
 
 echo Build complete.
+
+REM ——— Config ———
+set "BUILD_DIR=build_web"
+set "RELEASE_DIR=release"
+set "ZIP_NAME=robots_vs_aliens.zip"
+
+REM ——— Make sure the release folder exists ———
+if not exist "%RELEASE_DIR%" mkdir "%RELEASE_DIR%"
+
+REM ——— Copy & rename ———
+copy "%BUILD_DIR%\robots_vs_aliens.data"     "%RELEASE_DIR%" >nul
+copy "%BUILD_DIR%\robots_vs_aliens.html"     "%RELEASE_DIR%\index.html" >nul
+copy "%BUILD_DIR%\robots_vs_aliens.js"       "%RELEASE_DIR%" >nul
+copy "%BUILD_DIR%\robots_vs_aliens.wasm"     "%RELEASE_DIR%" >nul
+
+REM ——— Remove any old zip ———
+if exist "%RELEASE_DIR%\%ZIP_NAME%" del /f "%RELEASE_DIR%\%ZIP_NAME%"
+
+REM ——— Zip it up with tar ———
+tar -a -c -f "%RELEASE_DIR%\%ZIP_NAME%" -C "%RELEASE_DIR%" robots_vs_aliens.data index.html robots_vs_aliens.js robots_vs_aliens.wasm
+
+if exist "%RELEASE_DIR%\%ZIP_NAME%" (
+  echo Release package created at %RELEASE_DIR%\%ZIP_NAME%
+) else (
+  echo FAILED to create %ZIP_NAME%
+)
+
+endlocal

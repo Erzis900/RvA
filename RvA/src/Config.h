@@ -15,6 +15,7 @@ public:
 		float sfxVolume{0.5};
 		float musicVolume{0.5};
 		float masterVolume{0.5};
+		bool cheatEnabled{false};
 	} options;
 
 	json getData() const {

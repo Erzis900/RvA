@@ -102,7 +102,7 @@ struct Game::pimpl {
 
 		m_fsm->update(dt);
 
-		if (DEV_MODE) {
+		if (m_config.options.cheatEnabled) {
 			if (IsKeyPressed(KEY_F2)) {
 				m_gui.toggleDebugView();
 			} else if (IsKeyPressed(KEY_F10)) {
@@ -126,38 +126,6 @@ struct Game::pimpl {
 	}
 
 	void updateMouse() {
-#ifdef WEB_MODE
-		static bool first = true;
-		EmscriptenFullscreenChangeEvent status;
-		emscripten_get_fullscreen_status(&status);
-		if (status.isFullscreen) {
-			if (first) {
-				virtualMousePosition.x = m_gameRenderTexture.texture.width / 2;
-				virtualMousePosition.y = m_gameRenderTexture.texture.height / 2;
-				first = false;
-			} else {
-				Vector2 d = GetMouseDelta();
-				virtualMousePosition.x = Clamp(virtualMousePosition.x + d.x, 0, m_gameRenderTexture.texture.width);
-				virtualMousePosition.y = Clamp(virtualMousePosition.y + d.y, 0, m_gameRenderTexture.texture.height);
-			}
-
-			auto rect = updateRenderRec(m_gameRenderTexture.texture);
-			auto x = virtualMousePosition.x / m_gameRenderTexture.texture.width;
-			auto y = virtualMousePosition.y / m_gameRenderTexture.texture.height;
-
-			SetMouseOffset(0, 0);
-			SetMouseScale(1, 1);
-			SetMousePosition(virtualMousePosition.x, virtualMousePosition.y);
-		} else {
-			int offsetX = int(-(m_screenWidth - (m_gameRenderTexture.texture.width * m_scale)) / 2.f);
-			int offsetY = int(-(m_screenHeight - (m_gameRenderTexture.texture.height * m_scale)) / 2.f);
-
-			SetMouseOffset(offsetX, offsetY);
-			SetMouseScale(1 / m_scale, 1 / m_scale);
-			virtualMousePosition = GetMousePosition();
-			first = true;
-		}
-#else
 		int offsetX = int(-(m_screenWidth - (m_gameRenderTexture.texture.width * m_scale)) / 2.f);
 		int offsetY = int(-(m_screenHeight - (m_gameRenderTexture.texture.height * m_scale)) / 2.f);
 
@@ -165,7 +133,6 @@ struct Game::pimpl {
 		SetMouseScale(1 / m_scale, 1 / m_scale);
 
 		virtualMousePosition = GetMousePosition();
-#endif
 	}
 
 	void draw() {
@@ -359,16 +326,15 @@ void Game::registerDefenderTypes() {
 	auto sprite = [this](const char* spriteName) { return m_pimpl->m_atlas.getSpriteInfo(spriteName); };
 
 	m_pimpl->m_gameRegistry.addDefender("Solarpanel",
-										{
-											.name = "Solar Panel",
-											.spriteEnabled = {sprite("solar_idle"), 0.1f},
-											.spriteDisabled = {sprite("solar_off"), 0.1f},
-											.spriteDying = {sprite("solar_death"), 0.1f, 1},
-											.batteryDrain = -5,
-											.maxHP = 200,
-											.cost = 50,
-											.buildCooldown = 2.f,
-										});
+										{.name = "Solar Panel",
+										 .spriteEnabled = {sprite("solar_idle"), 0.1f},
+										 .spriteDisabled = {sprite("solar_off"), 0.1f},
+										 .spriteDying = {sprite("solar_death"), 0.1f, 1},
+										 .batteryDrain = -5,
+										 .maxHP = 200,
+										 .cost = 50,
+										 .buildCooldown = 2.f,
+										 .canBeDisabled = false});
 
 	m_pimpl->m_gameRegistry.addDefender("Shooter",
 										{.name = "Shooter",

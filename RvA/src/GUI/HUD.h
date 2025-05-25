@@ -34,6 +34,7 @@ struct HUDDefenderData {
 struct HUDDeployedDefenderData {
 	DefenderState state{};
 	Vector2 position;
+	bool canBeDisabled{true};
 };
 
 struct HUDTimelineDataItem {

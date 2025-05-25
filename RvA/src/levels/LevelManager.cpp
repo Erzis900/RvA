@@ -64,6 +64,11 @@ void LevelManager::updateTimeline(float dt) {
 		m_currentLevel.time += dt;
 
 		auto keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
+		if (!keyFrame) {
+			m_lastKeyframeReached = true;
+			return;
+		}
+
 		while (m_currentLevel.time >= keyFrame->time) {
 			m_currentLevel.nextKeyframe++;
 

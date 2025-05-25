@@ -25,6 +25,7 @@ struct DefenderTypeInfo {
 	std::optional<std::string> bulletType;
 	float shootingAnimationTime{};
 	float buildCooldown{};
+	bool canBeDisabled{true};
 };
 
 class DefenderTypeRegistry {

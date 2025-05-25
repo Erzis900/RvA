@@ -18,9 +18,11 @@ private:
 
 	void toggleFullscreen();
 	void toggleTutorial();
+	void toggleCheats();
 
 	WidgetHandle m_windowButton{};
 	WidgetHandle m_toggleTutorialButton{};
+	WidgetHandle m_toggleCheatsButton{};
 	Screen* m_screen{};
 	std::string m_nextTransition{};
 	float m_alphaBackground{};

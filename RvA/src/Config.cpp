@@ -1,5 +1,7 @@
 #include "Config.h"
 
+#include "constants.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -24,6 +26,7 @@ Config::Config() {
 
 	m_data = nlohmann::json::parse(configFile);
 
+#ifndef WEB_MODE
 	options.isFullscreen = m_data["fullscreen"];
 	options.isMusicEnabled = m_data["musicEnabled"];
 	options.isSoundEnabled = m_data["soundEnabled"];
@@ -31,6 +34,8 @@ Config::Config() {
 	options.sfxVolume = m_data["sfxVolume"];
 	options.musicVolume = m_data["musicVolume"];
 	options.masterVolume = m_data["masterVolume"];
+	options.cheatEnabled = m_data["cheatEnabled"];
+#endif
 }
 
 void Config::save() {
@@ -46,6 +51,7 @@ void Config::save() {
 	m_data["sfxVolume"] = options.sfxVolume;
 	m_data["musicVolume"] = options.musicVolume;
 	m_data["masterVolume"] = options.masterVolume;
+	m_data["cheatEnabled"] = options.cheatEnabled;
 
 	configFile << m_data.dump(4);
 	configFile.close();

@@ -97,7 +97,7 @@ void Session::update(float dt) {
 		m_gridDrawTime += dt;
 	}
 
-	if (DEV_MODE) {
+	if (m_config.options.cheatEnabled) {
 		// When pressing F3 deal 500 damage to a random enemy
 		if (IsKeyPressed(KEY_F3)) {
 			auto& enemies = m_enemyManager.getEnemies();
@@ -211,15 +211,18 @@ void Session::performDefenderSpawnOnInput() {
 						}
 					}
 				} else if (!canPlaceDefender(row, column)) {
-					m_defenderManager.toggleDefender(row, column);
-					updateEnabledDefendersStats();
+					auto* defender = m_defenderManager.getDefender(row, column);
+					if (defender && defender->info->canBeDisabled) {
+						m_defenderManager.toggleDefender(row, column);
+						updateEnabledDefendersStats();
+					}
 				}
 			}
 		}
 
 		if (!m_selectedDefender) {
 			auto* defender = m_defenderManager.getDefender(row, column);
-			if (defender) {
+			if (defender && defender->info->canBeDisabled) {
 				m_defenderManager.highlight(*defender);
 			} else {
 				m_defenderManager.unhighlight();
@@ -609,7 +612,7 @@ void Session::updateHUD(float dt) {
 			continue;
 		}
 		hudData.progressBars.push_back(ProgressBarData{.value = static_cast<float>(defender->hp), .max = static_cast<float>(defender->info->maxHP), .position = defender->position});
-		hudData.deployedDefenders.emplace_back(defender->state, defender->position);
+		hudData.deployedDefenders.emplace_back(defender->state, defender->position, defender->info->canBeDisabled);
 	}
 
 	for (auto& enemy : m_enemyManager.getEnemies()) {
