@@ -272,7 +272,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 		if (m_isEnabled) {
 			isSelected = (m_data.selectedDefenderIndex == i);
 
-			if (CheckCollisionPointRec(GetMousePosition(), frameRect)) {
+			if (CheckCollisionPointRec(getCorrectedMousePosition(), frameRect)) {
 				m_isAnyDefenderHovered = true;
 				defender.isHover = true;
 				m_hoveredDefenderIndex = i;
@@ -331,7 +331,7 @@ void HUD::drawDefenders(Atlas& atlas, const Rectangle& bounds) {
 	}
 
 	if (m_data.selectedDefenderIndex) {
-		auto mousePos = GetMousePosition();
+		auto mousePos = getCorrectedMousePosition();
 		auto [row, column] = getCoordinates(mousePos);
 		auto position = getSnappedPosition(mousePos);
 
@@ -408,7 +408,7 @@ void HUD::drawDeployedDefenderHUD(Atlas& atlas, const Rectangle& bounds) {
 			auto pos = deployedDefender.position;
 
 			auto frameRect = Rectangle{pos.x, pos.y + 5, defenderSize, defenderSize};
-			if (m_isEnabled && CheckCollisionPointRec(GetMousePosition(), frameRect)) {
+			if (m_isEnabled && CheckCollisionPointRec(getCorrectedMousePosition(), frameRect)) {
 				auto width = 5.f;
 				auto height = 5.f;
 				auto upHeight = 4.f;

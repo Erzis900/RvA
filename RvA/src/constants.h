@@ -5,6 +5,12 @@
 #include <tuple>
 #include <vector>
 
+#ifdef __EMSCRIPTEN__
+#define WEB_MODE
+#else
+#define DESKTOP_MODE
+#endif
+
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
 
@@ -17,7 +23,7 @@ constexpr int COLS = 18;
 constexpr int CELL_SIZE = 32;
 constexpr Vector2 GRID_OFFSET = {64, 64};
 
-constexpr bool DEV_MODE = false;
+constexpr bool DEV_MODE = true;
 
 constexpr int FONT_SMALL = 16;
 constexpr int FONT_MEDIUM = 32;
@@ -33,3 +39,6 @@ Vector2 getSnappedPosition(const Vector2& position);
 Vector2 getSnappedPosition(int row, int column);
 int clampColumn(int column);
 int clampRow(int row);
+
+extern Vector2 virtualMousePosition;
+Vector2 getCorrectedMousePosition();

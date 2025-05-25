@@ -7,7 +7,7 @@
 // #include <spdlog/spdlog.h>
 
 Config::Config() {
-	std::ifstream configFile("config/options.json");
+	std::ifstream configFile("assets/config/options.json");
 	/*if (!configFile.is_open()) {
 		spdlog::error("Failed to open config file");
 		return;
@@ -34,7 +34,7 @@ Config::Config() {
 }
 
 void Config::save() {
-	std::ofstream configFile("config/options.json");
+	std::ofstream configFile("assets/config/options.json");
 	if (!configFile.is_open()) {
 		std::cerr << "Failed to open config file for writing" << std::endl;
 		return;

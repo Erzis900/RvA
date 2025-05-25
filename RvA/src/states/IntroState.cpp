@@ -7,10 +7,6 @@
 IntroState::IntroState(Game& game) : m_game(game) {}
 
 flow::FsmAction IntroState::enter() {
-	if (DEV_MODE) {
-		return flow::FsmAction::transition("menu");
-	}
-
 	auto& gui = m_game.getGUI();
 
 	// TODO add fade transition and studio logo
@@ -19,7 +15,7 @@ flow::FsmAction IntroState::enter() {
 	gui.buildScreen("Intro")
 		.default_bkg()
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = {0, 0}, .hAlign = HAlign::Center, .vAlign = VAlign::Center, .sideAlignContent = ContentAlign::Center})
-			.medium_text({.text = "Robots vs Aliens!", .color = WHITE})
+			.image({.sprite = gui.getAtlas().getSpriteInfo("logo")})
 		.end();
 	// clang-format on
 

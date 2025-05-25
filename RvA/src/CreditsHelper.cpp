@@ -1,6 +1,6 @@
 #include "CreditsHelper.h"
 
-#include "gui/GUI.h"
+#include "GUI/GUI.h"
 
 #include <raylib.h>
 #include <string>

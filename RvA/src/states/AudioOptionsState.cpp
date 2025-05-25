@@ -31,9 +31,7 @@ flow::FsmAction AudioOptionsState::enter() {
 	builder
 		.default_bkg(m_alphaBackground)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = Vec2{ 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
-			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
-				.big_text({ .text = "AUDIO OPTIONS", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
-			.end()
+			.image({.pos = {10, 10}, .sprite = gui.getAtlas().getSpriteInfo("logo"), .hAlign = HAlign::Left})
 
 			.space({0, 35.f})
 		

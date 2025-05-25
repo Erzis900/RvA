@@ -29,3 +29,9 @@ int clampColumn(int column) {
 int clampRow(int row) {
 	return std::clamp(row, 0, ROWS - 1);
 }
+
+Vector2 virtualMousePosition = {};
+
+Vector2 getCorrectedMousePosition() {
+	return virtualMousePosition;
+}

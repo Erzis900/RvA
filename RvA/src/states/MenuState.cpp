@@ -19,9 +19,7 @@ flow::FsmAction MenuState::enter() {
 	screenBuilder
 		.default_bkg(0.25f)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = Vec2{ 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
-			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
-				.big_text({ .text = "Robots vs Aliens", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
-			.end()
+			.image({.pos = {10, 10}, .sprite = gui.getAtlas().getSpriteInfo("logo"), .hAlign = HAlign::Left})
 
 			.space({0, 35.f})
 		
@@ -31,9 +29,11 @@ flow::FsmAction MenuState::enter() {
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({ .text = "Options", .size = btnSize, .onClick = [this]() { m_nextTransition = "options"; }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 			.end()
+		#ifndef WEB_MODE
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({ .text = "Exit", .size = btnSize, .onClick = [this]() { m_nextTransition = "exit"; }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 			.end()
+		#endif
 		.end();
 
 	CreditsHelper::fillCredits(screenBuilder, gui);

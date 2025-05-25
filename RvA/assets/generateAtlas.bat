@@ -1,1 +1,0 @@
-python genAtlas.py assets atlas

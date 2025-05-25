@@ -5,6 +5,7 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class Session;
 class GameRegistry;

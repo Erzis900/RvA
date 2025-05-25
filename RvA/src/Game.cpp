@@ -22,6 +22,11 @@
 #include "states/WinState.h"
 #include "utilities/Random.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
 using namespace std::string_literals;
 
 void MyTraceLog(int logLevel, const char* text, va_list args) {
@@ -43,6 +48,11 @@ struct Game::pimpl {
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 		SetTraceLogLevel(LOG_ALL);
 		InitWindow(m_screenWidth, m_screenHeight, "RvA");
+
+#ifdef __EMSCRIPTEN__
+		emscripten_exit_pointerlock();
+#endif
+
 		SetTargetFPS(60);
 
 		m_gameRenderTexture = LoadRenderTexture(static_cast<int>(GAME_RENDERTEXTURE_SIZE.x), static_cast<int>(GAME_RENDERTEXTURE_SIZE.y));
@@ -57,7 +67,9 @@ struct Game::pimpl {
 		m_atlas.load("assets/atlas.png");
 		m_gui.loadResources();
 
+#ifndef WEB_MODE
 		DisableCursor();
+#endif
 		m_gui.setCursor(CursorType::Default);
 
 		SetExitKey(0);
@@ -78,9 +90,11 @@ struct Game::pimpl {
 			isWindowFocused = false;
 		}
 
+#ifndef WEB_MODE
 		if (!m_isWindowFocused && isWindowFocused) {
 			DisableCursor();
 		}
+#endif
 		m_isWindowFocused = isWindowFocused;
 
 		float dt = GetFrameTime();
@@ -112,11 +126,46 @@ struct Game::pimpl {
 	}
 
 	void updateMouse() {
+#ifdef WEB_MODE
+		static bool first = true;
+		EmscriptenFullscreenChangeEvent status;
+		emscripten_get_fullscreen_status(&status);
+		if (status.isFullscreen) {
+			if (first) {
+				virtualMousePosition.x = m_gameRenderTexture.texture.width / 2;
+				virtualMousePosition.y = m_gameRenderTexture.texture.height / 2;
+				first = false;
+			} else {
+				Vector2 d = GetMouseDelta();
+				virtualMousePosition.x = Clamp(virtualMousePosition.x + d.x, 0, m_gameRenderTexture.texture.width);
+				virtualMousePosition.y = Clamp(virtualMousePosition.y + d.y, 0, m_gameRenderTexture.texture.height);
+			}
+
+			auto rect = updateRenderRec(m_gameRenderTexture.texture);
+			auto x = virtualMousePosition.x / m_gameRenderTexture.texture.width;
+			auto y = virtualMousePosition.y / m_gameRenderTexture.texture.height;
+
+			SetMouseOffset(0, 0);
+			SetMouseScale(1, 1);
+			SetMousePosition(virtualMousePosition.x, virtualMousePosition.y);
+		} else {
+			int offsetX = int(-(m_screenWidth - (m_gameRenderTexture.texture.width * m_scale)) / 2.f);
+			int offsetY = int(-(m_screenHeight - (m_gameRenderTexture.texture.height * m_scale)) / 2.f);
+
+			SetMouseOffset(offsetX, offsetY);
+			SetMouseScale(1 / m_scale, 1 / m_scale);
+			virtualMousePosition = GetMousePosition();
+			first = true;
+		}
+#else
 		int offsetX = int(-(m_screenWidth - (m_gameRenderTexture.texture.width * m_scale)) / 2.f);
 		int offsetY = int(-(m_screenHeight - (m_gameRenderTexture.texture.height * m_scale)) / 2.f);
 
 		SetMouseOffset(offsetX, offsetY);
 		SetMouseScale(1 / m_scale, 1 / m_scale);
+
+		virtualMousePosition = GetMousePosition();
+#endif
 	}
 
 	void draw() {
@@ -195,11 +244,23 @@ Game::Game() {
 
 Game::~Game() = default;
 
+Game* game{};
+
+void Game::updateWeb() {
+	game->m_pimpl->update();
+	game->m_pimpl->draw();
+}
+
 void Game::run() {
+#if defined(__EMSCRIPTEN__)
+	game = this;
+	emscripten_set_main_loop(Game::updateWeb, 0, 1);
+#else
 	while (!m_pimpl->shouldClose()) {
 		m_pimpl->update();
 		m_pimpl->draw();
 	}
+#endif
 }
 
 void Game::setupFSM() {

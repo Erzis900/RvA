@@ -49,8 +49,7 @@ private:
 	void registerDropTypes();
 	void registerPortals();
 
-	void verifyLevelData();
-	void verifyLevelCoordinate(int min, int max, const ConfigValue<int>& value);
+	static void updateWeb();
 
 	/*
 	 * Pimpl idiom to avoid recompilation of every class depending on Game.h

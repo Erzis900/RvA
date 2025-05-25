@@ -4,7 +4,7 @@
 #include "MusicManager.h"
 #include "constants.h"
 
-#include <gui/GUIStyle.h>
+#include <GUI/GUIStyle.h>
 #include <raymath.h>
 
 GUI::GUI(Atlas& atlas, MusicManager& musicManager) : m_atlas(atlas), m_musicManager(musicManager) {}
@@ -37,7 +37,7 @@ void GUI::update(float dt) {
 		screen->getButtons().forEachActive([&](auto handle, UIButton& button) {
 			if (button.owner->visible) {
 				// check if the button collides with the mouse and play enter exit sound
-				bool isOver = (CheckCollisionPointRec(GetMousePosition(), button.owner->finalRect));
+				bool isOver = (CheckCollisionPointRec(getCorrectedMousePosition(), button.owner->finalRect));
 				if (isOver && !button.isMouseOver) {
 					m_musicManager.playSound("button_hover");
 				}
@@ -50,15 +50,13 @@ void GUI::update(float dt) {
 
 void GUI::draw() {
 	drawScreens();
-	if (DEV_MODE) {
-		drawFPS();
-	}
+	// drawFPS();
 	drawCursor();
 	m_fadeScreen.draw();
 }
 
 void GUI::drawCursor() {
-	m_atlas.drawSprite(m_mouseCurrentSprite, {GetMousePosition().x - 10, GetMousePosition().y - 5}, {32, 32});
+	m_atlas.drawSprite(m_mouseCurrentSprite, {getCorrectedMousePosition().x - 10, getCorrectedMousePosition().y - 5}, {32, 32});
 }
 
 void GUI::drawFPS() {

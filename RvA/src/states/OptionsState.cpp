@@ -30,18 +30,18 @@ flow::FsmAction OptionsState::enter() {
 	builder
 		.default_bkg(m_alphaBackground)
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = Vec2{ 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
-			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 1), Fade(BLACK, 0.0)), .size = {autoSize, 0}, .padding = {5, 0} })
-				.big_text({ .text = "OPTIONS", .color = WHITE, .hAlign = HAlign::Left, .pos = {10, 0} })
-			.end()
+			.image({.pos = {10, 10}, .sprite = gui.getAtlas().getSpriteInfo("logo"), .hAlign = HAlign::Left})
 
 			.space({0, 35.f})
 		
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"Audio", {}, btnSize, [this]() { m_nextTransition = "audio"; }})
 			.end()
+#ifndef WEB_MODE
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"", {}, btnSize, [this]() { ToggleFullscreen(); }}, &m_windowButton)
 			.end()
+#endif
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({"", {}, btnSize, [this]() { toggleTutorial(); }}, &m_toggleTutorialButton)
 			.end()
@@ -80,7 +80,9 @@ void OptionsState::exit() {
 
 void OptionsState::updateLabels() {
 	auto& options = m_game.getConfig().options;
+#ifndef WEB_MODE
 	m_screen->getButton(m_windowButton).text = options.isFullscreen ? "Full screen" : "Windowed";
+#endif
 	m_screen->getButton(m_toggleTutorialButton).text = options.isTutorialEnabled ? "Tutorial ON" : "Tutorial OFF";
 }
 

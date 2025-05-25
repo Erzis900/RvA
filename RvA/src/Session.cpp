@@ -192,7 +192,7 @@ void Session::updateEnabledDefendersStats() {
 }
 
 void Session::performDefenderSpawnOnInput() {
-	auto mousePos = GetMousePosition();
+	auto mousePos = getCorrectedMousePosition();
 	auto [row, column] = getCoordinates(mousePos);
 	if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
 		if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))) {
@@ -488,12 +488,13 @@ void Session::manageEnemyPortalCollision(const Collision& collision) {
 
 	if (portal->type == PortalType::Entrance) {
 		switch (collision.event) {
-		case CollisionEvent::Enter:
+		case CollisionEvent::Enter: {
 			m_musicManager.playSound("teleporting");
 
 			Vector2 exitPosition = m_portalManager.getExit(portal->id)->position;
 			enemy->setPosition(exitPosition);
 			break;
+		}
 		case CollisionEvent::Exit	: break;
 		case CollisionEvent::Ongoing: break;
 		}
