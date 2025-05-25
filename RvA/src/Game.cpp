@@ -358,12 +358,13 @@ void Game::registerDefenderTypes() {
 										 .spriteShoot = {sprite("catapult_shoot"), 0.1f, 1},
 										 .spriteDying = {sprite("catapult_death"), 0.1f, 1},
 										 .batteryDrain = 10.f,
-										 .firstShootCooldown = 3.f,
+										 .firstShootCooldown = 1.f,
 										 .shootCooldown = 1.f,
+										 .shootWithoutEnemies = false,
 										 .maxHP = 200,
-										 .cost = 40,
+										 .cost = 60,
 										 .bulletType = "ChasingShot",
-										 .shootingAnimationTime = 0.6f,
+										 .shootingAnimationTime = 0.5f,
 										 .buildCooldown = 5.f});
 
 	m_pimpl->m_gameRegistry.addDefender("Lasertron",
@@ -418,11 +419,12 @@ void Game::registerBulletTypes() {
 	m_pimpl->m_gameRegistry.addBullet("ChasingShot",
 									  ChasingShotData{
 										  .startOffset = {20, 8},
-										  .radius = 10.f,
-										  .damage = {40, 5},
-										  .maxLifetime = 5.f,
+										  .radius = 3.0f,
+										  .damage = {40, 0},
+										  .maxLifetime = 0.95f,
 										  .speed = 150,
 										  .color = {165, 48, 48, 255},
+										  .animationDuration = 0.9f,
 										  .direction = {1, 0},
 									  });
 
@@ -468,9 +470,9 @@ void Game::registerEnemyTypes() {
 
 	m_pimpl->m_gameRegistry.addEnemy("B2",
 									 {.type = EnemyType::B2,
-									  .maxHp = 150,
-									  .speed = 80,
-									  .attackTime = 0.5f,
+									  .maxHp = 350,
+									  .speed = 40,
+									  .attackTime = 0.4f,
 									  .defenderDamage = 100,
 									  .baseWallDamage = 10,
 									  .bounceResistance = 10,
@@ -478,7 +480,7 @@ void Game::registerEnemyTypes() {
 									  .dropAmount = FixedValue{50},
 									  .idleAnimation = {sprite("b2_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b2_alien_walk"), 0.1f},
-									  .attackAnimation = {sprite("b2_alien_attack"), 0.1f},
+									  .attackAnimation = {sprite("b2_alien_attack"), 0.08f},
 									  .dyingAnimation = {sprite("b2_alien_death"), 0.1f, 1},
 									  .sparkEffect = electrocuteAnimationData});
 

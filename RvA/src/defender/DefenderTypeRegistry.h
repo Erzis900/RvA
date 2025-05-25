@@ -20,6 +20,7 @@ struct DefenderTypeInfo {
 	float batteryDrain{};
 	float firstShootCooldown{};
 	float shootCooldown{};
+	bool shootWithoutEnemies{true};
 	int maxHP{};
 	int cost{};
 	std::optional<std::string> bulletType;

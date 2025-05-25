@@ -3,11 +3,13 @@
 #include "MusicManager.h"
 #include "ResourceSystem.h"
 #include "collisions/CollisionSystem.h"
+#include "enemy/EnemyManager.h"
 
-DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem)
+DefenderManager::DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem, EnemyManager& enemyManager)
 	: m_collisionSystem(collisionSystem)
 	, m_musicManager(musicManager)
-	, m_resourceSystem(resourceSystem) {
+	, m_resourceSystem(resourceSystem)
+	, m_enemyManager(enemyManager) {
 	m_defenders.reserve(128);
 }
 
@@ -102,11 +104,13 @@ DefenderUpdateResult DefenderManager::update(float dt) {
 			if (defender->info->bulletType) {
 				switch (defender->state) {
 				case DefenderState::On:
-					defender->shootTime -= dt;
-					if (defender->shootTime <= 0) {
-						defender->shootTime = defender->info->shootCooldown;
-						defender->prepareShootTime = defender->info->shootingAnimationTime;
-						setState(*defender, DefenderState::Shooting);
+					if (m_enemyManager.findClosestEnemy({0, 0}, true) != nullptr || defender->info->shootWithoutEnemies) {
+						defender->shootTime -= dt;
+						if (defender->shootTime <= 0) {
+							defender->shootTime = defender->info->shootCooldown;
+							defender->prepareShootTime = defender->info->shootingAnimationTime;
+							setState(*defender, DefenderState::Shooting);
+						}
 					}
 					break;
 				case DefenderState::Shooting:

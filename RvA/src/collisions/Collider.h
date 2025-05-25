@@ -22,7 +22,8 @@ struct Collider {
 		Bullet = 1 << 1,
 		Enemy = 1 << 2,
 		BaseWall = 1 << 3,
-		Portal = 1 << 4
+		Portal = 1 << 4,
+		None = 1 << 5
 	};
 
 	ColliderHandle handle;

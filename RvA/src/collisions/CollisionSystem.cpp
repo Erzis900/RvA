@@ -121,6 +121,16 @@ void CollisionSystem::updateCollider(ColliderHandle handle, const Rectangle& bou
 	collider->boundingBox = boundingBox;
 }
 
+void CollisionSystem::disableCollider(ColliderHandle handle) {
+	auto collider = m_colliders.getItem(handle);
+	collider->flag = Collider::Flag::None;
+}
+
+void CollisionSystem::enableCollider(ColliderHandle handle, Collider::Flag flag) {
+	auto collider = m_colliders.getItem(handle);
+	collider->flag = flag;
+}
+
 void CollisionSystem::updateColliderPosition(ColliderHandle handle, const Vector2& position) {
 	auto collider = m_colliders.getItem(handle);
 	collider->boundingBox.x = position.x;

@@ -15,6 +15,7 @@
 class CollisionSystem;
 class MusicManager;
 class ResourceSystem;
+class EnemyManager;
 
 /*
  * The Defender struct contains almost only data related to a single instance
@@ -43,7 +44,7 @@ struct DefenderUpdateResult {
 
 class DefenderManager {
 public:
-	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem);
+	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem, EnemyManager& enemyManager);
 
 	void clear();
 	void draw(Atlas& atlas);
@@ -73,6 +74,7 @@ private:
 	CollisionSystem& m_collisionSystem;
 	MusicManager& m_musicManager;
 	ResourceSystem& m_resourceSystem;
+	EnemyManager& m_enemyManager;
 	DefenderUpdateResult m_updateResult;
 	Shader* m_highlightShader{};
 };

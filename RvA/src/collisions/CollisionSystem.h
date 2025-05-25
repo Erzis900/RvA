@@ -35,6 +35,8 @@ public:
 
 	ColliderHandle createCollider(Collider::Flag flag, ColliderOwner colliderOwner);
 	void updateCollider(ColliderHandle handle, const Rectangle& boundingBox);
+	void disableCollider(ColliderHandle handle);
+	void enableCollider(ColliderHandle handle, Collider::Flag flag);
 	void updateColliderPosition(ColliderHandle handle, const Vector2& position);
 	void destroyCollider(ColliderHandle handle);
 

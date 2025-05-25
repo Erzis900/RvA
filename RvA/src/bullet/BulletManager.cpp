@@ -139,36 +139,50 @@ void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, LaserBeamData& data
 void BulletManager::setupBullet(Bullet& bullet, ChasingShotData& data) {
 	bullet.lifetime = data.maxLifetime;
 	bullet.position = Vector2Add(bullet.position, data.startOffset);
+	data.startPosition = bullet.position;
+	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
+	if (enemy) {
+		data.targetPosition = Vector2Add(enemy->getCenteredPosition(), {enemy->getState() == EnemyState::Moving ? data.animationDuration * -enemy->getInfo()->speed : 0, 0});
+	} else {
+		data.targetPosition = getSnappedPosition(ROWS / 2, COLS - 1);
+	}
+
 	auto halfRadius = data.radius * 0.5f;
+	m_collisionSystem.disableCollider(bullet.colliderHandle);
 	m_collisionSystem.updateCollider(bullet.colliderHandle, {bullet.position.x - halfRadius, bullet.position.y - halfRadius, data.radius, data.radius});
 
 	m_musicManager.playSound("catapult_bullet");
 }
 
 void BulletManager::updateBullet(Bullet& bullet, ChasingShotData& data, float dt) {
-	auto enemy = m_enemyManager.findClosestEnemy(bullet.position, true);
-	if (enemy) {
-		auto targetDir = Vector2Normalize(Vector2Subtract(enemy->getCenteredPosition(), bullet.position));
-		data.direction = Vector2Lerp(data.direction, targetDir, 0.1f);
-		if (Vector2Length(data.direction) > data.speed) {
-			data.direction = Vector2Normalize(data.direction);
-		}
+	data.animationTime += dt;
+	data.animationTime = Clamp(data.animationTime, 0, data.animationDuration);
+
+	auto distance = data.targetPosition.x - data.startPosition.x;
+	auto c2 = Vector2Add(data.startPosition, {std::min(64.f, distance), -80});
+	auto t = EaseLinearInOut(data.animationTime, 0, 1, data.animationDuration);
+	auto position =
+		GetSplinePointBezierCubic(data.startPosition, c2, {std::max(data.targetPosition.x - std::min(64.f, distance), c2.x), std::min(c2.y, data.targetPosition.y - 80)}, data.targetPosition, t);
+
+	float shadowY = Lerp(data.startPosition.y, data.targetPosition.y, t);
+	data.shadowPosition = {position.x, shadowY + (1 - t) * 32};
+
+	if (t <= 0.5f) {
+		data.sizeMultiplier = Lerp(1.0f, 1.5f, t * 2);
+	} else {
+		data.sizeMultiplier = Lerp(1.5f, 1.f, (t - 0.5f) * 2);
 	}
 
-	bullet.position = Vector2Add(bullet.position, Vector2Scale(data.direction, dt * data.speed));
+	bullet.position = position;
 	m_collisionSystem.updateColliderPosition(bullet.colliderHandle, {bullet.position.x - data.radius * 0.5f, bullet.position.y - data.radius * 0.5f});
+	if (t > 0.95f) {
+		m_collisionSystem.enableCollider(bullet.colliderHandle, Collider::Flag::Bullet);
+	}
 }
 
 void BulletManager::drawBullet(Bullet& bullet, ChasingShotData& data) {
-	Vector2 forward = Vector2Normalize(data.direction);
-	Vector2 right = {-forward.y, forward.x}; // perpendicular to forward
-
-	Vector2 tip = Vector2Add(bullet.position, Vector2Scale(forward, data.radius * 0.5f));
-	Vector2 baseLeft = Vector2Add(bullet.position, Vector2Scale(right, data.radius * 0.5f));
-	Vector2 baseRight = Vector2Subtract(bullet.position, Vector2Scale(right, data.radius * 0.5f));
-
-	DrawTriangle(baseRight, baseLeft, tip, data.color);
-	DrawTriangle(Vector2Add(baseRight, {0, 23}), Vector2Add(baseLeft, {0, 23}), Vector2Add(tip, {0, 23}), Fade(BLACK, 0.1f));
+	DrawEllipse(data.shadowPosition.x, data.shadowPosition.y, data.radius * 1.2f * data.sizeMultiplier, data.radius * 1.1f * data.sizeMultiplier, Fade(BLACK, 0.1f));
+	DrawCircleV(bullet.position, data.radius * data.sizeMultiplier, RED);
 }
 
 void BulletManager::onEnemyHit(Enemy& enemy, Bullet& bullet, ChasingShotData& data, float dt) {

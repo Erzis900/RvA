@@ -552,13 +552,14 @@ void LevelDefinition::registerTankLevel(GameRegistry& gameRegistry, Atlas& atlas
 				 KeyframeBuilder::start()
 					 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
 
-					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
 					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-					 .t(2.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien2}})
-					 .t(2.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien2}})
 
 					 .t(12.0f, MessageOperation{.text = "Wtf was that????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
-					 .t(3.0f, MessageOperation{.text = "It's stronger and faster! Damn...", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+					 .t(3.0f, MessageOperation{.text = "It's way stronger than the others! Damn...", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
 					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
@@ -571,8 +572,7 @@ void LevelDefinition::registerTankLevel(GameRegistry& gameRegistry, Atlas& atlas
 					 .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
 
 					 .t(2.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
-					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
-					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
+					 .t(10.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
 
@@ -622,27 +622,26 @@ void LevelDefinition::registerSwitchOnOffLevel2(GameRegistry& gameRegistry, Atla
 									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
 									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
 
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{8}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{10}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
 
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
 
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{1}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{1}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{1}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
-									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{2}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{0}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{0}, .id = FixedValue{catapult}, .type = EntityType::Defender, .enabled = false})
 
-									   .t(0.2f, MessageOperation{.text = "Again, aliens here don't drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
-									   .t(5.0f, MessageOperation{.text = "Who the hell put the solar panels there???", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
-									   .t(6.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{1}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{1}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{4}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = false})
+
+									   .t(0.2f, MessageOperation{.text = "Aliens here do not drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+									   .t(5.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})

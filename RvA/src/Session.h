@@ -136,8 +136,8 @@ private:
 	MusicManager& m_musicManager;
 	Config& m_config;
 	CollisionSystem m_collisionSystem;
-	DefenderManager m_defenderManager;
 	EnemyManager m_enemyManager;
+	DefenderManager m_defenderManager;
 	BulletManager m_bulletManager;
 	DropManager m_dropManager;
 	DefenderPicker m_defenderPicker;

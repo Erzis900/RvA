@@ -46,7 +46,12 @@ struct ChasingShotData {
 	float speed{};
 	Color color{};
 
+	float animationDuration{};
+	float animationTime{};
+	float sizeMultiplier{1};
 	Vector2 targetPosition{};
+	Vector2 startPosition{};
+	Vector2 shadowPosition{};
 	Vector2 direction{};
 };
 
