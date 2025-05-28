@@ -47,6 +47,7 @@ public:
 	void resetProgression();
 	void startCurrentLevel();
 	void startNextLevel();
+	void startLevel(const std::string& levelId);
 	void pause();
 	void resume();
 
@@ -114,6 +115,7 @@ private:
 	void resetSelectedDefender();
 	void clearAllEntities();
 	void startLevel();
+	void updateGameSpeed();
 
 	// cheats functions
 	void changeGameSpeed();
@@ -147,4 +149,5 @@ private:
 	bool m_demoMode{};
 	bool m_pauseGameplayLogic{};
 	float m_gridDrawTime{};
+	Interpolation<float> m_gameSpeedInterpolation;
 };

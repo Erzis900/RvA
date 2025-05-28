@@ -43,9 +43,14 @@ void DefenderManager::setState(Defender& defender, DefenderState state) {
 	if (defender.state != state) {
 		defender.task.clear();
 		defender.state = state;
+		defender.tint = WHITE;
 		switch (state) {
-		case DefenderState::On		: defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
-		case DefenderState::Off		: defender.animation = Animation::createAnimation(defender.info->spriteDisabled); break;
+		case DefenderState::On : defender.animation = Animation::createAnimation(defender.info->spriteEnabled); break;
+		case DefenderState::Off: {
+			defender.animation = Animation::createAnimation(defender.info->spriteDisabled);
+			defender.tint = {100, 100, 100, 255};
+			break;
+		}
 		case DefenderState::Shooting: {
 			defender.animation = Animation::createAnimation(defender.info->spriteShoot);
 			defender.task.addTask({[&defender](float dt) {
@@ -86,6 +91,10 @@ void DefenderManager::highlight(Defender& defender) {
 
 void DefenderManager::unhighlight() {
 	m_highlightedDefender = nullptr;
+}
+
+Defender* DefenderManager::getHighlightedDefender() {
+	return m_highlightedDefender;
 }
 
 DefenderUpdateResult DefenderManager::update(float dt) {

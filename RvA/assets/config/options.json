@@ -1,6 +1,7 @@
 {
-    "cheatEnabled": false,
+    "cheatEnabled": true,
     "fullscreen": false,
+    "levelId": "level1",
     "masterVolume": 0.5,
     "musicEnabled": true,
     "musicVolume": 0.5,

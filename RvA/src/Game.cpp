@@ -251,6 +251,7 @@ void Game::setupFSM() {
 			.on("proceed").jumpTo("MainMenu")
 
 		.state<MenuState>("MainMenu", *this)
+			.on("continue").jumpTo("ContinueSession")
 			.on("play").jumpTo("StartSession")
 			.on("options").jumpTo("Options")
 			.on("exit").exitFsm()
@@ -263,6 +264,14 @@ void Game::setupFSM() {
 			.on("back").jumpTo("Options")
 		
 		// In Game States
+		.state<ProceedState>("ContinueSession", [this, &session](){ 
+				session.setDemoMode(false);
+				session.resetProgression();				
+				session.startLevel(m_pimpl->m_config.options.levelId);
+				save();
+			})
+			.on("proceed").jumpTo("Play")
+
 		.state<ProceedState>("StartSession", [this, &session](){ 
 				session.setDemoMode(false);
 				session.resetProgression();
@@ -461,7 +470,7 @@ void Game::registerEnemyTypes() {
 									  .defenderDamage = 50,
 									  .baseWallDamage = 10,
 									  .dropType = "simpleScraps",
-									  .dropAmount = FixedValue{10},
+									  .dropAmount = FixedValue{15},
 									  .idleAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("b1_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("b1_alien_attack"), 0.08f},
@@ -492,7 +501,7 @@ void Game::registerEnemyTypes() {
 									  .defenderDamage = 50,
 									  .baseWallDamage = 10,
 									  .dropType = "simpleScraps",
-									  .dropAmount = RandomRangeStep{100, 200, 10},
+									  .dropAmount = FixedValue{150},
 									  .idleAnimation = {sprite("portal_alien_walk"), 0.1f},
 									  .moveAnimation = {sprite("portal_alien_walk"), 0.1f},
 									  .attackAnimation = {sprite("portal_alien_attack"), 0.1f},

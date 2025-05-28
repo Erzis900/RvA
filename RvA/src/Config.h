@@ -1,5 +1,7 @@
 #pragma once
+
 #include <nlohmann/json.hpp>
+#include <string>
 
 using json = nlohmann::json;
 
@@ -16,6 +18,7 @@ public:
 		float musicVolume{0.5};
 		float masterVolume{0.5};
 		bool cheatEnabled{false};
+		std::string levelId{"none"};
 	} options;
 
 	json getData() const {
@@ -23,6 +26,8 @@ public:
 	}
 
 	void save();
+
+	bool hasLevel() const;
 
 private:
 	json m_data;

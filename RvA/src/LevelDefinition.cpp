@@ -67,6 +67,7 @@ void LevelDefinition::registerTutorialLevels(GameRegistry& gameRegistry, Atlas& 
 			.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 			.groundBackground = sprite("ground_bkg"),
 			.topBackground = sprite("top_bkg"),
+			.isProgressionLevel = false,
 			.timeline = {.keyframes =
 							 KeyframeBuilder::start()
 								 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
@@ -246,6 +247,7 @@ void LevelDefinition::registerMenuLevels(GameRegistry& gameRegistry, Atlas& atla
 						   .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 						   .groundBackground = sprite("ground_bkg"),
 						   .topBackground = sprite("top_bkg"),
+						   .isProgressionLevel = false,
 						   .timeline = {.keyframes = {
 											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{0}, .id = defenderSelection, .type = EntityType::Defender}},
 											{0.f, SpawnEntityOperation{.row = RandomRange{0, 6}, .column = FixedValue{1}, .id = defenderSelection, .type = EntityType::Defender}},
@@ -279,6 +281,7 @@ void LevelDefinition::registerRaylibDemoVideoLevels(GameRegistry& gameRegistry, 
 			.loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 			.groundBackground = sprite("ground_bkg"),
 			.topBackground = sprite("top_bkg"),
+			.isProgressionLevel = false,
 			.timeline = {.keyframes =
 							 KeyframeBuilder::start()
 								 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = "Shooter"})

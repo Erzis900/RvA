@@ -21,6 +21,7 @@ public:
 	void resetCurrentLevelIndex();
 	LevelData* resetCurrentLevel();
 	LevelData* startNextLevel();
+	LevelData* startLevel(const std::string& levelId);
 	bool isLastLevel() const;
 
 	void update(float dt);

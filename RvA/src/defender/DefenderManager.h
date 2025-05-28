@@ -61,6 +61,7 @@ public:
 	bool hasDefender(int row, int column) const;
 	void highlight(Defender& defender);
 	void unhighlight();
+	Defender* getHighlightedDefender();
 
 	CallbackHandle onDefenderDestroyed(std::function<void(Defender&)> callback);
 

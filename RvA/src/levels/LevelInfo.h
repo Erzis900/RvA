@@ -141,5 +141,6 @@ struct LevelInfo {
 	LevelCondition loseCondition{};
 	const SpriteInfo* groundBackground{};
 	const SpriteInfo* topBackground{};
+	bool isProgressionLevel{true};
 	Timeline timeline{};
 };

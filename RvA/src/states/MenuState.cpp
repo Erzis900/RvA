@@ -21,8 +21,16 @@ flow::FsmAction MenuState::enter() {
 		.stack({ .orientation = GUIOrientation::Vertical, .padding = { 0, 5 }, .size = Vec2{ 250.f, autoSize }, .sideAlignContent = ContentAlign::Start } )
 			.image({.pos = {10, 10}, .sprite = gui.getAtlas().getSpriteInfo("logo"), .hAlign = HAlign::Left})
 
-			.space({0, 35.f})
-		
+			.space({0, 35.f});
+
+	if (m_game.getConfig().hasLevel()) {
+		screenBuilder		
+				.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
+					.label_button({ .text = "Continue", .size = btnSize, .onClick = [this]() { continueGame(); }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
+				.end();
+	}
+
+	screenBuilder
 			.border({ .color = Fade(BLACK, 0.0), .bkgColor = std::make_pair(Fade(BLACK, 0.5), Fade(BLACK, 0.0)), .padding = {5, 0} })
 				.label_button({ .text = "Play Demo", .size = btnSize, .onClick = [this]() { startGame(); }, .hAlign = HAlign::Left, .vAlign = VAlign::Center })
 			.end()
@@ -58,4 +66,8 @@ void MenuState::exit() {
 
 void MenuState::startGame() {
 	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "play"; }, [this] {}, 0.5f);
+}
+
+void MenuState::continueGame() {
+	m_game.getGUI().startFadingInOut([this] { m_nextTransition = "continue"; }, [this] {}, 0.5f);
 }

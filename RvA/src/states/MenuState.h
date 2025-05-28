@@ -16,6 +16,7 @@ public:
 
 private:
 	void startGame();
+	void continueGame();
 
 	Game& m_game;
 	std::string m_nextTransition;

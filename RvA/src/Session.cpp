@@ -65,10 +65,26 @@ void Session::drawGrid() {
 				rect.y += GRID_OFFSET.y + 2;
 				rect.width -= 4;
 				rect.height -= 4;
-				DrawRectangleRec(rect, Fade(isValid ? SKYBLUE : RED, 0.1f + ((1 + sin(m_gridDrawTime * 2.5)) * 0.125f)));
+				DrawRectangleRec(rect, Fade(isValid ? SKYBLUE : RED, 0.25f));
 				++x;
 			}
 			++y;
+		}
+	}
+
+	auto* highlightedDefender = m_defenderManager.getHighlightedDefender();
+	if (highlightedDefender || m_selectedDefender) {
+		auto mousePos = getCorrectedMousePosition();
+		auto [row, column] = getCoordinates(mousePos);
+		if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
+			for (auto x = 0; x < COLS; ++x) {
+				auto rect = Rectangle{(float)x * CELL_SIZE, (float)row * CELL_SIZE, CELL_SIZE, CELL_SIZE};
+				rect.x += GRID_OFFSET.x + 2;
+				rect.y += GRID_OFFSET.y + 2;
+				rect.width -= 4;
+				rect.height -= 4;
+				DrawRectangleRec(rect, Fade(WHITE, 0.25f + ((1 + sin(m_gridDrawTime * 4.f)) * 0.125f)));
+			}
 		}
 	}
 }
@@ -93,6 +109,7 @@ void Session::update(float dt) {
 		m_defenderPicker.update(dt);
 		m_levelManager.update(dt);
 		m_portalManager.update(dt);
+		m_gameSpeedInterpolation.update(dt);
 
 		m_gridDrawTime += dt;
 	}
@@ -156,6 +173,13 @@ void Session::setDemoMode(bool demoMode) {
 
 void Session::setSelectedDefender(const std::optional<std::string>& id) {
 	m_selectedDefender = id;
+	updateGameSpeed();
+}
+
+void Session::resetSelectedDefender() {
+	m_selectedDefender.reset();
+	m_hud.data().selectedDefenderIndex.reset();
+	updateGameSpeed();
 }
 
 void Session::updateBatteryAndScraps(float batteryDrain) {
@@ -509,11 +533,6 @@ void Session::manageEnemyPortalCollision(const Collision& collision) {
 	}
 }
 
-void Session::resetSelectedDefender() {
-	m_selectedDefender.reset();
-	m_hud.data().selectedDefenderIndex.reset();
-}
-
 void Session::resetProgression() {
 	clearAllEntities();
 	m_levelManager.resetCurrentLevelIndex();
@@ -559,6 +578,11 @@ void Session::startLevel() {
 	setState(SessionState::Playing);
 }
 
+void Session::updateGameSpeed() {
+	float gameSpeed = m_selectedDefender ? 0.1f : 1.f;
+	m_gameSpeedInterpolation.start(m_levelData->gameSpeed, gameSpeed, 0.25f).onTick([this](float value) { m_levelData->gameSpeed = value; }).onComplete([] {});
+}
+
 void Session::changeGameSpeed() {
 	// super hacky way to achieve this and it works only with integer multipliers.
 	const std::array speeds = {1, 2, 3, 4, 5};
@@ -595,6 +619,15 @@ void Session::startNextLevel() {
 		m_config.options.isTutorialEnabled = false;
 	}
 	m_levelData = m_levelManager.startNextLevel();
+
+	if (m_levelData->info->isProgressionLevel) {
+		m_config.options.levelId = m_levelData->info->id;
+	}
+	startLevel();
+}
+
+void Session::startLevel(const std::string& levelId) {
+	m_levelData = m_levelManager.startLevel(levelId);
 	startLevel();
 }
 

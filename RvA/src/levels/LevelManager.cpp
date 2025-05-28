@@ -34,6 +34,15 @@ LevelData* LevelManager::startNextLevel() {
 	return resetCurrentLevel();
 }
 
+LevelData* LevelManager::startLevel(const std::string& levelId) {
+	for (size_t i = 0; i < m_levelSequence.size(); ++i) {
+		if (m_levelSequence[i] == levelId) {
+			m_currentLevelIndex = static_cast<int>(i);
+			return resetCurrentLevel();
+		}
+	}
+}
+
 bool LevelManager::isLastLevel() const {
 	if (!m_currentLevelIndex) {
 		return false;
