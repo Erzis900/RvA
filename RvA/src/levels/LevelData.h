@@ -14,6 +14,7 @@ struct LevelData {
 	int scraps{};
 	float batteryCharge{};
 	int enemyCount{};
+	std::vector<int> skipKeyframes;
 
 	int numberOfEnabledDefenders{};
 	std::unordered_map<std::string, int> enabledDefenders;
@@ -31,5 +32,13 @@ struct LevelData {
 			return it->second;
 		}
 		return 0;
+	}
+
+	const SkipActions* getSkipAction(const std::string& id) const {
+		auto it = std::ranges::find_if(info->skipActions, [&id](const SkipActions& action) { return action.id == id; });
+		if (it != info->skipActions.end()) {
+			return &(*it);
+		}
+		return nullptr;
 	}
 };

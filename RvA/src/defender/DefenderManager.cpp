@@ -26,6 +26,21 @@ void DefenderManager::clear() {
 	m_highlightShader = m_resourceSystem.getShader("highlight");
 }
 
+void DefenderManager::clear(int row, int column) {
+	if (row >= 0 && row < ROWS && column >= 0 && column < COLS) {
+		auto& defender = m_defenderGrid[row][column];
+		if (defender) {
+			if (m_highlightedDefender == defender) {
+				unhighlight();
+			}
+			m_collisionSystem.destroyCollider(defender->colliderHandle);
+			m_onDefenderDestroyedCallbacks.executeCallbacks(*defender);
+			std::erase_if(m_defenders, [&defender](const std::unique_ptr<Defender>& d) { return d.get() == defender; });
+			defender = nullptr;
+		}
+	}
+}
+
 void DefenderManager::draw(Atlas& atlas) {
 	for (auto& defender : m_defenders) {
 		DrawEllipse(defender->position.x + CELL_SIZE * 0.5f, defender->position.y + CELL_SIZE - 1, 12, 4, Fade(BLACK, 0.1f));

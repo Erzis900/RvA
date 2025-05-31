@@ -47,6 +47,7 @@ public:
 	DefenderManager(CollisionSystem& collisionSystem, MusicManager& musicManager, ResourceSystem& resourceSystem, EnemyManager& enemyManager);
 
 	void clear();
+	void clear(int row, int column);
 	void draw(Atlas& atlas);
 	DefenderUpdateResult update(float dt);
 

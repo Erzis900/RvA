@@ -18,6 +18,7 @@ void EnemyManager::clear() {
 	}
 	m_enemies.clear();
 	m_enemyDestroyedInfos.reserve(32);
+	m_onEnemiesClearCallbacks.executeCallbacks();
 }
 
 GameActions EnemyManager::update(float dt) {
@@ -91,4 +92,8 @@ void EnemyManager::spawnEnemy(const EnemyTypeInfo* info, int row, int column) {
 
 CallbackHandle EnemyManager::onEnemiesDestroyed(std::function<void(const std::vector<EnemyDestroyedInfo>&)> callback) {
 	return m_onEnemiesDestroyedCallbacks.registerCallback(std::move(callback));
+}
+
+CallbackHandle EnemyManager::onEnemiesClear(std::function<void()> callback) {
+	return m_onEnemiesClearCallbacks.registerCallback(std::move(callback));
 }

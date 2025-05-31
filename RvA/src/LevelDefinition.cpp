@@ -463,6 +463,7 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 		 .groundBackground = sprite("ground_bkg"),
 		 .topBackground = sprite("top_bkg"),
+		 .skipActions = {{.id = "SkipIntro", .operations = {}}},
 		 .timeline = {.keyframes = KeyframeBuilder::start()
 									   .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
 									   .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
@@ -481,13 +482,16 @@ void LevelDefinition::registerSwitchOnOffLevel(GameRegistry& gameRegistry, Atlas
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{0}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{6}, .column = FixedValue{0}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = false})
 
-									   .t(0.2f, MessageOperation{.text = "Aliens here do not drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
+									   .t(0.2f, HUDOperation{.type = HUDOperationType::ShowSkipButton})
+									   .t(0.0f, MessageOperation{.text = "Aliens here do not drop scraps!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 5.0f})
 									   .t(5.0f, MessageOperation{.text = "Gonna win with what we already have!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
 									   .t(6.0f, MessageOperation{.text = "Enable or disable just what you need!", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 6.0f})
 									   .t(6.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
-									   .t(1.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+									   .t(1.0f, SkipTagOperation{.id = "SkipIntro"})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::HideSkipButton})
+									   .t(0.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
 									   .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
@@ -567,10 +571,13 @@ void LevelDefinition::registerTankLevel(GameRegistry& gameRegistry, Atlas& atlas
 		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 		 .groundBackground = sprite("ground_bkg"),
 		 .topBackground = sprite("top_bkg"),
+		 .skipActions = {{.id = "SkipIntro",
+						  .operations = {ClearEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .type = EntityType::Defender}, ClearAllEntityOperation{.type = EntityType::Enemy}}}},
 		 .timeline = {
 			 .keyframes =
 				 KeyframeBuilder::start()
 					 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowSkipButton})
 
 					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{4}, .id = FixedValue{lasertron}, .type = EntityType::Defender, .enabled = true})
 					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
@@ -581,7 +588,9 @@ void LevelDefinition::registerTankLevel(GameRegistry& gameRegistry, Atlas& atlas
 					 .t(12.0f, MessageOperation{.text = "Wtf was that????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 					 .t(3.0f, MessageOperation{.text = "It's way stronger than the others! Damn...", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
-					 .t(3.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
+					 .t(3.0f, SkipTagOperation{.id = "SkipIntro"})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::HideSkipButton})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
@@ -635,12 +644,14 @@ void LevelDefinition::registerSwitchOnOffLevel2(GameRegistry& gameRegistry, Atla
 		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 		 .groundBackground = sprite("ground_bkg"),
 		 .topBackground = sprite("top_bkg"),
+		 .skipActions = {{.id = "SkipIntro", .operations = {}}},
 		 .timeline = {.keyframes = KeyframeBuilder::start()
 									   .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
 									   .t(0.f, HUDOperation{.type = HUDOperationType::HideDefenderPicker})
 									   .t(0.0f, HUDOperation{.type = HUDOperationType::HidePlate})
 									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowResources})
 									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowDefenderOverlay})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::ShowSkipButton})
 
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{0}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
 									   .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{5}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
@@ -664,7 +675,10 @@ void LevelDefinition::registerSwitchOnOffLevel2(GameRegistry& gameRegistry, Atla
 									   .t(5.0f, MessageOperation{.text = "3...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "2...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
 									   .t(1.0f, MessageOperation{.text = "1...", .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 1.0f})
-									   .t(1.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+									   .t(1.0f, SkipTagOperation{.id = "SkipIntro"})
+									   .t(0.0f, HUDOperation{.type = HUDOperationType::HideSkipButton})
+									   .t(0.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
 									   .t(0.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 									   .t(2.f, SpawnEntityOperation{.row = FixedValue{2}, .column = lastColumn, .id = FixedValue{alien1}})
@@ -748,7 +762,7 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 
 	gameRegistry.addLevel(
 		"portal",
-		{.name = "Tele             port",
+		{.name = "Tele...   ...port",
 		 .musicId = "level2",
 		 .startingScraps = 200,
 		 .maxBatteryCharge = 100,
@@ -757,13 +771,19 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 		 .loseCondition = BatteryLevelCondition{.batteryLevel = LessThanOrEqual{0.f}},
 		 .groundBackground = sprite("ground_bkg"),
 		 .topBackground = sprite("top_bkg"),
+		 .skipActions = {{.id = "SkipIntro",
+						  .operations = {ClearEntityOperation{.row = FixedValue{2}, .column = FixedValue{0}, .type = EntityType::Defender},
+										 ClearAllEntityOperation{.type = EntityType::Portal},
+										 ClearAllEntityOperation{.type = EntityType::Enemy},
+										 ClearAllEntityOperation{.type = EntityType::Bullet}}}},
 		 .timeline = {
 			 .keyframes =
 				 KeyframeBuilder::start()
 					 .t(0.f, HUDOperation{.type = HUDOperationType::Disable})
+					 .t(0.f, HUDOperation{.type = HUDOperationType::ShowSkipButton})
 
-					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = true})
 					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{2}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
+					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{3}, .column = FixedValue{0}, .id = FixedValue{shooter}, .type = EntityType::Defender, .enabled = true})
 					 .t(0.0f, SpawnEntityOperation{.row = FixedValue{4}, .column = FixedValue{0}, .id = FixedValue{solar}, .type = EntityType::Defender, .enabled = true})
 					 .t(0.f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(1.0f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alienPortalFirst}})
@@ -771,7 +791,10 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 					 .t(0.5f, SpawnEntityOperation{.row = FixedValue(3), .column = lastColumn, .id = FixedValue{alien1}})
 
 					 .t(8.0f, MessageOperation{.text = "They can teleport????", .fontSize = FONT_SMALL, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 4.0f})
-					 .t(4.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
+
+					 .t(4.0f, SkipTagOperation{.id = "SkipIntro"})
+					 .t(0.0f, HUDOperation{.type = HUDOperationType::HideSkipButton})
+					 .t(0.0f, MessageOperation{.text = "They're coming!!!", .fontSize = FONT_MEDIUM, .textHAlign = HAlign::Center, .textVAlign = VAlign::Center, .timer = 3.0f})
 
 					 .t(0.f, HUDOperation{.type = HUDOperationType::ShowDefenderPicker})
 					 .t(0.0f, HUDOperation{.type = HUDOperationType::ShowPlate})
@@ -783,9 +806,9 @@ void LevelDefinition::registerPortalLevel(GameRegistry& gameRegistry, Atlas& atl
 					 .t(0.0f, DefenderPickerOperation{.type = DefenderPickerOperationType::AddItem, .id = catapult})
 					 .t(0.f, HUDOperation{.type = HUDOperationType::Enable})
 
-					 .t(2.0f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
-					 .t(0.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(1.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
+					 .t(0.f, FlagTimelineOperation{.icon = "icon_alien_timeline"})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien2}})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})
 					 .t(5.f, SpawnEntityOperation{.row = RandomRange(0, 6), .column = lastColumn, .id = FixedValue{alien1}})

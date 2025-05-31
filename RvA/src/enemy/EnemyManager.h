@@ -34,10 +34,12 @@ public:
 
 	Enemy* findClosestEnemy(const Vector2& position, bool filterDead);
 	CallbackHandle onEnemiesDestroyed(std::function<void(const std::vector<EnemyDestroyedInfo>&)> callback);
+	CallbackHandle onEnemiesClear(std::function<void()> callback);
 
 private:
 	std::vector<std::unique_ptr<Enemy>> m_enemies;
 	CallbackRegistry<const std::vector<EnemyDestroyedInfo>&> m_onEnemiesDestroyedCallbacks;
+	CallbackRegistry<> m_onEnemiesClearCallbacks;
 	std::vector<EnemyDestroyedInfo> m_enemyDestroyedInfos;
 
 	const GameRegistry& m_gameRegistry;

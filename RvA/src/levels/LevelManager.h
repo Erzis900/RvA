@@ -31,8 +31,10 @@ public:
 	}
 
 	void setLevelSequence(std::vector<std::string> levelSequence);
-
+	void jumpTo(float time);
 	CallbackHandle onGameActionRequest(std::function<void(const GameAction&)> callback);
+
+	void performKeyframeOperations(const std::vector<KeyframeOperation>& operations);
 
 private:
 	void updateTimeline(float dt);
@@ -49,6 +51,9 @@ private:
 	void performKeyframeOperation(const FlagTimelineOperation& operation);
 	void performKeyframeOperation(const EnableDefenderOperation& operation);
 	void performKeyframeOperation(const UpdateValidCellOperation& operation);
+	void performKeyframeOperation(const SkipTagOperation& operation);
+	void performKeyframeOperation(const ClearAllEntityOperation& operation);
+	void performKeyframeOperation(const ClearEntityOperation& operation);
 
 	bool checkCondition(const BatteryLevelCondition& condition, float dt);
 	bool checkCondition(const AllWavesGoneCondition& condition, float dt);

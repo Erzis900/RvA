@@ -20,6 +20,11 @@ Session::Session(GUI& gui, ResourceSystem& resourceSystem, const GameRegistry& g
 	, m_hud(gui, resourceSystem)
 	, m_portalManager(m_collisionSystem, musicManager) {
 	m_onEnemiesDestroyedHandle = m_enemyManager.onEnemiesDestroyed(std::bind_front(&Session::onEnemiesDestroyed, this));
+	m_onEnemiesClearHandle = m_enemyManager.onEnemiesClear([this]() {
+		if (m_levelData) {
+			m_levelData->enemyCount = 0;
+		}
+	});
 	m_onDefenderDestroyedHandle = m_defenderManager.onDefenderDestroyed(std::bind_front(&Session::onDefenderDestroyed, this));
 	m_onCollectedDropHandle = m_dropManager.onDropCollected(std::bind_front(&Session::onDropCollected, this));
 
@@ -406,6 +411,32 @@ void Session::performAction(const AddBattery& action) {
 	addBattery(action.amount);
 }
 
+void Session::performAction(const ClearEntityAction& action) {
+	if (action.type == EntityType::Defender) {
+		auto column = action.column.generate();
+		auto row = action.row.generate();
+		m_defenderManager.clear(row, column);
+	}
+}
+
+void Session::performAction(const ClearAllEntityAction& action) {
+	switch (action.type) {
+	case EntityType::Defender: m_defenderManager.clear(); break;
+	case EntityType::Enemy	 : m_enemyManager.clear(); break;
+	case EntityType::Bullet	 : m_bulletManager.clear(); break;
+	case EntityType::Drop	 : m_dropManager.clear(); break;
+	case EntityType::Portal	 : m_portalManager.clear(); break;
+	case EntityType::All	 : {
+		m_defenderManager.clear();
+		m_enemyManager.clear();
+		m_bulletManager.clear();
+		m_dropManager.clear();
+		m_portalManager.clear();
+		break;
+	}
+	}
+}
+
 void Session::performAction(const std::monostate& action) {
 	// No action to perform
 }
@@ -435,7 +466,7 @@ void Session::setupHUD() {
 	hudData.showTimeline = !m_demoMode;
 	hudData.isValidBuildCellCallback = [this](int row, int column) { return m_levelData->validBuildingCells[row][column]; };
 	m_onDefenderSelectedCallbackHandle = m_hud.onDefenderSelected([this](const auto& index) { setSelectedDefender(m_hud.data().pickableDefenders[index].id); });
-	m_onSkipCallbackHandle = m_hud.onSkipClicked([this]() { setState(SessionState::Skip); });
+	m_onSkipCallbackHandle = m_hud.onSkipClicked([this]() { manageSkip(); });
 	m_onActionCallbackHandle = m_hud.onAction([this](const GameAction& action) { performAction(action); });
 
 	hudData.timelineData.duration = m_levelData->info->timeline.keyframes.back().time;
@@ -581,6 +612,34 @@ void Session::startLevel() {
 void Session::updateGameSpeed() {
 	float gameSpeed = m_selectedDefender ? 0.1f : 1.f;
 	m_gameSpeedInterpolation.start(m_levelData->gameSpeed, gameSpeed, 0.25f).onTick([this](float value) { m_levelData->gameSpeed = value; }).onComplete([] {});
+}
+
+void Session::manageSkip() {
+	if (m_levelData->info->id == "tutorial") {
+		setState(SessionState::Skip);
+		return;
+	}
+
+	auto currentTime = m_levelData->time;
+	for (auto keyframeIndex : m_levelData->skipKeyframes) {
+		auto& keyframe = m_levelData->info->timeline.keyframes[keyframeIndex];
+		if (keyframe.time <= currentTime) {
+			continue;
+		}
+
+		if (std::holds_alternative<SkipTagOperation>(keyframe.action)) {
+			auto& skipTagOperation = std::get<SkipTagOperation>(keyframe.action);
+			auto* skipAction = m_levelData->getSkipAction(skipTagOperation.id);
+			assert(skipAction && "Skip action not found for the given tag operation");
+			if (skipAction) {
+				m_levelManager.performKeyframeOperations(skipAction->operations);
+				m_levelManager.jumpTo(keyframe.time);
+				return;
+			}
+		}
+	}
+
+	assert(0 && "Can't find any keyframe for a skip action");
 }
 
 void Session::changeGameSpeed() {

@@ -88,6 +88,8 @@ private:
 	void performAction(const ChangeSpeed& action);
 	void performAction(const KillRandomEnemy& action);
 	void performAction(const AddBattery& action);
+	void performAction(const ClearEntityAction& action);
+	void performAction(const ClearAllEntityAction& action);
 	void performAction(const std::monostate& action);
 
 	template<typename T> void performAction(const T&) {
@@ -116,6 +118,7 @@ private:
 	void clearAllEntities();
 	void startLevel();
 	void updateGameSpeed();
+	void manageSkip();
 
 	// cheats functions
 	void changeGameSpeed();
@@ -131,6 +134,7 @@ private:
 	CallbackHandle m_onActionCallbackHandle;
 	CallbackHandle m_onDefenderDestroyedHandle;
 	CallbackHandle m_onEnemiesDestroyedHandle;
+	CallbackHandle m_onEnemiesClearHandle;
 	CallbackHandle m_onCollectedDropHandle;
 	CallbackHandle m_onLevelManagerActionHandle;
 

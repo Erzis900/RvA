@@ -19,6 +19,15 @@ LevelData* LevelManager::resetCurrentLevel() {
 	for (auto& row : m_currentLevel.validBuildingCells) {
 		row.fill(true);
 	}
+	m_currentLevel.skipKeyframes.clear();
+	auto keyframeIndex = 0;
+	for (const auto& keyframe : m_currentLevel.info->timeline.keyframes) {
+		if (std::holds_alternative<SkipTagOperation>(keyframe.action)) {
+			m_currentLevel.skipKeyframes.push_back(keyframeIndex);
+		}
+		++keyframeIndex;
+	}
+
 	m_spawnBurstTrackers.clear();
 	m_currentCheckOperation = nullptr;
 	return &m_currentLevel;
@@ -41,6 +50,7 @@ LevelData* LevelManager::startLevel(const std::string& levelId) {
 			return resetCurrentLevel();
 		}
 	}
+	return nullptr;
 }
 
 bool LevelManager::isLastLevel() const {
@@ -48,6 +58,22 @@ bool LevelManager::isLastLevel() const {
 		return false;
 	}
 	return *m_currentLevelIndex >= static_cast<int>(m_levelSequence.size()) - 1;
+}
+
+void LevelManager::jumpTo(float time) {
+	m_currentLevel.time = time;
+	m_currentCheckOperation = nullptr;
+	m_spawnBurstTrackers.clear();
+	if (m_currentLevel.info) {
+		m_currentLevel.nextKeyframe = 0;
+		m_lastKeyframeReached = false;
+		auto keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
+		while (keyFrame && keyFrame->time < time) {
+			m_currentLevel.nextKeyframe++;
+			keyFrame = getKeyframe(m_currentLevel.nextKeyframe);
+		}
+		m_currentLevel.nextKeyframe++;
+	}
 }
 
 void LevelManager::update(float dt) {
@@ -156,6 +182,18 @@ void LevelManager::performKeyframeOperation(const UpdateValidCellOperation& oper
 	m_onGameActionCallbacks.executeCallbacks(operation);
 }
 
+void LevelManager::performKeyframeOperation(const SkipTagOperation& operation) {
+	// do nothing here. This is used to mark a place where to jump in when pressing the skip button
+}
+
+void LevelManager::performKeyframeOperation(const ClearAllEntityOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(operation);
+}
+
+void LevelManager::performKeyframeOperation(const ClearEntityOperation& operation) {
+	m_onGameActionCallbacks.executeCallbacks(operation);
+}
+
 void LevelManager::triggerSpawnEntity(const ConfigValue<int>& row, const ConfigValue<int>& column, const ConfigValue<std::string>& id, EntityType type, bool enabled) {
 	auto entityId = id.generate();
 	auto rowVal = row.generate();
@@ -217,4 +255,10 @@ void LevelManager::setLevelSequence(std::vector<std::string> levelSequence) {
 
 CallbackHandle LevelManager::onGameActionRequest(std::function<void(const GameAction&)> callback) {
 	return m_onGameActionCallbacks.registerCallback(std::move(callback));
+}
+
+void LevelManager::performKeyframeOperations(const std::vector<KeyframeOperation>& operations) {
+	for (const auto& operation : operations) {
+		performKeyframeOperation(operation);
+	}
 }

@@ -52,6 +52,8 @@ using HUDAction = HUDOperation;
 using DefenderPickerAction = DefenderPickerOperation;
 using EnableDefenderAction = EnableDefenderOperation;
 using UpdateValidCellAction = UpdateValidCellOperation;
+using ClearAllEntityAction = ClearAllEntityOperation;
+using ClearEntityAction = ClearEntityOperation;
 
 using GameActionVariant = std::variant<std::monostate,
 									   BulletSpawnAction,
@@ -68,7 +70,9 @@ using GameActionVariant = std::variant<std::monostate,
 									   UpdateValidCellAction,
 									   KillRandomEnemy,
 									   AddBattery,
-									   ChangeSpeed>;
+									   ChangeSpeed,
+									   ClearEntityAction,
+									   ClearAllEntityAction>;
 
 struct [[nodiscard]] GameAction : public GameActionVariant {
 	using GameActionVariant::variant;

@@ -14,6 +14,10 @@ struct LevelData;
 enum class EntityType {
 	Defender,
 	Enemy,
+	Portal,
+	Bullet,
+	Drop,
+	All
 };
 
 using EntitySelection = Selection<std::string>;
@@ -33,6 +37,17 @@ struct SpawnEntityBurstOperation {
 	ConfigValue<int> column{};
 	ConfigValue<std::string> id{};
 	EntityType type{EntityType::Enemy};
+};
+
+struct ClearAllEntityOperation {
+	EntityType type{EntityType::Enemy};
+};
+
+struct ClearEntityOperation {
+	ConfigValue<int> row{};
+	ConfigValue<int> column{};
+	EntityType type{EntityType::Enemy};
+	std::optional<std::string> id{};
 };
 
 struct EnableDefenderOperation {
@@ -103,6 +118,10 @@ struct UpdateValidCellOperation {
 	std::vector<CellPosition> cells{};
 };
 
+struct SkipTagOperation {
+	std::string id{};
+};
+
 using KeyframeOperation = std::variant<SpawnEntityOperation,
 									   SpawnEntityBurstOperation,
 									   MessageOperation,
@@ -111,7 +130,10 @@ using KeyframeOperation = std::variant<SpawnEntityOperation,
 									   CheckOperation,
 									   FlagTimelineOperation,
 									   EnableDefenderOperation,
-									   UpdateValidCellOperation>;
+									   UpdateValidCellOperation,
+									   SkipTagOperation,
+									   ClearAllEntityOperation,
+									   ClearEntityOperation>;
 
 struct Keyframe {
 	float time;
@@ -130,6 +152,11 @@ struct BatteryLevelCondition {
 
 using LevelCondition = std::variant<BatteryLevelCondition, AllWavesGoneCondition>;
 
+struct SkipActions {
+	std::string id;
+	std::vector<KeyframeOperation> operations;
+};
+
 struct LevelInfo {
 	std::string id;
 	std::string name;
@@ -142,5 +169,6 @@ struct LevelInfo {
 	const SpriteInfo* groundBackground{};
 	const SpriteInfo* topBackground{};
 	bool isProgressionLevel{true};
+	std::vector<SkipActions> skipActions{};
 	Timeline timeline{};
 };
